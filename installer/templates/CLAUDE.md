@@ -22,4 +22,4 @@ Claude Code อ่าน `.claude/` + ไฟล์นี้, ส่วน Codex/
 ทุกเครื่องชี้กลับมาที่ playbook กลางชุดเดียวกันใน `workflow/stages/` — ดูภาพรวมที่ `workflow/README.md`
 
 ## อัปเดต workflow
-`npx github:warnyin/warnyin-agents --update` — เขียนทับเฉพาะ playbook กลาง (`workflow/`, `.claude/commands/warnyin/`, template `warnyin-stages/[topic]/`) ไม่แตะ `docs/` และงานจริงใน `warnyin-stages/`
+`npx @warnyin/agents --update` — เขียนทับเฉพาะ playbook กลาง (`workflow/`, `.claude/commands/warnyin/`, template `warnyin-stages/[topic]/`) ไม่แตะ `docs/` และงานจริงใน `warnyin-stages/`

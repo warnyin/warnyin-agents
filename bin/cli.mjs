@@ -3,9 +3,10 @@
  * warnyin-agents installer
  * ติดตั้ง Warnyin Standard Workflow ลงโปรเจกต์ปัจจุบัน (cwd)
  *
- *   npx github:warnyin/warnyin-agents             ติดตั้ง (ข้ามไฟล์ที่มีอยู่แล้ว)
- *   npx github:warnyin/warnyin-agents --update    อัปเดต playbook กลาง (เขียนทับเฉพาะไฟล์ core)
- *   npx github:warnyin/warnyin-agents --dry-run   แสดงว่าจะทำอะไร โดยไม่เขียนไฟล์จริง
+ *   npx @warnyin/agents             ติดตั้ง (ข้ามไฟล์ที่มีอยู่แล้ว)
+ *   npx @warnyin/agents --update    อัปเดต playbook กลาง (เขียนทับเฉพาะไฟล์ core)
+ *   npx @warnyin/agents --dry-run   แสดงว่าจะทำอะไร โดยไม่เขียนไฟล์จริง
+ *   (ทางสำรองไม่ผ่าน npm: npx github:warnyin/warnyin-agents)
  */
 import fs from 'node:fs'
 import path from 'node:path'
@@ -21,11 +22,11 @@ if (args.has('--help') || args.has('-h')) {
   console.log(`warnyin-agents — ติดตั้ง Warnyin Standard Workflow ลงโปรเจกต์ปัจจุบัน
 
 ใช้งาน:
-  npx github:warnyin/warnyin-agents             ติดตั้ง (ข้ามไฟล์ที่มีอยู่แล้ว ไม่เขียนทับ)
-  npx github:warnyin/warnyin-agents --update    อัปเดต playbook กลางเป็นเวอร์ชันล่าสุด
-                                                (เขียนทับเฉพาะ workflow/, .claude/commands/warnyin/,
-                                                 template warnyin-stages/[topic] — ไม่แตะ docs/ และงานจริง)
-  npx github:warnyin/warnyin-agents --dry-run   แสดงรายการไฟล์ที่จะสร้าง/อัปเดต โดยไม่เขียนจริง
+  npx @warnyin/agents             ติดตั้ง (ข้ามไฟล์ที่มีอยู่แล้ว ไม่เขียนทับ)
+  npx @warnyin/agents --update    อัปเดต playbook กลางเป็นเวอร์ชันล่าสุด
+                                  (เขียนทับเฉพาะ workflow/, .claude/commands/warnyin/,
+                                   template warnyin-stages/[topic] — ไม่แตะ docs/ และงานจริง)
+  npx @warnyin/agents --dry-run   แสดงรายการไฟล์ที่จะสร้าง/อัปเดต โดยไม่เขียนจริง
 
 หลังติดตั้ง: เปิด Claude Code ในโปรเจกต์ แล้วรัน /warnyin:init ให้ agent วิเคราะห์โปรเจกต์ + เติม docs/`)
   process.exit(0)
@@ -112,5 +113,5 @@ if (!UPDATE) {
   1. เปิด Claude Code ในโปรเจกต์นี้ แล้วรัน  /warnyin:init  — ให้ agent วิเคราะห์โปรเจกต์ + เติม docs/
   2. เริ่มงานแรก:  /warnyin:discovery <topic>  หรือ  /warnyin:design <slug> <change>
 
-อัปเดต playbook ภายหลัง:  npx github:warnyin/warnyin-agents --update`)
+อัปเดต playbook ภายหลัง:  npx @warnyin/agents --update`)
 }

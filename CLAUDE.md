@@ -18,7 +18,7 @@ repo มาตรฐานกลางของ **ways of work** สำหรั
 - `/warnyin:ship [slug]` → SHIP stage — ส่งมอบ: promote ความรู้ขึ้น `docs/` + archive topic (`workflow/stages/ship.md`)
 
 ## การติดตั้งไปโปรเจกต์อื่น (npx installer)
-- `npx github:warnyin/warnyin-agents` → copy โครงทั้งหมดลงโปรเจกต์ปลายทาง (ข้ามไฟล์ที่มีอยู่, CLAUDE.md/AGENTS.md ที่มีอยู่จะต่อท้ายเป็น section)
+- `npx @warnyin/agents` (หรือสำรอง `npx github:warnyin/warnyin-agents`) → copy โครงทั้งหมดลงโปรเจกต์ปลายทาง (ข้ามไฟล์ที่มีอยู่, CLAUDE.md/AGENTS.md ที่มีอยู่จะต่อท้ายเป็น section)
 - `--update` → เขียนทับเฉพาะ core (`workflow/`, `.claude/commands/warnyin/`, template `[topic]`) ไม่แตะ `docs/`/งานจริง
 - ตัว installer: `bin/cli.mjs` + template CLAUDE.md ของโปรเจกต์ปลายทางที่ `installer/templates/CLAUDE.md` (แก้ commands list ที่ไหน ให้แก้ template นี้ด้วย)
 - หลังติดตั้ง → รัน `/warnyin:init` เพื่อเติม `docs/`

@@ -69,9 +69,10 @@ warnyin-stages/        # พื้นที่ทำงานจริง ตา
 
 ```bash
 cd my-project
-npx github:warnyin/warnyin-agents             # ติดตั้ง (ข้ามไฟล์ที่มีอยู่ ไม่เขียนทับ)
-npx github:warnyin/warnyin-agents --update    # อัปเดต playbook กลางเป็นเวอร์ชันล่าสุด
-npx github:warnyin/warnyin-agents --dry-run   # ดูก่อนว่าจะสร้าง/อัปเดตอะไร
+npx @warnyin/agents             # ติดตั้ง (ข้ามไฟล์ที่มีอยู่ ไม่เขียนทับ)
+npx @warnyin/agents --update    # อัปเดต playbook กลางเป็นเวอร์ชันล่าสุด
+npx @warnyin/agents --dry-run   # ดูก่อนว่าจะสร้าง/อัปเดตอะไร
+# ทางสำรอง (ไม่ผ่าน npm): npx github:warnyin/warnyin-agents
 ```
 
 - โปรเจกต์ที่มี `CLAUDE.md`/`AGENTS.md` อยู่แล้ว → installer ต่อท้ายเป็น section ไม่เขียนทับ
