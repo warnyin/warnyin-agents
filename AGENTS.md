@@ -25,6 +25,7 @@ Discovery (optional) ──▶ DESIGN ──▶ BUILD ──▶ VERIFY ──▶
 
 ## วิธีเริ่ม
 
+0. ครั้งแรกในโปรเจกต์ (docs/ ยังว่าง) → ทำตาม `workflow/init.md` เพื่อวิเคราะห์โปรเจกต์ + เติม `docs/` ก่อน
 1. อ่าน `workflow/README.md` เพื่อเข้าใจภาพรวมและโครงสร้าง
 2. งานใหม่ → copy `warnyin-stages/[topic]/` เป็น `warnyin-stages/<slug>/`
 3. รัน stage ตามลำดับ โดยทำตาม playbook ของแต่ละ stage

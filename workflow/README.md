@@ -31,8 +31,12 @@ Discovery (optional) ──▶ DESIGN ──▶ BUILD ──▶ VERIFY ──▶
 ## โครงสร้าง repo
 
 ```
+bin/cli.mjs            # npx installer — ติดตั้ง workflow ลงโปรเจกต์อื่น
+installer/templates/   # template CLAUDE.md สำหรับโปรเจกต์ปลายทาง
+
 workflow/
   README.md            # ไฟล์นี้ — ภาพรวม + วิธีรองรับหลาย AI
+  init.md              # playbook: INIT — วิเคราะห์โปรเจกต์ + เติม docs/ ครั้งแรก
   stages/
     discovery.md       # playbook: Discovery (optional)  ✅
     design.md          # playbook: DESIGN  ✅
@@ -60,6 +64,19 @@ warnyin-stages/        # พื้นที่ทำงานจริง ตา
 ```
 
 ---
+
+## การติดตั้งไปโปรเจกต์อื่น
+
+```bash
+cd my-project
+npx github:warnyin/warnyin-agents             # ติดตั้ง (ข้ามไฟล์ที่มีอยู่ ไม่เขียนทับ)
+npx github:warnyin/warnyin-agents --update    # อัปเดต playbook กลางเป็นเวอร์ชันล่าสุด
+npx github:warnyin/warnyin-agents --dry-run   # ดูก่อนว่าจะสร้าง/อัปเดตอะไร
+```
+
+- โปรเจกต์ที่มี `CLAUDE.md`/`AGENTS.md` อยู่แล้ว → installer ต่อท้ายเป็น section ไม่เขียนทับ
+- `--update` เขียนทับเฉพาะ core (`workflow/`, `.claude/commands/warnyin/`, template `[topic]`) — ไม่แตะ `docs/` และงานจริง
+- หลังติดตั้ง → เปิด Claude Code แล้วรัน `/warnyin:init` ให้ agent วิเคราะห์โปรเจกต์ + เติม `docs/` (playbook: `workflow/init.md`)
 
 ## วิธีใช้
 
