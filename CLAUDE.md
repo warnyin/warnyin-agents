@@ -12,6 +12,7 @@ repo มาตรฐานกลางของ **ways of work** สำหรั
 
 ## Slash commands (namespace `warnyin:`)
 - `/warnyin:init` → วิเคราะห์โปรเจกต์ + เติม `docs/` ครั้งแรกหลังติดตั้ง (`.claude/commands/warnyin/init.md` → `workflow/init.md`)
+- `/warnyin:install-skill [role]` → ติดตั้ง skill เสริมประจำ role (รายการอยู่ที่ตารางใน `workflow/roles/README.md`)
 - `/warnyin:discovery [topic]` → Discovery stage (`.claude/commands/warnyin/discovery.md` → `workflow/stages/discovery.md`)
 - `/warnyin:design [slug] [change]` → DESIGN stage (`.claude/commands/warnyin/design.md` → `workflow/stages/design.md`)
 - `/warnyin:build [slug]` → BUILD stage — fan-out sub-agent ตาม dependency (`workflow/stages/build.md` + `workflow/scripts/build-wave.mjs`)
