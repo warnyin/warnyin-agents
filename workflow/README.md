@@ -38,7 +38,7 @@ workflow/
     design.md          # playbook: DESIGN  ✅
     build.md           # playbook: BUILD  ✅
     verify.md          # playbook: VERIFY  ✅
-    ship.md            # (จะเติม)
+    ship.md            # playbook: SHIP  ✅
   scripts/
     build-wave.mjs     # Workflow script: fan-out sub-agent ต่อ task ใน wave (worktree)
 
@@ -53,8 +53,10 @@ warnyin-stages/        # พื้นที่ทำงานจริง ตา
   [topic]/             # ★ template ของหนึ่งหน่วยงาน — copy ไปตั้งชื่อจริง
     discovery.md  research.md       # output ของ Discovery
     business.md  proposal.md  design.md   # output ของ DESIGN
-    tasks/[task-name]/...                  # output ของ BUILD
-  achieved/[YYYY-MM-DD-topic-achieved]/    # archive หลัง SHIP
+    tasks/[task-name]/...  build.md        # output ของ DESIGN (tasks) + BUILD (build.md)
+    test.md  verify.md                     # output ของ VERIFY
+    troubleshooting.md  ship.md            # KB ระหว่างงาน + สรุปส่งมอบของ SHIP
+  achieved/[YYYY-MM-DD-topic]/             # archive หลัง SHIP
 ```
 
 ---
@@ -66,4 +68,5 @@ warnyin-stages/        # พื้นที่ทำงานจริง ตา
    - Claude Code: `/warnyin:discovery <topic>`, `/warnyin:design <slug> <change>`
    - Codex / Antigravity: บอกให้ทำตาม `workflow/stages/<stage>.md`
 3. ผ่าน "gate" ของแต่ละ stage แล้วจึงไป stage ถัดไป
-4. เมื่อ SHIP → ย้าย topic ไป `warnyin-stages/achieved/<YYYY-MM-DD>-<topic>/`
+4. เมื่อ SHIP (`/warnyin:ship <slug>`) → promote ความรู้ของ topic ขึ้นเอกสารกลางใน `docs/`
+   แล้วย้าย topic ไป `warnyin-stages/achieved/<YYYY-MM-DD>-<topic>/`

@@ -21,7 +21,7 @@ Discovery (optional) ──▶ DESIGN ──▶ BUILD ──▶ VERIFY ──▶
 | DESIGN | `workflow/stages/design.md` | ✅ พร้อมใช้ |
 | BUILD | `workflow/stages/build.md` | ✅ พร้อมใช้ |
 | VERIFY | `workflow/stages/verify.md` | ✅ พร้อมใช้ |
-| SHIP | `workflow/stages/ship.md` | ⏳ จะเติม |
+| SHIP | `workflow/stages/ship.md` | ✅ พร้อมใช้ |
 
 ## วิธีเริ่ม
 
