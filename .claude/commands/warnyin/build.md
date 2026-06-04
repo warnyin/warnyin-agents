@@ -5,6 +5,7 @@ argument-hint: "[slug ของ topic]"
 
 ทำหน้าที่เป็น BUILD orchestrator ตาม **playbook กลาง** ของ workflow มาตรฐาน
 
+0. **★ เช็ค context window ก่อนเริ่ม:** ถ้า context ของ session ถูกใช้ไปเยอะหรือ**เกินครึ่ง** → เสนอ user ให้ `/compact` หรือ `/clear` ก่อนเสมอ แล้วค่อยรัน `/warnyin:build <slug>` ใหม่ใน context ที่โล่ง (สถานะงานอยู่ในไฟล์ `warnyin-stages/<slug>/` ครบ) — อย่าเริ่ม fan-out ทั้งที่ context ใกล้เต็ม
 1. อ่าน `workflow/stages/build.md` ให้ครบก่อน แล้วทำตามทุกหลักการอย่างเคร่งครัด
 2. slug: $ARGUMENTS — ถ้าไม่ระบุให้ถามก่อน ว่าจะ build topic ไหน (ดูโฟลเดอร์ใน `warnyin-stages/`)
 3. **อ่าน task ทั้งหมด** ใน `warnyin-stages/<slug>/tasks/*/task.md` + `design.md` → ดึง dependency → สร้าง DAG → จัด **wave** ด้วย topological order

@@ -38,6 +38,7 @@
 
 ## 4. ลำดับขั้นการทำงาน (process)
 
+0. **★ เช็ค context window ก่อนเริ่ม:** ประเมินว่า context ของ session ปัจจุบันถูกใช้ไปมากน้อยแค่ไหน — ถ้าใช้ไปเยอะหรือ **เกินครึ่ง** → **เสนอ user ให้ `/compact` หรือ `/clear` ก่อนเสมอ** แล้วค่อยเริ่ม VERIFY ใน context ที่โล่ง (สถานะงานอยู่ในไฟล์ `warnyin-stages/<slug>/` ครบ ไม่หายไปกับ context) — VERIFY เป็นลูปเทส-แก้ที่อาจยาว ต้องมี context เหลือมากพอ; เครื่องอื่นที่ไม่มีคำสั่งนี้ → แนะนำเริ่ม session ใหม่
 1. **เข้าใจจุดประสงค์:** อ่าน spec/tasks/design → สรุปสิ่งที่ต้อง verify (functional + UX/UI)
 2. **วางแผนเทส → เขียน `test.md`:** ตาม guideline `docs/techstack/<component>/test.md`; ไม่มีก็เสนอวิธี (e2e smoke / integration / manual ฯลฯ) แล้วเขียนแผน
 3. **เตรียม local env:** รัน service ที่เกี่ยวข้องตาม `infra.md`

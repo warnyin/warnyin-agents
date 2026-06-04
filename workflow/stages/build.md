@@ -42,6 +42,7 @@ BUILD จะ **orchestrate การ implement** โดยกระจายง�
 
 > ผู้ orchestrate คือ AI ตัวหลัก (main loop) — sub-agent คือคนลงมือ implement
 
+0. **★ เช็ค context window ก่อนเริ่ม:** ประเมินว่า context ของ session ปัจจุบันถูกใช้ไปมากน้อยแค่ไหน — ถ้าใช้ไปเยอะหรือ **เกินครึ่ง** → **เสนอ user ให้ `/compact` หรือ `/clear` ก่อนเสมอ** แล้วค่อยเริ่ม BUILD ใน context ที่โล่ง (สถานะงานอยู่ในไฟล์ `warnyin-stages/<slug>/` ครบ ไม่หายไปกับ context) — BUILD เป็นงานยาว ต้องมี context เหลือมากพอ; เครื่องอื่นที่ไม่มีคำสั่งนี้ → แนะนำเริ่ม session ใหม่
 1. **อ่าน task ทั้งหมด** → ดึง dependency ของแต่ละ task จาก `task.md` (section 2) + `design.md` (section 7)
 2. **สร้าง DAG + จัด wave** (topological sort): wave 1 = task ที่ไม่มี dependency, wave 2 = task ที่ depend เฉพาะ wave 1, ...
 3. **Pre-check:** target เป็น git repo ไหม (สำหรับ worktree) — ถ้าไม่ใช่ → fallback sequential shared-tree และแจ้ง user

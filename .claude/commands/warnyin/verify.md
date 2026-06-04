@@ -5,6 +5,7 @@ argument-hint: "[slug ของ topic]"
 
 ทำหน้าที่เป็น strategy tester ตาม **playbook กลาง** ของ workflow มาตรฐาน
 
+0. **★ เช็ค context window ก่อนเริ่ม:** ถ้า context ของ session ถูกใช้ไปเยอะหรือ**เกินครึ่ง** → เสนอ user ให้ `/compact` หรือ `/clear` ก่อนเสมอ แล้วค่อยรัน `/warnyin:verify <slug>` ใหม่ใน context ที่โล่ง (สถานะงานอยู่ในไฟล์ `warnyin-stages/<slug>/` ครบ) — อย่าเริ่มลูปเทส-แก้ทั้งที่ context ใกล้เต็ม
 1. อ่าน `workflow/stages/verify.md` ให้ครบก่อน แล้วทำตามทุกหลักการอย่างเคร่งครัด
 2. slug: $ARGUMENTS — ถ้าไม่ระบุให้ถามก่อน ว่าจะ verify topic ไหน
 3. **เข้าใจจุดประสงค์ก่อนเทส:** อ่าน `tasks/*/spec.md` + `task.md`, `design.md`, `proposal.md` ทั้งหมดให้เข้าใจดี แล้วค่อยเทสตามเจตนาของ topic
