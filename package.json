@@ -12,7 +12,6 @@
   },
   "files": [
     "bin",
-    "installer",
     "warnyin",
     ".claude/commands",
     ".claude/agents",

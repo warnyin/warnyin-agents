@@ -32,9 +32,9 @@ Discovery (optional) ──▶ DESIGN ──▶ BUILD ──▶ VERIFY ──▶
 
 ```
 bin/cli.mjs            # npx installer — ติดตั้ง workflow ลงโปรเจกต์อื่น
-installer/templates/   # template CLAUDE.md สำหรับโปรเจกต์ปลายทาง
 
 warnyin/               # ★ ทุกอย่างของ workflow รวมใต้โฟลเดอร์เดียว
+  installer/templates/ #   template CLAUDE.md สำหรับโปรเจกต์ปลายทาง (installer ใช้เอง — ไม่ถูก copy ไป target)
   workflow/            # playbook กลาง — single source of truth
     README.md          #   ไฟล์นี้ — ภาพรวม + วิธีรองรับหลาย AI
     init.md            #   playbook: INIT — วิเคราะห์โปรเจกต์ + เติม docs/ ครั้งแรก

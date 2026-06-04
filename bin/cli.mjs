@@ -57,7 +57,8 @@ const CORE = [
   path.join('.claude', 'agents'),
 ]
 // scaffold = พื้นที่ทำงาน — เป็นข้อมูลของโปรเจกต์ ไม่เขียนทับเด็ดขาด
-const SCAFFOLD = ['warnyin']
+// (เจาะจง warnyin/stages — warnyin/workflow + warnyin/template อยู่ใน CORE แล้ว ส่วน warnyin/installer เป็นของ installer ไม่ copy ไป target)
+const SCAFFOLD = [path.join('warnyin', 'stages')]
 
 const stats = { created: 0, updated: 0, skipped: 0 }
 
@@ -143,7 +144,7 @@ console.log(`Warnyin Standard Workflow → ${target}${DRY ? '  (dry-run)' : ''}\
 for (const dir of CORE) copyTree(dir, { overwrite: UPDATE })
 for (const dir of SCAFFOLD) copyTree(dir, { overwrite: false })
 seedDocs()
-installRootDoc('CLAUDE.md', path.join(pkgRoot, 'installer', 'templates', 'CLAUDE.md'))
+installRootDoc('CLAUDE.md', path.join(pkgRoot, 'warnyin', 'installer', 'templates', 'CLAUDE.md'))
 installRootDoc('AGENTS.md', path.join(pkgRoot, 'AGENTS.md'))
 
 console.log(`\nสรุป: สร้างใหม่ ${stats.created} · อัปเดต ${stats.updated} · ข้าม (มีอยู่แล้ว) ${stats.skipped}`)

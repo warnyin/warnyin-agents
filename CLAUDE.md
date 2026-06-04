@@ -22,7 +22,7 @@ repo มาตรฐานกลางของ **ways of work** สำหรั
 ## การติดตั้งไปโปรเจกต์อื่น (npx installer)
 - `npx @warnyin/agents` (หรือสำรอง `npx github:warnyin/warnyin-agents`) → copy โครงทั้งหมดลงโปรเจกต์ปลายทาง (ข้ามไฟล์ที่มีอยู่, CLAUDE.md/AGENTS.md ที่มีอยู่จะต่อท้ายเป็น section)
 - `--update` → เขียนทับเฉพาะ core (`warnyin/workflow/`, `.claude/commands/warnyin/`, template ใน `warnyin/template/`) ไม่แตะ `docs/`/งานจริง
-- ตัว installer: `bin/cli.mjs` + template CLAUDE.md ของโปรเจกต์ปลายทางที่ `installer/templates/CLAUDE.md` (แก้ commands list ที่ไหน ให้แก้ template นี้ด้วย)
+- ตัว installer: `bin/cli.mjs` + template CLAUDE.md ของโปรเจกต์ปลายทางที่ `warnyin/installer/templates/CLAUDE.md` (แก้ commands list ที่ไหน ให้แก้ template นี้ด้วย; โฟลเดอร์นี้ไม่ถูก copy ไป target)
 - หลังติดตั้ง → รัน `/warnyin:init` เพื่อเติม `docs/`
 
 ## รองรับหลาย AI
