@@ -37,6 +37,7 @@ installer/templates/   # template CLAUDE.md สำหรับโปรเจก
 workflow/
   README.md            # ไฟล์นี้ — ภาพรวม + วิธีรองรับหลาย AI
   init.md              # playbook: INIT — วิเคราะห์โปรเจกต์ + เติม docs/ ครั้งแรก
+  roles/               # ★ role card กลาง: ba, po, sa, tech-lead, developer, qa, security, infra
   stages/
     discovery.md       # playbook: Discovery (optional)  ✅
     design.md          # playbook: DESIGN  ✅

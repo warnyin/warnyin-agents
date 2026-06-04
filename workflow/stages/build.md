@@ -34,7 +34,8 @@ BUILD จะ **orchestrate การ implement** โดยกระจายง�
 6. **ห้ามแตะ rule/standard กลางใน `docs/`** — rule ใหม่ที่เสนอถูก note ไว้ใน `tasks/<task>/rule.md` แล้ว รอ SHIP ค่อยอัปเดตไฟล์กลาง
 7. **fail = หยุดที่ wave นั้น** — ถ้า task ใน wave ล้ม ให้รายงาน user ก่อนไป wave ถัดไป (เพราะ wave ถัดไปอาจ depend อยู่)
 8. **★ ปิดท้ายด้วย full build + full test เสมอ** — หลัง merge ทุก wave แล้ว ต้องรัน build ทั้งหมด + test suite ทั้งหมด (รวม unit test) บน build branch ที่ integrate; **แก้วนจนเขียวหมด** ก่อนปิด BUILD (กันกรณี task รายเดี่ยวเขียวแต่พอรวมกันแล้วพัง)
-9. **★ ใช้ Troubleshooting KB** — เจอปัญหา/error ระหว่าง build ให้ **อ่าน `docs/troubleshooting.md` ก่อนเสมอ** เผื่อเคยแก้แล้ว; เมื่อแก้ปัญหาที่ **ยาก/เจอซ้ำ** สำเร็จ ให้บันทึก entry ลง `warnyin-stages/<slug>/troubleshooting.md` (ปัญหา/อาการ/root cause/วิธีแก้/ป้องกันซ้ำ) — ตอน SHIP จะยกขึ้น KB กลาง
+9. **ทุก build agent สวม role Developer** — ทำตาม role card `workflow/roles/developer.md` (lens + checklist ก่อนส่งงาน) — build-wave.mjs ใส่ให้ใน prompt แล้ว
+10. **★ ใช้ Troubleshooting KB** — เจอปัญหา/error ระหว่าง build ให้ **อ่าน `docs/troubleshooting.md` ก่อนเสมอ** เผื่อเคยแก้แล้ว; เมื่อแก้ปัญหาที่ **ยาก/เจอซ้ำ** สำเร็จ ให้บันทึก entry ลง `warnyin-stages/<slug>/troubleshooting.md` (ปัญหา/อาการ/root cause/วิธีแก้/ป้องกันซ้ำ) — ตอน SHIP จะยกขึ้น KB กลาง
 
 ---
 

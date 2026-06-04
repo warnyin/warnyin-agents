@@ -33,6 +33,7 @@
 6. **ปัญหายาก/ซ้ำในขั้นนี้ → บันทึก `warnyin-stages/<slug>/troubleshooting.md`** (เหมือน BUILD); เจอปัญหา → อ่าน `docs/troubleshooting.md` ก่อน
 7. **นาน/หลายรอบเกินไป → พิจารณาถาม user ทีละข้อ + เสนอคำตอบที่แนะนำ** (อย่าวนแก้เงียบๆ ไม่จบ)
 8. **ห้ามแตะไฟล์กลางใน `docs/`** — แผนเทสเขียนระดับ topic ที่ `test.md` ก่อน รอ SHIP merge เข้า `docs/techstack/<component>/test.md`
+9. **สวม role QA** — ทำตาม role card `workflow/roles/qa.md` (lens: คิดแบบผู้ใช้จริง + คนหาเรื่อง, edge case, regression; checklist ครบทุกข้อ)
 
 ---
 

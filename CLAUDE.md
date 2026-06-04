@@ -8,6 +8,7 @@ repo มาตรฐานกลางของ **ways of work** สำหรั
 - อย่า duplicate logic ของ workflow ลงที่อื่น ถ้าต้องแก้พฤติกรรมให้แก้ที่ `workflow/stages/`
 - output ของงานจริงเก็บใน `warnyin-stages/<slug>/` (copy จาก template `warnyin-stages/[topic]/`)
 - ความรู้ถาวรระดับโปรเจกต์อยู่ใน `docs/` — เริ่มอ่าน `docs/project.md` เสมอใน Discovery
+- role card กลางอยู่ที่ `workflow/roles/` (BA/PO/SA/Tech Lead/Developer/QA/Security/Infra) — stage ไหนใช้ role ไหนดูใน playbook; reviewer subagent ของ Claude Code อยู่ที่ `.claude/agents/warnyin-*`
 
 ## Slash commands (namespace `warnyin:`)
 - `/warnyin:init` → วิเคราะห์โปรเจกต์ + เติม `docs/` ครั้งแรกหลังติดตั้ง (`.claude/commands/warnyin/init.md` → `workflow/init.md`)

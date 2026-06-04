@@ -62,6 +62,7 @@ function prompt(task) {
     `คุณคือ build sub-agent ของ task "${task}" (vertical slice) ทำตาม playbook workflow/stages/build.md`,
     ``,
     `1. อ่านให้ครบก่อนเขียนโค้ด:`,
+    `   - workflow/roles/developer.md (role card: lens + checklist ก่อนส่งงาน — ทำตามทุกข้อ)`,
     `   - ${dir}/task.md (เป้าหมาย + sub-tasks + dependency + acceptance)`,
     `   - ${dir}/spec.md (API/UXUI/data-flow/user-flow/persona/test-flow)`,
     `   - ${dir}/standard.md (pattern โค้ด, shared component — reuse ห้ามเขียนซ้ำ)`,

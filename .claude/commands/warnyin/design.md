@@ -13,7 +13,8 @@ argument-hint: "[slug ของ topic] [อธิบาย change สั้น�
 3. งาน: $ARGUMENTS
    - ระบุ slug → ใช้/สร้าง `warnyin-stages/<slug>/` (ถ้ามาจาก Discovery ใช้โฟลเดอร์เดิม)
    - ถ้าเป็นคำถาม/ยังไม่มั่นใจเรื่อง design → แนะนำ `/warnyin:discovery` ก่อน
-4. ผลิต artifact โดยใช้ template ใน `warnyin-stages/[topic]/` เป็นโครง: `business.md` (ข้ามได้ถ้า change เล็ก), `proposal.md`, `design.md`, แล้วแตก `tasks/<task-name>/` แต่ละใบมี `spec.md` `standard.md` `rule.md` `task.md`
+4. ผลิต artifact โดยใช้ template ใน `warnyin-stages/[topic]/` เป็นโครง: `business.md` (ข้ามได้ถ้า change เล็ก), `proposal.md`, `design.md` (lens `workflow/roles/sa.md`), แล้วแตก `tasks/<task-name>/` (lens `workflow/roles/tech-lead.md`) แต่ละใบมี `spec.md` `standard.md` `rule.md` `task.md`
+   - **Review panel (ถาม user ก่อน):** หลัง `design.md` เสร็จ ก่อนแตก task — ใช้ AskUserQuestion ถามว่าจะให้ panel รีวิวไหม ถ้า ok → fan-out subagent `warnyin-sa`, `warnyin-tech-lead`, `warnyin-qa`, `warnyin-security`, `warnyin-infra` (Agent tool, ขนาน, read-only) รีวิว proposal+design → รวมความเห็น สรุปให้ user → แก้ blocker ให้ครบ (ห้ามเดา) → บันทึก section "Design review" ท้าย `design.md`
 5. ตอน generate ไฟล์ task หลายใบ สามารถใช้ sub-agent (Task/Agent tool) fan-out หนึ่ง agent ต่อหนึ่ง task ได้ — **แต่ต้องผ่าน Gate (ข้อ 8 ของ playbook) ก่อน**
 6. **Dry-run (ถาม user ก่อนเสมอ):** หลังเขียนไฟล์ task ครบ ใช้ AskUserQuestion ถามว่าต้องการ dry-run ทั้งหมดเพื่อหาจุดบกพร่องก่อนเข้า BUILD ไหม — ถ้า ok ทำตามข้อ 4.9 ของ playbook:
    - fan-out agent (Agent tool) **หนึ่งตัวต่อหนึ่ง task แบบขนาน, read-only** — อ่าน task ทั้ง 4 ไฟล์ + design/proposal + โค้ดจริงที่เกี่ยว เดิน implement ในหัว หา **blocker** (implement ตาม spec ไม่ได้ — ต้องแก้ก่อน BUILD) และ **defer** (ทำ/ตัดสินใจทีหลังได้ แต่ต้อง track)

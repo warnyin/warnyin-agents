@@ -41,6 +41,7 @@ if (path.resolve(pkgRoot) === path.resolve(target)) {
 const CORE = [
   'workflow',
   path.join('.claude', 'commands', 'warnyin'),
+  path.join('.claude', 'agents'),
   path.join('warnyin-stages', '[topic]'),
 ]
 // scaffold = โครง docs/ + พื้นที่ทำงาน — เป็นข้อมูลของโปรเจกต์ ไม่เขียนทับเด็ดขาด
