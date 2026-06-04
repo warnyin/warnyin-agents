@@ -43,6 +43,8 @@ const CORE = [
   path.join('.claude', 'commands', 'warnyin'),
   path.join('.claude', 'agents'),
   path.join('warnyin-stages', '[topic]'),
+  path.join('docs', 'techstack', '[component]'),
+  path.join('docs', 'features', '[feature-name]'),
 ]
 // scaffold = โครง docs/ + พื้นที่ทำงาน — เป็นข้อมูลของโปรเจกต์ ไม่เขียนทับเด็ดขาด
 const SCAFFOLD = ['docs', 'warnyin-stages']

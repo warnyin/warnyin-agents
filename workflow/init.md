@@ -36,6 +36,8 @@
 
 ## 4. Output (เขียน/เติมที่ `docs/`)
 
+> โฟลเดอร์ component จริงให้ copy จาก template `docs/techstack/[component]/` เป็นชื่อจริง (เช่น `api-service/`) — ห้ามทิ้งโฟลเดอร์ `[component]` ว่างไว้เฉยๆ โดยไม่สร้างของจริง
+
 | ไฟล์ | เนื้อหา | แหล่งข้อมูล |
 |---|---|---|
 | `docs/project.md` | โปรเจกต์คืออะไร เป้าหมาย ลูกค้า ขอบเขต | สัมภาษณ์ user (+ README เดิมเป็น recommended) |
