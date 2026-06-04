@@ -13,6 +13,8 @@
 - `/warnyin:init` → วิเคราะห์โปรเจกต์ + เติม `docs/` ครั้งแรกหลังติดตั้ง (`warnyin/workflow/init.md`)
 - `/warnyin:install-skill [role]` → ติดตั้ง skill เสริมประจำ role (รายการ: `warnyin/workflow/roles/README.md`)
 - `/warnyin:update-codemaps` → สแกนโครงสร้าง + สร้าง/อัปเดต codemap แบบ token-lean (`warnyin/workflow/codemap.md`)
+- `/warnyin:explore [คำถาม]` → สำรวจ/ตอบคำถามแบบ read-only — ไม่สร้าง artifact (`warnyin/workflow/explore.md`)
+- `/warnyin:next [slug]` → เช็คงานค้าง + แนะนำ command ถัดไป แบบ read-only (`warnyin/workflow/next.md`)
 - `/warnyin:discovery [topic]` → Discovery stage (`warnyin/workflow/stages/discovery.md`)
 - `/warnyin:design [slug] [change]` → DESIGN stage (`warnyin/workflow/stages/design.md`)
 - `/warnyin:build [slug]` → BUILD stage — fan-out sub-agent ตาม dependency (`warnyin/workflow/stages/build.md` + `warnyin/workflow/scripts/build-wave.mjs`)

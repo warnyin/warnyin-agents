@@ -31,6 +31,16 @@ Discovery (optional) ──▶ DESIGN ──▶ BUILD ──▶ VERIFY ──▶
 3. รัน stage ตามลำดับ โดยทำตาม playbook ของแต่ละ stage
 4. output ของงานเก็บใน `warnyin/stages/<slug>/`, ความรู้ถาวรระดับโปรเจกต์อยู่ใน `docs/`
 
+## สำรวจโดยไม่สร้าง artifact (EXPLORE)
+
+อยากถาม/สำรวจข้อมูลเฉยๆ โดยไม่เปิด topic → ทำตาม `warnyin/workflow/explore.md`
+(read-only เด็ดขาด — ไม่สร้าง/แก้ไฟล์ใดๆ จบที่คำตอบในแชท)
+
+## เช็คงานค้าง / หาขั้นตอนถัดไป (NEXT)
+
+อยากรู้ว่ามีงานอะไรค้างและควรไปต่อยังไง → ทำตาม `warnyin/workflow/next.md`
+(สแกน `warnyin/stages/*` ระบุ stage ปัจจุบันจาก artifact จริง + gate ที่ขาด — read-only ไม่แก้ไฟล์)
+
 ## รัน Discovery
 
 ทำตาม `warnyin/workflow/stages/discovery.md` — เริ่มอ่าน `docs/project.md`, ตี scope กว้าง→แคบ,

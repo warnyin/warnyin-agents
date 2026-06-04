@@ -39,6 +39,8 @@ warnyin/               # ★ ทุกอย่างของ workflow รว�
     README.md          #   ไฟล์นี้ — ภาพรวม + วิธีรองรับหลาย AI
     init.md            #   playbook: INIT — วิเคราะห์โปรเจกต์ + เติม docs/ ครั้งแรก
     codemap.md         #   playbook: CODEMAP — สแกน + สร้าง codemap แบบ token-lean
+    explore.md         #   playbook: EXPLORE — สำรวจ/ตอบคำถามแบบ read-only ไม่สร้าง artifact
+    next.md            #   playbook: NEXT — เช็คงานค้าง + แนะนำขั้นตอนถัดไป (read-only)
     roles/             #   role card กลาง: ba, po, sa, tech-lead, developer, qa, security, infra
     stages/            #   discovery ✅ · design ✅ · build ✅ · verify ✅ · ship ✅
     scripts/
