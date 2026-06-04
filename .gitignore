@@ -13,3 +13,9 @@ node_modules/
 dist/
 build/
 *.log
+*.tgz
+
+# skill ที่ติดตั้ง local — ไม่ใช่ส่วนหนึ่งของ workflow ที่แจกจ่าย
+.agents/
+.claude/skills/
+skills-lock.json

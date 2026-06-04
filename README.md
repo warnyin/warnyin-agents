@@ -32,6 +32,7 @@ npx @warnyin/agents --update    # อัปเดต playbook กลางเป
 ```bash
 # 1. ติดตั้งแล้วเปิด Claude Code ในโปรเจกต์ → รัน
 /warnyin:init                      # agent วิเคราะห์โปรเจกต์ + เติม docs/ ให้
+/warnyin:install-skill             # (optional) ติดตั้ง skill เสริมประจำ role
 
 # 2. เริ่มงานแรก
 /warnyin:discovery <topic>         # โจทย์กว้าง/กำกวม → ตี scope ก่อน
@@ -61,10 +62,12 @@ AI แต่ละเครื่องมีแค่ adapter บางๆ ช�
 ```
 workflow/              # ★ playbook กลาง — single source of truth
   init.md              #   INIT: วิเคราะห์โปรเจกต์ + เติม docs/ ครั้งแรก
+  roles/               #   role card: BA · PO · SA · Tech Lead · Developer · QA · Security · Infra
   stages/              #   discovery / design / build / verify / ship
   scripts/             #   build-wave.mjs — fan-out sub-agent ต่อ wave (worktree isolation)
 
 .claude/commands/warnyin/   # adapter สำหรับ Claude Code (slash commands)
+.claude/agents/             # reviewer subagent: warnyin-{sa,tech-lead,qa,security,infra}
 AGENTS.md                   # adapter สำหรับ Codex / Antigravity
 CLAUDE.md                   # adapter สำหรับ Claude Code
 
@@ -83,10 +86,25 @@ warnyin-stages/        # พื้นที่ทำงานจริงรา�
 ## จุดเด่นของแต่ละ stage
 
 - **Discovery** — สัมภาษณ์ทีละข้อ + เสนอคำตอบแนะนำทุกครั้ง; คำถามที่โค้ดตอบได้ → ไปอ่านโค้ดเอง
-- **DESIGN** — vertical slice architecture, task self-contained พร้อมโยน sub-agent, มี **dry-run** (optional) สแกนหา blocker/defer ก่อนเข้า BUILD
+- **DESIGN** — vertical slice architecture, task self-contained พร้อมโยน sub-agent, มี **review panel** (optional — SA/Tech Lead/QA/Security/Infra รีวิวขนานก่อนแตก task) และ **dry-run** (optional) สแกนหา blocker/defer ก่อนเข้า BUILD
 - **BUILD** — จัด task เป็น wave ตาม dependency (DAG), รัน parallel ใน git worktree แยกกัน, ปิดท้ายด้วย full build + full test gate แก้จนเขียวหมด
 - **VERIFY** — เทสตาม "จุดประสงค์ของ topic" ในสภาพแวดล้อมจริง ไม่ใช่แค่ unit test เขียว; FE ตรวจ UX/UI ด้วย
 - **SHIP** — จำแนก feature ใหม่/ปรับปรุง, promote rule/standard/test/troubleshooting ขึ้นไฟล์กลาง, อัปเดต code map, archive topic
+
+## Role system
+
+role card กลางที่ `workflow/roles/` — แต่ละใบกำหนด Mission / Lens / Checklist / Output ของหนึ่งบทบาท
+
+| Role | ใช้ใน | รูปแบบ |
+|---|---|---|
+| BA + PO | Discovery | lens ของ AI หลักตอนสัมภาษณ์/จัด priority |
+| SA + Tech Lead | DESIGN | lens ตอนออกแบบ/แตก task + reviewer ใน panel |
+| Developer | BUILD | system prompt ของ build agent ทุกตัว |
+| QA | VERIFY + panel | lens ของ strategy tester |
+| Security + Infra | DESIGN panel | reviewer (read-only) |
+
+- Tech Lead/Security ผูกกับ built-in `/code-review` และ `/security-review` ของ Claude Code
+- skill เสริมต่อ role ติดตั้งด้วย `/warnyin:install-skill` (รายการกลาง: `workflow/roles/README.md`)
 
 ## Release เวอร์ชันใหม่ (สำหรับผู้ดูแล repo นี้)
 

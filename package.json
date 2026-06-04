@@ -16,7 +16,8 @@
     "workflow",
     "docs",
     "warnyin-stages",
-    ".claude",
+    ".claude/commands",
+    ".claude/agents",
     "CLAUDE.md",
     "AGENTS.md"
   ],
