@@ -91,6 +91,29 @@
 
 ---
 
+## 4.1 Source map — `project` / `infra` / `rule` หาจากไหนใน codebase
+
+> หลัก: §2 ข้อ 1 **"โค้ดตอบได้ → อ่านเอง"** · §2 ข้อ 2 **"ตอบไม่ได้ → สัมภาษณ์"** — 3 ไฟล์นี้คาบเส้น จึงระบุแหล่งให้ชัด ก่อนจะไปถาม user
+
+### `infra.md` — ขุดจาก config จริงได้เกือบทั้งไฟล์ ✅
+| field | หาจากไฟล์ไหน |
+|---|---|
+| Service ที่ต้องรัน | `docker-compose.yml`/`compose.yaml`, `Dockerfile`, `.devcontainer/`, `Procfile`, k8s/helm manifests, `Makefile` |
+| วิธีรัน local | `package.json` scripts (`dev`/`start`), `Makefile` targets, `turbo.json`/`nx.json`, `.nvmrc`/`.node-version`, README ส่วน "Getting Started" |
+| Env vars | `.env.example`/`.env.sample`, env schema ในโค้ด (zod/envalid), `environment:` ใน compose, จุดที่อ้าง `process.env.*`/`os.environ` — **อ่านชื่อ+ความหมาย ห้ามดูดค่า secret จริง** |
+| staging/prod | `.github/workflows/`, `vercel.json`, `fly.toml`, terraform, deploy scripts |
+
+### `rule.md` (global) — โค้ดให้แค่ recommended, เจตนาต้องถาม ⚠️
+- **derive เป็น recommended ได้:** linter/formatter (`eslint.config.*`, `.prettierrc`, `.editorconfig`), `tsconfig` strict flags, pre-commit (`.husky/`, `lefthook`, `.pre-commit-config`), CI gates ใน workflows, `commitlint`, `CONTRIBUTING.md` / `CLAUDE.md` / `AGENTS.md` เดิม
+- **ต้องถาม user:** กฎที่ "อยากบังคับ" แต่ config ยังไม่ enforce — โค้ดบอกได้แค่ "ตอนนี้ enforce อะไร" ไม่ใช่ "อยากให้ enforce อะไร"
+- ตาม template `rule.md`: SHIP เป็นคน promote กฎเข้ามา — ตอน INIT แค่วางโครง + ใส่ recommended ที่ derive ได้ ไม่ต้องเค้นเยอะ
+
+### `project.md` — โค้ดตอบไม่ได้ เป็นงานสัมภาษณ์ (BA/PO lens) 🗣️
+- **derive เป็น recommended ได้:** ชื่อ/คำอธิบายสั้นจาก `package.json` `description` + repo name + README บรรทัดแรก · persona/ขอบเขตจาก README/landing/comment
+- **ต้องสัมภาษณ์เท่านั้น:** เป้าหมาย, success metric, scope-out, why-now — โค้ดไม่มีทางรู้
+
+---
+
 ## 5. Gate → จบ INIT เมื่อ
 
 - [ ] **ไฟล์ทุกแถวในตาราง §4 ถูกเขียนลง `docs/` จริง** (ยืนยันด้วย `find docs -type f`) — ไม่มีแถวไหนเหลือแค่ในแชท
