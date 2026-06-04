@@ -33,6 +33,7 @@
 3. **task = หน่วยที่โยนให้ sub-agent ได้** — แต่ละ task self-contained (มี spec + standard + rule ของตัวเอง) แต่ **เชื่อมต่อกัน** ผ่าน dependency/ลำดับที่ระบุชัด
 4. **สอดคล้องมาตรฐานเสมอ** — อิง rule + standard ของ techstack; ถ้าจะเพิ่ม rule/standard ใหม่ ให้ **note ไว้ก่อน** (ยังไม่แก้ไฟล์กลาง — รอ SHIP)
 5. **Gate ก่อนเขียนไฟล์ task จริง** — ต้องผ่านเกณฑ์ข้อ 8 ก่อนจะ generate ไฟล์ task และก่อนโยนให้ sub-agent
+6. **Dry-run ก่อนเข้า BUILD (optional — ถาม user ก่อนเสมอ)** — หลังเขียนไฟล์ task ครบ เสนอ user ว่าจะ dry-run ทั้งหมดเพื่อหาจุดบกพร่องไหม ถ้า ok → สแกนทุก task แบบขนาน (read-only) หา **defer/blocker** แล้วแก้ DESIGN จนไม่มี blocker ค้าง (ดูขั้นตอนข้อ 4.9) — การแก้ **ห้ามเดา ห้ามคิดขึ้นเอง**
 
 ---
 
@@ -45,9 +46,19 @@
 5. **design.md** (how): ออกแบบเชิงเทคนิคแบบ vertical slice — slice มีอะไรบ้าง, แต่ละ slice ตัดผ่าน layer ไหน, data model, interface/contract, flow, ผลกระทบต่อระบบเดิม
 6. **แตก tasks:** แปลง design เป็น task (= vertical slice / step ที่แก้); task ซับซ้อน → แตก **sub-task** ย่อย; เขียน **dependency graph / ลำดับ** ให้ sub-task เชื่อมกัน
 7. **rule check ต่อ task:** เปิด `docs/techstack/<component>/rule.md` หา rule ที่ task นี้ต้องโฟกัส → ใส่ใน `tasks/<task>/rule.md`; rule ใหม่ที่อยากเพิ่ม → note ใน section "เสนอเพิ่ม (รอ SHIP)"
-8. **เช็ค Gate (ข้อ 8)** → เมื่อผ่าน จึง **เขียนไฟล์ task ครบทุกใบ** แล้วเสนอ: พร้อม implement ด้วย `/warnyin:build`
+8. **เช็ค Gate (ข้อ 8)** → เมื่อผ่าน จึง **เขียนไฟล์ task ครบทุกใบ**
+9. **Dry-run (optional — ถาม user ก่อน):** ถาม user ว่าต้องการ dry-run ทั้งหมดเพื่อหาจุดบกพร่องก่อนเข้า BUILD ไหม — ถ้า ok:
+   1. **fan-out agent หนึ่งตัวต่อหนึ่ง task แบบขนาน (read-only — ห้ามแก้โค้ด/ไฟล์ design)** — แต่ละตัวอ่าน task ทั้ง 4 ไฟล์ + `design.md`/`proposal.md` + โค้ดจริงที่เกี่ยว แล้ว "เดิน implement ในหัว" เพื่อหา:
+      - **blocker** — สิ่งที่ทำให้ implement ตาม spec ไม่ได้ (ขัดแย้งกับโค้ดจริง/กับ task อื่น, ข้อมูล/spec ขาด, dependency ผิด) — BUILD จะล้มถ้าไม่แก้
+      - **defer** — จุดที่ตัดสินใจ/ทำทีหลังได้ ไม่ block การเริ่ม BUILD แต่ต้องบันทึกและ track
+   2. task ไหนพบ issue → เขียน `tasks/<task>/issue.md` (template `[topic]/tasks/[task-name]/issue.md`); ไม่พบ → ไม่ต้องสร้างไฟล์
+   3. รันครบทุก task แล้ว → **สรุปผลรวม** (จำนวน blocker/defer ต่อ task) ให้ user เห็นภาพ
+   4. **หาวิธีแก้ DESIGN ตาม issue** (แก้ `design.md` / task ที่กระทบ) โดย **ห้ามเดา ห้ามคิดขึ้นเอง** — ติดจริงๆ ให้สัมภาษณ์ user **ถามทีละข้อ + เสนอคำตอบแนะนำทุกครั้ง**; คำถามที่โค้ดตอบได้ → ไปอ่านโค้ดเอง
+   5. แก้แล้ว rerun dry-run เฉพาะ task ที่กระทบ วนจน **ไม่มี blocker ค้าง** (อัปเดตสถานะใน `issue.md` — defer ที่เหลือให้ user รับทราบ)
+10. **เสนอเข้า BUILD:** พร้อม implement ด้วย `/warnyin:build`
 
 > generate ไฟล์ task หลายใบพร้อมกันได้โดยใช้ sub-agent (เช่น fan-out หนึ่ง agent ต่อหนึ่ง task) — แต่ต้องผ่าน Gate ก่อนเสมอ
+> เครื่องที่ fan-out ขนานไม่ได้ (ไม่มี sub-agent tool) → dry-run สแกนทีละ task ตามลำดับด้วยหลักการเดียวกัน
 
 ---
 
@@ -62,6 +73,7 @@
 | `tasks/<task-name>/standard.md` | pattern โค้ด/shared component อิง techstack standard | จำเป็นต่อ task | `[topic]/tasks/[task-name]/standard.md` |
 | `tasks/<task-name>/rule.md` | rule ที่ต้อง follow + rule ที่เสนอเพิ่ม (รอ SHIP) | จำเป็นต่อ task | `[topic]/tasks/[task-name]/rule.md` |
 | `tasks/<task-name>/task.md` | รายละเอียด task + sub-tasks + dependency + acceptance | จำเป็นต่อ task | `[topic]/tasks/[task-name]/task.md` |
+| `tasks/<task-name>/issue.md` | ผล dry-run: defer/blocker ที่พบ + แนวทางแก้ + สถานะ | ✅ เฉพาะเมื่อ dry-run แล้วพบ issue | `[topic]/tasks/[task-name]/issue.md` |
 
 ---
 
@@ -90,5 +102,6 @@
 - [ ] ทุก task มี `spec.md` + `standard.md` + `rule.md` + `task.md` ครบ
 - [ ] dependency / ลำดับระหว่าง task และ sub-task ชัดเจน เชื่อมต่อกัน
 - [ ] rule ที่ต้อง follow ถูกระบุครบ; rule/standard ใหม่ที่อยากเพิ่มถูก note ไว้ (รอ SHIP)
+- [ ] ถ้าทำ dry-run: **ไม่มี blocker ค้าง** — ทุก issue ถูกแก้/ปิดใน `issue.md`, defer ที่เหลือ user รับทราบแล้ว
 
 ยังไม่ครบ → ห้ามเขียนไฟล์ task / ห้ามโยน sub-agent / ห้ามข้ามไป BUILD
