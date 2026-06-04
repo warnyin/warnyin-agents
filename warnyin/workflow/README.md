@@ -49,13 +49,15 @@ warnyin/               # ★ ทุกอย่างของ workflow รว�
       tasks/[task-name]/...  build.md      # output ของ DESIGN (tasks) + BUILD
       test.md  verify.md                   # output ของ VERIFY
       troubleshooting.md  ship.md          # KB ระหว่างงาน + สรุปส่งมอบของ SHIP
-    docs/techstack/[component]/            #   copy เป็น docs/techstack/<component>
-    docs/features/[feature-name]/          #   copy เป็น docs/features/<feature-name>
+    docs/                                  #   โครง docs — installer seed เข้า docs/ ตอนติดตั้ง
+      project.md  rule.md  infra.md  troubleshooting.md  codemap/index.md
+      techstack/[component]/               #   copy เป็น docs/techstack/<component> (โดย /warnyin:init)
+      features/[feature-name]/             #   copy เป็น docs/features/<feature-name> (โดย SHIP)
   stages/              # พื้นที่ทำงานจริง ตาม topic
     context.md
     achieved/          #   archive หลัง SHIP (<YYYY-MM-DD>-<slug>/)
 
-docs/                  # ความรู้ถาวรระดับโปรเจกต์ — ของจริงล้วน ไม่มี template ปน
+docs/                  # ความรู้ถาวรระดับโปรเจกต์ — ของจริงล้วน (seed จาก warnyin/template/docs)
   project.md           # ★ จุดเริ่มของ Discovery — อ่านก่อนเสมอ
   rule.md  infra.md
   troubleshooting.md   # ★ KB ปัญหา-วิธีแก้ (อ่านก่อนเมื่อ build เจอ error; SHIP ป้อนเข้า)

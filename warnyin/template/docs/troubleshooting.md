@@ -10,20 +10,13 @@
 ค้นด้วย error message, component, หรือ keyword อาการ — entry เรียงตาม component แล้วตามความถี่
 
 ## สารบัญตาม component
-- [api-service](#api-service)
-- [admin-console](#admin-console)
+<!-- เพิ่ม section ต่อ component เมื่อมี entry แรก เช่น - [api-service](#api-service) -->
 - [ทั่วไป / cross-cutting](#ทั่วไป--cross-cutting)
 
 ---
 
-## api-service
-<!-- ยังไม่มี entry — เพิ่มตอน SHIP จาก topic troubleshooting.md -->
-
-## admin-console
-<!-- ยังไม่มี entry -->
-
 ## ทั่วไป / cross-cutting
-<!-- ยังไม่มี entry -->
+<!-- ยังไม่มี entry — เพิ่มตอน SHIP จาก topic troubleshooting.md -->
 
 ---
 

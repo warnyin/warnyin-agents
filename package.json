@@ -14,7 +14,6 @@
     "bin",
     "installer",
     "warnyin",
-    "docs",
     ".claude/commands",
     ".claude/agents",
     "CLAUDE.md",

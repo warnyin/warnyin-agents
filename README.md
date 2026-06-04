@@ -66,11 +66,12 @@ warnyin/               # ★ ทุกอย่างของ workflow รว�
     roles/             #     role card: BA · PO · SA · Tech Lead · Developer · QA · Security · Infra
     stages/            #     discovery / design / build / verify / ship
     scripts/           #     build-wave.mjs — fan-out sub-agent ต่อ wave (worktree isolation)
-  template/            #   template ทั้งหมด: stages/[topic]/ · docs/techstack/[component]/ · docs/features/[feature-name]/
+  template/            #   template ทั้งหมด: stages/[topic]/ · docs/ (project/rule/infra/troubleshooting/codemap
+                       #   + techstack/[component]/ · features/[feature-name]/)
   stages/              #   พื้นที่ทำงานจริงราย topic (copy [topic] เป็น <slug>)
     achieved/          #     archive หลัง SHIP (<YYYY-MM-DD>-<slug>)
 
-docs/                  # ความรู้ถาวรระดับโปรเจกต์ — ของจริงล้วน ไม่มี template ปน
+docs/                  # ความรู้ถาวรระดับโปรเจกต์ — ของจริงล้วน (seed จาก warnyin/template/docs ตอนติดตั้ง)
   project.md           #   ★ จุดเริ่มของ Discovery
   rule.md  infra.md  troubleshooting.md
   codemap/  features/  techstack/<component>/{about,rule,standard,structure,test}.md

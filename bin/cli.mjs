@@ -56,8 +56,8 @@ const CORE = [
   path.join('.claude', 'commands', 'warnyin'),
   path.join('.claude', 'agents'),
 ]
-// scaffold = โครง docs/ + พื้นที่ทำงาน — เป็นข้อมูลของโปรเจกต์ ไม่เขียนทับเด็ดขาด
-const SCAFFOLD = ['docs', 'warnyin']
+// scaffold = พื้นที่ทำงาน — เป็นข้อมูลของโปรเจกต์ ไม่เขียนทับเด็ดขาด
+const SCAFFOLD = ['warnyin']
 
 const stats = { created: 0, updated: 0, skipped: 0 }
 
@@ -90,6 +90,33 @@ function copyTree(relDir, { overwrite }) {
   }
 }
 
+/** seed docs/ ของโปรเจกต์จาก warnyin/template/docs — ข้ามโฟลเดอร์ template `[...]` (ไว้ให้ /warnyin:init copy เป็นชื่อจริง) และไม่ทับไฟล์ที่มีอยู่ */
+const TEMPLATE_DOCS = path.join('warnyin', 'template', 'docs')
+function seedDocs(relDir = TEMPLATE_DOCS) {
+  const srcDir = path.join(pkgRoot, relDir)
+  if (!fs.existsSync(srcDir)) return
+  for (const entry of fs.readdirSync(srcDir, { withFileTypes: true })) {
+    if (entry.name.startsWith('[')) continue
+    const rel = path.join(relDir, entry.name)
+    if (entry.isDirectory()) {
+      seedDocs(rel)
+      continue
+    }
+    const destRel = path.join('docs', path.relative(TEMPLATE_DOCS, rel))
+    const dest = path.join(target, destRel)
+    if (fs.existsSync(dest)) {
+      stats.skipped++
+      continue
+    }
+    if (!DRY) {
+      fs.mkdirSync(path.dirname(dest), { recursive: true })
+      fs.copyFileSync(path.join(pkgRoot, rel), dest)
+    }
+    stats.created++
+    console.log(`  + ${destRel}`)
+  }
+}
+
 /** CLAUDE.md / AGENTS.md: ไม่มี → สร้างจาก template; มีอยู่แล้วแต่ยังไม่มี workflow → ต่อท้ายเป็น section */
 function installRootDoc(name, srcPath) {
   const dest = path.join(target, name)
@@ -115,6 +142,7 @@ console.log(`Warnyin Standard Workflow → ${target}${DRY ? '  (dry-run)' : ''}\
 
 for (const dir of CORE) copyTree(dir, { overwrite: UPDATE })
 for (const dir of SCAFFOLD) copyTree(dir, { overwrite: false })
+seedDocs()
 installRootDoc('CLAUDE.md', path.join(pkgRoot, 'installer', 'templates', 'CLAUDE.md'))
 installRootDoc('AGENTS.md', path.join(pkgRoot, 'AGENTS.md'))
 
