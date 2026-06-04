@@ -33,6 +33,7 @@ npx @warnyin/agents --update    # อัปเดต playbook กลางเป
 # 1. ติดตั้งแล้วเปิด Claude Code ในโปรเจกต์ → รัน
 /warnyin:init                      # agent วิเคราะห์โปรเจกต์ + เติม docs/ ให้
 /warnyin:install-skill             # (optional) ติดตั้ง skill เสริมประจำ role
+/warnyin:update-codemaps           # (รันซ้ำได้เสมอ) สแกน + อัปเดต codemap หลัง refactor/feature ใหญ่
 
 # 2. เริ่มงานแรก
 /warnyin:discovery <topic>         # โจทย์กว้าง/กำกวม → ตี scope ก่อน

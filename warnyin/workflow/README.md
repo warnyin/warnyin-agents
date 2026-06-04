@@ -38,6 +38,7 @@ warnyin/               # ★ ทุกอย่างของ workflow รว�
   workflow/            # playbook กลาง — single source of truth
     README.md          #   ไฟล์นี้ — ภาพรวม + วิธีรองรับหลาย AI
     init.md            #   playbook: INIT — วิเคราะห์โปรเจกต์ + เติม docs/ ครั้งแรก
+    codemap.md         #   playbook: CODEMAP — สแกน + สร้าง codemap แบบ token-lean
     roles/             #   role card กลาง: ba, po, sa, tech-lead, developer, qa, security, infra
     stages/            #   discovery ✅ · design ✅ · build ✅ · verify ✅ · ship ✅
     scripts/

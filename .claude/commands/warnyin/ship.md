@@ -18,7 +18,7 @@ argument-hint: "[slug ของ topic]"
    - `docs/rule.md` — global rule ใหม่/ที่เปลี่ยน (เฉพาะกฎระดับโปรเจกต์)
    - `docs/troubleshooting.md` — merge entry จาก `troubleshooting.md` ของ topic
    - `docs/infra.md` + `docs/project.md` — เฉพาะถ้ามีข้อมูลเกี่ยวข้อง
-   - `docs/codemap/` ทั้งหมด — อัปเดตให้ตรงโค้ดจริงปัจจุบัน (อย่างน้อยทุกส่วนที่ change กระทบ)
+   - `docs/codemap/` ทั้งหมด — อัปเดตให้ตรงโค้ดจริงปัจจุบัน ตาม `warnyin/workflow/codemap.md` (= ขั้นตอนเดียวกับ `/warnyin:update-codemaps`)
 8. **เขียนสรุป** `achieved/<YYYY-MM-DD>-<slug>/ship.md` (feature ใหม่/ปรับปรุง + ตารางเอกสารที่อัปเดต + note ที่ตัดทิ้งพร้อมเหตุผล) → รายงาน user ว่าส่งมอบครบ topic ปิดสมบูรณ์
 
 หมายเหตุ:

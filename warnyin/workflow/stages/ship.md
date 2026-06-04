@@ -50,7 +50,7 @@
    3. **`docs/rule.md`** — global rule ใหม่/ที่เปลี่ยน (เฉพาะข้อที่เป็นกฎระดับโปรเจกต์ ไม่ผูกกับ component เดียว)
    4. **`docs/troubleshooting.md`** — merge entry จาก `troubleshooting.md` ของ topic (ปัญหา/อาการ/root cause/วิธีแก้/ป้องกันซ้ำ)
    5. **`docs/infra.md` + `docs/project.md`** — เฉพาะถ้ามีข้อมูลที่เกี่ยวข้อง (env/service ใหม่, scope/เป้าหมายโปรเจกต์ที่ขยับ)
-   6. **`docs/codemap/` ทั้งหมด** — อัปเดต code map ให้ตรงกับโค้ดจริงปัจจุบัน (ตรวจจากโค้ดจริง อย่างน้อยทุกส่วนที่ change กระทบ)
+   6. **`docs/codemap/` ทั้งหมด** — อัปเดต code map ให้ตรงกับโค้ดจริงปัจจุบัน ทำตาม playbook `warnyin/workflow/codemap.md` (Claude Code: `/warnyin:update-codemaps`)
 6. **เขียนสรุปส่งมอบ:** `achieved/<YYYY-MM-DD>-<slug>/ship.md` — feature ใหม่/ปรับปรุง, เอกสารกลางที่อัปเดต (ไฟล์ → สาระ), note ที่ตัดทิ้งพร้อมเหตุผล
 7. **ปิดงาน:** รายงาน user ว่าส่งมอบครบ — topic ปิดสมบูรณ์
 

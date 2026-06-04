@@ -13,6 +13,7 @@ repo มาตรฐานกลางของ **ways of work** สำหรั
 ## Slash commands (namespace `warnyin:`)
 - `/warnyin:init` → วิเคราะห์โปรเจกต์ + เติม `docs/` ครั้งแรกหลังติดตั้ง (`.claude/commands/warnyin/init.md` → `warnyin/workflow/init.md`)
 - `/warnyin:install-skill [role]` → ติดตั้ง skill เสริมประจำ role (รายการอยู่ที่ตารางใน `warnyin/workflow/roles/README.md`)
+- `/warnyin:update-codemaps` → สแกนโครงสร้าง + สร้าง/อัปเดต codemap แบบ token-lean ใน `docs/codemap/` (`warnyin/workflow/codemap.md`)
 - `/warnyin:discovery [topic]` → Discovery stage (`.claude/commands/warnyin/discovery.md` → `warnyin/workflow/stages/discovery.md`)
 - `/warnyin:design [slug] [change]` → DESIGN stage (`.claude/commands/warnyin/design.md` → `warnyin/workflow/stages/design.md`)
 - `/warnyin:build [slug]` → BUILD stage — fan-out sub-agent ตาม dependency (`warnyin/workflow/stages/build.md` + `warnyin/workflow/scripts/build-wave.mjs`)

@@ -46,7 +46,7 @@
 | `docs/techstack/<component>/standard.md` | pattern/convention ที่พบจริงในโค้ด (ยืนยันกับ user) | โค้ดจริง + user |
 | `docs/techstack/<component>/rule.md` | กฎที่ user ต้องการบังคับ (ถามก่อน ห้ามเดา) | user |
 | `docs/techstack/<component>/test.md` | วิธีเทสที่ใช้อยู่ (framework, คำสั่ง, e2e) | โค้ด/config จริง |
-| `docs/codemap/index.md` | แผนที่โค้ดภาพรวม: component, จุดเข้า, โฟลเดอร์สำคัญ | โค้ดจริง |
+| `docs/codemap/` | แผนที่โค้ดทั้งชุด — สร้างตาม playbook `warnyin/workflow/codemap.md` (token-lean) | โค้ดจริง |
 | `docs/infra.md` | local env: service ที่ต้องรัน, วิธีรัน, env vars | config จริง |
 | `docs/rule.md`, `docs/troubleshooting.md` | วางโครงหัวข้อ รอเติมระหว่างใช้งานจริง | — |
 
