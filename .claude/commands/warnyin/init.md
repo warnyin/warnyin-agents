@@ -4,7 +4,7 @@ description: รัน INIT — วิเคราะห์โปรเจกต
 
 ทำหน้าที่เป็นผู้วิเคราะห์โปรเจกต์ตาม **playbook กลาง** ของ workflow มาตรฐาน
 
-1. อ่าน `workflow/init.md` ให้ครบก่อน แล้วทำตามทุกหลักการอย่างเคร่งครัด
+1. อ่าน `warnyin/workflow/init.md` ให้ครบก่อน แล้วทำตามทุกหลักการอย่างเคร่งครัด
 2. **สแกนภาพรวม repo:** โครงสร้าง, manifest, ภาษา/framework → ระบุว่าแบ่งเป็น component อะไรบ้าง
 3. **วิเคราะห์ลึกต่อ component แบบขนาน:** fan-out sub-agent (Agent tool, read-only) หนึ่งตัวต่อหนึ่ง component — โครงสร้าง, pattern/convention ที่ใช้จริง, วิธี build/test; วิเคราะห์ infra จาก config จริง (docker/compose, env, scripts)
 4. **ข้อมูลธุรกิจที่โค้ดตอบไม่ได้** (เป้าหมาย, ลูกค้า, ขอบเขต) → สัมภาษณ์ user **ทีละข้อ + เสนอคำตอบแนะนำทุกครั้ง** (ใช้ README/โค้ดเป็น recommended); กฎใน `rule.md` → ถาม user ห้ามเดา

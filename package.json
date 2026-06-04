@@ -13,9 +13,8 @@
   "files": [
     "bin",
     "installer",
-    "workflow",
+    "warnyin",
     "docs",
-    "warnyin-stages",
     ".claude/commands",
     ".claude/agents",
     "CLAUDE.md",

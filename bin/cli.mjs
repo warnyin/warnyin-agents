@@ -24,8 +24,8 @@ if (args.has('--help') || args.has('-h')) {
 ใช้งาน:
   npx @warnyin/agents             ติดตั้ง (ข้ามไฟล์ที่มีอยู่แล้ว ไม่เขียนทับ)
   npx @warnyin/agents --update    อัปเดต playbook กลางเป็นเวอร์ชันล่าสุด
-                                  (เขียนทับเฉพาะ workflow/, .claude/commands/warnyin/,
-                                   template warnyin-stages/[topic] — ไม่แตะ docs/ และงานจริง)
+                                  (เขียนทับเฉพาะ warnyin/workflow/, .claude/commands/warnyin/,
+                                   template warnyin/template/stages/[topic] — ไม่แตะ docs/ และงานจริง)
   npx @warnyin/agents --dry-run   แสดงรายการไฟล์ที่จะสร้าง/อัปเดต โดยไม่เขียนจริง
 
 หลังติดตั้ง: เปิด Claude Code ในโปรเจกต์ แล้วรัน /warnyin:init ให้ agent วิเคราะห์โปรเจกต์ + เติม docs/`)
@@ -37,17 +37,27 @@ if (path.resolve(pkgRoot) === path.resolve(target)) {
   process.exit(1)
 }
 
-// core = playbook กลาง + command + template หน่วยงาน — เขียนทับได้เมื่อ --update
+// โครงเก่า (≤0.2.x): workflow/ + warnyin-stages/ ที่ root — เตือนให้ย้ายเอง ไม่แตะงานจริงของ user
+const legacy = ['workflow', 'warnyin-stages'].filter((d) => fs.existsSync(path.join(target, d)))
+if (legacy.length) {
+  console.warn(`⚠ พบโครงเลย์เอาต์เก่า (≤0.2.x): ${legacy.join(', ')}
+เวอร์ชันนี้ย้ายทุกอย่างไปใต้ warnyin/ — แนะนำย้ายด้วยตัวเองก่อน:
+  1. git mv warnyin-stages warnyin/stages          # งานจริงของคุณ (ปลอดภัย ไม่ถูกแตะโดย installer)
+  2. git rm -r workflow                            # playbook เก่า (เวอร์ชันใหม่จะอยู่ที่ warnyin/workflow)
+  3. ลบ template เก่าถ้ามี: "warnyin/stages/[topic]", "docs/techstack/[component]", "docs/features/[feature-name]"
+     (ย้ายไปรวมที่ warnyin/template/ แล้ว)
+แล้วรันคำสั่งนี้อีกครั้ง\n`)
+}
+
+// core = playbook กลาง + command + agent + template — เขียนทับได้เมื่อ --update
 const CORE = [
-  'workflow',
+  path.join('warnyin', 'workflow'),
+  path.join('warnyin', 'template'),
   path.join('.claude', 'commands', 'warnyin'),
   path.join('.claude', 'agents'),
-  path.join('warnyin-stages', '[topic]'),
-  path.join('docs', 'techstack', '[component]'),
-  path.join('docs', 'features', '[feature-name]'),
 ]
 // scaffold = โครง docs/ + พื้นที่ทำงาน — เป็นข้อมูลของโปรเจกต์ ไม่เขียนทับเด็ดขาด
-const SCAFFOLD = ['docs', 'warnyin-stages']
+const SCAFFOLD = ['docs', 'warnyin']
 
 const stats = { created: 0, updated: 0, skipped: 0 }
 
@@ -91,7 +101,7 @@ function installRootDoc(name, srcPath) {
     return
   }
   const existing = fs.readFileSync(dest, 'utf8')
-  if (existing.includes('workflow/stages/')) {
+  if (existing.includes('warnyin/workflow/stages/')) {
     stats.skipped++
     return
   }

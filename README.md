@@ -25,7 +25,7 @@ npx @warnyin/agents --update    # อัปเดต playbook กลางเป
 ```
 
 - โปรเจกต์ที่มี `CLAUDE.md` / `AGENTS.md` อยู่แล้ว → installer **ต่อท้ายเป็น section** ไม่เขียนทับ
-- `--update` เขียนทับเฉพาะ core (`workflow/`, `.claude/commands/warnyin/`, template `[topic]`) — ไม่แตะ `docs/` และงานจริง
+- `--update` เขียนทับเฉพาะ core (`warnyin/workflow/`, `.claude/commands/warnyin/`, template ใน `warnyin/template/`) — ไม่แตะ `docs/` และงานจริง
 
 ## เริ่มใช้งาน
 
@@ -46,42 +46,42 @@ npx @warnyin/agents --update    # อัปเดต playbook กลางเป
 
 ## แนวคิดหลัก: Tool-agnostic, single source of truth
 
-แก่นของ workflow (กฎ / ขั้นตอน / เกณฑ์ผ่าน) เขียน**ครั้งเดียว**เป็น markdown ใน `workflow/stages/`
+แก่นของ workflow (กฎ / ขั้นตอน / เกณฑ์ผ่าน) เขียน**ครั้งเดียว**เป็น markdown ใน `warnyin/workflow/stages/`
 AI แต่ละเครื่องมีแค่ adapter บางๆ ชี้กลับมาที่ playbook กลางชุดเดียวกัน
 
 | AI tool | Adapter | อ่าน playbook จาก |
 |---|---|---|
-| **Claude Code** | `.claude/commands/warnyin/*` + `CLAUDE.md` | `workflow/stages/*.md` |
-| **Codex / Antigravity** | `AGENTS.md` | `workflow/stages/*.md` |
-| เครื่องอื่นๆ | ชี้มาที่ `workflow/stages/` ได้ทันที | `workflow/stages/*.md` |
+| **Claude Code** | `.claude/commands/warnyin/*` + `CLAUDE.md` | `warnyin/workflow/stages/*.md` |
+| **Codex / Antigravity** | `AGENTS.md` | `warnyin/workflow/stages/*.md` |
+| เครื่องอื่นๆ | ชี้มาที่ `warnyin/workflow/stages/` ได้ทันที | `warnyin/workflow/stages/*.md` |
 
-> แก้กฎที่ `workflow/stages/` ที่เดียว → ทุกเครื่องได้เหมือนกันทันที
+> แก้กฎที่ `warnyin/workflow/stages/` ที่เดียว → ทุกเครื่องได้เหมือนกันทันที
 
 ## โครงสร้างที่ติดตั้งลงโปรเจกต์
 
 ```
-workflow/              # ★ playbook กลาง — single source of truth
-  init.md              #   INIT: วิเคราะห์โปรเจกต์ + เติม docs/ ครั้งแรก
-  roles/               #   role card: BA · PO · SA · Tech Lead · Developer · QA · Security · Infra
-  stages/              #   discovery / design / build / verify / ship
-  scripts/             #   build-wave.mjs — fan-out sub-agent ต่อ wave (worktree isolation)
+warnyin/               # ★ ทุกอย่างของ workflow รวมใต้โฟลเดอร์เดียว
+  workflow/            #   playbook กลาง — single source of truth
+    init.md            #     INIT: วิเคราะห์โปรเจกต์ + เติม docs/ ครั้งแรก
+    roles/             #     role card: BA · PO · SA · Tech Lead · Developer · QA · Security · Infra
+    stages/            #     discovery / design / build / verify / ship
+    scripts/           #     build-wave.mjs — fan-out sub-agent ต่อ wave (worktree isolation)
+  template/            #   template ทั้งหมด: stages/[topic]/ · docs/techstack/[component]/ · docs/features/[feature-name]/
+  stages/              #   พื้นที่ทำงานจริงราย topic (copy [topic] เป็น <slug>)
+    achieved/          #     archive หลัง SHIP (<YYYY-MM-DD>-<slug>)
+
+docs/                  # ความรู้ถาวรระดับโปรเจกต์ — ของจริงล้วน ไม่มี template ปน
+  project.md           #   ★ จุดเริ่มของ Discovery
+  rule.md  infra.md  troubleshooting.md
+  codemap/  features/  techstack/<component>/{about,rule,standard,structure,test}.md
 
 .claude/commands/warnyin/   # adapter สำหรับ Claude Code (slash commands)
 .claude/agents/             # reviewer subagent: warnyin-{sa,tech-lead,qa,security,infra}
 AGENTS.md                   # adapter สำหรับ Codex / Antigravity
 CLAUDE.md                   # adapter สำหรับ Claude Code
-
-docs/                  # ความรู้ถาวรระดับโปรเจกต์ (SHIP ป้อนเข้า, ทุก stage อ่านออก)
-  project.md           #   ★ จุดเริ่มของ Discovery
-  rule.md  infra.md  troubleshooting.md
-  codemap/  features/  techstack/<component>/{about,rule,standard,structure,test}.md
-
-warnyin-stages/        # พื้นที่ทำงานจริงราย topic
-  [topic]/             #   template — copy เป็น <slug> ตอนเริ่มงาน
-  achieved/            #   archive หลัง SHIP (<YYYY-MM-DD>-<slug>)
 ```
 
-รายละเอียดเต็ม: [`workflow/README.md`](workflow/README.md)
+รายละเอียดเต็ม: [`warnyin/workflow/README.md`](warnyin/workflow/README.md)
 
 ## จุดเด่นของแต่ละ stage
 
@@ -93,7 +93,7 @@ warnyin-stages/        # พื้นที่ทำงานจริงรา�
 
 ## Role system
 
-role card กลางที่ `workflow/roles/` — แต่ละใบกำหนด Mission / Lens / Checklist / Output ของหนึ่งบทบาท
+role card กลางที่ `warnyin/workflow/roles/` — แต่ละใบกำหนด Mission / Lens / Checklist / Output ของหนึ่งบทบาท
 
 | Role | ใช้ใน | รูปแบบ |
 |---|---|---|
@@ -104,7 +104,7 @@ role card กลางที่ `workflow/roles/` — แต่ละใบก�
 | Security + Infra | DESIGN panel | reviewer (read-only) |
 
 - Tech Lead/Security ผูกกับ built-in `/code-review` และ `/security-review` ของ Claude Code
-- skill เสริมต่อ role ติดตั้งด้วย `/warnyin:install-skill` (รายการกลาง: `workflow/roles/README.md`)
+- skill เสริมต่อ role ติดตั้งด้วย `/warnyin:install-skill` (รายการกลาง: `warnyin/workflow/roles/README.md`)
 
 ## Release เวอร์ชันใหม่ (สำหรับผู้ดูแล repo นี้)
 
