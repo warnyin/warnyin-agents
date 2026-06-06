@@ -10,6 +10,9 @@
   "bin": {
     "warnyin-agents": "bin/cli.mjs"
   },
+  "scripts": {
+    "test": "node --test"
+  },
   "files": [
     "bin",
     ".warnyin",
@@ -20,7 +23,7 @@
     "AGENTS.md"
   ],
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "repository": {
     "type": "git",
