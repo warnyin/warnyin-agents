@@ -16,7 +16,6 @@
   "files": [
     "bin",
     ".warnyin",
-    "docs/stages",
     ".claude/commands",
     ".claude/agents",
     "CLAUDE.md",

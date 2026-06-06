@@ -164,3 +164,19 @@ test('8. --dry-run ไม่เขียนไฟล์ในโฟลเดอ�
   }
   assert.deepEqual(listFiles(tmp), [], 'temp ต้องยังว่าง')
 })
+
+// 9. scaffold สร้างเปล่า — ไม่ลากงานจริง (topic) ของ repo ต้นทางไป target
+test('9. installer สร้าง scaffold เปล่า ไม่ leak docs/stages/<topic>', (t) => {
+  const tmp = makeTempProject(t)
+  ok(runCli(tmp), 'install')
+
+  // โครง scaffold เปล่าต้องถูก "สร้าง" ขึ้นมา
+  assert.ok(existsSync(path.join(tmp, 'docs', 'stages', 'context.md')), 'ต้องสร้าง docs/stages/context.md')
+  assert.ok(existsSync(path.join(tmp, 'docs', 'stages', 'achieved', '.gitkeep')), 'ต้องสร้าง docs/stages/achieved/.gitkeep')
+
+  // ต้องไม่มี topic ใด ๆ ใต้ docs/stages — งานจริงของ repo ต้นทางห้ามรั่วมา target
+  const topics = readdirSync(path.join(tmp, 'docs', 'stages'), { withFileTypes: true })
+    .filter((e) => e.isDirectory() && e.name !== 'achieved')
+    .map((e) => e.name)
+  assert.deepEqual(topics, [], `ต้องไม่มี topic หลุดมา target: ${topics.join(', ')}`)
+})

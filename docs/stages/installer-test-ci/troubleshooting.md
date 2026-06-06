@@ -14,6 +14,17 @@
 - **วิธีแก้:** `build-wave.mjs` defensive parse — `const A = typeof args==='string' ? JSON.parse(args) : (args||{})` (commit บน main เป็น core bugfix)
 - **ป้องกันซ้ำ:** ทุก workflow script ที่รับ args ควรเผื่อกรณี string (harness-dependent) · **เป็น dogfood finding — กระทบทุก BUILD** → ควรเข้า roadmap
 
+## 4. ★ Scaffold leak — installer ลากงานจริงของ repo ต้นทางไป target (เจอตอน VERIFY)
+- **อาการ:** `npm pack` ติด `docs/stages/installer-test-ci/**` (16 ไฟล์ dogfood) ขึ้น package; `node bin/cli.mjs` ใน temp ใหม่ → ลง `docs/stages/installer-test-ci/**` ในโปรเจกต์ผู้ใช้ปลายทาง
+- **Root cause:** `SCAFFOLD=[docs/stages]` + `copyTree('docs/stages',{overwrite:false})` **copy ทั้ง tree จาก `pkgRoot`** — เดิม `docs/stages` มีแค่ scaffold เปล่า (`context.md`/`achieved/.gitkeep`) จึงไม่เห็นปัญหา พอมีงานจริง (topic) อยู่ใน `docs/stages` ก็รั่วทันที; `package.json files` ก็ใส่ `docs/stages` ทั้ง dir → leak ขึ้น published package ด้วย
+- **ทำไม pack-verify เดิมจับไม่ได้:** allowlist อนุญาต `docs/stages/` ทั้ง prefix (ถือว่า scaffold = ตั้งใจ ship) → topic หลุดผ่านได้เงียบ
+- **วิธีแก้ (user decision: "สร้างไฟล์แทน ไม่ต้อง copy"):**
+  1. `bin/cli.mjs` — เลิก `copyTree(docs/stages)`; เพิ่ม `ensureScaffold()` ที่ **generate** `docs/stages/context.md` + `docs/stages/achieved/.gitkeep` (เปล่า) เองใน target (ไม่อ่านจาก pkgRoot → ไม่มีทาง leak)
+  2. `package.json` — ตัด `docs/stages` ออกจาก `files` (ไม่ ship docs/stages ขึ้น package เลย)
+  3. `scripts/verify-pack.mjs` — ตัด `docs/stages/` ออกจาก allowlist + เพิ่ม guard FAIL ถ้ามี path ขึ้นต้น `docs/` หลุดขึ้น package
+  4. `tests/installer.test.mjs` — เพิ่มเคส 9: ติดตั้งแล้วต้องมี scaffold เปล่า **และไม่มี topic ใด ๆ** ใต้ `docs/stages`
+- **ป้องกันซ้ำ:** scaffold/workspace ที่ผู้ใช้เป็นเจ้าของ → installer **สร้างเอง** อย่า copy จาก repo ต้นทาง (ของต้นทางจะรั่วทุกครั้งที่มีงานจริง); pack allowlist อย่าใส่ path ที่ปนงานจริง · **เป็น core bug ของ installer — กระทบทุกการ publish หลังเริ่มมี topic จริง** (ก่อนหน้านี้ไม่เห็นเพราะ repo ยังไม่มี topic)
+
 ## 3. `verify-pack.mjs` รันตรงบน Windows ล้ม ENOENT (จาก build agent wave 2)
 - **อาการ:** `node scripts/verify-pack.mjs` บน Windows → `execFileSync ENOENT spawn npm`; บน CI ubuntu ปกติ
 - **Root cause:** `execFileSync('npm', ...)` ไม่ผ่าน shell — บน Windows executable จริงคือ `npm.cmd` ไม่ใช่ `npm`; `execFile` ไม่ทำ PATHEXT resolution
