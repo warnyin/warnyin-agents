@@ -61,7 +61,7 @@ AI แต่ละเครื่องมีแค่ adapter บางๆ ช�
 ## โครงสร้างที่ติดตั้งลงโปรเจกต์
 
 ```
-warnyin/               # ★ ทุกอย่างของ workflow รวมใต้โฟลเดอร์เดียว
+.warnyin/              # ★ ทุกอย่างของ workflow รวมใต้โฟลเดอร์เดียว
   workflow/            #   playbook กลาง — single source of truth
     init.md            #     INIT: วิเคราะห์โปรเจกต์ + เติม docs/ ครั้งแรก
     roles/             #     role card: BA · PO · SA · Tech Lead · Developer · QA · Security · Infra
@@ -108,9 +108,27 @@ role card กลางที่ `.warnyin/workflow/roles/` — แต่ละ�
 - Tech Lead/Security ผูกกับ built-in `/code-review` และ `/security-review` ของ Claude Code
 - skill เสริมต่อ role ติดตั้งด้วย `/warnyin:install-skill` (รายการกลาง: `.warnyin/workflow/roles/README.md`)
 
-## Release เวอร์ชันใหม่ (สำหรับผู้ดูแล repo นี้)
+## พัฒนา repo นี้ (contributor)
+
+repo นี้ใช้ **bootstrap / self-hosting**: source ของ workflow v-next อยู่ใน `src/` (committed/publish) ส่วน root ติดตั้ง release เสถียรไว้ dogfood (gitignored) — **clone แล้วต้อง bootstrap ก่อนใช้**:
 
 ```bash
+git clone https://github.com/warnyin/warnyin-agents.git
+cd warnyin-agents
+npm run setup:dogfood    # ติดตั้ง release เสถียรลง root (.warnyin/.claude/CLAUDE.md/AGENTS.md — gitignored)
+npm test                 # black-box test installer (node --test, discover src/tests/)
+npm run setup:sandbox    # ทดสอบ v-next จาก src/ ลง temp dir (version skew — dogfood ที่ root ไม่โดนแตะ)
+```
+
+- พัฒนา workflow v-next ที่ `src/` · dogfood ที่ root = release เสถียร (แก้ `src/` ไม่กระทบ session ที่กำลังทำงาน)
+- รายละเอียดเต็ม: [`CONTRIBUTING.md`](CONTRIBUTING.md)
+
+## Release เวอร์ชันใหม่ (สำหรับผู้ดูแล repo นี้)
+
+> publish payload มาจาก `src/` (allowlist `package.json files`) — `npm run verify:pack` เป็น gate ก่อน publish (CI ตรวจทุก PR): payload ต้องติด `src/.warnyin/`+`src/.claude/` ครบ ไม่มี tooling/docs รั่ว
+
+```bash
+npm run verify:pack    # ตรวจ payload ก่อน (Windows: npm pack --dry-run --json → checkFiles)
 npm version patch      # bump เวอร์ชัน + git tag
 npm publish            # ขึ้น npm registry (มี OTP)
 git push --follow-tags
