@@ -8,7 +8,7 @@
     "access": "public"
   },
   "bin": {
-    "warnyin-agents": "bin/cli.mjs"
+    "warnyin-agents": "src/bin/cli.mjs"
   },
   "scripts": {
     "test": "node --test"

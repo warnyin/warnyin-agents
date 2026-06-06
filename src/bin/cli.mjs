@@ -32,6 +32,9 @@ if (args.has('--help') || args.has('-h')) {
   process.exit(0)
 }
 
+// guard กัน self-install — เก็บไว้แบบ defensive (zero-cost)
+// หลังย้าย source เข้า src/ → pkgRoot = src/ (sibling ของ bin/) จึงแทบไม่มีทาง === target (repo root / temp sandbox)
+// → guard นี้เป็น no-op โดยตั้งใจในเคสปกติ/sandbox; ยังคงดักได้เฉพาะ edge case ที่ install ลงโฟลเดอร์ที่เป็น src/ เอง
 if (path.resolve(pkgRoot) === path.resolve(target)) {
   console.error('✖ กำลังรันอยู่ใน repo ของ warnyin-agents เอง — ให้ cd ไปที่โปรเจกต์ปลายทางก่อน')
   process.exit(1)
