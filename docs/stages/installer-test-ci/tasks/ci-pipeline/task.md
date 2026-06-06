@@ -8,7 +8,7 @@
 | **Task** | `ci-pipeline` |
 | **Slice อ้างอิง** | `design.md` slice #2 |
 | **Component** | CI (`.github/workflows/`) + `CHANGELOG.md` |
-| **สถานะ** | `รอ build` |
+| **สถานะ** | `build เสร็จ — รอ VERIFY (CI ยืนยันจริงบน PR)` |
 
 ## 1. เป้าหมายของ task (vertical slice)
 เปิด PR แล้ว CI เขียวอัตโนมัติ — รัน test ข้าม node (20/22/24) + ยืนยัน package พร้อม publish (`.warnyin/` ติด, `tests`/`.github` ไม่ติด) + บันทึก CHANGELOG ขั้นต่ำของ topic นี้
@@ -19,10 +19,10 @@
 - รับ input จาก task ก่อน: `package.json scripts.test` + `tests/`
 
 ## 3. Sub-tasks
-- [ ] 1. `.github/workflows/ci.yml` — matrix `[20,22,24]`, รัน `node --test tests/` (ไม่ `npm ci`/cache); `permissions: contents: read`; `on: { pull_request:, push: { branches: [main] } }` — _ผลลัพธ์: test job_
-- [ ] 2. pack-verify — node script (`scripts/verify-pack.mjs` หรือ inline `node -e`) parse `npm pack --dry-run --json`; เพิ่มเป็น job/step — _ขึ้นกับ 1_
-- [ ] 3. `CHANGELOG.md` — Keep a Changelog format; entry สำหรับเวอร์ชันถัดไป (engines >=20 / drop node 18, +test/CI)
-- [ ] 4. verify workflow syntax (`actionlint` ถ้ามี / อ่านทาน YAML) — ไม่มี secret, ไม่ `pull_request_target`
+- [x] 1. `.github/workflows/ci.yml` — matrix `[20,22,24]`, รัน `npm test` (= bare `node --test`, ไม่ใส่ path; ไม่ `npm ci`/cache); `permissions: contents: read`; `on: { pull_request:, push: { branches: [main] } }` — _ผลลัพธ์: test job_
+- [x] 2. pack-verify — node script `scripts/verify-pack.mjs` parse `npm pack --dry-run --json` (allowlist BK-1); job `pack-verify` `needs: test` — _ขึ้นกับ 1_
+- [x] 3. `CHANGELOG.md` — Keep a Changelog format; entry `[Unreleased]` (Added test/CI/pack-verify, Changed engines >=20, Removed node 18)
+- [x] 4. verify workflow syntax (actionlint ไม่มีในเครื่อง → อ่านทาน YAML + parse contract checks) — ไม่มี secret, ไม่ `pull_request_target`, SHA-pin ครบ
 
 ## 4. ขอบเขตไฟล์/โค้ดที่จะแตะ
 - `.github/workflows/ci.yml` (ใหม่)
@@ -31,11 +31,11 @@
 - **ไม่แตะ** `package.json` (task ก่อนทำแล้ว), `bin/cli.mjs`
 
 ## 5. Acceptance criteria (เกณฑ์ว่า task เสร็จ)
-- [ ] workflow valid + รันบน PR ได้ (เขียวทุก node 20/22/24)
-- [ ] pack-verify ผ่าน: `.warnyin/` อยู่ใน tarball **และ** `tests/`/`.github/` ไม่อยู่
-- [ ] `permissions: contents: read`, `on: pull_request` (ไม่มี `pull_request_target`), ไม่มี `secrets.*`, action pin SHA
-- [ ] `CHANGELOG.md` มี entry ตาม `spec.md`
-- [ ] ผ่านตาม `spec.md` + ทำตาม `rule.md`/`standard.md`
+- [x] workflow valid + พร้อมรันบน PR (matrix node 20/22/24; YAML well-formed, contract checks ผ่าน) — _CI เขียวจริงบน PR ยืนยันตอน VERIFY_
+- [x] pack-verify ผ่าน: `.warnyin/` อยู่ใน tarball (83 ไฟล์) **และ** `tests/`/`.github/` ไม่อยู่ — allowlist verdict PASS (ทดสอบ logic บน pack จริง; script รันตรงบน Windows ENOENT เป็น dev-only ตาม spec)
+- [x] `permissions: contents: read`, `on: pull_request` (ไม่มี `pull_request_target`), ไม่มี `secrets.*`, action pin SHA (checkout/setup-node 40-hex)
+- [x] `CHANGELOG.md` มี entry ตาม `spec.md` (Keep a Changelog header + `[Unreleased]` Added/Changed/Removed)
+- [x] ผ่านตาม `spec.md` + ทำตาม `rule.md`/`standard.md`
 
 ## 6. อ้างอิงในโฟลเดอร์ task นี้
 - Spec: `./spec.md`

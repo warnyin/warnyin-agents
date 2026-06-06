@@ -13,3 +13,9 @@
 - **Root cause:** harness นี้ pass `args` ของ Workflow tool เป็น **JSON string verbatim** ไม่ deserialize → `args.slug` บน string = undefined
 - **วิธีแก้:** `build-wave.mjs` defensive parse — `const A = typeof args==='string' ? JSON.parse(args) : (args||{})` (commit บน main เป็น core bugfix)
 - **ป้องกันซ้ำ:** ทุก workflow script ที่รับ args ควรเผื่อกรณี string (harness-dependent) · **เป็น dogfood finding — กระทบทุก BUILD** → ควรเข้า roadmap
+
+## 3. `verify-pack.mjs` รันตรงบน Windows ล้ม ENOENT (จาก build agent wave 2)
+- **อาการ:** `node scripts/verify-pack.mjs` บน Windows → `execFileSync ENOENT spawn npm`; บน CI ubuntu ปกติ
+- **Root cause:** `execFileSync('npm', ...)` ไม่ผ่าน shell — บน Windows executable จริงคือ `npm.cmd` ไม่ใช่ `npm`; `execFile` ไม่ทำ PATHEXT resolution
+- **วิธีแก้:** ยอมรับเป็น **dev-only** (CI รัน ubuntu ที่ `npm` อยู่ใน PATH ตรง ๆ) — ยืนยัน logic ด้วยการรัน `npm pack --dry-run --json` แล้ว apply allowlist เองบน Windows = PASS
+- **ป้องกันซ้ำ:** ถ้าต้องรัน script นี้บน dev Windows จริง → `shell:true` หรือเลือก binary ตาม `process.platform` (`npm.cmd` vs `npm`); topic นี้ defer เพราะ CI เป็น runner หลัก
