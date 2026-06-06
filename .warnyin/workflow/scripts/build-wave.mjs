@@ -13,9 +13,11 @@ export const meta = {
   phases: [{ title: 'Build wave', detail: 'parallel agent, หนึ่งตัวต่อหนึ่ง task (worktree isolation)' }],
 }
 
-const slug = args && args.slug
-const tasks = (args && args.tasks) || []
-const isolate = !(args && args.isolate === false)
+// บาง harness ส่ง args ของ Workflow เป็น string (JSON text) ไม่ใช่ object — รับทั้งสองแบบ
+const A = typeof args === 'string' ? JSON.parse(args) : (args || {})
+const slug = A.slug
+const tasks = A.tasks || []
+const isolate = !(A.isolate === false)
 
 if (!slug || tasks.length === 0) {
   log('ไม่มี slug หรือ tasks — ไม่มีอะไรให้ build')
