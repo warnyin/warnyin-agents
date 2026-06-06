@@ -11,15 +11,18 @@
     "warnyin-agents": "src/bin/cli.mjs"
   },
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "verify:pack": "node src/scripts/verify-pack.mjs"
   },
   "files": [
-    "bin",
-    ".warnyin",
-    ".claude/commands",
-    ".claude/agents",
-    "CLAUDE.md",
-    "AGENTS.md"
+    "src/bin",
+    "src/.warnyin",
+    "src/.claude/commands",
+    "src/.claude/agents",
+    "src/AGENTS.md",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
   ],
   "engines": {
     "node": ">=20"

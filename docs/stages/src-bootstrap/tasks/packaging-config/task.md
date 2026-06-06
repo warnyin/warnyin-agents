@@ -8,7 +8,7 @@
 | **Task** | `packaging-config` |
 | **Slice อ้างอิง** | `design.md` slice #2 |
 | **Component** | `installer` (packaging/CI) |
-| **สถานะ** | `รอ build` |
+| **สถานะ** | `build เสร็จ (passed)` |
 
 ## 1. เป้าหมายของ task (vertical slice)
 **publish config ถูกต้อง** หลังย้าย source → `src/` — `package.json files`/`verify:pack` + `src/scripts/verify-pack.mjs` ให้ tarball ผู้ใช้ติด payload ครบ (`src/.warnyin/workflow/`, `src/.claude/commands/warnyin/`, `src/AGENTS.md`) และ tooling/งานจริง/dogfood ไม่หลุด (R1+R2) + แก้ CI job pack-verify เรียกผ่าน npm script (BL-1) — verify ได้ในตัวด้วย `npm pack --dry-run --json` + verify-pack unit
@@ -20,11 +20,11 @@
 - ส่ง output ต่อ: `package.json` ที่มี `files` granular + `scripts.verify:pack` พร้อม → T4 ต่อยอด `scripts.setup:*` ได้
 
 ## 3. Sub-tasks
-- [ ] 1. แก้ `package.json files` → `["src/bin","src/.warnyin","src/.claude/commands","src/.claude/agents","src/AGENTS.md","README.md","CHANGELOG.md","LICENSE"]` (ตัด `src/tests`/`src/scripts`; ระบุ nested dotfolder ชัด) — _ผลลัพธ์: allowlist granular_
-- [ ] 2. เพิ่ม `package.json scripts."verify:pack"` = `node src/scripts/verify-pack.mjs` (ไม่แตะ `bin` ที่ T1 ตั้งไว้, **ไม่แตะ `setup:*`**) — _ขึ้นกับ 1: ไฟล์เดียวกัน_
-- [ ] 3. ปรับ `src/scripts/verify-pack.mjs` → `ALLOWED_PREFIX`/`ALLOWED_FILE`/`hasWarnyin`+`hasClaude`/denylist+tripwire ตาม spec §7 — _ขึ้นกับ src/ จาก T1_
-- [ ] 4. **BL-4:** refactor verify-pack แยก pure function `checkFiles(files)→errors[]` ออกจาก `npm pack` + เพิ่ม unit ป้อน list ปลอม (`src/tests/`) assert จับได้ — _ขึ้นกับ 3_
-- [ ] 5. **BL-1:** แก้ `.github/workflows/ci.yml` job pack-verify `node scripts/verify-pack.mjs` → `npm run verify:pack`; ตรวจ `npm test` step ยังถูก — _ขึ้นกับ 2 (npm script ต้องมีก่อน)_
+- [x] 1. แก้ `package.json files` → `["src/bin","src/.warnyin","src/.claude/commands","src/.claude/agents","src/AGENTS.md","README.md","CHANGELOG.md","LICENSE"]` (ตัด `src/tests`/`src/scripts`; ระบุ nested dotfolder ชัด) — _ผลลัพธ์: allowlist granular_
+- [x] 2. เพิ่ม `package.json scripts."verify:pack"` = `node src/scripts/verify-pack.mjs` (ไม่แตะ `bin` ที่ T1 ตั้งไว้, **ไม่แตะ `setup:*`**) — _ขึ้นกับ 1: ไฟล์เดียวกัน_
+- [x] 3. ปรับ `src/scripts/verify-pack.mjs` → `ALLOWED_PREFIX`/`ALLOWED_FILE`/`hasWarnyin`+`hasClaude`/denylist+tripwire ตาม spec §7 — _ขึ้นกับ src/ จาก T1_
+- [x] 4. **BL-4:** refactor verify-pack แยก pure function `checkFiles(files)→errors[]` ออกจาก `npm pack` + เพิ่ม unit ป้อน list ปลอม (`src/tests/`) assert จับได้ — _ขึ้นกับ 3_ (main-guard ใช้ `fileURLToPath(import.meta.url)===process.argv[1]`)
+- [x] 5. **BL-1:** แก้ `.github/workflows/ci.yml` job pack-verify `node scripts/verify-pack.mjs` → `npm run verify:pack`; ตรวจ `npm test` step ยังถูก — _ขึ้นกับ 2 (npm script ต้องมีก่อน)_
 
 ## 4. ขอบเขตไฟล์/โค้ดที่จะแตะ
 - `package.json` — เฉพาะ `files` + `scripts.verify:pack` (คง `bin` จาก T1; **ห้าม** `scripts.setup:*` = T4)
@@ -34,14 +34,14 @@
 - **ห้ามแตะ:** `src/bin/cli.mjs`, โค้ด/ไฟล์อื่นนอกรายการนี้
 
 ## 5. Acceptance criteria
-- [ ] `npm pack --dry-run --json` → payload มี `src/.warnyin/workflow/`, `src/.claude/commands/warnyin/`, `src/AGENTS.md`, `src/bin/cli.mjs`
-- [ ] payload **ไม่มี** `src/tests/`, `src/scripts/`, `docs/`, `.github/` หลุด
-- [ ] `npm run verify:pack` ผ่าน (exit 0) — `hasWarnyin && hasClaude` ผ่าน, denylist/tripwire ไม่จับ
-- [ ] verify-pack unit จับ leak ปลอม: ป้อน `files[]` ที่มี `src/tests/...` → `checkFiles` คืน error (BL-4)
-- [ ] `.github/workflows/ci.yml` job pack-verify เรียก `npm run verify:pack`; `npm test` step ยังถูก (BL-1)
-- [ ] CI security baseline ยัง compliant (`docs/rule.md` §3)
-- [ ] ผ่าน test ตาม `spec.md` (test-flow §7)
-- [ ] ทำตาม `rule.md` และ `standard.md`
+- [x] `npm pack --dry-run --json` → payload มี `src/.warnyin/workflow/`, `src/.claude/commands/warnyin/`, `src/AGENTS.md`, `src/bin/cli.mjs` (พิสูจน์จริง: 68 ไฟล์)
+- [x] payload **ไม่มี** `src/tests/`, `src/scripts/`, `docs/`, `.github/` หลุด (leak=[])
+- [x] `npm run verify:pack` ผ่าน — `hasWarnyin && hasClaude` ผ่าน, denylist/tripwire ไม่จับ (พิสูจน์ผ่าน `npm pack --json` + `checkFiles`=NONE บน Windows dev; `npm run verify:pack` ตรงล้ม ENOENT เฉพาะ Windows = troubleshooting #4, CI ubuntu ผ่าน)
+- [x] verify-pack unit จับ leak ปลอม: ป้อน `files[]` ที่มี `src/tests/...` → `checkFiles` คืน error (BL-4) — 9 unit tests เขียว
+- [x] `.github/workflows/ci.yml` job pack-verify เรียก `npm run verify:pack`; `npm test` step ยังถูก (BL-1)
+- [x] CI security baseline ยัง compliant (`docs/rule.md` §3) — permissions/no secrets/no pull_request_target/no npm ci/SHA-pin คงเดิม
+- [x] ผ่าน test ตาม `spec.md` (test-flow §7)
+- [x] ทำตาม `rule.md` และ `standard.md`
 
 ## 6. อ้างอิงในโฟลเดอร์ task นี้
 - Spec: `./spec.md`

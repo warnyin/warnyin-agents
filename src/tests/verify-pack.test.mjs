@@ -1,0 +1,73 @@
+// Unit test ของ pure function checkFiles (BL-4 — testable denylist)
+// import checkFiles ตรง — ไม่ trigger npm pack เพราะ main-guard (argv[1] !== module url ตอน import)
+// zero-dependency: ใช้เฉพาะ built-in node:*
+import { test } from 'node:test'
+import assert from 'node:assert/strict'
+import { checkFiles } from '../scripts/verify-pack.mjs'
+
+// payload ที่ถูกต้อง (allow ครบ + assertion ทั้ง 2 ก้อนผ่าน) — baseline สำหรับ mutate
+const GOOD = [
+  'package.json',
+  'README.md',
+  'CHANGELOG.md',
+  'LICENSE',
+  'src/AGENTS.md',
+  'src/bin/cli.mjs',
+  'src/.warnyin/workflow/README.md',
+  'src/.warnyin/template/x.md',
+  'src/.claude/commands/warnyin/build.md',
+  'src/.claude/agents/warnyin-x.md',
+]
+
+test('payload ถูกต้อง → ไม่มี error', () => {
+  assert.deepEqual(checkFiles(GOOD), [])
+})
+
+test('R2 denylist: src/tests/ หลุด → จับได้ (กัน gate ลวง)', () => {
+  const errors = checkFiles([...GOOD, 'src/tests/x.test.mjs'])
+  assert.ok(errors.length > 0, 'denylist ต้องจับ src/tests/')
+  assert.ok(errors.some((e) => e.includes('src/tests/x.test.mjs')), `error ต้องอ้าง src/tests/: ${errors.join(' | ')}`)
+})
+
+test('R2 denylist: src/scripts/ หลุด → จับได้', () => {
+  const errors = checkFiles([...GOOD, 'src/scripts/verify-pack.mjs'])
+  assert.ok(errors.some((e) => e.includes('src/scripts/')), `ต้องจับ src/scripts/: ${errors.join(' | ')}`)
+})
+
+test('R2 denylist: docs/ และ .github/ หลุด → จับได้', () => {
+  const errors = checkFiles([...GOOD, 'docs/project.md', '.github/workflows/ci.yml'])
+  assert.ok(errors.some((e) => e.includes('docs/project.md')), 'ต้องจับ docs/')
+  assert.ok(errors.some((e) => e.includes('.github/workflows/ci.yml')), 'ต้องจับ .github/')
+})
+
+test('denylist: root dogfood (.warnyin/, .claude/, CLAUDE.md, AGENTS.md) หลุด → จับได้', () => {
+  const errors = checkFiles([...GOOD, '.warnyin/workflow/x.md', '.claude/commands/warnyin/x.md', 'CLAUDE.md', 'AGENTS.md'])
+  assert.ok(errors.some((e) => e.includes('.warnyin/workflow/x.md')), 'ต้องจับ root .warnyin/')
+  assert.ok(errors.some((e) => e.includes('.claude/commands/warnyin/x.md')), 'ต้องจับ root .claude/')
+  assert.ok(errors.some((e) => /(\s|:)CLAUDE\.md/.test(e) || e.includes('CLAUDE.md')), 'ต้องจับ root CLAUDE.md')
+  assert.ok(errors.some((e) => e.includes('AGENTS.md') && !e.includes('src/')), 'ต้องจับ root AGENTS.md')
+})
+
+test('tripwire: settings.local.json / *.tgz / .env หลุด → จับได้', () => {
+  const errors = checkFiles([...GOOD, 'src/.claude/commands/settings.local.json', 'warnyin-agents-0.7.0.tgz', '.env'])
+  assert.ok(errors.some((e) => e.includes('settings.local.json')), 'ต้องจับ settings.local.json')
+  assert.ok(errors.some((e) => e.includes('.tgz')), 'ต้องจับ *.tgz')
+  assert.ok(errors.some((e) => e.includes('.env')), 'ต้องจับ .env*')
+})
+
+test('R1 assertion: ขาด src/.warnyin/workflow/ → คืน error', () => {
+  const noWarnyin = GOOD.filter((p) => !p.startsWith('src/.warnyin/workflow/'))
+  const errors = checkFiles(noWarnyin)
+  assert.ok(errors.some((e) => e.includes('src/.warnyin/workflow/')), `hasWarnyin assertion ต้องทำงาน: ${errors.join(' | ')}`)
+})
+
+test('R1 assertion: ขาด src/.claude/commands/warnyin/ → คืน error', () => {
+  const noClaude = GOOD.filter((p) => !p.startsWith('src/.claude/commands/warnyin/'))
+  const errors = checkFiles(noClaude)
+  assert.ok(errors.some((e) => e.includes('src/.claude/commands/warnyin/')), `hasClaude assertion ต้องทำงาน: ${errors.join(' | ')}`)
+})
+
+test('allowlist: ไฟล์นอก allow (เช่น src/.claude/skills/) → จับได้', () => {
+  const errors = checkFiles([...GOOD, 'src/.claude/skills/x.md'])
+  assert.ok(errors.some((e) => e.includes('src/.claude/skills/x.md')), `narrow allowlist ต้องจับ skills/: ${errors.join(' | ')}`)
+})
