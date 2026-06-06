@@ -8,7 +8,7 @@
 | **Task** | `move-source-to-src` |
 | **Slice อ้างอิง** | `design.md` slice #1 |
 | **Component** | `installer` |
-| **สถานะ** | `รอ build` |
+| **สถานะ** | `✅ build เสร็จ` (merge ad2316e · 9/9 test · fresh install payload ตรง) |
 
 ## 1. เป้าหมายของ task (vertical slice)
 ย้าย **source ของ warnyin ทั้งหมดเข้า `src/`** (git mv ตาม design §3) + ปรับ `src/bin/cli.mjs` (pkgRoot/guard comment) + แก้ `package.json` ขั้นต่ำ (`bin`→`src/bin/cli.mjs`) ให้ **installer ยัง copy `src/* → target/*` ถูก และ `node --test` ยังรัน 9 เคสเดิมเขียว** — slice verify ได้ end-to-end ในตัว (SA S3)
@@ -32,13 +32,13 @@
 - **ห้ามแตะ:** root `CLAUDE.md` (→ T4), `package.json files`/`scripts` อื่น (→ T2/T4), `.gitignore` (→ T4), `src/scripts/verify-pack.mjs` allowlist (→ T2), test/harness (mirror รักษา relative path → ไม่ต้องแก้), `.github/workflows/ci.yml` (→ T2)
 
 ## 5. Acceptance criteria (เกณฑ์ว่า task เสร็จ)
-- [ ] source ทั้งหมดอยู่ใต้ `src/` ตาม mapping design §3 (root ไม่เหลือ `bin/ tests/ scripts/ .warnyin/ AGENTS.md` และ `.claude/{commands/warnyin,agents}`)
-- [ ] `node --test` จาก repo root (bare) เห็น **9 เคสเดิมผ่าน** (pass count 9 — ไม่ใช่แค่ exit 0) โดย **ไม่แก้ไฟล์ test**
-- [ ] install สดจาก `src/bin/cli.mjs` ลง temp → payload (`.warnyin/`, `.claude/{commands/warnyin,agents}`, `CLAUDE.md`, `AGENTS.md`) มาจาก `src/.warnyin`/`src/.claude`/`src/AGENTS.md` ถูก
-- [ ] `package.json bin.warnyin-agents` = `src/bin/cli.mjs`; `scripts.test` = `node --test`; `files`/`scripts` อื่นไม่ถูกแตะ
-- [ ] comment guard `pkgRoot===target` ตรงพฤติกรรมใหม่ (no-op โดยตั้งใจ) — logic guard ไม่เปลี่ยน, ไม่มี guard ใหม่
-- [ ] ผ่าน test ตาม `spec.md` (test-flow)
-- [ ] ทำตาม `rule.md` และ `standard.md` (zero-dep, ESM, idempotent, ห้าม copy workspace, black-box test)
+- [x] source ทั้งหมดอยู่ใต้ `src/` ตาม mapping design §3 (root ไม่เหลือ `bin/ tests/ scripts/ .warnyin/ AGENTS.md` และ `.claude/{commands/warnyin,agents}`) — ✅ git mv (R100 rename ทั้งหมด), root `.warnyin/` หายจาก git
+- [x] `node --test` จาก repo root (bare) เห็น **9 เคสเดิมผ่าน** (pass count 9 — ไม่ใช่แค่ exit 0) โดย **ไม่แก้ไฟล์ test** — ✅ tests 9/pass 9/fail 0
+- [x] install สดจาก `src/bin/cli.mjs` ลง temp → payload (`.warnyin/`, `.claude/{commands/warnyin,agents}`, `CLAUDE.md`, `AGENTS.md`) มาจาก `src/.warnyin`/`src/.claude`/`src/AGENTS.md` ถูก — ✅ `diff -q` ยืนยัน identical กับ src/
+- [x] `package.json bin.warnyin-agents` = `src/bin/cli.mjs`; `scripts.test` = `node --test`; `files`/`scripts` อื่นไม่ถูกแตะ — ✅ diff แตะแค่ `bin`
+- [x] comment guard `pkgRoot===target` ตรงพฤติกรรมใหม่ (no-op โดยตั้งใจ) — logic guard ไม่เปลี่ยน, ไม่มี guard ใหม่ — ✅ แก้แค่ comment
+- [x] ผ่าน test ตาม `spec.md` (test-flow)
+- [x] ทำตาม `rule.md` และ `standard.md` (zero-dep, ESM, idempotent, ห้าม copy workspace, black-box test)
 
 ## 6. อ้างอิงในโฟลเดอร์ task นี้
 - Spec: `./spec.md`
