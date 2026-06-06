@@ -12,7 +12,9 @@
   },
   "scripts": {
     "test": "node --test",
-    "verify:pack": "node src/scripts/verify-pack.mjs"
+    "verify:pack": "node src/scripts/verify-pack.mjs",
+    "setup:dogfood": "node src/scripts/setup-dogfood.mjs",
+    "setup:sandbox": "node src/scripts/setup-sandbox.mjs"
   },
   "files": [
     "src/bin",

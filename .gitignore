@@ -19,3 +19,11 @@ build/
 .agents/
 .claude/skills/
 skills-lock.json
+
+# dogfood layer ที่ติดตั้งจาก release (regen ด้วย `npm run setup:dogfood`)
+# ★ ทุกบรรทัด root-anchored (`/` นำหน้า) — กันไป match source ใน src/.claude, src/.warnyin
+/.warnyin/
+/.claude/commands/warnyin/
+/.claude/agents/
+/CLAUDE.md
+/AGENTS.md

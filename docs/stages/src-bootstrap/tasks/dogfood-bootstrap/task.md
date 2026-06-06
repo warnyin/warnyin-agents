@@ -8,13 +8,17 @@
 | **Task** | `dogfood-bootstrap` |
 | **Slice อ้างอิง** | `design.md` slice #4 |
 | **Component** | `installer` (dev tooling + gitignore/scaffold) |
-| **สถานะ** | `รอ build` |
+| **สถานะ** | `build เสร็จ` (2026-06-07 · test/lint เขียว; live `setup:dogfood` รอ VERIFY — ดู §5) |
 
 ## 1. เป้าหมายของ task (vertical slice)
 > ส่งมอบ **กลไก dogfood/bootstrap** ครบ end-to-end (design slice #4, คุม R3): หลัง `npm run setup:dogfood` repo คืน dogfood env ที่ root (gitignored) ด้วย release เสถียร + ชี้อ่าน `CONTRIBUTING.md`; `npm run setup:sandbox` ติดตั้ง v-next ลง temp เพื่อ test version skew — โดย `git status` สะอาด (ไม่มี dogfood/docs collision หลุดขึ้น git)
 
 ## ⚠️ Prerequisite (นอก workflow — ทำก่อน verify acceptance ข้อ 1/2)
 > **publish 0.6.0 (main ปัจจุบัน, `.warnyin/` layout) ขึ้น npm ก่อน** — เป็น dogfood baseline (user decision, ดู `./issue.md` BK-1 resolved) · `setup:dogfood` `npx @latest` ต้องได้ ≥0.6.0 (.warnyin layout) ไม่งั้น acceptance ข้อ 1 (root มี `.warnyin/`) + ข้อ 2 (git สะอาด) FAIL กับ 0.5.2 (layout เก่า) · publish 0.6.0 อิสระจาก restructure (installer วาง `.warnyin/` ลง target เหมือนเดิม) · topic นี้ → bump **0.7.0**
+
+## ⚠️ BUILD finding (main loop พบจริงตอน restore dogfood — ต้องจัดการใน task นี้)
+> **`npx @warnyin/agents@<ver>` รันบนเครื่อง Windows นี้ล้มเหลว:** `'warnyin-agents' is not recognized as an internal or external command` (ทั้ง Git Bash + PowerShell + `npx --package=... -- warnyin-agents`) — bin-shim ของ npx ไม่ถูก resolve. cli.mjs มี shebang `#!/usr/bin/env node` ครบ. workaround ที่พิสูจน์แล้วว่าได้: `npm pack @warnyin/agents@<ver>` → extract → `node <pkg>/bin/cli.mjs` (cwd=repoRoot).
+> **สิ่งที่ T4 ต้องทำ:** (1) ทำ `setup-dogfood.mjs` ให้ robust — ถ้า npx ล้ม ให้ตรวจจับ exit code/stderr แล้ว **fallback** (เช่น pack+extract+node) หรืออย่างน้อย exit ด้วย error message ชัดเจน **อย่ารายงานเขียวทั้งที่ dogfood ไม่ถูกติดตั้ง** · (2) ถ้าบน Windows ยังติด → verify acceptance #2/#3 (e2e install) ด้วย fallback path + **document ข้อจำกัด npx-Windows** เป็น dev-env limitation (คล้าย verify-pack ENOENT, troubleshooting #4) + บันทึก troubleshooting entry · (3) คง array-args `shell:win32-only` ตาม rule §5 (ห้าม `shell:true` ข้าม platform กับ user input — แต่ pack+node ไม่ผ่าน user input) — เลือก approach ที่ปลอดภัย+ทำงานจริงข้าม platform
 
 ## 2. Dependency (เชื่อมต่อกับ task อื่น)
 - **ต้องทำหลัง:** `tasks/move-source-to-src` (T1 — ต้องมี `src/bin/cli.mjs` ใช้ได้ + `package.json bin`/`scripts.test` ขั้นต่ำ)
@@ -25,12 +29,12 @@
 
 ## 3. Sub-tasks (แตกย่อยถ้าซับซ้อน)
 
-- [ ] 1. **`.gitignore`** — เพิ่มกลุ่ม dogfood patterns **root-anchored ทุกบรรทัด** (`/​.warnyin/`, `/​.claude/commands/warnyin/`, `/​.claude/agents/`, `/CLAUDE.md`, `/AGENTS.md`) ใต้คอมเมนต์อธิบาย regen ด้วย `npm run setup:dogfood` — _ผลลัพธ์:_ dogfood layer ไม่ติด git, source ใน `src/` ปลอดภัย
-- [ ] 2. **`CONTRIBUTING.md`** — ยืนยัน/รัน `git mv CLAUDE.md CONTRIBUTING.md` (ดู §2 ประสาน T1) แล้ว **rewrite โฟกัส contributor**: zero-dep/ESM, พัฒนา v-next ใน `src/`, วิธี test ผ่าน `setup:sandbox`, สถานะ workflow 5 stage — _ขึ้นกับ:_ root CLAUDE.md เดิม (dev-instructions) เป็นฐาน
-- [ ] 3. **`src/scripts/setup-dogfood.mjs`** — (1) `spawnSync('npx', ['--yes','@warnyin/agents@latest'], {cwd:repoRoot, stdio:'inherit', shell:process.platform==='win32'})` (2) append pointer "ดู CONTRIBUTING.md" ต่อท้าย root CLAUDE.md **idempotent** (marker check) (3) comment policy review diff payload — _ขึ้นกับ 2:_ pointer ชี้ CONTRIBUTING.md ที่มีแล้ว
-- [ ] 4. **`src/scripts/setup-sandbox.mjs`** — `mkdtempSync(path.join(os.tmpdir(),'wy-sandbox-'))` → `spawnSync(process.execPath,[path.join(repoRoot,'src','bin','cli.mjs')],{cwd:dir,stdio:'inherit'})` → print path — _ผลลัพธ์:_ v-next ติดตั้งใน temp
-- [ ] 5. **`package.json scripts`** — เพิ่ม `"setup:dogfood":"node src/scripts/setup-dogfood.mjs"`, `"setup:sandbox":"node src/scripts/setup-sandbox.mjs"` (อย่าแตะ `files`/`bin` ที่ T2 คุม) — _ขึ้นกับ 3,4_
-- [ ] 6. **กัน docs collision (BL-3)** — สร้าง `docs/project.md` + `docs/infra.md` + `docs/stages/achieved/.gitkeep` เป็น repo doc จริง (infra.md เขียนพอกัน seed: runbook transition design §5.3 + กฎ cross-platform npm scripts; เนื้อเต็ม promote ตอน SHIP) — _ผลลัพธ์:_ seedDocs/ensureScaffold ของ release skip หมด → `git status --porcelain docs/` ว่าง
+- [x] 1. **`.gitignore`** — เพิ่มกลุ่ม dogfood patterns **root-anchored ทุกบรรทัด** (`/​.warnyin/`, `/​.claude/commands/warnyin/`, `/​.claude/agents/`, `/CLAUDE.md`, `/AGENTS.md`) ใต้คอมเมนต์อธิบาย regen ด้วย `npm run setup:dogfood` — ✅ verified: `git check-ignore` จับ root dogfood ครบ, `src/` ไม่ถูก ignore (source ปลอดภัย)
+- [x] 2. **`CONTRIBUTING.md`** — `git mv CLAUDE.md CONTRIBUTING.md` (T1 ไม่ได้ mv → task นี้ทำ) แล้ว rewrite โฟกัส contributor (2-layer bootstrap, zero-dep/ESM/cross-platform, dev v-next ใน `src/`, test ผ่าน `setup:sandbox`, workflow 5 stage) ✅
+- [x] 3. **`src/scripts/setup-dogfood.mjs`** — npx (shell:win32) + **fallback npm pack→extract(tar)→node cli.mjs** (BUILD finding: npx-Windows ENOENT) + append pointer idempotent (marker `CONTRIBUTING.md`) + comment policy review diff ✅ (idempotency พิสูจน์ในแลบ: 3 run → 1 pointer; live npx run รอ VERIFY)
+- [x] 4. **`src/scripts/setup-sandbox.mjs`** — `mkdtempSync(os.tmpdir(),'wy-sandbox-')` → spawn `process.execPath [cli.mjs]` array args ไม่ shell → print path ✅ **รันจริงบน Windows ผ่าน** (sandbox 71 ไฟล์, payload ครบ)
+- [x] 5. **`package.json scripts`** — เพิ่ม `setup:dogfood`/`setup:sandbox` (ไม่แตะ `files`/`bin`/`verify:pack` ที่ T2 คุม) ✅
+- [x] 6. **กัน docs collision (BL-3)** — `docs/project.md` + `docs/infra.md` เขียนเป็น repo doc จริง (`docs/stages/achieved/.gitkeep` + `context.md` มีอยู่แล้ว) ✅ พิสูจน์ deterministic: simulate seedDocs/ensureScaffold ของ payload 0.6.0 → CREATE NONE ใน `docs/`
 
 ## 4. ขอบเขตไฟล์/โค้ดที่จะแตะ
 - `.gitignore` (เพิ่มกลุ่ม dogfood)
@@ -42,15 +46,15 @@
 > **ห้ามแตะ:** `src/bin/cli.mjs` (T1), `package.json files`/`bin` + `src/scripts/verify-pack.mjs` (T2), `src/tests/` (T3)
 
 ## 5. Acceptance criteria (เกณฑ์ว่า task เสร็จ)
-- [ ] (prerequisite) 0.6.0 publish บน npm แล้ว → `npm view @warnyin/agents version` ≥ 0.6.0 (.warnyin layout)
-- [ ] `npm run setup:dogfood` จาก repo root → root มี `.warnyin/`, `.claude/commands/warnyin/`, `.claude/agents/`, `CLAUDE.md`, `AGENTS.md` (ติด `.gitignore`) + `/warnyin:*` ใช้ได้
-- [ ] `git status --porcelain docs/` **ว่าง** หลัง setup:dogfood (BL-3 ปิด)
-- [ ] รัน `setup:dogfood` ซ้ำ → pointer ใน root CLAUDE.md **ไม่ append ซ้อน** (idempotent)
-- [ ] `npm run setup:sandbox` → temp dir (`os.tmpdir()`) มี v-next ครบ + print path; รันบน Windows ได้
-- [ ] `CONTRIBUTING.md` มีจริงที่ root (committed) เนื้อ dev-instructions โฟกัส contributor
-- [ ] `.gitignore` dogfood patterns root-anchored ทุกบรรทัด (`/` นำหน้า)
-- [ ] ผ่าน test ตาม `spec.md` (test-flow)
-- [ ] ทำตาม `rule.md` และ `standard.md` (zero-dep/ESM/idempotent/cross-platform; spawn array args ไม่ shell ยกเว้น npx win32)
+- [x] (prerequisite) 0.6.0 publish บน npm แล้ว → `npm view @warnyin/agents version` = **0.6.0** (latest, .warnyin layout) ✅
+- [~] `npm run setup:dogfood` จาก repo root → root มี `.warnyin/`, `.claude/commands/warnyin/`, `.claude/agents/`, `CLAUDE.md`, `AGENTS.md` (ติด `.gitignore`) + `/warnyin:*` ใช้ได้ — **deferred to VERIFY**: sandbox classifier บล็อกการรัน `setup:dogfood` ใน build context (external code exec + เขียน agent config) → ยืนยัน live ใน VERIFY; logic + fallback พร้อม (sandbox flow รันจริงผ่าน, root dogfood layer มีอยู่จาก install ก่อนหน้า + ติด `.gitignore` แล้ว)
+- [x] `git status --porcelain docs/` **ว่าง** หลัง setup:dogfood (BL-3 ปิด) — ✅ พิสูจน์ deterministic (simulate seedDocs/ensureScaffold payload 0.6.0 → CREATE NONE)
+- [x] รัน `setup:dogfood` ซ้ำ → pointer ใน root CLAUDE.md **ไม่ append ซ้อน** (idempotent) — ✅ พิสูจน์ในแลบ (3 run → 1 occurrence)
+- [x] `npm run setup:sandbox` → temp dir (`os.tmpdir()`) มี v-next ครบ + print path; รันบน Windows ได้ — ✅ **รันจริง** (`C:\...\Temp\wy-sandbox-*`, 71 ไฟล์, .warnyin/workflow/stages + .claude/commands/warnyin ครบ)
+- [x] `CONTRIBUTING.md` มีจริงที่ root (committed) เนื้อ dev-instructions โฟกัส contributor ✅
+- [x] `.gitignore` dogfood patterns root-anchored ทุกบรรทัด (`/` นำหน้า) ✅
+- [x] ผ่าน test ตาม `spec.md` (test-flow) — ✅ `npm test` 18/18 เขียว; test-flow รายข้อ verify (ดู build.md)
+- [x] ทำตาม `rule.md` และ `standard.md` (zero-dep/ESM/idempotent/cross-platform; spawn array args ไม่ shell ยกเว้น npx win32) ✅
 
 ## 6. อ้างอิงในโฟลเดอร์ task นี้
 - Spec: `./spec.md`
