@@ -21,7 +21,10 @@ jobs:
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: ${{ matrix.node }}
-      - run: npm test
+      # pass-count gate (anti-false-green — troubleshooting #3): ยืนยัน pass==tests, fail==0, pass>=9
+      # pipefail = ถ้า node --test exit!=0 ก็ fail แม้ผ่าน pipe; gate parse summary แล้ว fail ถ้าไม่เขียวจริง
+      - run: set -o pipefail; npm test 2>&1 | node src/scripts/check-test-count.mjs
+        shell: bash
 
   pack-verify:
     name: pack-verify

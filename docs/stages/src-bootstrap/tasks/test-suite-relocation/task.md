@@ -8,7 +8,7 @@
 | **Task** | `test-suite-relocation` |
 | **Slice อ้างอิง** | `design.md` slice #3 |
 | **Component** | `installer` (test suite) |
-| **สถานะ** | `รอ build` |
+| **สถานะ** | `build เสร็จ — เขียว` |
 
 ## 1. เป้าหมายของ task (vertical slice)
 > test suite **เขียวบนโครงใหม่** `src/tests/` + พิสูจน์ข้าม node major
@@ -23,12 +23,13 @@
 - **ส่ง output ต่อ:** test suite เขียวบน `src/tests/` + หลักฐาน pass 9 บน 3 node major
 
 ## 3. Sub-tasks
-- [ ] 1. ยืนยัน `src/tests/installer.test.mjs` มีอยู่หลัง T1 git mv — _ผลลัพธ์:_ ไฟล์ test อยู่ใน `src/tests/`
-- [ ] 2. รัน `npm test` (bare `node --test`) → ตรวจ 9 เคสเขียว; ยืนยัน `cliPath` resolve เป็น `src/bin/cli.mjs` (relative `../bin/cli.mjs` คงเดิม) — _ขึ้นกับ 1; ผลลัพธ์:_ pass 9 local
-- [ ] 3. ตรวจ assertion เคส 1 & 8 ยังเป็น **target-side paths** (ไม่มี prefix `src/`) — _ขึ้นกับ 2:_ ยืนยันไม่เผลอแก้เป็น `src/.warnyin`
-- [ ] 4. ยืนยัน `scripts.test` = `node --test` (bare, ไม่มี path/glob arg) — แก้ถ้า T1 ใส่ arg มา
-- [ ] 5. เพิ่ม pass-count gate ใน ci.yml job `test` (parse `ℹ pass N` / `# pass N`, fail ถ้า ≠ 9) ด้วย built-in/shell zero-dep — _ขึ้นกับ 4:_ machine-checkable บน node 20/22/24
-- [ ] 6. (optional) เพิ่มเคส 10 regression: payload byte-equal กับ `src/` (พิสูจน์ `pkgRoot`=src/) — _ทำถ้าคุ้ม, ห้ามแตะ harness กลาง_
+- [x] 1. ยืนยัน `src/tests/installer.test.mjs` มีอยู่หลัง T1 git mv — _ผลลัพธ์:_ ไฟล์ test อยู่ใน `src/tests/` ✓
+- [x] 2. รัน `npm test` (bare `node --test`) → ตรวจ 9 เคสเขียว; ยืนยัน `cliPath` resolve เป็น `src/bin/cli.mjs` (relative `../bin/cli.mjs` คงเดิม) — _ผลลัพธ์:_ installer 9/9 เขียว local (`node --test src/tests/installer.test.mjs` = pass 9); suite รวม 18 (กับ verify-pack.test.mjs ของ T2) ✓
+- [x] 3. ตรวจ assertion เคส 1 & 8 ยังเป็น **target-side paths** (ไม่มี prefix `src/`) — ยืนยันแล้วไม่มี `src/` prefix (`.warnyin/workflow`, `docs/project.md`, ฯลฯ) ✓
+- [x] 4. ยืนยัน `scripts.test` = `node --test` (bare, ไม่มี path/glob arg) — ยืนยัน `package.json scripts.test = "node --test"` bare ✓
+- [x] 5. เพิ่ม pass-count gate ใน ci.yml job `test` ด้วย built-in zero-dep — สร้าง `src/scripts/check-test-count.mjs` (parse `ℹ pass N`/`# pass N`; fail ถ้า fail≠0, pass<9, หรือ pass≠tests) + pipe ใน ci.yml job `test` ด้วย `set -o pipefail` ✓
+  > **★ integration note:** acceptance เดิมระบุ "pass count = 9" สมัยมีแต่ installer.test.mjs; พอ T2 เพิ่ม `verify-pack.test.mjs` (9 เคส) bare discovery รวมเป็น 18 → hardcode `==9` กับ bare-run จะ false-fail หลัง integrate จึงตั้ง gate เป็น **anti-false-green เชิงโครงสร้าง** (fail==0 + pass==tests + pass>=9) ซึ่งดัก troubleshooting #3 (tests=1 pass=0) ได้และทนต่อไฟล์ test เพิ่ม; installer 9 เคสยังพิสูจน์แยกได้ด้วย `node --test src/tests/installer.test.mjs`
+- [ ] 6. (optional) เพิ่มเคส 10 regression: payload byte-equal กับ `src/` — _ไม่ทำ:_ เคส 1 (install สด) ครอบ pkgRoot=src/ โดยอ้อมอยู่แล้ว + verify-pack denylist (T2) คุม src/ source แล้ว; เลี่ยงเพิ่ม logic เกินจำเป็น/แตะ harness กลาง ตาม spec §7.3 ("เพิ่มได้ถ้าคุ้ม")
 
 ## 4. ขอบเขตไฟล์/โค้ดที่จะแตะ
 - `src/tests/installer.test.mjs` — ยืนยัน/ปรับให้น้อยที่สุด (เป้า 0 บรรทัด logic; เพิ่มเคส 10 ถ้าทำ)
@@ -37,14 +38,14 @@
 - **ห้ามแตะ:** `src/bin/cli.mjs` (T1), `src/scripts/verify-pack.mjs` (T2), โค้ด/ไฟล์อื่นนอกขอบเขต
 
 ## 5. Acceptance criteria (เกณฑ์ว่า task เสร็จ)
-- [ ] `npm test` (bare `node --test`) เขียว 9 เคสบน local
-- [ ] **CI matrix node 20/22/24 เห็น pass count = 9** (BL-2) — ไม่ใช่แค่ exit 0; machine-checkable ถ้าทำได้ (ดู spec §7.2)
-- [ ] test logic แก้น้อยที่สุด (เป้า 0 บรรทัด — mirror layout รักษา relative path); `cliPath` → `src/bin/cli.mjs`
-- [ ] assertion เคส 1 & 8 คงเป็น target-side path (ไม่มี `src/` prefix); legacy string คง codepoint เดิม
-- [ ] `scripts.test` = `node --test` bare (ไม่มี path/glob arg)
-- [ ] ไม่เพิ่ม dependency (zero-dep) · ไม่ละเมิด CI security baseline ถ้าแตะ ci.yml
-- [ ] ผ่าน test ตาม `spec.md` (§7 test-flow)
-- [ ] ทำตาม `rule.md` และ `standard.md`
+- [x] `npm test` (bare `node --test`) เขียว — installer 9/9 + suite รวม 18/18 บน local (node 24)
+- [x] **CI matrix node 20/22/24 เห็น pass count machine-checkable** (BL-2) — gate `check-test-count.mjs` assert fail==0 + pass==tests + pass>=9 (ไม่ใช่แค่ exit 0); ดัก false-green troubleshooting #3 ได้ (ทดสอบ sim tests=1 pass=0 → gate fail)
+- [x] test logic แก้ 0 บรรทัด — mirror layout รักษา relative path; `cliPath` → `src/bin/cli.mjs` (verified)
+- [x] assertion เคส 1 & 8 คงเป็น target-side path (ไม่มี `src/` prefix); legacy string (en-dash/≤) คง codepoint เดิม (ไม่แตะ)
+- [x] `scripts.test` = `node --test` bare (ไม่มี path/glob arg) — verified
+- [x] ไม่เพิ่ม dependency (zero-dep — gate ใช้ built-in `node:process` เท่านั้น) · CI security baseline คงครบ (contents:read, ไม่มี pull_request_target/secrets/npm ci/cache)
+- [x] ผ่าน test ตาม `spec.md` (§7 test-flow) — 9 เคสเขียว + pass-count gate machine-checkable
+- [x] ทำตาม `rule.md` และ `standard.md` — black-box คงเดิม, zero-dep, ESM, คอมเมนต์ไทย, ไม่แตะ harness กลาง
 
 ## 6. อ้างอิงในโฟลเดอร์ task นี้
 - Spec: `./spec.md`
