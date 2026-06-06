@@ -1,12 +1,22 @@
-<!-- Generated: 2026-06-06 | Files scanned: ~62 | Token estimate: ~600 -->
+<!-- Generated: 2026-06-07 | Files scanned: ~64 | Token estimate: ~780 -->
 # Architecture — Warnyin Standard Workflow
 
-## ภาพรวม
+## 2-layer (bootstrap / self-hosting)
+```
+SOURCE (committed, publish)              DOGFOOD (gitignored, install จาก release)
+  src/bin/cli.mjs                          root .warnyin/  .claude/{commands/warnyin,agents}
+  src/.warnyin/{workflow,template}         root CLAUDE.md  AGENTS.md
+  src/.claude/{commands/warnyin,agents}      └ regen: npm run setup:dogfood
+  src/AGENTS.md  src/tests/ src/scripts/   .gitignore root-anchored กัน match src/.claude/*
+```
+- พัฒนา v-next ที่ "อาจพัง" ใน `src/` ได้ โดย workflow ที่ใช้ทำงาน (root dogfood) ยังเสถียร
+
+## ภาพรวม (ผู้ใช้ปลายทาง)
 ```
 ผู้ใช้ปลายทาง
-   │  npx @warnyin/agents
+   │  npx @warnyin/agents          (bin → src/bin/cli.mjs; pkgRoot resolve = src/)
    ▼
-bin/cli.mjs ──copy──▶ โปรเจกต์ปลายทาง:
+src/bin/cli.mjs ──copy──▶ โปรเจกต์ปลายทาง:
    │                    .warnyin/{workflow,template}  (core, อัปเดตได้)
    │                    .claude/{commands/warnyin,agents}  (adapter Claude)
    │                    docs/stages/ (scaffold เปล่า — generate)
@@ -15,20 +25,22 @@ bin/cli.mjs ──copy──▶ โปรเจกต์ปลายทาง:
 AI harness (Claude Code / Codex) อ่าน playbook กลาง → เดินงาน 5 stage
 ```
 
-## 5-stage flow (playbook กลางที่ `.warnyin/workflow/stages/`)
+## 5-stage flow (playbook กลางที่ `src/.warnyin/workflow/stages/`)
 ```
 Discovery(optional) ▶ DESIGN ▶ BUILD ▶ VERIFY ▶ SHIP
    discovery.md      design.md  build.md  verify.md ship.md
                                   │
                                   └─ build-wave.mjs (Workflow fan-out ตาม dependency DAG)
 
-output งานจริง: docs/stages/<slug>/  (copy จาก template .warnyin/template/stages/[topic]/)
+output งานจริง: docs/stages/<slug>/  (copy จาก template src/.warnyin/template/stages/[topic]/)
 ความรู้ถาวร: docs/  (SHIP promote ขึ้นมา: features/techstack/rule/troubleshooting/codemap)
 ```
 
-## installer flow (bin/cli.mjs)
+## installer flow (src/bin/cli.mjs)
 ```
-guard pkgRoot≠target → warn legacy(≤0.2.x / 0.3–0.5.x)
+pkgRoot = resolve(dirname(import.meta.url), '..')  → src/ (sibling ของ bin/)
+guard pkgRoot===target → error  (defensive no-op หลังย้าย: pkgRoot=src/ ไม่มีทาง===target)
+ → warn legacy(≤0.2.x / 0.3–0.5.x)
  → copyTree(CORE, overwrite=--update)   .warnyin/{workflow,template} + .claude/{commands/warnyin,agents}
  → ensureScaffold()                     generate docs/stages/{context.md, achieved/.gitkeep} เปล่า (ไม่ copy → กัน leak)
  → seedDocs()                           .warnyin/template/docs/** → docs/** (ข้าม [...], ไม่ทับ)
@@ -36,15 +48,20 @@ guard pkgRoot≠target → warn legacy(≤0.2.x / 0.3–0.5.x)
 ```
 รายละเอียด helper/ค่าคงที่: `docs/techstack/installer/structure.md`
 
-## tool-agnostic design
-- **แก่นเดียว** = `.warnyin/workflow/*.md` (ทุก harness อ่านชุดเดียวกัน)
-- **adapter บาง:** `.claude/commands/warnyin/*.md` (slash command) + `.claude/agents/warnyin-*.md` (reviewer subagent) + `AGENTS.md` (Codex/Antigravity) — ทุกตัวชี้กลับ playbook กลาง ไม่ duplicate logic
+## dev tooling (src/scripts/ — ไม่ publish)
+```
+setup-dogfood.mjs   installViaNpx() || installViaPack(npm pack→extract→node cli) → append pointer CONTRIBUTING.md
+setup-sandbox.mjs   mkdtempSync(os.tmpdir(),'wy-sandbox-') → node src/bin/cli.mjs ลง temp (test version skew)
+verify-pack.mjs     npm pack --json → checkFiles(files)→error[] (allowlist+denylist+tripwire; export ให้ unit)
+check-test-count.mjs  parse summary node --test → fail ถ้า fail!=0 / pass<9 / pass!=tests
+```
 
-## role / review
-`.warnyin/workflow/roles/` — BA/PO/SA/Tech Lead/Developer/QA/Security/Infra (lens ต่อ stage)
-`.claude/agents/warnyin-{sa,tech-lead,qa,security,infra}.md` — reviewer subagent (DESIGN review panel, read-only)
+## tool-agnostic design
+- **แก่นเดียว** = `src/.warnyin/workflow/*.md` (ทุก harness อ่านชุดเดียวกัน)
+- **adapter บาง:** `src/.claude/commands/warnyin/*.md` + `src/.claude/agents/warnyin-*.md` + `src/AGENTS.md` (Codex) — ชี้กลับ playbook กลาง ไม่ duplicate logic
+- role card: `src/.warnyin/workflow/roles/` (BA/PO/SA/Tech Lead/Developer/QA/Security/Infra); reviewer subagent `src/.claude/agents/warnyin-{sa,tech-lead,qa,security,infra}.md`
 
 ## เผยแพร่ (packaging)
-- `package.json files` (allowlist): `bin`, `.warnyin`, `.claude/{commands,agents}`, `CLAUDE.md`, `AGENTS.md` — **ไม่รวม `docs/`** (งานจริง/roadmap ไม่ publish; scaffold installer สร้างเอง)
-- CI: `.github/workflows/ci.yml` → test matrix [20,22,24] + pack-verify gate
-- zero external dependency — ทุกอย่าง built-in `node:*`
+- `package.json files` granular: `src/bin`, `src/.warnyin`, `src/.claude/commands`, `src/.claude/agents`, `src/AGENTS.md`, `README/CHANGELOG/LICENSE` — **ไม่รวม** `src/tests`/`src/scripts` (dev), root dogfood (gitignored)
+- nested dotfolder ต้องระบุชัด (npm ไม่รวมอัตโนมัติ — บทเรียน 0.6.0); `verify-pack` เป็น gate พิสูจน์
+- CI `.github/workflows/ci.yml`: test matrix [20,22,24] + pass-count gate + pack-verify gate; zero-dep (built-in `node:*`)

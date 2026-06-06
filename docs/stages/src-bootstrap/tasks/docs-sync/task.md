@@ -8,7 +8,7 @@
 | **Task** | `docs-sync` |
 | **Slice อ้างอิง** | `design.md` slice #5 |
 | **Component** | `installer` (docs) + `codemap` |
-| **สถานะ** | `รอ build` |
+| **สถานะ** | `build เสร็จ ✅ (2026-06-07)` |
 
 ## 1. เป้าหมายของ task (vertical slice)
 อัปเดต **เอกสารสะท้อนโค้ด (descriptive)** ให้ตรงโครงใหม่ 100% หลัง T1–T4 ลงจริง: `docs/techstack/installer/{structure,test,about}.md` + `docs/codemap/{index,architecture}.md` ให้สะท้อน 2-layer (source `src/` vs dogfood root gitignored) + setup scripts — และ **note rule/standard ที่ต้องแก้รอ SHIP** (ไม่แตะ `docs/rule.md` + ไม่แตะ component `rule.md`/`standard.md` ตอน BUILD)
@@ -19,13 +19,13 @@
 - ปลดล็อกให้: SHIP (promote rule ใหม่จาก `./rule.md` §2 + กลั่น `docs/infra.md` เต็ม)
 
 ## 3. Sub-tasks
-- [ ] 1. อ่าน ground truth — `src/bin/cli.mjs`, `package.json`, `src/tests/`, `src/scripts/{verify-pack,setup-dogfood,setup-sandbox}.mjs`, `.github/workflows/ci.yml`, `.gitignore` — _ผลลัพธ์: ค่าจริงของ path/CORE/allowlist/scripts/helper_
-- [ ] 2. แก้ `docs/techstack/installer/structure.md` — โครง `src/`, flow `pkgRoot=src/`, helper + setup scripts ใหม่, ค่าคงที่, files allowlist granular — _ขึ้นกับ 1_
-- [ ] 3. แก้ `docs/techstack/installer/test.md` — `src/tests/`, `node --test` bare recurse, matrix 9-pass gate, verify-pack testable, Windows workaround — _ขึ้นกับ 1_
-- [ ] 4. แก้ `docs/techstack/installer/about.md` — path ใหม่ (`src/bin/cli.mjs`, test/verify ชี้ `src/`) เท่าที่เปลี่ยน — _ขึ้นกับ 1_ · **`standard.md` (component) ไม่แตะ → harness path correction note §2 รอ SHIP**
-- [ ] 5. แก้ `docs/codemap/index.md` + `architecture.md` ตาม `.warnyin/workflow/codemap.md` — 2-layer (src source vs root dogfood gitignored) + setup scripts + freshness header + (.reports/codemap-diff.txt ถ้าทำ diff) — _ขึ้นกับ 1_
-- [ ] 6. เช็ค `docs/project.md`+`docs/infra.md` ครบ/สอดคล้องโครงใหม่ (ไม่สร้างซ้ำ ไม่เติมเนื้อหา infra) — _ขึ้นกับ 1_
-- [ ] 7. note rule ใหม่ใน `./rule.md` §2 ให้ครบ (รอ SHIP) — **ห้ามแตะ `docs/rule.md`**
+- [x] 1. อ่าน ground truth — `src/bin/cli.mjs`, `package.json`, `src/tests/`, `src/scripts/{verify-pack,setup-dogfood,setup-sandbox,check-test-count}.mjs`, `.github/workflows/ci.yml`, `.gitignore` — _ค่าจริงดึงครบ (พบเพิ่ม: `check-test-count.mjs` + `verify-pack.test.mjs` → suite รวม 18 เคส)_
+- [x] 2. แก้ `docs/techstack/installer/structure.md` — โครง `src/`, flow `pkgRoot=src/`, helper + setup scripts ใหม่, ค่าคงที่, files allowlist granular ✅
+- [x] 3. แก้ `docs/techstack/installer/test.md` — `src/tests/`, `node --test` bare recurse, matrix pass-count gate (9), verify-pack testable, Windows workaround ✅
+- [x] 4. แก้ `docs/techstack/installer/about.md` — path ใหม่ (`src/bin/cli.mjs`, test/verify ชี้ `src/`) ✅ · **`standard.md` (component) ไม่แตะ → note §2 รอ SHIP**
+- [x] 5. แก้ `docs/codemap/index.md` + `architecture.md` — 2-layer + setup scripts + freshness header 2026-06-07 + `.reports/codemap-diff.txt` ✅ (ทุกไฟล์ < 1000 tokens)
+- [x] 6. เช็ค `docs/project.md`+`docs/infra.md` — ครบ/สอดคล้องโครงใหม่แล้ว (T4 สร้างไว้ถูก; ไม่แก้เนื้อหา) ✅
+- [x] 7. note rule ใหม่ใน `./rule.md` §2 ครบ (ทำใน DESIGN; BUILD ไม่แตะ `docs/rule.md`/component rule/standard — diff สะอาด) ✅
 
 ## 4. ขอบเขตไฟล์/โค้ดที่จะแตะ
 - **แก้ได้ (descriptive docs):** `docs/techstack/installer/{structure,test,about}.md`, `docs/codemap/{index,architecture}.md`, (อ่าน-เขียน) `./spec.md` `./standard.md` `./rule.md` ในโฟลเดอร์ task, `.reports/codemap-diff.txt`
@@ -33,14 +33,14 @@
 - **⛔ ห้ามแตะตอน BUILD:** `docs/rule.md` (rule กลาง), **`docs/techstack/installer/rule.md` + `standard.md` (rule/standard component)** — แก้ที่ SHIP จาก note `./rule.md §2`; โค้ดใน `src/**`; `docs/infra.md`/`docs/project.md` (เนื้อหา)
 
 ## 5. Acceptance criteria
-- [ ] `structure.md` ทุก path/ค่าคงที่/helper/allowlist ตรงกับ `src/bin/cli.mjs` + `package.json` จริง (เทียบโค้ดได้ 100%)
-- [ ] `test.md` สะท้อน `src/tests/` + `node --test` bare + CI matrix 9-pass gate + verify-pack testable + Windows workaround ตรงไฟล์จริง
-- [ ] `about.md` ไม่เหลือ path เก่า (`bin/cli.mjs`/`tests/`/`scripts/` ลอย) → ชี้ `src/` ถูก (`standard.md` component ไม่แก้รอบนี้ — รอ SHIP)
-- [ ] `codemap/{index,architecture}.md` แสดง 2-layer ชัด + path ใหม่ + freshness header วันที่ build + ทุกไฟล์ < 1000 tokens; `index.md` ลิงก์ครบ
-- [ ] **`docs/rule.md` ไม่ถูกแก้** (git diff สะอาด) — rule ใหม่อยู่ใน `./rule.md` §2 ครบทุกข้อ
-- [ ] `docs/project.md`+`docs/infra.md` เช็คแล้วครบ/สอดคล้อง (หรือ note สิ่งที่รอ SHIP — ไม่แก้เนื้อหา)
-- [ ] **docs ตรงโค้ดจริง 100%** — ไม่มี path/ค่า/ลิงก์ที่ไม่มีอยู่จริง
-- [ ] ทำตาม `rule.md` และ `standard.md`
+- [x] `structure.md` ทุก path/ค่าคงที่/helper/allowlist ตรงกับ `src/bin/cli.mjs` + `package.json` จริง (CORE/SCAFFOLD_FILES/TEMPLATE_DOCS/marker + files allowlist granular เทียบโค้ดแล้ว)
+- [x] `test.md` สะท้อน `src/tests/` (18 เคส) + `node --test` bare + CI matrix pass-count gate (9) + verify-pack testable (`checkFiles`) + Windows workaround ตรงไฟล์จริง
+- [x] `about.md` ไม่เหลือ path เก่า → ชี้ `src/bin/cli.mjs`/`src/tests/` (grep ยืนยันไม่มี stale path; `standard.md` component ไม่แก้ — รอ SHIP)
+- [x] `codemap/{index,architecture}.md` แสดง 2-layer ชัด + path ใหม่ + freshness 2026-06-07 + ทุกไฟล์ < 1000 tokens; `index.md` ลิงก์ครบ (codemap มีแค่ architecture.md)
+- [x] **`docs/rule.md` ไม่ถูกแก้** (git diff สะอาด — ยืนยันแล้ว) — rule ใหม่อยู่ `./rule.md` §2 ครบ
+- [x] `docs/project.md`+`docs/infra.md` เช็คแล้วครบ/สอดคล้องโครงใหม่ (ไม่แก้เนื้อหา)
+- [x] **docs ตรงโค้ดจริง 100%** — grep ยืนยันไม่มี path เก่า/ลิงก์เสียในไฟล์ที่แก้
+- [x] ทำตาม `rule.md` และ `standard.md` (ห้ามแตะ rule/standard กลาง; เขียนจาก ground truth; ภาษาไทยกระชับ คงสไตล์เดิม)
 
 ## 6. อ้างอิงในโฟลเดอร์ task นี้
 - Spec: `./spec.md`

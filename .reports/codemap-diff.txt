@@ -1,25 +1,65 @@
-Codemap diff — 2026-06-06 (สแกนครั้งแรก ผ่าน SHIP topic installer-test-ci)
-=====================================================================
+Codemap diff — 2026-06-07 (topic: src-bootstrap, task T5 docs-sync)
+====================================================================
 
-สถานะ: ครั้งแรก — ไม่มี codemap เดิม → ทุกอย่าง added
+Scope: docs descriptive sync หลัง T1–T4 (ย้าย source เข้า src/ + dogfood bootstrap)
+Prev scan: 2026-06-06 (topic installer-test-ci)
 
-ไฟล์ codemap ที่สร้าง:
-  + docs/codemap/index.md
-  + docs/codemap/architecture.md
+Architecture changes
+--------------------
+- โครงโปรเจกต์เปลี่ยนเป็น 2-layer (bootstrap/self-hosting):
+    SOURCE  = src/**  (committed, publish)
+    DOGFOOD = root .warnyin/ .claude/{commands/warnyin,agents} CLAUDE.md AGENTS.md (gitignored, install จาก release)
+- entry/bin ย้าย: bin/cli.mjs → src/bin/cli.mjs (pkgRoot resolve = src/)
+- guard pkgRoot===target = defensive no-op โดยตั้งใจหลังย้าย (เดิม "ต้อง error")
 
-component ที่ map:
-  + installer        (bin/cli.mjs, tests/, scripts/, .github/)
-  + workflow core    (.warnyin/workflow/ — 5 stage playbook + roles + build-wave.mjs)
-  + templates        (.warnyin/template/)
-  + adapters         (.claude/, AGENTS.md)
+Files moved (T1)
+----------------
+  bin/        → src/bin/
+  tests/      → src/tests/
+  scripts/    → src/scripts/
+  .warnyin/   → src/.warnyin/
+  .claude/{commands/warnyin,agents} → src/.claude/{commands/warnyin,agents}
+  AGENTS.md   → src/AGENTS.md
+  CLAUDE.md (root dev-instructions) → CONTRIBUTING.md
 
-architecture changes ที่บันทึก (จาก topic installer-test-ci):
-  ~ installer: copyTree(docs/stages) → ensureScaffold() (generate scaffold เปล่า — กัน leak)
-  + tests/installer.test.mjs (black-box, 9 เคส)
-  + scripts/verify-pack.mjs (pack-verify gate)
-  + .github/workflows/ci.yml (test matrix [20,22,24] + pack-verify)
-  ~ package.json files: เอา docs/stages ออก (docs/ ไม่ publish)
+Files added (T2–T4)
+-------------------
+  src/tests/verify-pack.test.mjs    unit test ของ checkFiles (BL-4 testable denylist, 9 เคส)
+  src/scripts/check-test-count.mjs  pass-count gate (anti-false-green, MIN_PASS=9)
+  src/scripts/setup-dogfood.mjs     dev: install release → root dogfood
+  src/scripts/setup-sandbox.mjs     dev: install v-next จาก src/ → temp
+  .gitignore (root-anchored dogfood patterns)
+  docs/project.md, docs/infra.md, docs/stages/achieved/.gitkeep (กัน docs collision จาก dogfood install)
 
-dependency ใหม่: ไม่มี (zero-dependency — built-in node:* ทั้งหมด)
+Test suite
+----------
+  18 เคสรวม (installer.test 9 + verify-pack.test 9); npm test = node --test bare recurse → src/tests/*.test.mjs
+  CI: matrix [20,22,24] + check-test-count.mjs pass-count gate + job pack-verify (npm run verify:pack)
+  ยืนยันจริง local (node 24): tests 18 / pass 18 / fail 0
 
-staleness: ไม่มี (สแกนครั้งแรก)
+package.json
+------------
+  bin → src/bin/cli.mjs
+  files allowlist granular: src/bin, src/.warnyin, src/.claude/commands, src/.claude/agents, src/AGENTS.md, README/CHANGELOG/LICENSE
+  scripts: test, verify:pack, setup:dogfood, setup:sandbox
+
+Docs updated (T5 — descriptive)
+-------------------------------
+  docs/techstack/installer/structure.md   (rewrite: src/ layout, 2-layer, helper+setup scripts, allowlist granular)
+  docs/techstack/installer/test.md        (rewrite: src/tests, 18 เคส, bare recurse, pass-count gate, verify-pack testable, Windows workaround)
+  docs/techstack/installer/about.md       (path bin/cli.mjs → src/bin/cli.mjs; test path; 2-layer note)
+  docs/codemap/index.md                   (2-layer table, src/ paths, dev tooling, freshness 2026-06-07)
+  docs/codemap/architecture.md            (2-layer diagram, installer flow pkgRoot=src/, dev tooling, packaging granular)
+
+NOT touched (รอ SHIP — กฎ build playbook ห้ามแก้ rule/standard กลางตอน BUILD)
+----------------------------------------------------------------------------
+  docs/rule.md                            §4–5 ยังอ้าง path เก่า (bin/cli.mjs/tests/scripts) → note tasks/docs-sync/rule.md §2
+  docs/techstack/installer/rule.md        path เก่า + guard "ต้อง error" (จริงเป็น no-op) → note §2
+  docs/techstack/installer/standard.md    harness cliPath relative src/tests/, verify-pack pattern ใหม่ → note §2
+
+Staleness
+---------
+  ไม่มี codemap ค้าง 90+ วัน (เพิ่ง refresh 2026-06-07)
+
+Diff size: เปลี่ยน path ทั่วทั้ง 2 ไฟล์ codemap (>30%) เพราะ restructure ทั้ง repo —
+  เป็นผลโดยตรงของ topic src-bootstrap ที่ user อนุมัติแล้ว (proposal CONFIRMED) ไม่ใช่ scope creep

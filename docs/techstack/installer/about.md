@@ -3,7 +3,7 @@
 > ตัวติดตั้ง Warnyin Standard Workflow ลงโปรเจกต์ปลายทาง — หัวใจที่ผู้ใช้ทุกคนรันตอนเริ่มใช้
 
 ## คืออะไร
-CLI zero-dependency (`bin/cli.mjs`) เผยแพร่เป็น npm package `@warnyin/agents` รันผ่าน `npx`:
+CLI zero-dependency (`src/bin/cli.mjs`) เผยแพร่เป็น npm package `@warnyin/agents` รันผ่าน `npx`:
 - `npx @warnyin/agents` — ติดตั้ง (ข้ามไฟล์ที่มีอยู่ ไม่เขียนทับ)
 - `npx @warnyin/agents --update` — อัปเดตเฉพาะ core (`.warnyin/workflow`, `.claude/commands/warnyin`, template) ไม่แตะ `docs/`/งานจริง
 - `npx @warnyin/agents --dry-run` — แสดงรายการไฟล์ที่จะทำ โดยไม่เขียนจริง
@@ -21,5 +21,6 @@ CLI zero-dependency (`bin/cli.mjs`) เผยแพร่เป็น npm packag
 - 0.6.0+: `.warnyin/` (core) + `docs/stages/` (งานจริง)
 
 ## ความสัมพันธ์
+- source อยู่ `src/` (committed/publish); root ติดตั้ง release เสถียรไว้ dogfood (gitignored — ดู `docs/project.md` §bootstrap)
 - เผยแพร่ผ่าน `package.json files` (allowlist) — ดู `docs/rule.md` §4
-- ทดสอบด้วย black-box test (`tests/installer.test.mjs`) + verify ผ่าน CI (`docs/techstack/installer/test.md`)
+- ทดสอบด้วย black-box test (`src/tests/installer.test.mjs`) + unit (`src/tests/verify-pack.test.mjs`) + verify ผ่าน CI (`docs/techstack/installer/test.md`)
