@@ -1,0 +1,104 @@
+# Roadmap — การพัฒนา Warnyin Standard Workflow
+
+> แผนพัฒนา **ตัว tool Warnyin เอง** (ไม่ใช่ docs ของโปรเจกต์ปลายทาง)
+> ไฟล์นี้ไม่ถูก publish ขึ้น npm — `package.json` `files` เจาะจงเฉพาะ `docs/stages`
+> อัปเดต: 2026-06-06 · ทยอยติ๊ก `- [ ]` เมื่อทำเสร็จ
+
+## หลักการชี้นำ (กันเดินผิดทาง)
+
+ทุกข้อใน roadmap ต้องผ่าน 3 เกณฑ์นี้ ไม่งั้นตัดทิ้ง:
+- **กระทัดรัด opinionated** — เลือก 5 stage + role จำกัดเป็นจุดแข็ง ห้ามไหลเป็น catalog (บทเรียนจาก ECC ที่จมกับ skill 251 ตัว overlap กันเอง)
+- **tool-agnostic** — แก่นเป็น `.md` กลางที่ทุก harness อ่านได้ (`.warnyin/workflow/`) อะไรที่ผูก Claude (hook/skill) ต้องเป็น *adapter บาง* ชี้กลับแก่นกลาง ไม่ย้ายแก่นไปผูก tool
+- **ห้ามเดา** — ไม่ชัดถาม user; enforce ด้วย rule/checklist ในตัว playbook
+
+---
+
+## P0 — ความแข็งแรงพื้นฐาน (ทำก่อน — เพิ่งปล่อย 0.6.0 breaking แต่ยังไม่มี test/CI)
+
+### 1. Test ของ installer (`bin/cli.mjs`)
+- [ ] test: วางโครงถูกตำแหน่ง (`.warnyin/{workflow,template}`, `docs/stages`, seed `docs/`)
+- [ ] test: **idempotent** — รันซ้ำไม่พัง ไม่ทับซ้ำ
+- [ ] test: `--update` เขียนทับเฉพาะ CORE ไม่แตะ `docs/` และงานจริง
+- [ ] test: legacy detection เตือนถูกเมื่อเจอ `warnyin/` เก่า (และ ≤0.2.x)
+- **ทำไม:** installer คือหัวใจที่คนติดตั้งจริง แต่ตอนนี้ทดสอบด้วยมือล้วน
+- **เสร็จเมื่อ:** `npm test` รันผ่านในโฟลเดอร์ temp จริง ครอบทั้ง 4 เคส
+
+### 2. CI (`.github/workflows`)
+- [ ] รัน test ข้อ 1 ทุก PR (matrix: node 18/20/22)
+- [ ] **`npm pack` + ยืนยัน `.warnyin/` dotfolder ติดไปจริง** (กับดักที่เจอใน v0.6.0 — dotfolder หลุดง่าย ถ้าพลาด = package ใช้ไม่ได้)
+- [ ] (ทำต่อจากข้อ 12) lint/format check
+- **เสร็จเมื่อ:** PR เปิดแล้วเห็น check เขียวอัตโนมัติ
+
+### 3. CHANGELOG.md + migration note 0.6.0
+- [ ] สร้าง `CHANGELOG.md` (รูปแบบ Keep a Changelog)
+- [ ] บันทึก 0.6.0: ย้าย `warnyin/` → `.warnyin/` (core) + `docs/stages/` (งานจริง) — **breaking**
+- [ ] เขียน migration ที่ผู้ใช้เดิมต้องทำ (อ้าง legacy warning ใน installer)
+- **เสร็จเมื่อ:** ผู้ใช้ 0.5.x อ่านแล้ว migrate เองได้โดยไม่ต้องเดา
+
+### 4. ตรวจ/เสริม README
+- [ ] เช็คว่าทุก path/โครงใน README ตรงโครง 0.6.0
+- [ ] มี quickstart (`npx @warnyin/agents` → `/warnyin:init` → stage แรก)
+- [ ] ลิงก์ไป migration ใน CHANGELOG
+- **เสร็จเมื่อ:** อ่าน README แล้วเริ่มใช้ได้โดยไม่ต้องเปิดซอร์ส
+
+---
+
+## P1 — เพิ่มคุณค่า workflow (ไอเดียจาก ECC ที่ผ่านเกณฑ์ปรัชญา)
+
+### 5. Context profiles (คุ้มสุด — แทบฟรี)
+- [ ] เพิ่ม `.warnyin/workflow/contexts/{research,build,review}.md` — **session-level mode** (คนละมิติกับ role card ที่เป็น task-level lens)
+- [ ] ผูกเข้าแต่ละ stage ใน playbook (เช่น Discovery↔research, BUILD↔build, VERIFY↔review)
+- **ที่มา:** ECC `contexts/` · `.md` ล้วน ไม่ผูก tool ตรงปรัชญา
+
+### 6. Defensive rules ใน BUILD/VERIFY playbook
+- [ ] **investigate-before-edit** — ก่อนแก้ไฟล์ ต้องเข้าใจ (ใครใช้ไฟล์นี้ / schema / เจตนา user) ก่อน
+- [ ] **ห้ามแก้ config linter/formatter ให้ผ่าน** แทนการแก้โค้ดจริง
+- **ที่มา:** ECC hook `gateguard-fact-force` + `config-protection` — แต่เราทำเป็น **rule ใน playbook** (portable) ไม่ใช่ vendor hook (Claude-only) = เวอร์ชัน enforce ของ "ห้ามเดา"
+
+### 7. Security checklist รูปธรรม
+- [ ] เสริม `.warnyin/workflow/roles/security.md` + VERIFY: permission deny (`Read(**/.env*)`, `~/.ssh`), sandbox no-egress, แยก identity
+- [ ] **supply-chain ของ MCP/skill** — เตือนก่อน `/warnyin:install-skill` (third-party skill เสี่ยง prompt injection)
+- **ที่มา:** ECC `the-security-guide.md` — หยิบเฉพาะสาระ portable
+
+### 8. Learned-rule artifact ใน SHIP (instinct แบบ manual)
+- [ ] SHIP เพิ่ม artifact: `rule + evidence + scope (project/global)` ที่ **user ยืนยันเอง**
+- [ ] ต่อยอดกลไก promote-to-`docs/` ที่มีอยู่แล้ว
+- **ที่มา:** ECC instinct/continuous-learning — ยืมแค่*แก่น* ได้คุณค่า ~80% โดยไม่ต้องมี runtime observer (hook+SQLite) ที่ขัดปรัชญา
+
+### 9. Skill-format สำหรับ utility ที่ปลอดภัย
+- [ ] `update-codemaps` → skill-format (script ในโฟลเดอร์ + auto-invoke เมื่อโครงโค้ดเปลี่ยน)
+- [ ] `explore` / `next` → auto-invoke (read-only ปลอดภัย)
+- [ ] ใส่ `disable-model-invocation: true` ให้ `build` / `ship` (irreversible — ต้อง user สั่งชัด)
+- **หมายเหตุ:** คง playbook กลางไว้ skill แค่ชี้ไป + คง `AGENTS.md` adapter สำหรับ Codex
+
+---
+
+## P2 — ความครบถ้วน/ประสบการณ์ผู้ใช้ (ทำเมื่อ workflow นิ่ง)
+
+### 10. `examples/` — topic ตัวอย่างเดินครบ 5 stage
+- [ ] 1 ตัวอย่างจริง (discovery→ship) ให้ผู้ใช้ใหม่เห็นของจริง
+- **ระวัง:** ดูแลให้ทันโครงที่เปลี่ยน — ทำเมื่อ workflow นิ่งแล้ว
+
+### 11. Selective install (manifest-driven)
+- [ ] เฉพาะถ้าจะรองรับ "เลือกติดตั้งบาง stage/role" — แพทเทิร์น `install-modules.json` + JSON Schema validate
+- **ระวัง:** **อย่าเอา SQLite state store** ของ ECC มา (over-engineer)
+
+### 12. Lint/format ของ repo เอง
+- [ ] markdownlint + prettier สำหรับ playbook `.md` หลายสิบไฟล์ (ความสม่ำเสมอ)
+- [ ] เชื่อมเข้า CI (ข้อ 2)
+
+---
+
+## ❌ Non-goals — ตัดสินใจไม่ทำ (กันบวมตาม ECC)
+
+- **catalog skill/agent จำนวนมาก** — opinionated คือจุดแข็ง
+- **runtime instinct observer** (hook + background agent + SQLite + CLI หลายตัว) — หนักเกิน ขัดปรัชญา → ใช้ข้อ 8 แทน
+- **รองรับ harness จำนวนมาก** (12+ แบบ ECC) — โฟกัส Claude Code + Codex/Antigravity ที่ parity เต็ม
+- **Rust control-plane / dashboard / billing** — นอก scope "ways-of-work"
+
+---
+
+## ที่มา
+
+- สำรวจ `affaan-m/ecc` (2026-06-06) — kitchen-sink harness system; หยิบเฉพาะแก่นที่ผ่านเกณฑ์ปรัชญา
+- ยืนยันจาก ECC: ปรัชญา cross-harness "reusable layer + thin adapters" = ทิศทาง playbook-กลาง + adapter-บาง ของ Warnyin **มาถูกทางแล้ว**
