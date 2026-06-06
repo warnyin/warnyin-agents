@@ -18,7 +18,8 @@ maintainer Warnyin + contributor ที่เปิด PR (อยากเห็
 - [ ] `permissions: { contents: read }` ที่ top-level (least-privilege)
 - [ ] **ไม่มี `secrets.*`** ใด ๆ ในไฟล์ (CI นี้ไม่ publish/ไม่ใช้ token)
 - [ ] action pin commit SHA + คอมเมนต์เวอร์ชัน เช่น `uses: actions/checkout@<sha> # v5`
-- [ ] job `test`: `strategy.matrix.node: [20, 22, 24]` → `actions/setup-node` (`node-version: ${{ matrix.node }}`, **ไม่ตั้ง `cache`**) → `run: node --test tests/`
+- [ ] job `test`: `strategy.matrix.node: [20, 22, 24]` → `actions/setup-node` (`node-version: ${{ matrix.node }}`, **ไม่ตั้ง `cache`**) → `run: npm test`
+  - **★ เรียก `npm test` (= bare `node --test`)** อย่า hardcode `node --test tests/` — finding wave 1: `node --test <dir>` ตีความ dir เป็น module path → MODULE_NOT_FOUND บน node 24 (ดู `../../troubleshooting.md`)
 - [ ] **ไม่มี `npm ci`/`npm install`** (zero-dep, ไม่มี lockfile — จะ fail)
 - [ ] job `pack-verify` (รันครั้งเดียว ไม่ต้อง matrix): `run: node scripts/verify-pack.mjs`
 
