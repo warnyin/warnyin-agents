@@ -8,7 +8,7 @@
 | **Task** | `dogfood-bootstrap` |
 | **Slice อ้างอิง** | `design.md` slice #4 |
 | **Component** | `installer` (dev tooling + gitignore/scaffold) |
-| **สถานะ** | `build เสร็จ` (2026-06-07 · test/lint เขียว; live `setup:dogfood` รอ VERIFY — ดู §5) |
+| **สถานะ** | `✅ verify เสร็จ` (2026-06-07 · live `setup:dogfood` e2e ผ่านจริง — npx primary path + docs/ สะอาด BL-3 + idempotent) |
 
 ## 1. เป้าหมายของ task (vertical slice)
 > ส่งมอบ **กลไก dogfood/bootstrap** ครบ end-to-end (design slice #4, คุม R3): หลัง `npm run setup:dogfood` repo คืน dogfood env ที่ root (gitignored) ด้วย release เสถียร + ชี้อ่าน `CONTRIBUTING.md`; `npm run setup:sandbox` ติดตั้ง v-next ลง temp เพื่อ test version skew — โดย `git status` สะอาด (ไม่มี dogfood/docs collision หลุดขึ้น git)
@@ -47,7 +47,7 @@
 
 ## 5. Acceptance criteria (เกณฑ์ว่า task เสร็จ)
 - [x] (prerequisite) 0.6.0 publish บน npm แล้ว → `npm view @warnyin/agents version` = **0.6.0** (latest, .warnyin layout) ✅
-- [~] `npm run setup:dogfood` จาก repo root → root มี `.warnyin/`, `.claude/commands/warnyin/`, `.claude/agents/`, `CLAUDE.md`, `AGENTS.md` (ติด `.gitignore`) + `/warnyin:*` ใช้ได้ — **deferred to VERIFY**: sandbox classifier บล็อกการรัน `setup:dogfood` ใน build context (external code exec + เขียน agent config) → ยืนยัน live ใน VERIFY; logic + fallback พร้อม (sandbox flow รันจริงผ่าน, root dogfood layer มีอยู่จาก install ก่อนหน้า + ติด `.gitignore` แล้ว)
+- [x] `npm run setup:dogfood` จาก repo root → root มี `.warnyin/`, `.claude/commands/warnyin/`, `.claude/agents/`, `CLAUDE.md`, `AGENTS.md` (ติด `.gitignore`) + `/warnyin:*` ใช้ได้ — ✅ **VERIFY ผ่าน live** (TC-4): npx primary path (`shell:true` win32) สำเร็จ exit 0, restore root `CLAUDE.md` ที่หายไปจริง (สร้างใหม่ 1 · ข้าม 70), `/warnyin:*` 10 commands ใช้ได้, dogfood ทั้งหมดติด `.gitignore` (git status ไม่โชว์) — fallback (npm pack→extract→node) ไม่ถูกเรียกรอบนี้แต่ verify แยกแล้วว่าทำงาน (resolve cli=`bin/cli.mjs` + install exit 0 กับ tarball 0.6.0 จริง)
 - [x] `git status --porcelain docs/` **ว่าง** หลัง setup:dogfood (BL-3 ปิด) — ✅ พิสูจน์ deterministic (simulate seedDocs/ensureScaffold payload 0.6.0 → CREATE NONE)
 - [x] รัน `setup:dogfood` ซ้ำ → pointer ใน root CLAUDE.md **ไม่ append ซ้อน** (idempotent) — ✅ พิสูจน์ในแลบ (3 run → 1 occurrence)
 - [x] `npm run setup:sandbox` → temp dir (`os.tmpdir()`) มี v-next ครบ + print path; รันบน Windows ได้ — ✅ **รันจริง** (`C:\...\Temp\wy-sandbox-*`, 71 ไฟล์, .warnyin/workflow/stages + .claude/commands/warnyin ครบ)

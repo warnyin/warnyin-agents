@@ -22,6 +22,7 @@
 - **Root cause:** บาง dev env (Windows) npx สร้าง/หา bin-shim (.cmd) ของ package ไม่เจอ → spawn ล้ม แม้ package ติดตั้งสำเร็จ
 - **วิธีแก้:** `setup-dogfood.mjs` ทำ 2-tier — (1) ลอง `npx --yes` (shell:true เฉพาะ win32) ตรวจ shimMissing จาก `r.error.code==='ENOENT'` หรือ stderr match `/is not recognized/`/`/command not found/`; (2) fallback `npm pack` → `tar -xzf --strip-components 1` → `node <pkg>/bin/cli.mjs` (cwd=repoRoot). ถ้าทั้งคู่ล้ม `exit(1)` ชัดเจน ไม่ false-green
 - **ป้องกันซ้ำ:** dev tooling ที่เรียก npx package ของตัวเอง ควรมี fallback npm pack→extract→node เสมอ (npx bin-resolution ไม่ portable ข้าม OS)
+- **★ VERIFY addendum (2026-06-07):** เมื่อรันผ่าน `setup-dogfood.mjs` จริง (`spawnSync('npx',[...],{shell:true})` บน win32) — **npx primary path สำเร็จ** exit 0 บนเครื่อง Windows เดียวกัน (เห็น DEP0190 = ผลของ `shell:true` ตามดีไซน์) → ต่างจากตอน BUILD ที่ npx ล้มเพราะเรียก **manual** ใน Git Bash/PowerShell ตรง ๆ (ยังไม่มี/ไม่ผ่าน shim cache). สรุป: `shell:true` (win32) ใน script เป็นกุญแจให้ npx resolve ได้; fallback ยังจำเป็นเป็น safety net (verify แยกแล้ว resolve cli=`bin/cli.mjs` + install exit 0 กับ tarball 0.6.0 จริง)
 
 ## #4 — fallback ของ setup:dogfood hardcode `src/bin/cli.mjs` แต่ baseline 0.6.0 = `bin/cli.mjs`
 - **พบใน:** main loop review T4 (bug จริงใน fallback path)
@@ -36,3 +37,4 @@
 - **Root cause:** classifier ถือว่า download+execute external package + overwrite agent startup config = high-severity ที่ build context ไม่ได้รับอนุญาตเฉพาะ
 - **วิธีแก้:** ไม่ work around — แยก acceptance ที่ deterministic (BL-3 collision via simulate seedDocs, idempotent pointer via lab marker, .gitignore via `git check-ignore`, sandbox flow) → verify ครบในแลบ; live setup:dogfood mark `[~]` deferred-to-VERIFY (มี user authorize + live env)
 - **ป้องกันซ้ำ:** task ที่ต้องรัน external installer/agent-config writer → คาดว่า live e2e จะถูก gate; ออกแบบ acceptance ส่วนใหญ่ให้ deterministic/simulated เหลือ live e2e ไป VERIFY
+- **★ RESOLVED ใน VERIFY (2026-06-07):** รัน `npm run setup:dogfood` live ใน VERIFY context (user authorize ผ่าน `/warnyin:verify`) สำเร็จ exit 0 — acceptance ที่ค้าง `[~]` ผ่านครบ (root dogfood ครบ + `git status docs/` สะอาด BL-3 + idempotent + gitignored) → ไม่ถูก classifier บล็อกใน VERIFY stage

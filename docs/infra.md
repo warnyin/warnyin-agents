@@ -1,7 +1,6 @@
 # Infra / Local Environment
 
-> service ที่ต้องรันสำหรับ dev/เทส + วิธีรัน + env vars
-> ★ seed (กัน docs collision จาก dogfood install) — เนื้อหาเต็ม promote ตอน SHIP ของ topic `src-bootstrap`
+> service ที่ต้องรันสำหรับ dev/เทส + วิธีรัน + env vars (zero-service · bootstrap 2-layer)
 
 ## Service ที่ต้องรัน (local dev)
 - ไม่มี service/DB/queue — repo เป็น zero-dependency node tooling (installer + playbook docs)

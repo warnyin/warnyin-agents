@@ -39,3 +39,29 @@
 - **Root cause:** บาง harness pass `args` ของ Workflow tool เป็น **JSON string verbatim** ไม่ deserialize → `args.slug` บน string = undefined
 - **วิธีแก้:** defensive parse — `const A = typeof args==='string' ? JSON.parse(args) : (args||{})`
 - **ป้องกันซ้ำ:** ทุก workflow script ที่รับ `args` ควรเผื่อกรณี string (harness-dependent)
+
+### 6. รัน `src/bin/cli.mjs` โดย cwd=repo root → เขียน dogfood payload ลง root (untracked leak)
+- **อาการ:** ลองรัน installer เพื่อ verify โดยไม่ `cd` ไป temp ก่อน → เกิด untracked `.claude/`, `.warnyin/`, `AGENTS.md` + seed docs ที่ repo root (`git status` เห็น `??` เพียบ)
+- **Root cause:** `target = process.cwd()`; guard `pkgRoot===target` เป็น no-op (pkgRoot=`src/` ไม่มีทาง===root) → installer install ลง cwd ปัจจุบันได้ทุกที่ที่ไม่ใช่ `src/`
+- **วิธีแก้:** ทดสอบ installer ต้องรันใน subshell `( cd "$TMP" && node "$ROOT/src/bin/cli.mjs" )` เสมอ — อย่าปล่อย cwd เป็น repo root (ตรงกับที่ `setup-sandbox.mjs` ใช้ `mkdtempSync`+spawn cwd=sandbox)
+- **ป้องกันซ้ำ:** verify install สด → ใน temp dir เท่านั้น; ลบ stray ด้วย `git clean` scope เจาะจง (ตรวจ `git cat-file -e HEAD:<path>` กันลบ tracked doc จริง)
+
+## bootstrap / self-hosting (2-layer dogfood)
+
+### 7. `npx @warnyin/agents` resolve bin-shim ไม่ได้บน Windows (manual) — แต่ผ่านเมื่อรันใน script
+- **อาการ:** `npx --yes @warnyin/agents@<ver>` **manual** ใน Git Bash/PowerShell → `'warnyin-agents' is not recognized` แม้ cli.mjs มี shebang ครบ
+- **Root cause:** บาง dev env (Windows) npx หา/สร้าง bin-shim (`.cmd`) ไม่เจอตอนเรียกตรง
+- **วิธีแก้:** เรียกผ่าน `spawnSync('npx', ['--yes', PKG], {shell: win32})` ใน node script → resolve ได้ (verify จริง: `setup-dogfood.mjs` รัน npx primary สำเร็จ exit 0; เห็น DEP0190 = ผลของ `shell:true`); + มี **fallback** `npm pack`→`tar -xzf --strip-components 1`→`node <cli>` เป็น safety net ถ้า npx ยังล้ม → ทั้งคู่ล้ม `exit(1)` (ไม่ false-green)
+- **ป้องกันซ้ำ:** dev tooling ที่เรียก npx package ตัวเอง — เรียกผ่าน script `shell:win32` + มี fallback pack→node เสมอ (npx bin-resolution ไม่ portable)
+
+### 8. fallback ของ self-install hardcode path cli แต่ release baseline layout ต่างเวอร์ชัน
+- **อาการ:** fallback extract tarball แล้วหา `<pkg>/src/bin/cli.mjs` — แต่ dogfood baseline (`@latest`=0.6.0 ก่อน restructure) มี cli ที่ `bin/cli.mjs` → หาไม่เจอ → setup FAIL
+- **Root cause:** hardcode path เดียว สมมติ release layout == working-tree layout — แต่ baseline เป็น **เวอร์ชันก่อน** restructure (self-host transition)
+- **วิธีแก้:** resolve cli จาก `package.json` `bin` ของ tarball + candidate `['src/bin/cli.mjs','bin/cli.mjs']` (ทนทั้ง layout เก่า/ใหม่) — verify จริง: pack 0.6.0 → resolve = `bin/cli.mjs` ✓
+- **ป้องกันซ้ำ:** เครื่องมือที่ install release ของตัวเองช่วง transition ต้องไม่สมมติ release layout == working tree — resolve entry จาก metadata เสมอ
+
+### 9. ทำ BUILD/VERIFY บน repo ที่ self-host (orchestration tooling ย้ายที่/ถูก gate)
+- **อาการ:** (ก) BUILD ที่ย้าย `.warnyin/` (tooling ที่ orchestration ใช้) → worktree sub-agent ของ wave หลังอ่าน playbook/role ที่ root ไม่เจอ; (ข) live `setup:dogfood` (external exec + เขียน agent config) ถูก sandbox classifier บล็อกใน build context
+- **Root cause:** repo เป็นทั้ง tool และผู้ใช้ tool — ย้าย/แก้ source กระทบ dogfood ที่ orchestration กำลังใช้; live e2e ของ external installer ถูก gate ใน build stage
+- **วิธีแก้:** wave แรก (ย้าย source) ใช้ worktree → merge → **restore root dogfood จาก release** → wave หลัง **shared-tree** (อ่าน tooling จาก root dogfood, main loop commit ให้); acceptance ที่เป็น live external-exec → ออกแบบให้ deterministic/simulated ส่วนใหญ่ เหลือ live e2e ไป **VERIFY** (user authorize)
+- **ป้องกันซ้ำ:** self-hosting topic — แยก phase ที่กระทบ tooling ตัวเอง + เลื่อน live external-exec ไป VERIFY ตั้งแต่ออกแบบ acceptance

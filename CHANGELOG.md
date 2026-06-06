@@ -7,15 +7,27 @@
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-06-07
+
 ### Added
-- Automated installer test suite (`node:test` black-box — spawn `bin/cli.mjs` จริงใน temp dir แล้ว assert side-effect: ไฟล์ที่ออก + exit code + stdout/stderr) รันด้วย `npm test`
+- **Bootstrap / self-hosting (2-layer):** แยก source ของ warnyin ทั้งหมดเข้า `src/` (committed/publish layer); repo install release เสถียรไว้ root เป็น dogfood (`.warnyin/`/`.claude/`/`CLAUDE.md`/`AGENTS.md` — gitignored) เพื่อพัฒนา `src/` โดย workflow ที่ใช้ทำงานยังเสถียร
+- `npm run setup:dogfood` — คืน dogfood env ที่ root จาก release (`npx @latest` + fallback `npm pack`→extract→node สำหรับ Windows), append pointer → `CONTRIBUTING.md` แบบ idempotent
+- `npm run setup:sandbox` — install v-next จาก `src/` ลง temp dir (`os.tmpdir()`) เพื่อทดสอบ version skew โดยไม่แตะ dogfood ที่ root
+- `CONTRIBUTING.md` — dev-instructions ของ repo (แยกจาก root `CLAUDE.md` เดิม)
+- pass-count gate (`src/scripts/check-test-count.mjs`) — anti-false-green: fail ถ้า `fail≠0` / `pass<9` / `pass≠tests`
+- Automated installer test suite (`node:test` black-box — spawn `src/bin/cli.mjs` จริงใน temp dir แล้ว assert side-effect) + unit test `checkFiles` รันด้วย `npm test`
 - GitHub Actions CI (`.github/workflows/ci.yml`) — matrix node 20/22/24 + job `pack-verify`
-- npm-pack verify (`scripts/verify-pack.mjs`) — allowlist safety net ยืนยัน `.warnyin/` ติด package และไม่มีไฟล์รั่ว (`tests/`/`.github/`) ขึ้น tarball
+- npm-pack verify (`src/scripts/verify-pack.mjs`) — testable `checkFiles(files)→errors[]`: allowlist granular + denylist (tooling/`docs/`/dogfood ที่ root) + tripwire (`settings.local.json`/`*.tgz`/`.env*`); assert `src/.warnyin/workflow/` + `src/.claude/commands/warnyin/` ติด tarball
 
 ### Changed
+- **bin path** `bin/cli.mjs` → `src/bin/cli.mjs` (restructure source เข้า `src/`) — `pkgRoot` resolve เป็น `src/` อัตโนมัติ, payload คงเดิม
+- `package.json files` เป็น allowlist granular — nested dotfolder ระบุชัด (`src/.warnyin`, `src/.claude/commands`, `src/.claude/agents`); ตัด `src/tests`/`src/scripts` (dev-only)
+- test/scripts ย้ายไป `src/tests/` + `src/scripts/`; `npm test` = `node --test` bare (auto-discover, portable node 20/22/24)
 - `engines.node` `>=18` → `>=20` (node 18 EOL)
+- `.gitignore` เพิ่ม dogfood layer (root-anchored ทุกบรรทัด — กัน match `src/.claude`/`src/.warnyin`)
 
 ### Removed
 - รองรับ node 18 (drop ตาม EOL)
 
-[Unreleased]: https://github.com/warnyin/warnyin-agents/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/warnyin/warnyin-agents/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/warnyin/warnyin-agents/compare/v0.6.0...v0.7.0
