@@ -1,7 +1,7 @@
 # Roadmap — การพัฒนา Warnyin Standard Workflow
 
 > แผนพัฒนา **ตัว tool Warnyin เอง** (ไม่ใช่ docs ของโปรเจกต์ปลายทาง)
-> ไฟล์นี้ไม่ถูก publish ขึ้น npm — `package.json` `files` เจาะจงเฉพาะ `docs/stages`
+> ไฟล์นี้ไม่ถูก publish ขึ้น npm — `package.json` `files` ไม่รวม `docs/` (เจาะจงเฉพาะ `bin`/`.warnyin`/`.claude` + root docs); scaffold `docs/stages` installer สร้างเองตอนติดตั้ง
 > อัปเดต: 2026-06-06 · ทยอยติ๊ก `- [ ]` เมื่อทำเสร็จ
 
 ## หลักการชี้นำ (กันเดินผิดทาง)
@@ -15,19 +15,19 @@
 
 ## P0 — ความแข็งแรงพื้นฐาน (ทำก่อน — เพิ่งปล่อย 0.6.0 breaking แต่ยังไม่มี test/CI)
 
-### 1. Test ของ installer (`bin/cli.mjs`)
-- [ ] test: วางโครงถูกตำแหน่ง (`.warnyin/{workflow,template}`, `docs/stages`, seed `docs/`)
-- [ ] test: **idempotent** — รันซ้ำไม่พัง ไม่ทับซ้ำ
-- [ ] test: `--update` เขียนทับเฉพาะ CORE ไม่แตะ `docs/` และงานจริง
-- [ ] test: legacy detection เตือนถูกเมื่อเจอ `warnyin/` เก่า (และ ≤0.2.x)
+### 1. Test ของ installer (`bin/cli.mjs`) ✅ (ship 2026-06-06 · topic `installer-test-ci`)
+- [x] test: วางโครงถูกตำแหน่ง (`.warnyin/{workflow,template}`, `docs/stages`, seed `docs/`)
+- [x] test: **idempotent** — รันซ้ำไม่พัง ไม่ทับซ้ำ
+- [x] test: `--update` เขียนทับเฉพาะ CORE ไม่แตะ `docs/` และงานจริง
+- [x] test: legacy detection เตือนถูกเมื่อเจอ `warnyin/` เก่า (และ ≤0.2.x)
 - **ทำไม:** installer คือหัวใจที่คนติดตั้งจริง แต่ตอนนี้ทดสอบด้วยมือล้วน
-- **เสร็จเมื่อ:** `npm test` รันผ่านในโฟลเดอร์ temp จริง ครอบทั้ง 4 เคส
+- **เสร็จแล้ว:** `tests/installer.test.mjs` black-box 9 เคส (เกิน 4 — เพิ่ม installRootDoc/seedDocs/--dry-run/scaffold-leak), `npm test` เขียวใน temp จริง
 
-### 2. CI (`.github/workflows`)
-- [ ] รัน test ข้อ 1 ทุก PR (matrix: node 18/20/22)
-- [ ] **`npm pack` + ยืนยัน `.warnyin/` dotfolder ติดไปจริง** (กับดักที่เจอใน v0.6.0 — dotfolder หลุดง่าย ถ้าพลาด = package ใช้ไม่ได้)
+### 2. CI (`.github/workflows`) ✅ (ship 2026-06-06 · topic `installer-test-ci`)
+- [x] รัน test ข้อ 1 ทุก PR (matrix: **node 20/22/24** — node 18 EOL, drop)
+- [x] **`npm pack` + ยืนยัน `.warnyin/` dotfolder ติดไปจริง** + ไม่มี `docs/`/`tests`/`.github` รั่ว (`scripts/verify-pack.mjs`)
 - [ ] (ทำต่อจากข้อ 12) lint/format check
-- **เสร็จเมื่อ:** PR เปิดแล้วเห็น check เขียวอัตโนมัติ
+- **เสร็จแล้ว:** `.github/workflows/ci.yml` (test matrix + job pack-verify, security baseline); ยืนยัน CI เขียวบน PR จริงทำตอนเปิด PR/merge
 
 ### 3. CHANGELOG.md + migration note 0.6.0
 - [ ] สร้าง `CHANGELOG.md` (รูปแบบ Keep a Changelog)
@@ -88,6 +88,11 @@
 - [ ] เชื่อมเข้า CI (ข้อ 2)
 
 ---
+
+## 🐛 Core bug ที่เจอ+แก้ระหว่าง dogfood (2026-06-06 · topic `installer-test-ci`)
+> รัน workflow ตัวเองทำ P0#1-2 จริง → จับ bug ที่ test/design มองไม่เห็น (พิสูจน์คุณค่า BUILD/VERIFY)
+- [x] **`build-wave.mjs` รับ `args` เป็น string** — harness ส่ง `args` ของ Workflow เป็น JSON string → defensive parse (commit `0770104`); ดู `troubleshooting.md` #5
+- [x] **scaffold leak** — installer `copyTree(docs/stages)` ลากงานจริงของ repo ต้นทางไป target + ติด published package → เปลี่ยนเป็น generate scaffold เอง (commit `e3c0074`); ดู `troubleshooting.md` #1, `rule.md` §4
 
 ## ❌ Non-goals — ตัดสินใจไม่ทำ (กันบวมตาม ECC)
 

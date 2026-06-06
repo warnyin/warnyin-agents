@@ -1,0 +1,25 @@
+Codemap diff — 2026-06-06 (สแกนครั้งแรก ผ่าน SHIP topic installer-test-ci)
+=====================================================================
+
+สถานะ: ครั้งแรก — ไม่มี codemap เดิม → ทุกอย่าง added
+
+ไฟล์ codemap ที่สร้าง:
+  + docs/codemap/index.md
+  + docs/codemap/architecture.md
+
+component ที่ map:
+  + installer        (bin/cli.mjs, tests/, scripts/, .github/)
+  + workflow core    (.warnyin/workflow/ — 5 stage playbook + roles + build-wave.mjs)
+  + templates        (.warnyin/template/)
+  + adapters         (.claude/, AGENTS.md)
+
+architecture changes ที่บันทึก (จาก topic installer-test-ci):
+  ~ installer: copyTree(docs/stages) → ensureScaffold() (generate scaffold เปล่า — กัน leak)
+  + tests/installer.test.mjs (black-box, 9 เคส)
+  + scripts/verify-pack.mjs (pack-verify gate)
+  + .github/workflows/ci.yml (test matrix [20,22,24] + pack-verify)
+  ~ package.json files: เอา docs/stages ออก (docs/ ไม่ publish)
+
+dependency ใหม่: ไม่มี (zero-dependency — built-in node:* ทั้งหมด)
+
+staleness: ไม่มี (สแกนครั้งแรก)
