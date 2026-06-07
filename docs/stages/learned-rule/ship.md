@@ -20,12 +20,10 @@
 | `docs/infra.md` / `docs/project.md` | <!-- ถ้าเกี่ยวข้อง --> |
 | `docs/codemap/` | |
 
-## 3. Learned rules (planned + emergent)
-> กฎ generalize ที่จับจาก topic นี้ — planned (`tasks/*/rule.md` §2) + emergent (บทเรียนตอน build/verify/troubleshooting). evidence บังคับ; ไม่มี evidence = ไม่ promote. ครอบทั้งที่ promote และที่ตัด.
-
-| rule (generalize) | evidence (pointer + artifact) | scope (`component:<c>` / `project`) | promote? (✅ / ✂️ + เหตุผล) |
-|---|---|---|---|
-| | | | |
+## 3. note "รอ SHIP" ที่ตัดทิ้ง (ไม่ promote)
+| note | เหตุผลที่ตัด |
+|---|---|
+| | |
 
 ## 4. Archive
 - ย้ายจาก `docs/stages/<slug>/` → `docs/stages/achieved/<YYYY-MM-DD>-<slug>/` เมื่อ <YYYY-MM-DD>
