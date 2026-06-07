@@ -23,6 +23,8 @@
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-06-07
+
 ### Added
 - **Context profiles** (`.warnyin/workflow/contexts/{research,build,review,README}.md`) — session-level posture 3 โหมด (สำรวจ/สร้าง/ตรวจ) คู่ขนานกับ role card (task-level lens); playbook แต่ละ stage มี callout ชี้ context ที่เข้าคู่ (Discovery→research · DESIGN→research+build · BUILD→build · VERIFY→review · SHIP→review) — `.md` ล้วน, ติดมากับ `--update` รอบถัดไป ไม่ต้องตั้งค่าเพิ่ม
 
