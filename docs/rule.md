@@ -19,13 +19,23 @@
 - **CHANGELOG ทุก user-facing change** — bump `engines`, breaking, เปลี่ยนพฤติกรรม installer → ต้องมี entry ใน `CHANGELOG.md` (Keep a Changelog) ให้ผู้ใช้ npm migrate เองได้โดยไม่ต้องเดา
 - **npm scripts (dev tooling) ต้อง cross-platform** — เป็น **node script** (`node src/scripts/*.mjs`) ไม่ใช่ shell oneliner ที่ผูก POSIX; ใช้ `os.tmpdir()`/`path.join` (ห้าม hardcode `/tmp`, `/`), spawn array args ห้าม `shell:true` (ยกเว้น npx บน win32 ที่เป็น `.cmd`); เผื่อ Windows npx bin-shim resolve ไม่ได้ → ต้องมี fallback หรือ exit error ชัดเจน
 
-## 3. CI security baseline (บังคับทุก workflow ใน `.github/workflows/`)
+## 3. Security baseline
+> security 2 มิติ: **CI/pipeline** (3.1) + **การรัน AI agent ในเครื่อง** (3.2) — payload ของ workflow ถูก agent execute ต่อ จึงเป็น surface ทั้งคู่
+
+### 3.1 CI security baseline (บังคับทุก workflow ใน `.github/workflows/`)
 > ถ้าผิดหลายข้อพร้อมกัน = pwn-request / supply-chain risk
 - `permissions: contents: read` ที่ top-level (least-privilege)
 - trigger `pull_request` — **ห้าม `pull_request_target`** (job รันโค้ดจาก PR)
 - **ไม่มี `secrets.*`** เว้นจำเป็นจริง (เพิ่ม publish/token ต้องผ่าน review แยก)
 - pin action ด้วย commit SHA (+ คอมเมนต์เวอร์ชัน)
 - **ไม่ตั้ง `npm ci`/`cache: npm`** ตราบที่ repo zero-dep (ไม่มี lockfile → จะ fail)
+
+### 3.2 Agent-runtime security baseline (การรัน AI agent ในเครื่อง — guidance portable)
+> tool-agnostic principle; รายละเอียด + Claude adapter note ใน `roles/security.md` section "Runtime / operational security" · ไล่เช็คตอน DESIGN panel + VERIFY (รัน local env ที่มี secret จริง)
+- **secret isolation** — agent ไม่ควรเข้าถึง secret นอก scope งาน (`.env`, `~/.ssh`, credential/token, keychain); least-privilege ระดับ filesystem
+- **no unnecessary egress** — payload/skill ที่ agent execute ต่อ จำกัด egress เท่าที่งานต้องใช้ (sandbox/network restriction)
+- **identity separation** — ไม่ใช้ credential ส่วนตัว/prod ใน session ที่รัน automation/agent; แยก scoped identity
+- **supply-chain** — third-party skill/MCP/payload `.md` = prompt-injection surface (โค้ด+instruction ที่ AI execute ต่อ) → ตรวจเนื้อหาก่อนติดตั้ง, ติด global ไม่ vendor เข้า repo, จำกัดสิทธิ์
 
 ## 4. Installer / packaging rules
 - **installer สร้าง scaffold เอง — ห้าม copy พื้นที่ทำงานจาก repo ต้นทาง** — workspace ที่ผู้ใช้เป็นเจ้าของ (`docs/stages/`) ต้อง generate ใน target ไม่ลากของ repo ต้นทางไป (กัน scaffold leak → ดู `troubleshooting.md` #1)

@@ -23,6 +23,9 @@
 
 ## [Unreleased]
 
+### Added
+- **Security checklist (agent-runtime + supply-chain)** — `roles/security.md` เพิ่ม section "Runtime / operational security" (secret isolation · no-egress · identity separation + Claude adapter note) + checklist item supply-chain/MCP (prompt-injection surface); `verify.md` §2 อ้าง runtime security ตอนรัน local env; `install-skill.md` step 4 เสริม warning prompt-injection; global `docs/rule.md` §3 ขยายเป็น Security baseline 2 มิติ (CI + agent-runtime) — `.md` ล้วน, ติดมากับ `--update` รอบถัดไป
+
 ## [0.8.1] - 2026-06-07
 
 ### Added
