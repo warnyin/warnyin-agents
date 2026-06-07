@@ -123,9 +123,10 @@ test('5. legacy 0.3–0.5.x → เตือนที่ stderr', (t) => {
   mkdirSync(path.join(tmp, 'warnyin', 'workflow'), { recursive: true })
 
   const r = runCli(tmp, ['--dry-run'])
-  // หมายเหตุ en-dash U+2013 ใน "(0.3–0.5.x)" — copy ตรงจาก cli.mjs:55
+  // หมายเหตุ en-dash U+2013 ใน "(0.3–0.5.x)" — copy ตรงจาก cli.mjs
   assert.ok(r.stderr.includes('พบโครงเลย์เอาต์เก่า (0.3–0.5.x)'), `stderr ต้องมี warning 0.3-0.5.x\nSTDERR:\n${r.stderr}`)
-  assert.ok(r.stderr.includes('git mv warnyin/stages docs/stages'), `stderr ต้องมีคำสั่ง git mv\nSTDERR:\n${r.stderr}`)
+  // คำสั่ง robust: ย้าย contents (กันซ้อน docs/stages/stages) — ตรง CHANGELOG Migration guide (topic roadmap-sync-p0)
+  assert.ok(r.stderr.includes('git mv warnyin/stages/* docs/stages/'), `stderr ต้องมีคำสั่ง git mv robust\nSTDERR:\n${r.stderr}`)
 })
 
 // 6. legacy ≤0.2.x — warn ที่ stderr (string copy ตรงจาก cli.mjs:43,45 — คนละ string จากเคส 5)
@@ -135,9 +136,10 @@ test('6. legacy ≤0.2.x → เตือนที่ stderr', (t) => {
   mkdirSync(path.join(tmp, 'warnyin-stages'), { recursive: true })
 
   const r = runCli(tmp, ['--dry-run'])
-  // หมายเหตุ ≤ U+2264 ใน "(≤0.2.x)" — copy ตรงจาก cli.mjs:43
+  // หมายเหตุ ≤ U+2264 ใน "(≤0.2.x)" — copy ตรงจาก cli.mjs
   assert.ok(r.stderr.includes('พบโครงเลย์เอาต์เก่า (≤0.2.x)'), `stderr ต้องมี warning ≤0.2.x\nSTDERR:\n${r.stderr}`)
-  assert.ok(r.stderr.includes('git mv warnyin-stages docs/stages'), `stderr ต้องมีคำสั่ง git mv\nSTDERR:\n${r.stderr}`)
+  // คำสั่ง robust: ย้าย contents (กันซ้อน) — ตรง CHANGELOG Migration guide (topic roadmap-sync-p0)
+  assert.ok(r.stderr.includes('git mv warnyin-stages/* docs/stages/'), `stderr ต้องมีคำสั่ง git mv robust\nSTDERR:\n${r.stderr}`)
 })
 
 // 7. seedDocs ข้าม [...] — negative

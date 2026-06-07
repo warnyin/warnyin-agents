@@ -45,8 +45,8 @@ const legacyV2 = ['workflow', 'warnyin-stages'].filter((d) => fs.existsSync(path
 if (legacyV2.length) {
   console.warn(`⚠ พบโครงเลย์เอาต์เก่า (≤0.2.x): ${legacyV2.join(', ')}
 เวอร์ชันนี้ย้าย core ไปใต้ .warnyin/ และงานจริงไป docs/stages/ — แนะนำย้ายด้วยตัวเองก่อน:
-  1. git mv warnyin-stages docs/stages             # งานจริงของคุณ (ปลอดภัย ไม่ถูกแตะโดย installer)
-  2. git rm -r workflow                            # playbook เก่า (เวอร์ชันใหม่จะอยู่ที่ .warnyin/workflow)
+  1. mkdir -p docs/stages && git mv warnyin-stages/* docs/stages/   # งานจริงของคุณ (ปลอดภัย ไม่ถูกแตะโดย installer)
+  2. rm -rf workflow warnyin-stages                # core เก่า + โฟลเดอร์ที่ย้ายของออกแล้ว
 แล้วรันคำสั่งนี้อีกครั้ง\n`)
 }
 
@@ -57,8 +57,8 @@ const legacyV5 = ['workflow', 'template', 'installer', 'stages'].filter((d) =>
 if (legacyV5.length) {
   console.warn(`⚠ พบโครงเลย์เอาต์เก่า (0.3–0.5.x): warnyin/{${legacyV5.join(', ')}}
 เวอร์ชันนี้ย้าย core ไป .warnyin/ และงานจริงไป docs/stages/ — แนะนำย้ายด้วยตัวเองก่อน:
-  1. git mv warnyin/stages docs/stages             # งานจริงของคุณ (active + achieved) — ปลอดภัย ไม่ถูกแตะ
-  2. git rm -r warnyin/workflow warnyin/template   # core เก่า (เวอร์ชันใหม่ installer จะวางที่ .warnyin/)
+  1. mkdir -p docs/stages && git mv warnyin/stages/* docs/stages/   # งานจริงของคุณ (active + achieved) — ปลอดภัย ไม่ถูกแตะ
+  2. rm -rf warnyin                                # core เก่าทั้งหมด (เวอร์ชันใหม่ installer จะวางที่ .warnyin/)
 แล้วรันคำสั่งนี้อีกครั้ง — installer จะวาง .warnyin/ ชุดใหม่ให้\n`)
 }
 
