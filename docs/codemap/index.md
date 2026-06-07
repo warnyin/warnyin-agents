@@ -36,3 +36,6 @@ single library (zero-dependency, ESM, Node ≥20) เผยแพร่ผ่า
 ## ไฟล์ codemap
 - `architecture.md` — โครงระดับสูง + 2-layer + flow installer + การไหลของ 5 stage
 - (ไม่มี backend/frontend/data — repo เป็น tool เนื้อหา `.md` + installer)
+
+## เอกสาร onboarding
+- `docs/example-walkthrough.md` — worked example เดินครบ 5 stage ของ topic จริง (`cli-legacy-warning-fix`) ให้ผู้ใช้ใหม่เห็น artifact จริง (ชี้ `docs/stages/achieved/` + playbook `src/.warnyin/`); ดู `docs/rule.md` §1 worked-example convention
