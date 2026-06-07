@@ -23,6 +23,12 @@
 
 ## [Unreleased]
 
+## [0.8.5] - 2026-06-07
+
+### Added
+- **Model-tier guidance ใน context profile** — `src/.warnyin/workflow/contexts/{research,build,review}.md` เพิ่มบรรทัด "Model tier" ใน section Tool preference (generic: `research`→`deepest reasoning` · `build`→`balanced`/fan-out worker เชิงกลไก→`cheap` · `review`→`balanced+`) + ตาราง legend ใน `contexts/README.md` — แนะนำ model tier ตาม posture เพื่อคุม token/cost; **tool-agnostic** ไม่ผูกชื่อรุ่น (harness map เอง) · global `docs/rule.md` §1 payload-guidance-generic — `.md` ล้วน, ติดมากับ `--update` รอบถัดไป
+- **Worked-example pointer ใน README** — section "ตัวอย่างจริง (worked example)" ชี้ `docs/example-walkthrough.md` (เดิน topic จริง `cli-legacy-warning-fix` ครบ 5 stage บน repo) ให้ผู้ใช้ใหม่เห็น artifact จริง
+
 ## [0.8.4] - 2026-06-07
 
 ### Added
