@@ -7,12 +7,15 @@
 
 ## Migration guide
 
-อัปเกรดจากรุ่นเก่าที่ layout ต่างไป (installer จะ **เตือนให้ย้ายเอง ไม่แตะงานจริงของคุณ**) — ทำตามตารางก่อนรัน `npx @warnyin/agents` รอบใหม่:
+อัปเกรดจากรุ่นเก่าที่ layout ต่างไป (installer จะ **เตือนให้ย้ายเอง ไม่แตะงานจริงของคุณ**):
+
+> **ลำดับที่แนะนำ: ย้ายงานจริงก่อน แล้วค่อยรัน `npx @warnyin/agents`**
+> คำสั่งย้ายด้านล่างใช้รูปแบบ `git mv <เก่า>/* docs/stages/` (ย้าย *เนื้อหา* ไม่ใช่ทั้งโฟลเดอร์) จึงปลอดภัยทั้งกรณีที่ยังไม่มี `docs/stages/` และกรณีที่เผลอรัน installer ไปก่อน (installer สร้าง `docs/stages/` เปล่าให้แล้ว) — กันงานจริงไปซ้อนเป็น `docs/stages/stages/`
 
 | จากรุ่น | layout เดิม | ต้องทำเอง (งานจริงปลอดภัย ไม่ถูกแตะ) |
 |---|---|---|
-| **≤0.2.x** | core อยู่ `workflow/` + งานจริง `warnyin-stages/` ที่ root | `git mv warnyin-stages docs/stages` แล้ว `git rm -r workflow` |
-| **0.3–0.5.x** | ทุกอย่างใต้ `warnyin/{workflow,template,installer,stages}` | `git mv warnyin/stages docs/stages` แล้ว `git rm -r warnyin/workflow warnyin/template` |
+| **≤0.2.x** | core `workflow/` + งานจริง `warnyin-stages/` ที่ root | `mkdir -p docs/stages && git mv warnyin-stages/* docs/stages/` แล้วลบ core เก่า `rm -rf workflow warnyin-stages` |
+| **0.3–0.5.x** | ทุกอย่างใต้ `warnyin/{workflow,template,installer,stages}` | `mkdir -p docs/stages && git mv warnyin/stages/* docs/stages/` แล้วลบ core เก่า `rm -rf warnyin` |
 
 จากนั้นรัน installer อีกครั้ง — installer จะวาง `.warnyin/` (core) ชุดใหม่ + แยกงานจริงไว้ที่ `docs/stages/` ให้
 

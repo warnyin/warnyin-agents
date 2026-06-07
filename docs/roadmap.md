@@ -32,8 +32,9 @@
 ### 3. CHANGELOG.md + migration note 0.6.0 ✅ (topic `roadmap-sync-p0`)
 - [x] สร้าง `CHANGELOG.md` (รูปแบบ Keep a Changelog)
 - [x] บันทึก 0.6.0: ย้าย `warnyin/` → `.warnyin/` (core) + `docs/stages/` (งานจริง) — **breaking** (รวมใน Migration guide section)
-- [x] เขียน migration ที่ผู้ใช้เดิมต้องทำ (อ้าง legacy warning ใน installer)
-- **เสร็จแล้ว:** Migration guide section ใน `CHANGELOG.md` ครอบ ≤0.2.x / 0.3–0.5.x (mirror legacy warning `cli.mjs`) + ระบุ 0.6.0→0.7.0 ไม่กระทบผู้ใช้ปลายทาง
+- [x] เขียน migration ที่ผู้ใช้เดิมต้องทำ
+- [ ] **(defer · พบใน VERIFY topic `roadmap-sync-p0`)** แก้ legacy warning ใน `src/bin/cli.mjs` ให้ตรง Migration guide ใหม่ — คำสั่งเดิม `git mv warnyin/stages docs/stages` ทำงานจริง**ซ้อน** (`docs/stages/stages/`) เมื่อผู้ใช้รัน installer ก่อน migrate (installer สร้าง `docs/stages/` เปล่าไปแล้ว); เอกสาร CHANGELOG แก้ robust แล้ว (`git mv .../* docs/stages/` + `rm -rf` core เก่า) — cli ควรตามให้ตรง
+- **เสร็จแล้ว:** Migration guide section ใน `CHANGELOG.md` ครอบ ≤0.2.x / 0.3–0.5.x + ระบุ 0.6.0→0.7.0 ไม่กระทบผู้ใช้ปลายทาง; คำสั่ง verify จริงแล้วทั้งกรณี migrate-ก่อน/หลัง-install (VERIFY)
 
 ### 4. ตรวจ/เสริม README ✅ (topic `roadmap-sync-p0`)
 - [x] เช็คว่าทุก path/โครงใน README ตรงโครง (อัปเดตเป็น 0.7.0 layout `.warnyin/` + `src/` แล้ว — topic `src-bootstrap`)
