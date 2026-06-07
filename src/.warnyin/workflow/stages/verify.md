@@ -2,6 +2,7 @@
 
 > **Playbook กลาง — AI ทุกเจ้าทำตามไฟล์นี้ชุดเดียวกัน** (Claude Code / Codex / Antigravity / อื่นๆ)
 > เป้าหมาย: เป็น **strategy tester** — ยืนยันว่า change ที่ build แล้ว "ทำงานถูกตามจุดประสงค์ของ topic" จริง (functional + UX/UI ถ้าเป็น FE) แก้จนผ่าน
+> **Context profile:** สวมโหมด `review` (`.warnyin/workflow/contexts/review.md`) — session-level posture ของ stage นี้
 
 ---
 

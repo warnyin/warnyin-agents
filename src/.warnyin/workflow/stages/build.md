@@ -2,6 +2,7 @@
 
 > **Playbook กลาง — AI ทุกเจ้าทำตามไฟล์นี้ชุดเดียวกัน** (Claude Code / Codex / Antigravity / อื่นๆ)
 > เป้าหมาย: ลงมือทำ task ที่ DESIGN เตรียมไว้ โดย **fan-out sub-agent อัตโนมัติต่อ task ตาม dependency**
+> **Context profile:** สวมโหมด `build` (`.warnyin/workflow/contexts/build.md`) — session-level posture ของ stage นี้
 
 ---
 

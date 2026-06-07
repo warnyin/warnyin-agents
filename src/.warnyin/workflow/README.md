@@ -42,6 +42,7 @@ warnyin/               # ★ ทุกอย่างของ workflow รว�
     explore.md         #   playbook: EXPLORE — สำรวจ/ตอบคำถามแบบ read-only ไม่สร้าง artifact
     next.md            #   playbook: NEXT — เช็คงานค้าง + แนะนำขั้นตอนถัดไป (read-only)
     roles/             #   role card กลาง: ba, po, sa, tech-lead, developer, qa, security, infra
+    contexts/          #   context profile กลาง (session-level posture): research, build, review
     stages/            #   discovery ✅ · design ✅ · build ✅ · verify ✅ · ship ✅
     scripts/
       build-wave.mjs   #   Workflow script: fan-out sub-agent ต่อ task ใน wave (worktree)
