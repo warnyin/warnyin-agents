@@ -21,6 +21,7 @@
    → ถ้า **ไม่มี** guideline → แนะนำว่าควรเทสแบบไหน/วิธีใดได้บ้าง แล้วเขียนแผนลง `test.md`
 3. **`docs/infra.md`** — local env / service ที่ต้องรันเพื่อเทส
 4. **`docs/troubleshooting.md`** — เผื่อปัญหาที่จะเจอเคยถูกแก้แล้ว
+5. **runtime security** (`.warnyin/workflow/roles/security.md` → "Runtime / operational security") — ตอนรันเทส local env ที่มี secret จริง ทบทวน secret isolation / no-egress / identity separation ก่อนปล่อย agent แตะของจริง
 
 ---
 
