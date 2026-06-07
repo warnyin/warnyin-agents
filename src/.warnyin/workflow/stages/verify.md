@@ -17,17 +17,18 @@
 
 1. **spec + tasks ทั้งหมด** — `docs/stages/<slug>/tasks/*/spec.md` + `task.md`, `design.md`, `proposal.md`
    → เข้าใจ **จุดประสงค์ของ topic** และสิ่งที่ต้องยืนยัน (อย่าเทสผ่านๆ โดยไม่เข้าใจ)
-2. **`docs/techstack/<component>/test.md`** — guideline ว่าเทสยังไง (เช่น frontend: e2e smoke ผ่าน **playwright-cli**)
+2. **`docs/features/<name>/spec.md` = regression baseline** — อ่าน behavior spec ของ feature ที่ topic แตะ (ดูจาก Spec delta ใน `design.md`); topic แตะหลาย feature → baseline = union ของ spec ทุก feature ที่ delta อ้างถึง; feature ยังไม่มี spec → ข้ามได้ (วิธีเดิม)
+3. **`docs/techstack/<component>/test.md`** — guideline ว่าเทสยังไง (เช่น frontend: e2e smoke ผ่าน **playwright-cli**)
    → ถ้า **ไม่มี** guideline → แนะนำว่าควรเทสแบบไหน/วิธีใดได้บ้าง แล้วเขียนแผนลง `test.md`
-3. **`docs/infra.md`** — local env / service ที่ต้องรันเพื่อเทส
-4. **`docs/troubleshooting.md`** — เผื่อปัญหาที่จะเจอเคยถูกแก้แล้ว
-5. **runtime security** (`.warnyin/workflow/roles/security.md` → "Runtime / operational security") — ตอนรันเทส local env ที่มี secret จริง ทบทวน secret isolation / no-egress / identity separation ก่อนปล่อย agent แตะของจริง
+4. **`docs/infra.md`** — local env / service ที่ต้องรันเพื่อเทส
+5. **`docs/troubleshooting.md`** — เผื่อปัญหาที่จะเจอเคยถูกแก้แล้ว
+6. **runtime security** (`.warnyin/workflow/roles/security.md` → "Runtime / operational security") — ตอนรันเทส local env ที่มี secret จริง ทบทวน secret isolation / no-egress / identity separation ก่อนปล่อย agent แตะของจริง
 
 ---
 
 ## 3. หลักการทำงาน (operating principles)
 
-1. **เข้าใจจุดประสงค์ก่อนเทส** — เทสตามเจตนาของ topic ไม่ใช่แค่ให้เขียว
+1. **เข้าใจจุดประสงค์ก่อนเทส** — เทสตามเจตนาของ topic ไม่ใช่แค่ให้เขียว **และพฤติกรรมเดิมจาก feature spec** — scenario เดิมใน `docs/features/<name>/spec.md` = regression case (ต้องไม่พัง ยกเว้นที่ MODIFIED/REMOVED ระบุ), scenario ใน Spec delta = test case ใหม่
 2. **เทสในสภาพแวดล้อมจริง (local env)** — รัน service ที่เกี่ยวข้องใน local แล้วเทสตามแผน
 3. **ใช้ guideline จาก `test.md`** ของ techstack; ถ้าไม่มีให้เสนอวิธีเทสที่เหมาะแล้วเขียนแผนเอง
 4. **Frontend → verify UX/UI ด้วย** (ไม่ใช่แค่ functional — ดู layout, state, flow, ความถูกต้องของหน้าจอ)
@@ -44,8 +45,8 @@
 ## 4. ลำดับขั้นการทำงาน (process)
 
 0. **★ เช็ค context window ก่อนเริ่ม:** ประเมินว่า context ของ session ปัจจุบันถูกใช้ไปมากน้อยแค่ไหน — ถ้าใช้ไปเยอะหรือ **เกินครึ่ง** → **เสนอ user ให้ `/compact` หรือ `/clear` ก่อนเสมอ** แล้วค่อยเริ่ม VERIFY ใน context ที่โล่ง (สถานะงานอยู่ในไฟล์ `docs/stages/<slug>/` ครบ ไม่หายไปกับ context) — VERIFY เป็นลูปเทส-แก้ที่อาจยาว ต้องมี context เหลือมากพอ; เครื่องอื่นที่ไม่มีคำสั่งนี้ → แนะนำเริ่ม session ใหม่
-1. **เข้าใจจุดประสงค์:** อ่าน spec/tasks/design → สรุปสิ่งที่ต้อง verify (functional + UX/UI)
-2. **วางแผนเทส → เขียน `test.md`:** ตาม guideline `docs/techstack/<component>/test.md`; ไม่มีก็เสนอวิธี (e2e smoke / integration / manual ฯลฯ) แล้วเขียนแผน
+1. **เข้าใจจุดประสงค์ + อ่าน baseline:** อ่าน spec/tasks/design + `docs/features/<name>/spec.md` ของ feature ที่ topic แตะ (union ถ้าหลาย feature) → สรุปสิ่งที่ต้อง verify (functional + UX/UI)
+2. **วางแผนเทส → เขียน `test.md`:** ตาม guideline `docs/techstack/<component>/test.md`; ไม่มีก็เสนอวิธี (e2e smoke / integration / manual ฯลฯ) แล้วเขียนแผน — **ครอบทั้ง regression (scenario เดิมใน baseline) + test case ใหม่ (scenario ใน Spec delta)**
 3. **เตรียม local env:** รัน service ที่เกี่ยวข้องตาม `infra.md`
 4. **รันเทสตามแผน:** functional ตาม test-flow ใน spec; FE → e2e smoke (playwright-cli) + ตรวจ UX/UI
 5. **ไม่ผ่าน → แก้ → rerun:** วนจนผ่าน **นับจำนวนรอบ/จำนวนแก้**; ปัญหายาก→`troubleshooting.md`; ถ้านานเกิน→ถาม user (ทีละข้อ + recommended)
@@ -67,6 +68,7 @@
 ## 6. Gate → เข้า SHIP ได้เมื่อ
 
 - [ ] เทสตาม **จุดประสงค์ของ topic** ครบ (functional ตาม test-flow ใน spec)
+- [ ] **regression ตาม baseline** — scenario เดิมใน `docs/features/<name>/spec.md` ของ feature ที่แตะ ยังผ่าน (ยกเว้นที่ MODIFIED/REMOVED) + scenario ใน Spec delta ผ่าน
 - [ ] Frontend: **UX/UI verify ผ่าน**
 - [ ] ทุกข้อที่ไม่ผ่านถูกแก้จน **verify ผ่านหมด**
 - [ ] `test.md` (แผน) + `verify.md` (สรุป + จำนวนการแก้ไข) เขียนครบ

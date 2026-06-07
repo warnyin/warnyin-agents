@@ -14,6 +14,7 @@ argument-hint: "[slug ของ topic] [อธิบาย change สั้น�
    - ระบุ slug → ใช้/สร้าง `docs/stages/<slug>/` (ถ้ามาจาก Discovery ใช้โฟลเดอร์เดิม)
    - ถ้าเป็นคำถาม/ยังไม่มั่นใจเรื่อง design → แนะนำ `/warnyin:discovery` ก่อน
 4. ผลิต artifact โดยใช้ template ใน `.warnyin/template/stages/[topic]/` เป็นโครง: `business.md` (ข้ามได้ถ้า change เล็ก), `proposal.md`, `design.md` (lens `.warnyin/workflow/roles/sa.md`), แล้วแตก `tasks/<task-name>/` (lens `.warnyin/workflow/roles/tech-lead.md`) แต่ละใบมี `spec.md` `standard.md` `rule.md` `task.md`
+   - **Spec delta:** `design.md` ต้องครอบ section "9. Spec delta" — เทียบ `docs/features/<name>/spec.md` ปัจจุบัน (input ข้อ 6) แล้วเขียน ADDED/MODIFIED/REMOVED หรือ "ไม่มี delta" (กติกาเต็ม + gate ดู playbook §2/§4/§8 — ไม่ทำซ้ำที่นี่)
    - **Review panel (ถาม user ก่อน):** หลัง `design.md` เสร็จ ก่อนแตก task — ใช้ AskUserQuestion ถามว่าจะให้ panel รีวิวไหม ถ้า ok → fan-out subagent `warnyin-sa`, `warnyin-tech-lead`, `warnyin-qa`, `warnyin-security`, `warnyin-infra` (Agent tool, ขนาน, read-only) รีวิว proposal+design → รวมความเห็น สรุปให้ user → แก้ blocker ให้ครบ (ห้ามเดา) → บันทึก section "Design review" ท้าย `design.md`
 5. ตอน generate ไฟล์ task หลายใบ สามารถใช้ sub-agent (Task/Agent tool) fan-out หนึ่ง agent ต่อหนึ่ง task ได้ — **แต่ต้องผ่าน Gate (ข้อ 8 ของ playbook) ก่อน**
 6. **Dry-run (ถาม user ก่อนเสมอ):** หลังเขียนไฟล์ task ครบ ใช้ AskUserQuestion ถามว่าต้องการ dry-run ทั้งหมดเพื่อหาจุดบกพร่องก่อนเข้า BUILD ไหม — ถ้า ok ทำตามข้อ 4.9 ของ playbook:

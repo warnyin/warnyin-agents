@@ -40,3 +40,18 @@ task-1 ──▶ task-2 ──▶ task-3
 
 ## 8. Test strategy ระดับ design
 - จะยืนยันว่า design ทำงานถูกอย่างไร (ภาพรวม — รายละเอียดอยู่ใน task spec):
+
+## 9. Spec delta (เทียบ docs/features/<name>/spec.md ปัจจุบัน)
+> พฤติกรรมที่ change นี้ เพิ่ม/แก้/ลบ — SHIP จะ merge ตามนี้แบบกึ่ง mechanical
+> change ไม่แตะพฤติกรรม feature (refactor/docs/tooling) → เขียน "ไม่มี delta" บรรทัดเดียวพอ
+
+### ADDED
+#### Requirement: <ชื่อ> (→ feature: <feature-name>)
+<พฤติกรรม + scenario ตาม format ของ spec.md>
+
+### MODIFIED
+#### Requirement: <ชื่อใหม่> (→ feature: <feature-name>) [เดิมชื่อ: <ชื่อเก่า> — ใส่เฉพาะกรณี rename]
+<เวอร์ชันใหม่เต็ม> _(เดิม: <สรุปสั้น>)_
+
+### REMOVED
+#### Requirement: <ชื่อเดิมใน spec> (→ feature: <feature-name>) — เหตุผลที่เลิก

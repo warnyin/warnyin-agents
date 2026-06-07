@@ -23,7 +23,8 @@
 3. `docs/techstack/<component>/standard.md` — ★ pattern/มาตรฐานการเขียนโค้ด
 4. `docs/techstack/<component>/{about,structure,test}.md`, `docs/codemap/index.md` — โครงสร้าง/วิธีเทสต์
 5. ถ้ามี Discovery → `docs/stages/<slug>/discovery.md`, `research.md`
-6. โค้ดจริงที่เกี่ยวข้อง (inspect เพื่อตอบคำถามแทนการเดา)
+6. `docs/features/<name>/spec.md` — ★ behavior spec ปัจจุบันของ feature ที่ change แตะ (baseline สำหรับเขียน Spec delta; feature ยังไม่มี spec → ข้ามได้)
+7. โค้ดจริงที่เกี่ยวข้อง (inspect เพื่อตอบคำถามแทนการเดา)
 
 ---
 
@@ -46,7 +47,7 @@
 2. **Ground + เคลียร์ความไม่ชัด:** อ่าน Input; ทุกจุดกำกวมเรื่อง design → ถามทีละข้อ + recommended answer จนชัด (ถ้าใหญ่/ไม่ชัดมาก → แนะนำ Discovery ก่อน)
 3. **business.md** *(optional — ข้ามได้ถ้า change เล็ก เช่น fix bug นิดหน่อย)*: what & why เชิงธุรกิจ — goal, คุณค่า, persona, success metric
 4. **proposal.md** (what & why): สรุป change ที่จะทำ, เหตุผล, ทางเลือกที่พิจารณา/ตัดทิ้ง, scope in/out
-5. **design.md** (how): ออกแบบเชิงเทคนิคแบบ vertical slice — slice มีอะไรบ้าง, แต่ละ slice ตัดผ่าน layer ไหน, data model, interface/contract, flow, ผลกระทบต่อระบบเดิม (ใช้ lens `.warnyin/workflow/roles/sa.md`)
+5. **design.md** (how): ออกแบบเชิงเทคนิคแบบ vertical slice — slice มีอะไรบ้าง, แต่ละ slice ตัดผ่าน layer ไหน, data model, interface/contract, flow, ผลกระทบต่อระบบเดิม (ใช้ lens `.warnyin/workflow/roles/sa.md`) — **ครอบ "Spec delta" ด้วย**: เทียบพฤติกรรมที่ change นี้แตะกับ `docs/features/<name>/spec.md` ปัจจุบัน แล้วเขียน ADDED/MODIFIED/REMOVED (SHIP merge ตามนี้); change ไม่แตะพฤติกรรม feature → ระบุ "ไม่มี delta"
 6. **Review panel (optional — ถาม user ก่อน):** เสนอ user ว่าจะให้ panel หลาย role รีวิว design ก่อนแตก task ไหม — ถ้า ok:
    1. fan-out sub-agent reviewer **ขนาน (read-only)** ตาม role card: **SA** (architecture/data model/contract), **Tech Lead** (feasibility/ขนาด task/dependency), **QA** (testability/acceptance), **Security** (ช่องโหว่/ข้อมูลอ่อนไหว), **Infra** (env/config/migration) — แต่ละตัวอ่าน `proposal.md` + `design.md` + โค้ดจริงที่เกี่ยว แล้วให้ความเห็นตาม checklist ใน `.warnyin/workflow/roles/<role>.md` แบ่งเป็น **blocker / suggestion**
    2. รวมความเห็นทุก role → สรุปให้ user เห็นภาพ
@@ -77,7 +78,7 @@
 |---|---|---|---|
 | `business.md` | what & why เชิงธุรกิจ (goal, persona, success metric) | ✅ ข้ามได้ถ้า change เล็ก | `.warnyin/template/stages/[topic]/business.md` |
 | `proposal.md` | what & why ของ change + ทางเลือก + scope | จำเป็น | `.warnyin/template/stages/[topic]/proposal.md` |
-| `design.md` | how — vertical slice, data model, contract, flow | จำเป็น | `.warnyin/template/stages/[topic]/design.md` |
+| `design.md` | how — vertical slice, data model, contract, flow, **Spec delta** | จำเป็น | `.warnyin/template/stages/[topic]/design.md` |
 | `tasks/<task-name>/spec.md` | spec เฉพาะ task (ดูข้อ 6) | จำเป็นต่อ task | `.warnyin/template/stages/[topic]/tasks/[task-name]/spec.md` |
 | `tasks/<task-name>/standard.md` | pattern โค้ด/shared component อิง techstack standard | จำเป็นต่อ task | `.warnyin/template/stages/[topic]/tasks/[task-name]/standard.md` |
 | `tasks/<task-name>/rule.md` | rule ที่ต้อง follow + rule ที่เสนอเพิ่ม (รอ SHIP) | จำเป็นต่อ task | `.warnyin/template/stages/[topic]/tasks/[task-name]/rule.md` |
@@ -108,6 +109,7 @@
 - [ ] proposal.md (+ business.md ถ้าจำเป็น) + design.md ครบ และ user เห็นชอบ
 - [ ] **ไม่มีการเดา** — ทุกจุดที่ไม่ชัดถูกถาม (ทีละข้อ + recommended answer) และปิดแล้ว
 - [ ] design เป็น vertical slice ชัด — แต่ละ task/slice ส่งมอบคุณค่า end-to-end ได้
+- [ ] **Spec delta ครบ** — เทียบ `docs/features/<name>/spec.md` ของ feature ที่แตะ (ADDED/MODIFIED/REMOVED) หรือระบุ "ไม่มี delta"
 - [ ] ทุก task มี `spec.md` + `standard.md` + `rule.md` + `task.md` ครบ
 - [ ] dependency / ลำดับระหว่าง task และ sub-task ชัดเจน เชื่อมต่อกัน
 - [ ] rule ที่ต้อง follow ถูกระบุครบ; rule/standard ใหม่ที่อยากเพิ่มถูก note ไว้ (รอ SHIP)

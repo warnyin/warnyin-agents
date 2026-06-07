@@ -23,6 +23,9 @@
 
 ## [Unreleased]
 
+### Added
+- **วงจร Feature spec delta ครบ 3 stage (DESIGN/VERIFY/SHIP)** — wiring discipline ของ behavior spec แบบ unify-in-place ลง playbook กลาง + template + command adapter: `src/.warnyin/workflow/stages/design.md` (§2 input อ่าน `docs/features/<name>/spec.md` · §4 step 5 + §5 + §8 gate ครอบ "Spec delta") · `verify.md` (feature spec = regression baseline — scenario เดิม = regression case, delta = test case ใหม่; §2/§3/§4/§6) · `ship.md` (§4 step 5.1 merge `spec.md` ตาม delta — ADDED ต่อท้าย/MODIFIED แทนที่/REMOVED ลบ + **read-modify-verify key ไม่เจอ → STOP** + rename `[เดิมชื่อ:]` + stale delta re-check; §3/§5/§6 gate) · template `stages/[topic]/design.md` (+section "9. Spec delta") + `ship.md` (+แถว `spec.md`) · `src/.warnyin/workflow/README.md` note `spec.md` (living behavior spec) · command mirror `design/verify/ship` (ชี้ playbook ไม่ duplicate logic). **backward compatible** (feature ไม่มี spec → วิธีเดิม; topic ไม่มี §9 delta → SHIP ทำแบบเดิม); payload `.md` ล้วน ติดมากับ `--update` รอบถัดไป
+
 ## [0.8.5] - 2026-06-07
 
 ### Added

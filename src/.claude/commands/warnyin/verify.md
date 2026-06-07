@@ -9,6 +9,7 @@ argument-hint: "[slug ของ topic]"
 1. อ่าน `.warnyin/workflow/stages/verify.md` ให้ครบก่อน แล้วทำตามทุกหลักการอย่างเคร่งครัด
 2. slug: $ARGUMENTS — ถ้าไม่ระบุให้ถามก่อน ว่าจะ verify topic ไหน
 3. **เข้าใจจุดประสงค์ก่อนเทส:** อ่าน `tasks/*/spec.md` + `task.md`, `design.md`, `proposal.md` ทั้งหมดให้เข้าใจดี แล้วค่อยเทสตามเจตนาของ topic
+   - **regression baseline:** อ่าน `docs/features/<name>/spec.md` ของ feature ที่ topic แตะด้วย (ดูจาก Spec delta ใน `design.md`) — scenario เดิม = regression case, scenario ใน delta = test case ใหม่ (รายละเอียดดู playbook §2/§3/§4 — ไม่ทำซ้ำที่นี่)
 4. **guideline:** อ่าน `docs/techstack/<component>/test.md` ว่าเทสยังไง (เช่น FE: e2e smoke ผ่าน playwright-cli) — ไม่มีก็เสนอวิธีแล้วเขียนแผนเอง; ดู `docs/infra.md` สำหรับ local env
 5. **เขียนแผนลง** `docs/stages/<slug>/test.md`
 6. **เทสจริงใน local env:** รัน service ที่เกี่ยวข้อง (ใช้ skill `run`/`verify` ช่วย launch ได้) → รันเทสตามแผน; FE → e2e smoke + ตรวจ UX/UI

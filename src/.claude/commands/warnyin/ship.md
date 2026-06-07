@@ -12,7 +12,7 @@ argument-hint: "[slug ของ topic]"
 5. **ขออนุมัติครั้งเดียว** — ใช้ AskUserQuestion สรุป promotion plan: feature ใหม่/ปรับปรุง, ไฟล์กลางที่จะอัปเดต + สาระที่จะใส่, ชื่อโฟลเดอร์ archive — **fold ตาราง learned-rule (rule + evidence + scope) เข้า approval เดียวกัน ให้ user ยืนยัน per-rule** (✅ promote / ✂️ ตัด + เหตุผล) → รอ go/no-go (อย่าแก้ไฟล์ใดก่อนได้ไฟเขียว)
 6. **★ Archive ก่อน:** ย้ายทั้งโฟลเดอร์ `docs/stages/<slug>/` → `docs/stages/achieved/<YYYY-MM-DD>-<slug>/` (ใช้ `git mv`; วันที่ = วันที่ ship) แล้วอ่านเนื้อหาจาก path ใหม่ระหว่าง promote
 7. **อัปเดตเอกสารกลาง** (กลั่นเข้าโครงสร้างไฟล์เดิม ไม่ copy ดิบ, ระวัง duplicate):
-   - `docs/features/<feature-name>/` — ใหม่ → สร้าง (feature.md + business.md); เดิม → อัปเดต โดยใช้ business/proposal/design ของ topic
+   - `docs/features/<feature-name>/` — ใหม่ → สร้าง (feature.md + business.md); เดิม → อัปเดต โดยใช้ business/proposal/design ของ topic — **และ merge `spec.md` ตาม Spec delta** ใน `design.md` §9 (ADDED ต่อท้าย · MODIFIED แทนที่ · REMOVED ลบ; **key ไม่เจอ → STOP ถาม user ห้าม merge เงียบ** — กติกาเต็มดู playbook §4 step 5)
    - `docs/techstack/<component>/{rule,standard}.md` — learned-rule ที่ยืนยันแล้ว scope `component:<c>` + note "รอ SHIP" (พิจารณาครบทุกข้อ: promote หรือตัดทิ้งพร้อมเหตุผล); learned-rule scope `project` → `docs/rule.md`
    - `docs/techstack/<component>/structure.md` + `test.md` — โครงสร้างที่เปลี่ยน (ดูโค้ดจริง) + merge แผนเทสจาก `test.md` ของ topic
    - `docs/rule.md` — global rule ใหม่/ที่เปลี่ยน (เฉพาะกฎระดับโปรเจกต์)

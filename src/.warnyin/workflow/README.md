@@ -56,7 +56,7 @@ Discovery (optional) ──▶ DESIGN ──▶ BUILD ──▶ VERIFY ──▶
     docs/                                  #   โครง docs — installer seed เข้า docs/ ตอนติดตั้ง
       project.md  rule.md  infra.md  troubleshooting.md  codemap/index.md
       techstack/[component]/               #   copy เป็น docs/techstack/<component> (โดย /warnyin:init)
-      features/[feature-name]/             #   copy เป็น docs/features/<feature-name> (โดย SHIP)
+      features/[feature-name]/             #   copy เป็น docs/features/<feature-name> (โดย SHIP) — มี spec.md (living behavior spec)
   installer/templates/ #   template CLAUDE.md ของ target (installer ใช้เอง — ไม่ถูก copy ไป target)
 
 .claude/               # adapter Claude Code (ชี้กลับ playbook กลาง)
