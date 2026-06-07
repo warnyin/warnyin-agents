@@ -2,8 +2,8 @@ import { execFileSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 
 // allowlist = safety net ชั้นสองของ package.json `files` — ดัก leak ชนิด "ใหม่" ที่ denylist จับไม่ได้
-// narrow src/.claude/ → 2 subdir ตรงกับ files (กัน src/.claude/skills / settings.local.json หลุดอนาคต)
-const ALLOWED_PREFIX = ['src/bin/', 'src/.warnyin/', 'src/.claude/commands/', 'src/.claude/agents/']
+// narrow src/.claude/ → subdir ตรงกับ files (commands/agents/skills); กัน settings.local.json / subdir อื่นหลุดอนาคต
+const ALLOWED_PREFIX = ['src/bin/', 'src/.warnyin/', 'src/.claude/commands/', 'src/.claude/agents/', 'src/.claude/skills/']
 // npm always-include: package.json / README / LICENSE / CHANGELOG + payload src/AGENTS.md (ต้องอยู่ใน list ไม่งั้น false-positive)
 const ALLOWED_FILE = ['package.json', 'README.md', 'CHANGELOG.md', 'LICENSE', 'src/AGENTS.md']
 
@@ -25,8 +25,10 @@ export function checkFiles(files) {
   // R1: nested dotfolder 2 ก้อนต้องติดทั้งคู่ (บทเรียน 0.6.0 ขยายผล — npm ไม่รวม nested dotfolder ถ้าไม่ระบุ)
   const hasWarnyin = files.some((p) => p.startsWith('src/.warnyin/workflow/'))
   const hasClaude = files.some((p) => p.startsWith('src/.claude/commands/warnyin/'))
+  const hasSkills = files.some((p) => p.startsWith('src/.claude/skills/'))
   if (!hasWarnyin) errors.push('src/.warnyin/workflow/ ไม่ติดใน package (R1)')
   if (!hasClaude) errors.push('src/.claude/commands/warnyin/ ไม่ติดใน package (R1)')
+  if (!hasSkills) errors.push('src/.claude/skills/ ไม่ติดใน package (R1)')
 
   // denylist: งานจริง/tooling/dogfood/tripwire รั่ว
   for (const p of files) {

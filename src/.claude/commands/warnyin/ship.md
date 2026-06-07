@@ -25,3 +25,4 @@ argument-hint: "[slug ของ topic]"
 - SHIP เป็นเรื่อง **เอกสาร + archive เท่านั้น** — ไม่ merge โค้ด (build branch → main จัดการเองนอก workflow)
 - เนื้อหาที่ไม่แน่ใจว่าควร promote/วางไฟล์ไหน → ถามทีละข้อ + เสนอคำตอบที่แนะนำ อย่าเดา
 - เกณฑ์ปิดดู Gate ข้อ 6 ของ playbook
+- คงเป็น command (user-only) โดยตั้งใจ — SHIP เป็น stateful/irreversible (archive ด้วย git mv, promote เอกสารกลาง) ต้องให้ user สั่งชัด ไม่ทำเป็น skill auto-invoke

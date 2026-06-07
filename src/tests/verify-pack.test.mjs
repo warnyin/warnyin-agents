@@ -17,6 +17,7 @@ const GOOD = [
   'src/.warnyin/template/x.md',
   'src/.claude/commands/warnyin/build.md',
   'src/.claude/agents/warnyin-x.md',
+  'src/.claude/skills/explore/SKILL.md',
 ]
 
 test('payload ถูกต้อง → ไม่มี error', () => {
@@ -67,7 +68,13 @@ test('R1 assertion: ขาด src/.claude/commands/warnyin/ → คืน error'
   assert.ok(errors.some((e) => e.includes('src/.claude/commands/warnyin/')), `hasClaude assertion ต้องทำงาน: ${errors.join(' | ')}`)
 })
 
-test('allowlist: ไฟล์นอก allow (เช่น src/.claude/skills/) → จับได้', () => {
-  const errors = checkFiles([...GOOD, 'src/.claude/skills/x.md'])
-  assert.ok(errors.some((e) => e.includes('src/.claude/skills/x.md')), `narrow allowlist ต้องจับ skills/: ${errors.join(' | ')}`)
+test('allowlist: ไฟล์นอก allow (เช่น src/.vscode/) → จับได้', () => {
+  const errors = checkFiles([...GOOD, 'src/.vscode/x.json'])
+  assert.ok(errors.some((e) => e.includes('src/.vscode/x.json')), `narrow allowlist ต้องจับ subdir นอก allow: ${errors.join(' | ')}`)
+})
+
+test('R1 assertion: ขาด src/.claude/skills/ → คืน error', () => {
+  const noSkills = GOOD.filter((p) => !p.startsWith('src/.claude/skills/'))
+  const errors = checkFiles(noSkills)
+  assert.ok(errors.some((e) => e.includes('src/.claude/skills/')), `hasSkills assertion ต้องทำงาน: ${errors.join(' | ')}`)
 })

@@ -27,3 +27,4 @@ argument-hint: "[slug ของ topic]"
 - ห้ามแก้ rule/standard กลางใน `docs/` (rule ใหม่ที่เสนอถูก note ไว้ใน `tasks/<task>/rule.md` รอ SHIP)
 - ปัญหายาก/ซ้ำที่แก้ได้ → `docs/stages/<slug>/troubleshooting.md` (SHIP จะยกขึ้น `docs/troubleshooting.md`)
 - เกณฑ์ปิด BUILD ดู Gate ข้อ 7 ของ playbook
+- คงเป็น command (user-only) โดยตั้งใจ — BUILD เป็น stateful/irreversible (สร้าง branch, fan-out, แก้ไฟล์) ต้องให้ user สั่งชัด ไม่ทำเป็น skill auto-invoke

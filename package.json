@@ -21,6 +21,7 @@
     "src/.warnyin",
     "src/.claude/commands",
     "src/.claude/agents",
+    "src/.claude/skills",
     "src/AGENTS.md",
     "README.md",
     "CHANGELOG.md",
