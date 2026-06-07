@@ -1,4 +1,4 @@
-<!-- Generated: 2026-06-07 | Files scanned: ~67 | Token estimate: ~540 -->
+<!-- Generated: 2026-06-07 | Files scanned: ~80 src (70 .md + 10 .mjs) | Token estimate: ~560 -->
 # Codemap — Warnyin Standard Workflow
 
 > repo = **tool/library** (npm `@warnyin/agents`) ไม่ใช่ app — ส่งมอบ "ways of work" 5 stage ลงโปรเจกต์อื่น

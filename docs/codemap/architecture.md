@@ -1,4 +1,4 @@
-<!-- Generated: 2026-06-07 | Files scanned: ~67 | Token estimate: ~800 -->
+<!-- Generated: 2026-06-07 | Files scanned: ~80 src (70 .md + 10 .mjs) | Token estimate: ~820 -->
 # Architecture — Warnyin Standard Workflow
 
 ## 2-layer (bootstrap / self-hosting)
@@ -64,6 +64,6 @@ lint-md.mjs         walk src/+docs/ (exclude template+archived) → checkLinks(d
 - context profile: `src/.warnyin/workflow/contexts/` (research/build/review) = **session-level posture** (คนละชั้นกับ role); playbook แต่ละ stage มี callout ชี้ context ที่เข้าคู่ (Discovery→research · DESIGN→research+build · BUILD→build · VERIFY→review · SHIP→review)
 
 ## เผยแพร่ (packaging)
-- `package.json files` granular: `src/bin`, `src/.warnyin`, `src/.claude/commands`, `src/.claude/agents`, `src/AGENTS.md`, `README/CHANGELOG/LICENSE` — **ไม่รวม** `src/tests`/`src/scripts` (dev), root dogfood (gitignored)
+- `package.json files` granular: `src/bin`, `src/.warnyin`, `src/.claude/commands`, `src/.claude/agents`, `src/.claude/skills`, `src/AGENTS.md`, `README/CHANGELOG/LICENSE` — **ไม่รวม** `src/tests`/`src/scripts` (dev), root dogfood (gitignored)
 - nested dotfolder ต้องระบุชัด (npm ไม่รวมอัตโนมัติ — บทเรียน 0.6.0); `verify-pack` เป็น gate พิสูจน์
 - CI `.github/workflows/ci.yml`: test matrix [20,22,24] + pass-count gate + pack-verify gate + lint-md gate (dead-link); zero-dep (built-in `node:*`)
