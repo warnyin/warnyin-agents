@@ -54,6 +54,7 @@ setup-dogfood.mjs   installViaNpx() || installViaPack(npm pack→extract→node 
 setup-sandbox.mjs   mkdtempSync(os.tmpdir(),'wy-sandbox-') → node src/bin/cli.mjs ลง temp (test version skew)
 verify-pack.mjs     npm pack --json → checkFiles(files)→error[] (allowlist+denylist+tripwire; export ให้ unit)
 check-test-count.mjs  parse summary node --test → fail ถ้า fail!=0 / pass<9 / pass!=tests
+lint-md.mjs         walk src/+docs/ (exclude template+archived) → checkLinks(docs,exists)→error[] (dead-link gate zero-dep; export ให้ unit)
 ```
 
 ## tool-agnostic design
@@ -65,4 +66,4 @@ check-test-count.mjs  parse summary node --test → fail ถ้า fail!=0 / pas
 ## เผยแพร่ (packaging)
 - `package.json files` granular: `src/bin`, `src/.warnyin`, `src/.claude/commands`, `src/.claude/agents`, `src/AGENTS.md`, `README/CHANGELOG/LICENSE` — **ไม่รวม** `src/tests`/`src/scripts` (dev), root dogfood (gitignored)
 - nested dotfolder ต้องระบุชัด (npm ไม่รวมอัตโนมัติ — บทเรียน 0.6.0); `verify-pack` เป็น gate พิสูจน์
-- CI `.github/workflows/ci.yml`: test matrix [20,22,24] + pass-count gate + pack-verify gate; zero-dep (built-in `node:*`)
+- CI `.github/workflows/ci.yml`: test matrix [20,22,24] + pass-count gate + pack-verify gate + lint-md gate (dead-link); zero-dep (built-in `node:*`)

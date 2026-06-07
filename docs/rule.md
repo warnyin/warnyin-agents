@@ -18,6 +18,7 @@
 
 ## 2. Engineering rules
 - **zero-dependency** — `devDependencies` ต้องว่างเสมอ; ทุกเครื่องมือใช้ built-in `node:*` (test = `node:test`) — เหตุผล: กระทัดรัด + ไม่มี supply-chain risk (จุดขายของ tool)
+  - **zero-dep lint-gate convention** (enforce ของ zero-dependency) — งาน lint/format/quality-gate ของ repo เอง ทำเป็น **`node:*` script เขียนเอง** (pure function + main-guard + CI job) **ไม่เพิ่ม devDeps** (เช่น markdownlint/prettier/eslint) — pattern เดียวกับ `verify-pack.mjs`/`check-test-count.mjs`/`lint-md.mjs` (dead-link gate); gate ต้อง **testable** (pure fn รับ input + injectable IO → unit feed ปลอม) + **executable verify** (รันจริงจับเคส positive/negative ไม่ใช่แค่ unit) — ถ้าต้องการ rule เยอะแบบ tool มาตรฐาน ให้ชั่งกับ "ทำลาย zero-dep" ก่อนเสมอ (default = เขียนเอง เฉพาะ high-signal)
 - **ESM** — repo `type: module`; ใช้ `import`/`export`, `import.meta.url` ไม่ใช่ `__dirname`/`require`
 - **ภาษา:** คอมเมนต์/ข้อความผู้ใช้เป็นภาษาไทย ตามสไตล์ `src/bin/cli.mjs`
 - **CHANGELOG ทุก user-facing change** — bump `engines`, breaking, เปลี่ยนพฤติกรรม installer → ต้องมี entry ใน `CHANGELOG.md` (Keep a Changelog) ให้ผู้ใช้ npm migrate เองได้โดยไม่ต้องเดา

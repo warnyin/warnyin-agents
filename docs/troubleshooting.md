@@ -81,3 +81,17 @@
 - **บทเรียน gitignore anchoring (สำคัญ):** git ถือว่า pattern ที่มี separator **กลาง** (เช่น `.claude/skills/`) **anchored to repo root อยู่แล้ว** → ไม่ match `src/.claude/skills/`; ส่วน pattern **trailing-slash อย่างเดียว** (เช่น `.warnyin/`) match ที่ **ทุก depth** รวม `src/.warnyin/` → **ต้องนำด้วย `/`**. ดังนั้น dogfood entry ที่เป็นชื่อ dir เปล่า ๆ ต้อง anchor `/`; การ "anchor ทุกบรรทัด" ยังเป็น best practice (explicit) แม้บางเคส (mid-slash) git anchor ให้แล้ว
 - **ป้องกันซ้ำ:** (1) หลัง **structural migration** (เช่นแยก source → `src/`) ต้อง **verify git state ตรง intent ด้วย `git ls-files`** ไม่ใช่แค่ทำตาม runbook (step อาจตกหล่น) (2) เพิ่ม dogfood path ใหม่ → `.gitignore` ต้อง root-anchored + `git check-ignore src/...` ยืนยัน source ไม่โดน
 - **⚠️ ผลข้างเคียงตอน merge (gotcha — VERIFY fresh-clone sim ไม่จับ):** `git rm --cached` บน build branch **เก็บ** working tree (branch นั้น) — แต่พอ **merge เข้า branch ที่ยัง track dogfood อยู่** (เช่น main) git มองเป็น tracked-deletion → **ลบ working tree dogfood ออกจริง** → `/warnyin:*` (จาก `.claude/commands/warnyin/`) + playbook ที่ root **หายทันที**. **วิธีแก้ = `npm run setup:dogfood`** (regen จาก release — flow ที่ออกแบบไว้พอดี); slash command อาจต้อง **restart session** ให้ re-register. **บทเรียน VERIFY:** topic ที่ untrack ของที่ track อยู่ ต้องเทส **merge path** (ไม่ใช่แค่ fresh-clone) — หลัง merge บน branch จริง ต้อง `setup:dogfood` คืน dogfood เสมอ
+
+## quality gate / dev tooling
+
+### 12. strip-code 2-pass พังเมื่อ markdown มี triple-backtick ฝังใน inline-code (meta-doc อธิบาย regex)
+- **อาการ:** `lint-md` (dead-link gate) จับ false-positive — flag `[](...)`/`[x](y)` ที่อยู่ใน code-span ของเอกสารที่ **อธิบาย markdown/regex syntax** (เช่น design/spec ของ topic `repo-lint` เองมี `` ``` `` ฝังใน inline-code)
+- **Root cause:** strip code ทำเป็น **2 pass แยก** `.replace(fenced).replace(inline)` — เมื่อ inline-code มี `` ``` `` ฝัง (เช่น `` `content.replace(/```...```/g,'')` ``) fenced-pass แรกกินทะลุ inline span ทำลาย backtick ที่ป้องกัน `[](...)`; สลับ inline-first ก็พังอีกทาง (fenced block จริงโดน inline regex กินครึ่ง)
+- **วิธีแก้:** **alternation regex pass เดียว** `/```[\s\S]*?```|`[^`\n]*`/g` — match code construct "อันที่เปิดก่อน" ตามลำดับเอกสาร (left-to-right) → ทั้ง fenced block + inline span ที่มี `` ``` `` ฝัง strip ถูกพร้อมกัน
+- **ป้องกันซ้ำ:** strip หลาย code construct ที่ nest/overlap ได้ — **ห้าม sequential `.replace().replace()`** ใช้ **alternation เดียว** ให้ regex engine จัดลำดับ match ตาม position; เทสด้วย input ที่ delimiter ชนิดหนึ่งฝังในอีกชนิด (`` ``` `` ใน inline-code) เสมอ
+
+### 13. sub-agent BUILD self-verify เคลม "เขียว" ทั้งที่ gate แดง (exit code ถูกบัง)
+- **อาการ:** sub-agent ของ wave รายงาน `passed` + self-verify เขียว แต่ main-loop full-gate รันเองแล้ว**แดง** (เกิดซ้ำ ≥2: topic `examples` dead-link, `repo-lint` lint:md) — มักเพราะเช็คผ่าน `cmd | tail` / `cmd | grep` ที่ exit code มาจาก pipe ตัวท้าย (`tail`/`grep` exit 0 เสมอ) บัง exit จริงของ gate
+- **Root cause:** trust sub-agent report + เช็ค exit ผ่าน pipe ที่ swallow exit code ของคำสั่งจริง
+- **วิธีแก้:** **main-loop full-gate ต้องรัน gate เองทุกครั้ง + ตรวจ exit จริง** — `cmd > /tmp/out 2>&1; E=$?` (เก็บ exit ก่อน pipe) ไม่ใช่ `cmd | tail` แล้วเชื่อ; ไม่ปิด BUILD จาก self-report ของ sub-agent
+- **ป้องกันซ้ำ:** build.md §8 full-gate = แหล่งความจริงเดียว (sub-agent report เป็น hint); เช็ค exit code ต้องไม่อยู่หลัง `|` — แยก `$?` หรือ `set -o pipefail`
