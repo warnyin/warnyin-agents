@@ -33,7 +33,7 @@
 2. **ขอ user ยืนยัน "ครั้งเดียวก่อนลงมือ"** — สรุป promotion plan (feature ใหม่หรือปรับปรุง, ไฟล์กลางที่จะอัปเดต + สาระที่จะใส่, ชื่อโฟลเดอร์ archive) ให้ user อนุมัติ แล้วจึง execute ไม่ถามซ้ำระหว่างทาง
 3. **★ Archive ก่อนอัปเดตเอกสาร** — ย้ายทั้งโฟลเดอร์ `docs/stages/<slug>/` → `docs/stages/achieved/<YYYY-MM-DD>-<slug>/` (วันที่ของวันที่ SHIP) **ก่อน** เริ่มแก้ `docs/` แล้วอ่านเนื้อหาจาก path ใหม่ระหว่าง promote
 4. **กลั่น ไม่ใช่ copy ดิบ** — merge สาระเข้าโครงสร้างของไฟล์กลางเดิม ระวัง duplicate/ขัดแย้งกับเนื้อหาที่มีอยู่; เขียนแบบ "ความรู้ถาวร" ไม่ใช่บันทึกรายงาน
-5. **เอกสารต้องตรงโค้ดจริง** — structure/codemap อัปเดตจากการดูโค้ดจริง ไม่ใช่จากความจำหรือ design เดิม
+5. **เอกสารต้องตรงโค้ดจริง** — structure/codemap อัปเดตจากการดูโค้ดจริง ไม่ใช่จากความจำหรือ design เดิม; **ครอบ Spec delta ด้วย** — ถ้าพฤติกรรมจริง (หลัง BUILD/VERIFY) ต่างจาก delta ที่ approve ไว้ → **อัปเดต delta ใน design.md ก่อน แล้วค่อย merge**; และ re-check delta เทียบ `spec.md` ปัจจุบัน ณ เวลา ship (ไม่ใช่ ณ เวลา design)
 6. **อย่าเดา** — เนื้อหาที่ไม่แน่ใจว่าควร promote หรือควรวางไว้ไฟล์ไหน → ถามทีละข้อ + เสนอคำตอบที่แนะนำ
 7. **เก็บ learned-rule ให้หมด — planned + emergent** — รวบรวม rule ที่จะ promote ทุกตัว: ทั้ง **planned** (note "รอ SHIP" ใน `tasks/*/rule.md` §2) และ **emergent** (บทเรียนที่โผล่ตอนลงมือ — สแกน `build.md`/`verify.md`/`troubleshooting.md`/diff); ทุกตัวต้องมี **evidence (บังคับ)** + **scope** + **user ยืนยัน** ก่อน promote — ไม่มี evidence ไม่ promote (สอด "ห้ามเดา"); **learned-rule = กฎ generalize ไม่ใช่ incident** (troubleshooting = incident ที่ *อ้าง* เป็น evidence ได้). พิจารณาครบทุกข้อ (promote หรือตัดทิ้งพร้อมเหตุผล) ห้ามปล่อยค้าง
 
@@ -49,7 +49,7 @@
 3. **สรุป promotion plan + ขออนุมัติ (ครั้งเดียว):** feature ใหม่/ปรับปรุง, รายการไฟล์กลางที่จะอัปเดต + สาระ, ชื่อโฟลเดอร์ archive — **fold ตาราง learned-rule (rule + evidence + scope) เข้า approval เดียวกันนี้ ให้ user ยืนยัน per-rule** (✅ promote / ✂️ ตัด + เหตุผล) → รอ user ไฟเขียว
 4. **★ Archive:** ย้ายทั้งโฟลเดอร์ → `docs/stages/achieved/<YYYY-MM-DD>-<slug>/` (ใช้ `git mv` ถ้าเป็น git repo)
 5. **อัปเดตเอกสารกลาง** (อ่านเนื้อหาจาก path ใน achieved):
-   1. **`docs/features/<feature-name>/`** — feature ใหม่ → สร้างโฟลเดอร์ใหม่ (`feature.md` + `business.md`); ปรับปรุง feature เดิม → อัปเดตโฟลเดอร์เดิม โดยใช้เนื้อหาจาก `business.md` / `proposal.md` / `design.md` ของ topic
+   1. **`docs/features/<feature-name>/`** — feature ใหม่ → สร้างโฟลเดอร์ใหม่ (`feature.md` + `business.md`); ปรับปรุง feature เดิม → อัปเดตโฟลเดอร์เดิม โดยใช้เนื้อหาจาก `business.md` / `proposal.md` / `design.md` ของ topic — **และ merge `spec.md`** ตาม Spec delta ใน `design.md` §9: **ADDED** → ต่อท้าย `spec.md` · **MODIFIED** → แทนที่ requirement ชื่อตรงกัน (rename → หาด้วย `[เดิมชื่อ:]`) · **REMOVED** → ลบ requirement; **read-modify-verify — key ไม่เจอ → STOP:** MODIFIED/REMOVED ที่หา key ไม่เจอใน `spec.md` ของ feature ที่ `(→ feature:)` ระบุ → **หยุด ถาม user ห้าม merge เงียบ** (ห้ามตีความเป็น ADDED เอง); **feature ใหม่** → สร้าง `spec.md` จาก ADDED ทั้งก้อน (template `[feature-name]/spec.md`); **feature เดิมยังไม่มี `spec.md`** → สร้างใหม่จาก delta + พฤติกรรมจริง
    2. **`docs/techstack/<component>/`** — `rule.md` / `standard.md` (learned-rule ที่ยืนยันแล้ว scope `component:<c>` + note "รอ SHIP" ใน tasks), `structure.md` (โครงสร้างที่เปลี่ยน), `test.md` (merge แผนเทสจาก `test.md` ของ topic)
    3. **`docs/rule.md`** — global rule ใหม่/ที่เปลี่ยน (learned-rule ที่ยืนยันแล้ว scope `project` — กฎระดับโปรเจกต์ ไม่ผูกกับ component เดียว)
    > promote learned-rule **เฉพาะตัวที่ user ยืนยัน (step 3)** ตาม scope: `component:<c>` → `docs/techstack/<c>/rule.md` · `project` → `docs/rule.md`
@@ -65,7 +65,7 @@
 
 | ที่ | เนื้อหา |
 |---|---|
-| `docs/features/<feature-name>/` | feature.md + business.md (สร้างใหม่หรืออัปเดต) |
+| `docs/features/<feature-name>/` | feature.md + business.md + spec.md (สร้างใหม่หรืออัปเดต — spec.md merge ตาม Spec delta) |
 | `docs/techstack/<component>/{rule,standard,structure,test}.md` | rule/standard ใหม่, โครงสร้าง, วิธีเทสที่ promote ขึ้น |
 | `docs/rule.md` | global rule ที่เพิ่ม/เปลี่ยน |
 | `docs/troubleshooting.md` | KB ปัญหา-วิธีแก้ที่ merge เข้า |
@@ -79,6 +79,7 @@
 
 - [ ] topic ถูกย้ายไป `docs/stages/achieved/<YYYY-MM-DD>-<slug>/` แล้ว (ไม่เหลือใน `docs/stages/`)
 - [ ] `docs/features/` สะท้อน feature ใหม่/ที่ปรับปรุงแล้ว
+- [ ] **Spec delta merge แล้ว** — `spec.md` ของ feature ที่แตะถูก merge ตาม delta; ทุก MODIFIED/REMOVED match requirement จริง (read-modify-verify — key ไม่เจอ → STOP ถาม user แล้ว ไม่ merge เงียบ)
 - [ ] learned-rules (planned + emergent) พิจารณาครบทุกตัว — note "รอ SHIP" ใน `tasks/*/rule.md` + `standard.md` + บทเรียน emergent จาก build/verify/troubleshooting; ทุก promote มี **evidence + user ยืนยัน**, ตัดทิ้งมีเหตุผล
 - [ ] `docs/troubleshooting.md` รวม entry จาก topic แล้ว
 - [ ] `docs/techstack/`, `docs/rule.md`, `docs/infra.md`, `docs/project.md` อัปเดตตามที่เกี่ยวข้อง

@@ -11,6 +11,7 @@
 | ไฟล์ | สาระที่ promote |
 |---|---|
 | `docs/features/<feature-name>/` | |
+| `docs/features/<feature-name>/spec.md` | <!-- merge Spec delta จาก design.md §9 --> |
 | `docs/techstack/<component>/rule.md` | |
 | `docs/techstack/<component>/standard.md` | |
 | `docs/techstack/<component>/structure.md` | |
