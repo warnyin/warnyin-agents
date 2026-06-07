@@ -1,58 +1,41 @@
-# Build Report — <ชื่อ change>
+# Build — security-checklist
 
 > Output ของ BUILD stage · playbook: `.warnyin/workflow/stages/build.md`
-> รายงานผลการ implement ต่อ task + การ integrate
 
-| | |
-|---|---|
-| **Slug** | `<kebab-case>` |
-| **Build branch** | `<branch>` |
-| **Isolation** | `worktree` / `shared-tree` |
-| **วันที่** | `YYYY-MM-DD` |
-| **ผลรวม** | ผ่าน __ / ล้ม __ / ทั้งหมด __ task |
-
-## 1. Execution plan (waves ตาม dependency)
-```
-wave 1 (parallel): task-a, task-b
-wave 2:            task-c  (ขึ้นกับ task-a)
-wave 3:            task-d  (ขึ้นกับ task-b, task-c)
-```
+## 1. Execution plan ที่เดิน
+- **DAG:** 1 wave / 1 task (`add-security-checklist` — ไม่มี dependency)
+- **Isolation:** shared-tree (`isolate:false`) — main loop commit ให้
+- **Build branch:** `build/security-checklist` (จาก main)
 
 ## 2. ผลต่อ task
-| Wave | Task | สถานะ | Test/Lint | ไฟล์ที่แก้ | Branch | หมายเหตุ |
-|---|---|---|---|---|---|---|
-| 1 | task-a | ✅ passed | | | | |
-| 1 | task-b | ❌ failed | | | | เหตุผล... |
+| Task | สถานะ | test | ไฟล์ที่แก้ |
+|---|---|---|---|
+| `add-security-checklist` | ✅ passed | npm test 18/18, verify:pack 72 ไฟล์ | `roles/security.md`, `stages/verify.md`, `install-skill.md` |
 
-## 3. Integration notes
-- การ merge แต่ละ wave / conflict ที่เจอและวิธีแก้:
+**สิ่งที่ทำ (canonical wording จาก design §2):**
+- `roles/security.md` — +section "Runtime / operational security" (P1 secret isolation + P2 no unnecessary egress + P3 identity separation + Claude adapter note) ต่อจาก Checklist ก่อน Output; +checklist item S1 (supply-chain/MCP = prompt-injection surface); เสริม Lens "supply chain" เดิมให้ครอบ skill/MCP/payload
+- `stages/verify.md` §2 — +reference (point 5) ชี้ runtime security ตอนรันเทส local env ที่มี secret จริง
+- `.claude/commands/warnyin/install-skill.md` step 4 — +warning prompt-injection (ไม่ลบ wording เดิม)
+- global bullet "agent-runtime security baseline" → note ใน `tasks/add-security-checklist/rule.md` §2 (รอ SHIP → `docs/rule.md` §3)
 
-## 3.5 Full build & test gate (หลัง integrate ทุก wave)
-> รัน build ทั้งหมด + test suite ทั้งหมด (รวม unit test) บน build branch — ต้องเขียวหมดก่อนปิด BUILD
+## 3. Full build & test gate (หลัง integrate)
+- ✅ `npm test` = **18/18 pass** (fail 0) — ไม่กระทบ test เดิม
+- ✅ `npm run verify:pack` = **ผ่าน 72 ไฟล์** (payload `install-skill.md` ติด tarball ถูกต้อง)
+- ✅ structural grep: "Runtime / operational security" / secret isolation / egress / identity separation ใน `security.md`, reference ใน `verify.md` §2, "prompt-injection" ใน `install-skill.md` step 4
+- ✅ section placement ถูกต้อง (หลัง Checklist ก่อน Output); Lens "supply chain" เสริมไม่ทับ app-security เดิม
 
-| Component | Build | Unit test | Test อื่น | รอบที่แก้ |
-|---|---|---|---|---|
-| api-service | ✅ / ❌ | ผ่าน __/__ | | |
-| admin-console | | | | |
+## 4. Integration notes
+- shared-tree, แตะเฉพาะ `src/` (3 ไฟล์ payload) — ไม่แตะ `docs/rule.md` central, ไม่แตะ root dogfood (รอ release ตาม design §9)
+- ไม่มี conflict · 0 รอบแก้ (gate เขียวรอบแรก)
+- commit: `965942b` บน `build/security-checklist`
 
-- error ที่เจอตอนรวม + วิธีแก้:
+## 5. Gate → VERIFY
+- [x] ทุก task implement + merge เข้า build branch
+- [x] ทุก task `passed` — ไม่มี failed ค้าง
+- [x] ไม่มี merge conflict
+- [x] full build ผ่าน (doc-only — ไม่มี build step; verify:pack = packaging gate)
+- [x] test suite เขียวทั้งหมด (18/18)
+- [x] `build.md` สรุปครบ
+- [x] ไม่แตะ rule/standard กลางใน `docs/` (global bullet note รอ SHIP)
 
-## 4. ปัญหา/ค้าง (ถ้ามี)
-- task ที่ล้ม + สาเหตุ + แผนแก้:
-
-## 5. Rule/standard ใหม่ที่ note ไว้ (รอ SHIP)
-> รวบรวมจาก `tasks/<task>/rule.md` และ `standard.md` — รอ SHIP อัปเดตไฟล์กลางใน `docs/`
--
-
-## 6. ปัญหายาก/ซ้ำที่เจอ
-> บันทึกละเอียดที่ `./troubleshooting.md` (SHIP ยกขึ้น `docs/troubleshooting.md`)
-- ดู `./troubleshooting.md`
-
-## ✅ Gate → VERIFY (ดู `.warnyin/workflow/stages/build.md` ข้อ 7)
-- [ ] ทุก task implement + merge เข้า build branch แล้ว
-- [ ] ทุก task `passed` (test/build เขียว) ไม่มี `failed` ค้าง
-- [ ] ไม่มี merge conflict ค้าง
-- [ ] Full build ของทุก component ผ่าน (ไม่มี build error)
-- [ ] test suite ทั้งหมด (รวม unit test) เขียวหมดบน build branch
-- [ ] build.md สรุปครบทุก task + ผล full build/test
-- [ ] ไม่แตะ rule/standard กลางใน docs/
+→ พร้อมเข้า VERIFY ด้วย `/warnyin:verify security-checklist`
