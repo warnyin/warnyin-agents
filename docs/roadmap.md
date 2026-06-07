@@ -81,9 +81,11 @@
 
 ## P2 — ความครบถ้วน/ประสบการณ์ผู้ใช้ (ทำเมื่อ workflow นิ่ง)
 
-### 10. `examples/` — topic ตัวอย่างเดินครบ 5 stage
-- [ ] 1 ตัวอย่างจริง (discovery→ship) ให้ผู้ใช้ใหม่เห็นของจริง
-- **ระวัง:** ดูแลให้ทันโครงที่เปลี่ยน — ทำเมื่อ workflow นิ่งแล้ว
+### 10. Worked example — topic ตัวอย่างเดินครบ 5 stage ✅ DONE (2026-06-07 · topic `examples`)
+- [x] 1 ตัวอย่างจริง (discovery→ship): `docs/example-walkthrough.md` ไล่ topic `cli-legacy-warning-fix` ครบ 5 stage (เน้น decision + ลิงก์ artifact จริง) + README pointer
+- [x] **surface achieved เดิม ไม่ duplicate/ไม่ ship** (Q1) — เลี่ยง staleness ที่ roadmap เตือน; disclaimer snapshot + ชี้ `src/.warnyin/` เป็น source ปัจจุบัน
+- [x] global: `docs/rule.md` §1 worked-example convention + §5 verify-doc accuracy-vs-source
+- **หมายเหตุ:** ไม่สร้างโฟลเดอร์ `examples/` แยก (achieved/ เป็น single source — walkthrough ชี้กลับ); ดูแลง่าย maintenance ต่ำ
 
 ### 11. Selective install (manifest-driven)
 - [ ] เฉพาะถ้าจะรองรับ "เลือกติดตั้งบาง stage/role" — แพทเทิร์น `install-modules.json` + JSON Schema validate

@@ -14,6 +14,7 @@
 - **ทุก stage playbook ชี้ context ที่เข้าคู่** — แต่ละ `stages/*.md` มี callout `Context profile` ใต้ title (Discovery→research · DESIGN→research+build · BUILD→build · VERIFY→review · SHIP→review); เพิ่ม stage ใหม่ต้องระบุ context posture ของมัน
 - **continuous-learning discipline** (คู่ "ห้ามเดา") — ความรู้/บทเรียนที่ได้ **ตอนทำจริง** (BUILD/VERIFY) ไม่ใช่แค่ตอนวางแผน → จับเป็น **learned-rule ที่ SHIP** ด้วย `rule (generalize) + evidence (บังคับ) + scope (component/project)` แล้ว **user ยืนยัน** ก่อน promote (กลไกใน `stages/ship.md` §3-§6 — unify กับ note "รอ SHIP"); learned-rule = กฎ generalize **ไม่ใช่ incident** (troubleshooting = incident ที่อ้างเป็น evidence ได้) — ยืมแก่น instinct แบบ manual ไม่มี runtime observer
 - **unify-in-place ไม่สร้างกลไกขนาน** — เมื่อเสริม mechanism ที่ **ทับซ้อนกับของเดิม** ให้ **ขยายในที่เดิม** (เช่น ขยาย principle/gate item เดิม ให้ของเก่ากลายเป็น subset) แทนการเพิ่มข้อ/สร้างกลไกใหม่ขนานกัน — กัน bloat + สับสน (สอด "กระทัดรัด opinionated"); หลักฐาน: #6/#7/#8 ขยาย playbook §3/§6 ในที่เดิมทุกครั้ง
+- **worked-example convention** (enforce ของ "tool-agnostic / ไม่ duplicate") — เอกสารตัวอย่างสอนผู้ใช้ (เช่น `docs/example-walkthrough.md`) ต้อง (1) **surface achieved topic จริง — ชี้กลับ ไม่ duplicate** เนื้อหา (เหมือน command/skill ชี้ playbook), (2) มี **disclaimer snapshot + pointer ไป playbook source** (`src/.warnyin/workflow/stages/`) กัน narrative drift เมื่อโครงเปลี่ยน, (3) **ไม่ ship npm** (อยู่ `docs/` นอก `files` — ผู้ใช้ดูบน repo), (4) **ลิงก์ playbook ชี้ `src/.warnyin/`** (committed source) ไม่ใช่ root `.warnyin/` (dogfood gitignored → ไม่ resolve บน GitHub); เน้นเล่า **decision/เหตุผล** ไม่ใช่ลอกขั้นตอน — maintenance ต่ำ + กัน staleness
 
 ## 2. Engineering rules
 - **zero-dependency** — `devDependencies` ต้องว่างเสมอ; ทุกเครื่องมือใช้ built-in `node:*` (test = `node:test`) — เหตุผล: กระทัดรัด + ไม่มี supply-chain risk (จุดขายของ tool)
@@ -51,6 +52,7 @@
 - assert `code===0` ก่อนเสมอ + surface `stderr` ใน assertion message; assert stream ให้ตรง (`console.warn`→stderr); spawn array args ห้าม `shell:true`
 - **acceptance = pass count ไม่ใช่แค่ exit 0** — `node --test` คืน exit ที่หลอกได้ (tests=1 pass=0) → gate ต้อง assert pass count บน CI matrix (ดู `check-test-count.mjs`; `troubleshooting.md` #3)
 - **ห้ามใส่ path/glob arg ให้ `node --test`** ถ้าต้อง portable ข้าม node major — ใช้ bare `node --test` (auto-discover); node 24 ตี path เป็น module, glob `**` ใช้ได้แค่ node 21+ (`troubleshooting.md` #3)
+- **verify เอกสาร narrative = accuracy เทียบ source** — เอกสารที่ "เล่าเรื่อง" จาก source อื่น (เช่น worked-example เล่า achieved topic) มีความเสี่ยงเฉพาะ = **misrepresent** (เล่าผิด/แต่งให้ดูดี); VERIFY ต้อง (1) เทส **dead-link** ทุกลิงก์ resolve, (2) เทส **claim ทุกข้อตรงกับ source จริง** (เทียบ build/verify/proposal/ship), (3) **snapshot honesty** — ถ้าตัวเลข/สถานะเปลี่ยนไปแล้ว เอกสารต้องรายงาน **ค่าประวัติ ณ ตอนนั้น** ไม่ใช่ค่าปัจจุบัน (กันเข้าใจผิด)
 
 ## 6. Bootstrap / self-hosting (2-layer)
 > repo นี้ dogfood ตัวเองด้วย release เสถียร (เทียบ compiler ที่ compile ตัวเองด้วยเวอร์ชันก่อน) — ดู `docs/project.md`, `docs/infra.md`
