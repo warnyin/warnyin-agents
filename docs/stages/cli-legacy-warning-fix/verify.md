@@ -1,44 +1,45 @@
-# Verify Report — <ชื่อ change>
+# Verify Report — cli-legacy-warning-fix
 
 > Output ของ VERIFY stage · playbook: `.warnyin/workflow/stages/verify.md`
-> สรุปผลการ verify ตามจุดประสงค์ของ topic + การแก้ไขที่เกิดขึ้น
 
 | | |
 |---|---|
-| **Slug** | `<kebab-case>` |
-| **วันที่** | `YYYY-MM-DD` |
-| **ผลรวม** | ผ่าน / ไม่ผ่าน |
-| **จำนวนรอบการแก้ไข (fix iterations)** | __ รอบ |
-| **จำนวนจุดที่แก้** | __ จุด |
+| **Slug** | `cli-legacy-warning-fix` |
+| **วันที่** | 2026-06-07 |
+| **ผลรวม** | ✅ ผ่าน |
+| **จำนวนรอบการแก้ไข (fix iterations)** | 0 รอบ (ผ่านรอบแรก — คำสั่ง verify แล้วใน topic ก่อน) |
+| **จำนวนจุดที่แก้** | 0 |
 
-## 1. จุดประสงค์ที่ verify (จาก spec/tasks)
--
+## 1. จุดประสงค์ที่ verify
+- cli legacy warning บอกคำสั่งที่ execute ได้จริง (ตรง Migration guide robust) — ไม่ซ้อน/ไม่ warn ซ้ำ
+- 3-way consistency: cli ↔ CHANGELOG ↔ test เป็นชุดเดียวกัน
+- regression-free
 
 ## 2. ผลการเทส
-| # | Test case / flow | ชนิด | ผล | หมายเหตุ |
+| # | Test case | ชนิด | ผล | หมายเหตุ |
 |---|---|---|---|---|
-| 1 | | functional / e2e / uxui | ✅ / ❌→✅ (แก้แล้ว) | |
+| V1 | migration 0.3–0.5.x executable (install-after) | behavioral | ✅ | งานจริงอยู่ `docs/stages/mywork/`, ไม่ซ้อน, ไม่ warn ซ้ำ |
+| V2 | migration ≤0.2.x executable (install-after) | behavioral | ✅ | เช่นเดียวกัน |
+| V3 | **3-way consistency** | structural | ✅ | คำสั่ง `git mv .../* docs/stages/` ตรงกันทั้ง cli spawn / `CHANGELOG.md` / `installer.test.mjs` ทั้ง 2 รุ่น |
+| V4 | regression | functional | ✅ | `npm test` 18/18 pass; `git diff main` แตะเฉพาะ `src/bin/cli.mjs` + `src/tests/installer.test.mjs` |
 
-## 3. UX/UI verify (ถ้าเป็น FE)
-- [ ] layout / states / responsive / user-flow — ผล:
+## 3. UX/UI verify
+- N/A — ไม่ใช่ FE (CLI stderr message)
 
-## 4. รายการแก้ไข (สรุปการแก้ระหว่าง verify)
-> นับรวมเป็น "จำนวนการแก้ไข" ด้านบน
-
-| รอบ | ปัญหาที่เจอ | วิธีแก้ | ไฟล์ที่แก้ |
+## 4. รายการแก้ไข
+| รอบ | ปัญหา | วิธีแก้ | ไฟล์ |
 |---|---|---|---|
-| 1 | | | |
+| — | ไม่มี — ผ่านรอบแรก (คำสั่ง robust verify แล้วใน topic `roadmap-sync-p0`; topic นี้แค่ทำ cli/test ให้ตรง) | — | — |
 
 ## 5. ปัญหายาก/ซ้ำ → troubleshooting
-- บันทึกไว้ที่ `./troubleshooting.md` (SHIP ยกขึ้น `docs/troubleshooting.md`): มี/ไม่มี
+- ไม่มีปัญหายาก/ใหม่ — `troubleshooting.md` ของ topic นี้ว่าง (finding ต้นเรื่องบันทึกแล้วใน `docs/troubleshooting.md` #10 จาก topic ก่อน)
 
-## 6. หมายเหตุถึง user (ถ้าถามระหว่างทาง)
-> กรณีวนแก้นาน/หลายรอบ แล้วถาม user — สรุปคำถาม/คำตอบ/การตัดสินใจ
--
+## 6. หมายเหตุถึง user
+- ไม่มีคำถามระหว่างทาง — scope ชัด, verify ผ่านรอบแรก
 
-## ✅ Gate → SHIP (ดู `.warnyin/workflow/stages/verify.md` ข้อ 6)
-- [ ] เทสตามจุดประสงค์ครบ (functional)
-- [ ] FE: UX/UI verify ผ่าน
-- [ ] ทุกข้อที่ไม่ผ่านถูกแก้จนผ่าน
-- [ ] test.md + verify.md เขียนครบ
-- [ ] ปัญหายากบันทึก troubleshooting.md แล้ว
+## ✅ Gate → SHIP
+- [x] เทสตามจุดประสงค์ครบ (functional + behavioral + 3-way consistency)
+- [x] FE: UX/UI — N/A
+- [x] ทุกข้อผ่าน (ไม่มีที่ต้องแก้)
+- [x] test.md + verify.md เขียนครบ
+- [x] ปัญหายาก — ไม่มี (topic นี้)
