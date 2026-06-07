@@ -65,3 +65,11 @@
 - **Root cause:** repo เป็นทั้ง tool และผู้ใช้ tool — ย้าย/แก้ source กระทบ dogfood ที่ orchestration กำลังใช้; live e2e ของ external installer ถูก gate ใน build stage
 - **วิธีแก้:** wave แรก (ย้าย source) ใช้ worktree → merge → **restore root dogfood จาก release** → wave หลัง **shared-tree** (อ่าน tooling จาก root dogfood, main loop commit ให้); acceptance ที่เป็น live external-exec → ออกแบบให้ deterministic/simulated ส่วนใหญ่ เหลือ live e2e ไป **VERIFY** (user authorize)
 - **ป้องกันซ้ำ:** self-hosting topic — แยก phase ที่กระทบ tooling ตัวเอง + เลื่อน live external-exec ไป VERIFY ตั้งแต่ออกแบบ acceptance
+
+## migration / upgrade (ผู้ใช้รุ่นเก่า)
+
+### 10. เอกสาร migration `git mv warnyin/stages docs/stages` ทำงานจริงซ้อน `docs/stages/stages/`
+- **อาการ:** ผู้ใช้รุ่นเก่าทำตาม migration guide เป๊ะ แต่งานจริงไปโผล่ที่ `docs/stages/stages/<topic>/` (ซ้อนชั้น) แทน `docs/stages/<topic>/`
+- **Root cause:** flow จริงคือ ผู้ใช้รัน `npx @warnyin/agents` รอบแรก → เห็น legacy warning **แต่ installer ไม่ block** (warn-but-not-block) install ต่อจนสร้าง `docs/stages/{context.md,achieved}` เปล่า → ผู้ใช้ทำตามคำสั่ง `git mv warnyin/stages docs/stages` → เพราะ `docs/stages/` มีอยู่แล้ว `git mv <dir> <dir-ที่มีอยู่>` ย้าย source **เข้าไปข้างใน** = ซ้อน; คำสั่งเดิมยังไม่ลบ `warnyin/installer` ที่เหลือ → installer ยัง warn ซ้ำ
+- **วิธีแก้:** เอกสาร migration ย้าย **เนื้อหา** ไม่ใช่ทั้งโฟลเดอร์ + ลบ core เก่าทั้ง tree (ทนทั้งกรณี `docs/stages/` มี/ไม่มี): `mkdir -p docs/stages && git mv <เก่า>/* docs/stages/` แล้ว `rm -rf <core เก่า>` — verify จริงด้วย git repo จำลองทั้งกรณี migrate-ก่อน/หลัง-install (ดู `docs/techstack/installer/test.md` §executable migration proof)
+- **ป้องกันซ้ำ:** (1) เอกสาร migration ที่ย้ายของเข้าโฟลเดอร์ที่ installer อาจสร้าง → ใช้ `git mv <src>/* <dest>/` (ย้าย contents) เสมอ ไม่ใช่ `git mv <src> <dest>` (2) **เทส migration ด้วย executable proof** (จำลอง legacy → รันคำสั่งในเอกสารจริง → assert) — bug แบบนี้อ่านเอกสารเฉยๆ มองไม่เห็น (3) legacy warning ใน `src/bin/cli.mjs` ควรแก้ให้ตรง guide (roadmap P0 #3) — ตอนนี้เอกสาร robust กว่า cli
