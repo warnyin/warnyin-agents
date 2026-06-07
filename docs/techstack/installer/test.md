@@ -84,6 +84,14 @@
 - **accuracy ของ spec ที่สกัดจาก source:** ไล่ทุก Requirement/Scenario เทียบ source จริง — **โดย agent อิสระจากผู้เขียน** (self-check ไม่พอ — ดู `docs/rule.md` §5 ข้อ 4); THEN ทุกข้อต้องเป็น observable artifact
 - **semantic consistency ของ canonical:** กติกา merge ใน playbook/template/command ต้องตรง canonical ของ design **คำต่อคำ** (grep key อย่างเดียวจับ "wording ขัดกัน" ไม่ได้)
 
+## verify structural validator / zero-dep CLI tool (L: topic `validator-status`)
+> change ที่เพิ่ม/แก้ payload script ที่มี runtime จริง (เช่น `validate-topic.mjs`) — เทสพฤติกรรมได้เต็ม (ต่างจาก payload `.md` ที่ verify เชิงโครงสร้าง)
+- **behavior จริงตาม CLI contract:** รัน script ตรงทุกโหมด (status ไม่มี arg / validate มี `<slug>` / arg แปลก) — assert **output + exit code** ตรง contract (เช่น ✖→exit 1, ⚠-only/สะอาด→exit 0, slug ไม่ถูกต้อง→exit 2)
+- **positive + negative ต่อเช็คใน temp fixture:** สร้าง topic/feature ปลอมใน `mktemp -d` ครบทุกเคส (เช่น task ขาดไฟล์→✖, ตารางไม่มี data row→✖, Requirement ไม่มี Scenario→✖, artifact ข้าม stage→⚠) แล้ว `(cd "$TMP" && node "$SCRIPT" ...)` assert — pure fn ก็ feed `Map` ปลอมไม่แตะ fs
+- **dogfood self-validate:** validator รันกับ topic/feature จริงในrepo ได้ (เช็คโครงตัวเอง) — proof ว่าทำงานกับ data จริง ไม่ใช่แค่ fixture
+- **security invariant (zero-dep read-only tool):** grep ยืนยัน **ไม่มี** `child_process`/network/`writeFile` — เฉพาะ `node:fs`(read)/`node:path`/`node:url`; output ไม่ echo เนื้อ artifact (กัน leak ลง log); path traversal guard (`../..`→exit 2)
+- **zsh caveat:** ตัวแปร multi-word (`V="node script.mjs"; $V`) zsh ไม่ split — รัน node ตรงทีละคำสั่ง หรือใช้ array/function
+
 ## verify skill (Claude adapter) — payload `.md` + frontmatter (L2: topic `skill-format`)
 > skill (`src/.claude/skills/<name>/SKILL.md`) = adapter บางชี้ playbook กลาง (เหมือน command) — ไม่มี service ให้รัน → verify เชิงโครงสร้าง + install proof + dead-link + consistency (ขยายจาก "payload `.md`")
 - **executable install proof:** `npm run setup:sandbox` → target มี `.claude/skills/<name>/SKILL.md` ครบทุกตัว; root dogfood ไม่โดนแตะ — **ห้ามรัน `cli.mjs` ที่ cwd=repo root** (dogfood leak #6)

@@ -106,11 +106,12 @@
 - [x] dogfood: backfill spec จริง 2 feature (`context-profiles`, `utility-skills`) + merge trace 5 เคสพิสูจน์กติกา
 - **ที่มา:** วิเคราะห์ OpenSpec (Fission-AI) 2026-06-07 — ยืม 2 เทคนิคที่ผ่านเกณฑ์ปรัชญา; **ตัดทิ้ง:** OPSX schema engine (over-engineer), เลิก phase gate (gate คือจุดขายเรา), workspaces (beta), adapter 30+ tools (ขัด non-goal) · ดู `docs/features/spec-delta/`
 
-### 14. Structural validator + status script (จาก OpenSpec — topic แยกขนาดเล็ก)
-- [ ] `validate-topic.mjs` (zero-dep `node:*` ตาม precedent `lint-md.mjs`) — เช็คโครง topic: artifact ครบตาม stage, task มี 4 ไฟล์, ship.md มีตาราง learned-rules, spec/delta format ถูกโครง
-- [ ] status แบบ deterministic — ทางเลือกถูก token ของ `/warnyin:next` ระดับ structural (model ยังตัดสิน semantic)
-- **เงื่อนไข:** ทำหลัง #13 ship แล้ว (validator เช็คโครง spec/delta ที่นิ่งแล้ว) — ตกลงไว้ตอน discovery `feature-spec-delta`
-- **ระวัง:** เกณฑ์ roadmap เดิม — เขียนเอง zero-dep, เฉพาะ high-signal, ไม่ไหลเป็น validation framework
+### 14. Structural validator + status script (จาก OpenSpec) ✅ DONE (2026-06-08 · topic `validator-status`)
+- [x] `validate-topic.mjs` (zero-dep `node:*` ตาม precedent `lint-md.mjs`) — เช็คโครง: C2 task มี 4 ไฟล์, C3 ship มี data row learned-rules, C5 feature spec format (Requirement/Scenario/GWT) = ✖; C1 artifact ข้าม stage, C4 Spec delta = ⚠
+- [x] 2 โหมด: status (ไม่ใส่ arg — ตารางทุก topic, exit 0) / validate (`<slug>` — ✖/⚠ + exit 1/0/2); path traversal guard
+- [x] wiring 3 จุด (node-guard): `/warnyin:next` pre-scan, DESIGN gate §8, SHIP step 1 — ทั้งหมด guidance + fallback เครื่องไม่มี node
+- **หลักการที่ได้:** ✖ ไม่พึ่ง filled-detection (deterministic), heuristic ที่เดา "เติมแล้ว" = ⚠ best-effort (`docs/rule.md` §1) · structural เท่านั้น semantic เป็นของ model · ดู `docs/features/topic-validator/`
+- **ที่มา:** ข้อ 3 จากวิเคราะห์ OpenSpec — ทำหลัง #13 ship (spec/delta format นิ่งแล้ว); end-to-end proof แรกของวงจร Spec delta (§9 delta จริง → SHIP สร้าง feature spec จาก ADDED)
 
 ---
 

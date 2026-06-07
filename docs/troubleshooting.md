@@ -100,4 +100,10 @@
 - **อาการ:** agent ใน git worktree เจอ `Edit tool: This agent is isolated in the worktree ... Edit the worktree copy instead` เมื่อพยายามอัปเดต `docs/stages/<slug>/tasks/<task>/task.md` — แต่ไฟล์นั้นไม่มีอยู่ใน worktree (เจอซ้ำ 2/2 task ใน wave เดียว — topic `feature-spec-delta`)
 - **Root cause:** worktree เห็นเฉพาะไฟล์ที่ track ใน branch ที่ checkout — ถ้า topic docs ยังไม่ commit (หรืออยู่บน build branch ที่ worktree ไม่ได้ branch จาก) โฟลเดอร์ topic จะไม่ปรากฏใน worktree; Edit tool ของ harness block การแก้ path นอก worktree
 - **วิธีแก้:** แยกหน้าที่ — ไฟล์ output จริง (git-tracked) แก้+commit ใน worktree ปกติ; สถานะ/บันทึกใน topic dir ให้ **main loop อัปเดตตอน integrate** (หรือ agent เขียนผ่าน node script ทาง Bash ที่ absolute path ของ main checkout)
-- **ป้องกันซ้ำ:** orchestrator **commit topic docs ลง build branch ก่อน fan-out** + ให้ worktree **branch จาก build branch** (ไม่ใช่ main) — agent เห็น task ของตัวเองครบ; agent รายงานแก้ task.md ไม่ได้ ≠ task ล้ม (ดู `docs/rule.md` §1 build-orchestration)
+- **ป้องกันซ้ำ:** orchestrator **commit topic docs ลง build branch ก่อน fan-out** + ให้ worktree **branch จาก build branch** (ไม่ใช่ main) — agent เห็น task ของตัวเองครบ; agent รายงานแก้ task.md ไม่ได้ ≠ task ล้ม (ดู `docs/rule.md` §1 build-orchestration). เจอซ้ำ topic `validator-status` wave 2 (agent merge build branch เข้า worktree เองเป็น workaround)
+
+### 15. negative test fixture ของ keyword-heuristic บังเอิญ match keyword ที่ตัวเองทดสอบ
+- **อาการ:** unit ของ validator (เคส "design ไม่มี Spec delta → ⚠") fail: actual=false — ไม่มี ⚠ ออกมาทั้งที่โค้ดถูก (topic `validator-status`)
+- **Root cause:** validator ข้ามเช็คเมื่อ `/ไม่มี delta/.test(content)` (เคสผู้เขียนระบุ "ไม่มี delta" โดยตั้งใจ = ถูกต้อง); fixture filler text "เนื้อหา design ไม่มี delta section" มี substring `ไม่มี delta` บังเอิญ → validator ตีความว่า topic ระบุ "ไม่มี delta" → ข้ามเช็ค — **โค้ดถูก test data ผิด**
+- **วิธีแก้:** แก้ fixture filler เป็นข้อความที่ **ไม่มี trigger keyword** (`ไม่มี delta`/`Spec delta`) — ใช้คำ orthogonal ชัดเจน
+- **ป้องกันซ้ำ:** เขียน negative fixture ของ keyword-heuristic ต้องเลี่ยง trigger phrase ในข้อความ filler ทุกตัว; test แดงทั้งที่โค้ดดูถูก → สงสัย fixture ก่อนแก้โค้ด (ดู `docs/rule.md` §5)
