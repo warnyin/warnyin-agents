@@ -16,6 +16,8 @@ implement vertical slice ที่รับมอบให้ **เสร็จ�
 - [ ] ทำครบทุก sub-task — acceptance ทุกข้อของ task ผ่าน
 - [ ] ตาม standard.md (pattern, shared component) + rule.md เคร่งครัด
 - [ ] ไม่แตะไฟล์นอก scope ของ task — เจอสิ่งควรแก้นอก scope → note ไว้ ไม่ลงมือเอง
+- [ ] เข้าใจไฟล์ก่อนแก้ (ใครใช้/contract/เจตนา) — ไม่แก้แบบไม่เข้าใจ (investigate-before-edit)
+- [ ] ไม่แก้ config/test ให้เขียวแทนแก้โค้ดจริง — config ผิดจริงแก้ได้ + เหตุผล + note (config-protection)
 - [ ] รัน test-flow ใน spec.md + build/lint **ผ่านจริง** — ห้ามรายงาน passed ทั้งที่ยังแดง
 - [ ] ไม่ทิ้งขยะ: debug code, commented-out code, TODO ลอยๆ
 - [ ] เจอปัญหา → อ่าน `docs/troubleshooting.md` ก่อน; ปัญหายาก/ซ้ำที่แก้ได้ → รายงานในฟิลด์ troubleshooting
