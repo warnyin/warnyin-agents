@@ -1,58 +1,46 @@
-# Build Report — <ชื่อ change>
+# Build Report — defensive-rules
 
 > Output ของ BUILD stage · playbook: `.warnyin/workflow/stages/build.md`
-> รายงานผลการ implement ต่อ task + การ integrate
 
 | | |
 |---|---|
-| **Slug** | `<kebab-case>` |
-| **Build branch** | `<branch>` |
-| **Isolation** | `worktree` / `shared-tree` |
-| **วันที่** | `YYYY-MM-DD` |
-| **ผลรวม** | ผ่าน __ / ล้ม __ / ทั้งหมด __ task |
+| **Slug** | `defensive-rules` |
+| **Build branch** | `build/defensive-rules` (จาก `main`) |
+| **Isolation** | shared-tree (1 task · `.md`) |
+| **วันที่** | 2026-06-07 |
 
-## 1. Execution plan (waves ตาม dependency)
-```
-wave 1 (parallel): task-a, task-b
-wave 2:            task-c  (ขึ้นกับ task-a)
-wave 3:            task-d  (ขึ้นกับ task-b, task-c)
-```
+## 1. Wave execution (1 task, ไม่มี dependency)
+| Wave | Task | สถานะ | ผล test |
+|---|---|---|---|
+| 1 | `add-defensive-rules` | ✅ passed | npm test 18/18 · verify:pack 72 ไฟล์ |
 
-## 2. ผลต่อ task
-| Wave | Task | สถานะ | Test/Lint | ไฟล์ที่แก้ | Branch | หมายเหตุ |
-|---|---|---|---|---|---|---|
-| 1 | task-a | ✅ passed | | | | |
-| 1 | task-b | ❌ failed | | | | เหตุผล... |
+## 2. ผลต่อ task — add-defensive-rules (slice #1)
+เพิ่ม 2 defensive rule (enforce ของ "ห้ามเดา") ครบทุก enforce point ด้วย wording canonical:
+| จุดเกาะ | ไฟล์ | ที่เพิ่ม |
+|---|---|---|
+| operating principle | `stages/build.md` §3 | ข้อ 11 R1 + ข้อ 12 R2 (ฉบับเต็ม) |
+| operating principle | `stages/verify.md` §3 | ข้อ 10 R1 + ข้อ 11 R2 (R2 โยง fix loop §5 "แก้จนผ่าน = แก้ root cause ไม่ลด bar") |
+| role checklist | `roles/developer.md` | +2 line (เวอร์ชันสั้น dev) |
+| role checklist | `roles/qa.md` | +2 line (เวอร์ชันสั้น qa, fix loop) |
+- wording 4 จุดมาจาก canonical `design.md` §2 ชุดเดียว (กัน drift) ✓
 
-## 3. Integration notes
-- การ merge แต่ละ wave / conflict ที่เจอและวิธีแก้:
+## 3. Full build & test gate
+- ✅ `npm test` — **18/18 pass, 0 fail** (installer test เป็น black-box ไม่ assert เนื้อหา playbook → ไม่กระทบ)
+- ✅ `npm run verify:pack` — **72 ไฟล์** (payload ครบ)
 
-## 3.5 Full build & test gate (หลัง integrate ทุก wave)
-> รัน build ทั้งหมด + test suite ทั้งหมด (รวม unit test) บน build branch — ต้องเขียวหมดก่อนปิด BUILD
+## 4. Integration notes
+- 1 task — ไม่มี merge/conflict
+- **ไม่แตะ:** `docs/rule.md` (central) · `cli.mjs`/installer · root dogfood · Gate checklist (D4 out-of-scope)
+- **global rule รอ SHIP:** 1 bullet ขยาย "ห้ามเดา" (investigate-before-edit + config-protection) note ใน `tasks/add-defensive-rules/rule.md` §2 → promote `docs/rule.md` §1 ตอน SHIP
+- **Troubleshooting:** ไม่มีปัญหายาก/ซ้ำ (`.md` ล้วน)
 
-| Component | Build | Unit test | Test อื่น | รอบที่แก้ |
-|---|---|---|---|---|
-| api-service | ✅ / ❌ | ผ่าน __/__ | | |
-| admin-console | | | | |
+## 5. Gate → VERIFY
+- [x] task implement + commit เข้า build branch
+- [x] passed — ไม่มี failed
+- [x] ไม่มี conflict
+- [x] full build/verify:pack ผ่าน
+- [x] test suite เขียว 18/18
+- [x] build.md สรุปครบ
+- [x] ไม่แตะ rule/standard กลาง (global rule รอ SHIP)
 
-- error ที่เจอตอนรวม + วิธีแก้:
-
-## 4. ปัญหา/ค้าง (ถ้ามี)
-- task ที่ล้ม + สาเหตุ + แผนแก้:
-
-## 5. Rule/standard ใหม่ที่ note ไว้ (รอ SHIP)
-> รวบรวมจาก `tasks/<task>/rule.md` และ `standard.md` — รอ SHIP อัปเดตไฟล์กลางใน `docs/`
--
-
-## 6. ปัญหายาก/ซ้ำที่เจอ
-> บันทึกละเอียดที่ `./troubleshooting.md` (SHIP ยกขึ้น `docs/troubleshooting.md`)
-- ดู `./troubleshooting.md`
-
-## ✅ Gate → VERIFY (ดู `.warnyin/workflow/stages/build.md` ข้อ 7)
-- [ ] ทุก task implement + merge เข้า build branch แล้ว
-- [ ] ทุก task `passed` (test/build เขียว) ไม่มี `failed` ค้าง
-- [ ] ไม่มี merge conflict ค้าง
-- [ ] Full build ของทุก component ผ่าน (ไม่มี build error)
-- [ ] test suite ทั้งหมด (รวม unit test) เขียวหมดบน build branch
-- [ ] build.md สรุปครบทุก task + ผล full build/test
-- [ ] ไม่แตะ rule/standard กลางใน docs/
+→ พร้อมเข้า VERIFY ด้วย `/warnyin:verify defensive-rules`
