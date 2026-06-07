@@ -17,6 +17,7 @@
 ## Tool preference
 - **ควรใช้:** Read + Bash (รัน test/verify), reviewer sub-agents, `/code-review` `/security-review`
 - **เลี่ยง:** เขียน feature ใหม่ระหว่าง review, แก้ scope กว้างๆ
+- **Model tier:** `balanced+` — skeptical จับ bug/regression/edge case = **ไม่ควรลด tier** (พลาดของจริงแพงกว่าค่า token)
 
 ## ใช้คู่ stage ไหน
 - VERIFY → [`stages/verify.md`](../stages/verify.md)

@@ -30,8 +30,20 @@
 
 1. **Mindset** — วิธีคิดรวมของ session โหมดนี้ (2–4 บรรทัด)
 2. **Do / Don't** — bullet สั้น 2 ฝั่ง: ทำ vs ห้าม
-3. **Tool preference** — เครื่องมือที่ควรใช้ / เลี่ยง (read-only vs edit vs run)
+3. **Tool preference** — เครื่องมือที่ควรใช้ / เลี่ยง (read-only vs edit vs run) + **Model tier** (generic: deepest/balanced/cheap)
 4. **ใช้คู่ stage ไหน** — ชี้ playbook stage ที่เข้าคู่ (→ ลิงก์)
 
 > เพิ่ม context ใหม่ = เพิ่มไฟล์ที่นี่ + ใส่ callout ใน playbook stage ที่เข้าคู่ + อัปเดตตารางด้านบน
 > (เก็บให้บาง opinionated — 3 context พอ; อย่าให้ไหลเป็น catalog)
+
+## Model tier (generic — harness ตีเป็นรุ่นจริงเอง)
+
+แต่ละ context แนะนำ **model tier** ใน section "Tool preference" เพื่อคุม token/cost ตาม posture:
+
+| Context | Tier | งาน |
+|---|---|---|
+| `research` | `deepest reasoning` | สำรวจ / architecture / ตัดสินใจ trade-off |
+| `build` | `balanced` (worker เชิงกลไก → `cheap`) | implement vertical slice ตาม spec |
+| `review` | `balanced+` | ตรวจ/จับ bug — ไม่ลด (พลาดแพงกว่า token) |
+
+> **tool-agnostic:** ใช้ vocab generic **ไม่ผูกชื่อรุ่น/ผลิตภัณฑ์ของ harness ใด ๆ** — แต่ละ harness map tier → รุ่นเอง (เทียบแนวทาง model selection ของ harness เช่นไฟล์ rules ฝั่ง performance); เป็น **guidance** ไม่ใช่ enforce

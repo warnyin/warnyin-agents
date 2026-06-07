@@ -17,6 +17,7 @@
 ## Tool preference
 - **ควรใช้:** read-only — Read / Grep / Glob / fast-context, `/warnyin:explore`
 - **เลี่ยง:** Edit / Write โค้ดจริง, คำสั่งที่เปลี่ยน state
+- **Model tier:** `deepest reasoning` — สำรวจ/architecture/ตัดสินใจ trade-off = งานคิดหนัก คุ้มใช้ตัวลึกสุด
 
 ## ใช้คู่ stage ไหน
 - Discovery → [`stages/discovery.md`](../stages/discovery.md)
