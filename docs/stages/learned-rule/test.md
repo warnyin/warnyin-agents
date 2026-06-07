@@ -1,46 +1,22 @@
-# Test Plan — <ชื่อ change>
+# Test Plan — learned-rule
 
 > Output ของ VERIFY stage · playbook: `.warnyin/workflow/stages/verify.md`
-> แผน/วิธีเทสของ topic นี้ — ตอน **SHIP** จะ merge เข้า `docs/techstack/<component>/test.md`
-> อิง guideline จาก `docs/techstack/<component>/test.md` (ถ้าไม่มี = เสนอวิธีใหม่ที่นี่)
+> ชนิด: payload `.md` ล้วน (playbook + command + template) — verify เชิงโครงสร้าง + executable install proof + consistency (guideline `docs/techstack/installer/test.md` §"payload `.md` ล้วน")
 
-| | |
-|---|---|
-| **Slug** | `<kebab-case>` |
-| **Component** | `api-service` / `admin-console` |
-| **จุดประสงค์ที่ต้อง verify** | (สรุปจาก spec/tasks) |
+## วิธีเทส
+local: `npm test`, `npm run verify:pack`, `npm run setup:sandbox` (install src/ → temp ผ่าน cli.mjs) — **ห้ามรัน cli.mjs ที่ cwd=repo root** (dogfood leak #6)
 
-## 1. ขอบเขตการเทส (ตามจุดประสงค์ topic)
-- สิ่งที่ต้องยืนยันว่าทำงานถูก:
-
-## 2. ชนิดการเทส
-- [ ] Functional (ตาม test-flow ใน `tasks/*/spec.md`)
-- [ ] E2E smoke — เครื่องมือ: `playwright-cli` (ถ้าเป็น FE)
-- [ ] Integration / API
-- [ ] UX/UI verify (ถ้าเป็น FE)
-- [ ] อื่นๆ:
-
-## 3. Local env ที่ต้องรัน (จาก `docs/infra.md`)
-| Service | คำสั่งรัน | port / หมายเหตุ |
-|---|---|---|
-| | | |
-
-## 4. Test cases
-| # | สถานการณ์ (อิงจุดประสงค์) | ขั้นตอน | ผลที่คาดหวัง |
+## เคสเทส
+| # | เคส | วิธี | คาดหวัง |
 |---|---|---|---|
-| 1 | | | |
+| T1 | functional regression | `npm test` + `verify:pack` | 18/18 + 72 ไฟล์ |
+| T2 | executable install proof | `setup:sandbox` → grep target | mechanism ลงครบ 3 surface (ship.md playbook + command + template) ผ่าน cli.mjs; **root dogfood ไม่โดนแตะ** |
+| T3 | ครบทุก surface | grep playbook §3/§4/§6 + command + template | collect + fold approval + promote-by-scope + gate + section Learned rules |
+| T4 | 3-way consistency | grep "evidence" 3 จุด | playbook ↔ command ↔ template มี evidence(บังคับ) ตรง canonical §2 |
+| T5 | unify (ไม่บวม/ไม่ขนาน) | นับ principle §3 + gate §6 | §3 = 7 principle (ข้อ 7 ขยายในที่เดิม ไม่เพิ่มข้อ 8) · gate = 8 items เท่า main (item 3 แก้ในที่เดิม) |
+| T6 | learned-rule ≠ troubleshooting | grep นิยาม | "learned-rule = กฎ generalize ไม่ใช่ incident" ปรากฏใน playbook |
+| T7 | dead-link / scope target | resolve `docs/rule.md`, `docs/techstack/` | promote target ที่ scope ชี้ → มีจริง |
+| T8 | global note พร้อม SHIP | อ่าน rule.md §2 | bullet "continuous-learning discipline" รอ promote → docs/rule.md §1 |
 
-## 5. E2E smoke (FE)
-- flow ที่ smoke:
-- คำสั่ง playwright-cli:
-
-## 6. UX/UI checklist (FE)
-- [ ] layout ตรงตาม spec/wireframe
-- [ ] states: loading / empty / error / success
-- [ ] responsive
-- [ ] interaction / user-flow ลื่นไหล
-
-## 7. วิธีรันเทส (reproducible)
-```
-<คำสั่ง / ขั้นตอน>
-```
+## local env
+ไม่มี service — doc/payload ล้วน; executable proof ใช้ setup:sandbox (temp dir, ไม่แตะ root)
