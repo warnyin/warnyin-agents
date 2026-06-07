@@ -35,6 +35,8 @@
 7. **นาน/หลายรอบเกินไป → พิจารณาถาม user ทีละข้อ + เสนอคำตอบที่แนะนำ** (อย่าวนแก้เงียบๆ ไม่จบ)
 8. **ห้ามแตะไฟล์กลางใน `docs/`** — แผนเทสเขียนระดับ topic ที่ `test.md` ก่อน รอ SHIP merge เข้า `docs/techstack/<component>/test.md`
 9. **สวม role QA** — ทำตาม role card `.warnyin/workflow/roles/qa.md` (lens: คิดแบบผู้ใช้จริง + คนหาเรื่อง, edge case, regression; checklist ครบทุกข้อ)
+10. **★ investigate-before-edit** (enforce ของ "ห้ามเดา") — ก่อนแก้ไฟล์ที่มีอยู่ ต้องเข้าใจก่อน — **ใครใช้/อ่านไฟล์นี้, schema/contract/สัญญาของมัน, เจตนาเดิม**; แก้โดยไม่เข้าใจ = เดา (กรณีไม่ชัด → ถาม user / อ่านโค้ดที่อ้างถึง ก่อนแก้)
+11. **★ config-protection** (enforce ของ "ห้ามเดา") — ตอน fix loop (ข้อ 5 "แก้จนผ่าน") ห้ามแก้ config (linter/formatter/test threshold) หรือ disable rule **"เพื่อให้ build/test ผ่าน"** แทนการแก้ root cause จริง — "แก้จนผ่าน" ต้องเป็นการแก้ที่ต้นเหตุ ไม่ใช่ลด bar; ถ้า config ผิดจริง แก้ได้แต่ต้องมี **เหตุผลชัด + note** (ไม่ใช่เพื่อเลี่ยง finding)
 
 ---
 

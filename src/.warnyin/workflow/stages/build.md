@@ -37,6 +37,8 @@ BUILD จะ **orchestrate การ implement** โดยกระจายง�
 8. **★ ปิดท้ายด้วย full build + full test เสมอ** — หลัง merge ทุก wave แล้ว ต้องรัน build ทั้งหมด + test suite ทั้งหมด (รวม unit test) บน build branch ที่ integrate; **แก้วนจนเขียวหมด** ก่อนปิด BUILD (กันกรณี task รายเดี่ยวเขียวแต่พอรวมกันแล้วพัง)
 9. **ทุก build agent สวม role Developer** — ทำตาม role card `.warnyin/workflow/roles/developer.md` (lens + checklist ก่อนส่งงาน) — build-wave.mjs ใส่ให้ใน prompt แล้ว
 10. **★ ใช้ Troubleshooting KB** — เจอปัญหา/error ระหว่าง build ให้ **อ่าน `docs/troubleshooting.md` ก่อนเสมอ** เผื่อเคยแก้แล้ว; เมื่อแก้ปัญหาที่ **ยาก/เจอซ้ำ** สำเร็จ ให้บันทึก entry ลง `docs/stages/<slug>/troubleshooting.md` (ปัญหา/อาการ/root cause/วิธีแก้/ป้องกันซ้ำ) — ตอน SHIP จะยกขึ้น KB กลาง
+11. **★ investigate-before-edit** (enforce ของ "ห้ามเดา") — ก่อนแก้ไฟล์ที่มีอยู่ ต้องเข้าใจก่อน — **ใครใช้/อ่านไฟล์นี้, schema/contract/สัญญาของมัน, เจตนาเดิม**; แก้โดยไม่เข้าใจ = เดา (กรณีไม่ชัด → ถาม user / อ่านโค้ดที่อ้างถึง ก่อนแก้)
+12. **★ config-protection** (enforce ของ "ห้ามเดา") — ห้ามแก้ config (linter/formatter/test threshold) หรือ disable rule **"เพื่อให้ build/test ผ่าน"** แทนการแก้โค้ดจริง — ถ้า config ผิดจริง แก้ได้แต่ต้องมี **เหตุผลชัด + note** (ไม่ใช่เพื่อเลี่ยง finding)
 
 ---
 

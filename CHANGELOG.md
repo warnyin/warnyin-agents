@@ -23,6 +23,11 @@
 
 ## [Unreleased]
 
+## [0.8.1] - 2026-06-07
+
+### Added
+- **Defensive rules** ใน BUILD/VERIFY playbook (§3) + developer.md/qa.md checklist + global `docs/rule.md` §1 — เวอร์ชัน enforce ของ "ห้ามเดา": (1) **investigate-before-edit** ก่อนแก้ไฟล์ที่มีอยู่ต้องเข้าใจ (ใครใช้/contract/เจตนา), (2) **config-protection** ห้ามแก้ config/test "เพื่อให้ผ่าน" แทนแก้โค้ดจริง — `.md` ล้วน, ติดมากับ `--update` รอบถัดไป
+
 ## [0.8.0] - 2026-06-07
 
 ### Added

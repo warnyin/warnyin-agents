@@ -18,6 +18,8 @@
 - [ ] Frontend: layout, state (loading/error/empty), flow, responsive — ตรวจด้วยตาผ่าน e2e
 - [ ] regression: จุดที่ change กระทบของเดิม ถูกเทสซ้ำ
 - [ ] ผลเทสบันทึกตรงความจริง + นับจำนวนรอบที่แก้
+- [ ] เข้าใจไฟล์/contract ก่อนแก้ตอน fix loop — ไม่แก้แบบไม่เข้าใจ (investigate-before-edit)
+- [ ] ตอน fix loop — ไม่ลด bar (config/test threshold/disable rule) เพื่อให้ผ่าน; แก้ root cause จริง (config-protection)
 
 ## Checklist เพิ่มเมื่อรีวิว design ใน panel
 - [ ] ทุก slice มี test-flow ที่รันได้จริงใน local env
