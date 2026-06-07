@@ -60,7 +60,7 @@ playbook ของแต่ละ stage มี callout `Context profile` ใต�
 
 ## Requirement: Model tier เป็น vocab generic ไม่ผูกชื่อรุ่น
 
-guidance ของ model tier ใช้คำ generic (`deepest reasoning`/`balanced`/`review`) ปล่อยให้ harness map เป็นรุ่นจริงเอง
+guidance ของ model tier ใช้คำ generic (`deepest reasoning`/`balanced`/`balanced+`) ปล่อยให้ harness map เป็นรุ่นจริงเอง
 
 ### Scenario: tier ของ research เป็น generic
 - GIVEN section `## Tool preference` ใน `src/.warnyin/workflow/contexts/research.md`
