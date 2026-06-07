@@ -87,10 +87,11 @@
 - [x] global: `docs/rule.md` §1 worked-example convention + §5 verify-doc accuracy-vs-source
 - **หมายเหตุ:** ไม่สร้างโฟลเดอร์ `examples/` แยก (achieved/ เป็น single source — walkthrough ชี้กลับ); ดูแลง่าย maintenance ต่ำ
 
-### 11. Selective install (manifest-driven) — ⏸️ เลื่อน (ประเมิน 2026-06-07: YAGNI)
+### 11. Selective install (manifest-driven) — ⏸️ DEFER (feasibility eval 2026-06-07)
 - [ ] เฉพาะถ้าจะรองรับ "เลือกติดตั้งบาง stage/role" — แพทเทิร์น `install-modules.json` + JSON Schema validate
 - **ระวัง:** **อย่าเอา SQLite state store** ของ ECC มา (over-engineer)
-- **ตัดสิน (2026-06-07):** **ยังไม่ทำ** — ไม่มี user/use-case จริงที่ต้องเลือกติดตั้งบาง stage; selective install สวนปรัชญาแก่น "opinionated ครบชุด เป็นจุดแข็ง" (`rule.md` §1) → ทำเมื่อมี demand จริงเท่านั้น (กัน catalog creep)
+- **ตัดสิน (2026-06-07 · feasibility evaluation):** **ยังไม่ทำ** — มีหลักฐานเชิงเทคนิค (ไม่ใช่แค่ YAGNI gut): (1) **stage แยกไม่ได้เชิงความหมาย** — workflow ผูกลำดับ (BUILD↔DESIGN output, SHIP↔ทุก stage); contexts ผูก 5/5 stage, roles 4/5 → เลือกบางส่วน = workflow พัง; (2) **zero-dep JSON Schema เป็นไปไม่ได้สวย** — node ไม่มี validator built-in → hand-roll (โค้ดเยอะ) หรือ ajv (**ทำลาย zero-dep จุดขาย** §2); (3) แยกได้จริงแค่ agents(5)+skills(3)=`.md` เล็ก → ไม่มี install benefit; (4) ไม่มี demand. ดู eval เต็ม: `docs/stages/achieved/2026-06-07-selective-install/`
+- **เงื่อนไข reเปิด:** มี demand จริง (user ขอ + เหตุผลชัด) หรือ workflow โตจนมี optional module จริง → ทำ **bounded profiles (`--minimal`) ก่อน manifest อิสระ**
 
 ### 12. Lint ของ repo เอง ✅ DONE (2026-06-07 · topic `repo-lint`)
 - [x] **dead-link gate zero-dep** `src/scripts/lint-md.mjs` (node:* ล้วน — **ไม่ใช้ markdownlint/prettier** เพราะขัด zero-dep) — validate markdown-link `[](path)` ใน `src/**`+`docs/**` resolve จริง (exclude template+archived; strip-code alternation กัน false-positive)
