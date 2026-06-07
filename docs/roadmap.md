@@ -58,10 +58,11 @@
 - **ที่มา:** ECC hook `gateguard-fact-force` + `config-protection` — แต่เราทำเป็น **rule ใน playbook** (portable) ไม่ใช่ vendor hook (Claude-only) = เวอร์ชัน enforce ของ "ห้ามเดา"
 - **ผล:** 2 operating principle ใน build.md/verify.md §3 + checklist ใน developer.md/qa.md + global `docs/rule.md` §1
 
-### 7. Security checklist รูปธรรม
-- [ ] เสริม `.warnyin/workflow/roles/security.md` + VERIFY: permission deny (`Read(**/.env*)`, `~/.ssh`), sandbox no-egress, แยก identity
-- [ ] **supply-chain ของ MCP/skill** — เตือนก่อน `/warnyin:install-skill` (third-party skill เสี่ยง prompt injection)
-- **ที่มา:** ECC `the-security-guide.md` — หยิบเฉพาะสาระ portable
+### 7. Security checklist รูปธรรม ✅ DONE (2026-06-07)
+- [x] เสริม `.warnyin/workflow/roles/security.md` + VERIFY: section "Runtime / operational security" (P1 secret isolation / P2 no-egress / P3 identity separation + Claude adapter note `Read(**/.env*)`/`~/.ssh`); `verify.md` §2 อ้างตอนรัน local env
+- [x] **supply-chain ของ MCP/skill** — `install-skill.md` step 4 เสริม warning prompt-injection + checklist item S1 ใน security.md
+- [x] global: `docs/rule.md` §3 ขยายเป็น Security baseline 2 มิติ (3.1 CI + 3.2 agent-runtime)
+- **ที่มา:** ECC `the-security-guide.md` — หยิบเฉพาะสาระ portable · **ลงที่:** role card + VERIFY playbook + install-skill command + global rule §3.2
 
 ### 8. Learned-rule artifact ใน SHIP (instinct แบบ manual)
 - [ ] SHIP เพิ่ม artifact: `rule + evidence + scope (project/global)` ที่ **user ยืนยันเอง**
