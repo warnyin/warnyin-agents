@@ -47,6 +47,13 @@ npx @warnyin/agents --update    # อัปเดต playbook กลางเป
 /warnyin:ship <slug>               # promote ความรู้ขึ้น docs/ + archive topic
 ```
 
+## ตัวอย่างจริง (worked example)
+
+อยากเห็นว่า "output ที่ทำดีแล้ว" หน้าตาเป็นยังไงก่อนเริ่ม topic ของตัวเอง?
+[`docs/example-walkthrough.md`](docs/example-walkthrough.md) ไล่ topic จริง (`cli-legacy-warning-fix`)
+ครบทั้ง 5 stage — เน้น **เหตุผลการตัดสินใจ** ของแต่ละ stage พร้อมลิงก์ไป artifact จริงใน `docs/stages/achieved/`
+(เปิดดูบน GitHub repo)
+
 ## แนวคิดหลัก: Tool-agnostic, single source of truth
 
 แก่นของ workflow (กฎ / ขั้นตอน / เกณฑ์ผ่าน) เขียน**ครั้งเดียว**เป็น markdown ใน `.warnyin/workflow/stages/`
