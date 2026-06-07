@@ -2,6 +2,7 @@
 
 > **Playbook กลาง — AI ทุกเจ้าทำตามไฟล์นี้ชุดเดียวกัน** (Claude Code / Codex / Antigravity / อื่นๆ)
 > เป้าหมาย: เสนอ **change ใหม่** พร้อมผลิต artifact ครบในขั้นเดียว — proposal (what & why) → design (how) → tasks (พร้อม execute)
+> **Context profile:** สวมโหมด `research` (`.warnyin/workflow/contexts/research.md`) ช่วงต้น (proposal/design) · `build` (`.warnyin/workflow/contexts/build.md`) ช่วงแตก task — session-level posture ของ stage นี้
 
 ---
 

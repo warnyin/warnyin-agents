@@ -2,6 +2,7 @@
 
 > **Playbook กลาง — AI ทุกเจ้าทำตามไฟล์นี้ชุดเดียวกัน** (Claude Code / Codex / Antigravity / อื่นๆ)
 > เป้าหมาย: เปลี่ยนความต้องการที่ยังคลุมเครือ ให้เป็น **ความเข้าใจร่วมกัน (shared understanding)** ที่ชัดพอจะเข้า DESIGN ได้
+> **Context profile:** สวมโหมด `research` (`.warnyin/workflow/contexts/research.md`) — session-level posture ของ stage นี้
 
 ---
 

@@ -30,19 +30,20 @@ Discovery (optional) ──▶ DESIGN ──▶ BUILD ──▶ VERIFY ──▶
 
 ## โครงสร้าง repo
 
-```
-bin/cli.mjs            # npx installer — ติดตั้ง workflow ลงโปรเจกต์อื่น
+> โครงนี้คือสิ่งที่อยู่ใน **โปรเจกต์ที่ติดตั้งแล้ว** (installer วาง `.warnyin/`+`.claude/` ให้)
+> ตัว repo `warnyin-agents` เองเก็บ source ที่จะ publish ไว้ใต้ `src/` (เช่น `src/bin/cli.mjs`, `src/.warnyin/`) — ดู `CONTRIBUTING.md`
 
-warnyin/               # ★ ทุกอย่างของ workflow รวมใต้โฟลเดอร์เดียว
-  installer/templates/ #   template CLAUDE.md สำหรับโปรเจกต์ปลายทาง (installer ใช้เอง — ไม่ถูก copy ไป target)
+```
+.warnyin/              # ★ แก่นกลาง workflow (installer วางให้ — อัปเดตได้ด้วย --update)
   workflow/            # playbook กลาง — single source of truth
     README.md          #   ไฟล์นี้ — ภาพรวม + วิธีรองรับหลาย AI
     init.md            #   playbook: INIT — วิเคราะห์โปรเจกต์ + เติม docs/ ครั้งแรก
     codemap.md         #   playbook: CODEMAP — สแกน + สร้าง codemap แบบ token-lean
     explore.md         #   playbook: EXPLORE — สำรวจ/ตอบคำถามแบบ read-only ไม่สร้าง artifact
     next.md            #   playbook: NEXT — เช็คงานค้าง + แนะนำขั้นตอนถัดไป (read-only)
-    roles/             #   role card กลาง: ba, po, sa, tech-lead, developer, qa, security, infra
     stages/            #   discovery ✅ · design ✅ · build ✅ · verify ✅ · ship ✅
+    roles/             #   role card กลาง (task-level lens): ba, po, sa, tech-lead, developer, qa, security, infra
+    contexts/          #   context profile กลาง (session-level posture): research, build, review + README
     scripts/
       build-wave.mjs   #   Workflow script: fan-out sub-agent ต่อ task ใน wave (worktree)
   template/            # ★ template ทั้งหมดรวมที่เดียว
@@ -56,15 +57,20 @@ warnyin/               # ★ ทุกอย่างของ workflow รว�
       project.md  rule.md  infra.md  troubleshooting.md  codemap/index.md
       techstack/[component]/               #   copy เป็น docs/techstack/<component> (โดย /warnyin:init)
       features/[feature-name]/             #   copy เป็น docs/features/<feature-name> (โดย SHIP)
-  stages/              # พื้นที่ทำงานจริง ตาม topic
-    context.md
-    achieved/          #   archive หลัง SHIP (<YYYY-MM-DD>-<slug>/)
+  installer/templates/ #   template CLAUDE.md ของ target (installer ใช้เอง — ไม่ถูก copy ไป target)
 
-docs/                  # ความรู้ถาวรระดับโปรเจกต์ — ของจริงล้วน (seed จาก .warnyin/template/docs)
+.claude/               # adapter Claude Code (ชี้กลับ playbook กลาง)
+  commands/warnyin/    #   slash command /warnyin:*
+  agents/              #   reviewer subagent warnyin-{sa,tech-lead,qa,security,infra}
+CLAUDE.md  AGENTS.md   # adapter + pointer ของ Claude / Codex·Antigravity
+
+docs/                  # ความรู้ถาวรระดับโปรเจกต์ + งานจริง — ของจริงล้วน (seed จาก template/docs)
   project.md           # ★ จุดเริ่มของ Discovery — อ่านก่อนเสมอ
   rule.md  infra.md
   troubleshooting.md   # ★ KB ปัญหา-วิธีแก้ (อ่านก่อนเมื่อ build เจอ error; SHIP ป้อนเข้า)
   codemap/  features/  techstack/
+  stages/              #   พื้นที่ทำงานจริง ตาม topic (<slug>/) + achieved/<YYYY-MM-DD>-<slug>/ หลัง SHIP
+```
 ```
 
 ---

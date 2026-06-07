@@ -46,10 +46,11 @@
 
 ## P1 — เพิ่มคุณค่า workflow (ไอเดียจาก ECC ที่ผ่านเกณฑ์ปรัชญา)
 
-### 5. Context profiles (คุ้มสุด — แทบฟรี)
-- [ ] เพิ่ม `.warnyin/workflow/contexts/{research,build,review}.md` — **session-level mode** (คนละมิติกับ role card ที่เป็น task-level lens)
-- [ ] ผูกเข้าแต่ละ stage ใน playbook (เช่น Discovery↔research, BUILD↔build, VERIFY↔review)
-- **ที่มา:** ECC `contexts/` · `.md` ล้วน ไม่ผูก tool ตรงปรัชญา
+### 5. Context profiles (คุ้มสุด — แทบฟรี) ✅ DONE (2026-06-07 · topic `context-profiles`)
+- [x] เพิ่ม `.warnyin/workflow/contexts/{research,build,review,README}.md` — **session-level mode** (คนละมิติกับ role card ที่เป็น task-level lens)
+- [x] ผูกเข้าแต่ละ stage ใน playbook (callout: Discovery→research · DESIGN→research+build · BUILD→build · VERIFY→review · SHIP→review)
+- **ที่มา:** ECC `contexts/` · `.md` ล้วน ไม่ผูก tool ตรงปรัชญา · ดู `docs/features/context-profiles/`
+- **ต่อยอด (future):** auto-activation ตาม stage (รอบนี้ manual); context เพิ่มเกิน 3 ตัวถ้าจำเป็น
 
 ### 6. Defensive rules ใน BUILD/VERIFY playbook
 - [ ] **investigate-before-edit** — ก่อนแก้ไฟล์ ต้องเข้าใจ (ใครใช้ไฟล์นี้ / schema / เจตนา user) ก่อน

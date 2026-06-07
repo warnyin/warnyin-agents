@@ -53,6 +53,14 @@
 - CI เขียวจริงบน PR = ยืนยันบน Linux/node อื่น (ทำตอนเปิด PR/merge — outward)
 - **dev Windows:** `verify-pack.mjs` รันตรงอาจ ENOENT (`troubleshooting.md` #4) → apply allowlist logic เองบน `npm pack --json` (ป้อนเข้า `checkFiles`)
 
+## verify feature ที่เป็น payload `.md` ล้วน (contexts/, playbook, role card)
+> change ที่เพิ่ม/แก้ `.md` ใต้ `src/.warnyin/workflow/` (ไม่มี runtime) — verify เชิงโครงสร้าง + executable install proof + consistency แทนการรัน service (บทเรียน topic `context-profiles`)
+- **ship integrity:** `npm run verify:pack` → ไฟล์ `.md` ใหม่ติด tarball (allowlist `src/.warnyin` ครอบอยู่แล้ว ไม่ต้องแก้) · `npm test` เขียว (ไม่มี assertion เดิมพัง)
+- **executable install proof:** `npm run setup:sandbox` → ตรวจ target ว่าไฟล์ใหม่ + การ wire (เช่น callout) ลงจริงผ่าน `cli.mjs`; root dogfood ไม่โดนแตะ — **ห้ามรัน `cli.mjs` ที่ cwd=repo root** (dogfood leak #6)
+- **dead-link สองทิศ:** scan link ในไฟล์ใหม่ + ทุก path ที่ไฟล์อื่นอ้างถึงไฟล์ใหม่ → resolve เป็นไฟล์จริงครบ (0 dead)
+- **3-way consistency:** ความรู้ชุดเดียวกระจายหลายที่ (เช่น `contexts/README.md` mapping ↔ callout ใน `stages/*` ↔ section "ใช้คู่ stage" ของ card) → ทั้งสามต้องตรงกัน (บทเรียนเดียวกับ cli↔CHANGELOG↔test ใน `cli-legacy-warning-fix`)
+- **โครง conformance:** ไฟล์ประเภทเดียวกันโครงเดียวกัน (เช่น context card ทุกใบมี 4 section คงที่) + บาง ไม่ duplicate logic ของไฟล์ที่ชี้ไป
+
 ## executable migration proof (เทสเอกสาร migration / CHANGELOG)
 > เอกสาร migration (CHANGELOG "Migration guide") เป็น **คำสั่งที่ผู้ใช้รันจริง** — ต้องเทสแบบ executable ไม่ใช่อ่านเฉยๆ (บทเรียน `troubleshooting.md` #10)
 - **วิธี:** ใน git repo จำลอง (temp) → สร้าง legacy layout (เช่น `warnyin/{workflow,template,installer,stages/<topic>}`) → **รันคำสั่งในเอกสารตามตัวอักษร** → assert: งานจริงอยู่ที่ `docs/stages/<topic>/` (ไม่หาย/ไม่ซ้อน `docs/stages/stages/`), ได้ `.warnyin/workflow`, รัน installer ซ้ำแล้ว **ไม่ warn legacy อีก**

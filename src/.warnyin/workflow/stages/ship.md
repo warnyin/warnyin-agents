@@ -2,6 +2,7 @@
 
 > **Playbook กลาง — AI ทุกเจ้าทำตามไฟล์นี้ชุดเดียวกัน** (Claude Code / Codex / Antigravity / อื่นๆ)
 > เป้าหมาย: **ส่งมอบ** — promote ความรู้ระดับ topic ขึ้นเอกสารกลางใน `docs/` + archive topic เข้า `docs/stages/achieved/`
+> **Context profile:** สวมโหมด `review` (`.warnyin/workflow/contexts/review.md`) — session-level posture ของ stage นี้
 
 ---
 

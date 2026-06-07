@@ -12,7 +12,7 @@ src/scripts/verify-pack.mjs       pack-verify gate (allowlist + denylist; export
 src/scripts/check-test-count.mjs  pass-count gate (anti-false-green; MIN_PASS=9)
 src/scripts/setup-dogfood.mjs     dev: ติดตั้ง release ลง root (dogfood)
 src/scripts/setup-sandbox.mjs     dev: ติดตั้ง v-next จาก src/ ลง temp (sandbox)
-src/.warnyin/{workflow,template}  playbook กลาง + template (payload)
+src/.warnyin/{workflow,template}  playbook กลาง (stages/ roles/ contexts/ scripts/) + template (payload)
 src/.warnyin/installer/templates/CLAUDE.md   template CLAUDE.md ของ target
 src/.claude/{commands/warnyin,agents}        adapter Claude (payload)
 src/AGENTS.md                     adapter Codex/Antigravity (payload)
