@@ -5,6 +5,22 @@
 รูปแบบอ้างอิง [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 และโปรเจกต์ยึด [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
+## Migration guide
+
+อัปเกรดจากรุ่นเก่าที่ layout ต่างไป (installer จะ **เตือนให้ย้ายเอง ไม่แตะงานจริงของคุณ**):
+
+> **ลำดับที่แนะนำ: ย้ายงานจริงก่อน แล้วค่อยรัน `npx @warnyin/agents`**
+> คำสั่งย้ายด้านล่างใช้รูปแบบ `git mv <เก่า>/* docs/stages/` (ย้าย *เนื้อหา* ไม่ใช่ทั้งโฟลเดอร์) จึงปลอดภัยทั้งกรณีที่ยังไม่มี `docs/stages/` และกรณีที่เผลอรัน installer ไปก่อน (installer สร้าง `docs/stages/` เปล่าให้แล้ว) — กันงานจริงไปซ้อนเป็น `docs/stages/stages/`
+
+| จากรุ่น | layout เดิม | ต้องทำเอง (งานจริงปลอดภัย ไม่ถูกแตะ) |
+|---|---|---|
+| **≤0.2.x** | core `workflow/` + งานจริง `warnyin-stages/` ที่ root | `mkdir -p docs/stages && git mv warnyin-stages/* docs/stages/` แล้วลบ core เก่า `rm -rf workflow warnyin-stages` |
+| **0.3–0.5.x** | ทุกอย่างใต้ `warnyin/{workflow,template,installer,stages}` | `mkdir -p docs/stages && git mv warnyin/stages/* docs/stages/` แล้วลบ core เก่า `rm -rf warnyin` |
+
+จากนั้นรัน installer อีกครั้ง — installer จะวาง `.warnyin/` (core) ชุดใหม่ + แยกงานจริงไว้ที่ `docs/stages/` ให้
+
+> **0.6.0 → 0.7.0:** ผู้ใช้ปลายทาง (`npx @warnyin/agents`) **ไม่ต้องทำอะไร** — payload ที่ติดตั้งคงเดิม การเปลี่ยนแปลงทั้งหมด (bin path → `src/`, dogfood 2-layer) เป็นเรื่องภายใน repo เท่านั้น; ผู้พัฒนา repo เอง (contributor) ดู [`CONTRIBUTING.md`](CONTRIBUTING.md)
+
 ## [Unreleased]
 
 ## [0.7.0] - 2026-06-07

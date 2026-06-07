@@ -52,3 +52,10 @@
 - installer behavior: ติดตั้งจริงใน temp → ตรวจ target ได้เฉพาะ scaffold เปล่า (ไม่มี topic leak)
 - CI เขียวจริงบน PR = ยืนยันบน Linux/node อื่น (ทำตอนเปิด PR/merge — outward)
 - **dev Windows:** `verify-pack.mjs` รันตรงอาจ ENOENT (`troubleshooting.md` #4) → apply allowlist logic เองบน `npm pack --json` (ป้อนเข้า `checkFiles`)
+
+## executable migration proof (เทสเอกสาร migration / CHANGELOG)
+> เอกสาร migration (CHANGELOG "Migration guide") เป็น **คำสั่งที่ผู้ใช้รันจริง** — ต้องเทสแบบ executable ไม่ใช่อ่านเฉยๆ (บทเรียน `troubleshooting.md` #10)
+- **วิธี:** ใน git repo จำลอง (temp) → สร้าง legacy layout (เช่น `warnyin/{workflow,template,installer,stages/<topic>}`) → **รันคำสั่งในเอกสารตามตัวอักษร** → assert: งานจริงอยู่ที่ `docs/stages/<topic>/` (ไม่หาย/ไม่ซ้อน `docs/stages/stages/`), ได้ `.warnyin/workflow`, รัน installer ซ้ำแล้ว **ไม่ warn legacy อีก**
+- **ต้องเทส 2 ลำดับ:** (1) **migrate-ก่อน-install** (ลำดับแนะนำ) (2) **install-ก่อน-migrate** (สถานการณ์จริง — ผู้ใช้เห็น warning หลังรัน installer แล้ว `docs/stages/` ถูกสร้างไปก่อน) — คำสั่งต้องผ่านทั้งคู่
+- **ต้องเทสทุกรุ่น legacy** ที่ `cli.mjs` ตรวจจับ (≤0.2.x, 0.3–0.5.x)
+- **cross-platform / leak guard:** รันใน temp (`mktemp -d`) เท่านั้น — **ห้ามรัน `cli.mjs` ที่ cwd=repo root** (`troubleshooting.md` #6 dogfood leak); ใช้ `git mv <src>/* <dest>/` (ย้าย contents) — ไม่ใช่ `git mv <src> <dest>` (ซ้อน)

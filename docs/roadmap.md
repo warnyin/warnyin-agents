@@ -2,7 +2,7 @@
 
 > แผนพัฒนา **ตัว tool Warnyin เอง** (ไม่ใช่ docs ของโปรเจกต์ปลายทาง)
 > ไฟล์นี้ไม่ถูก publish ขึ้น npm — `package.json` `files` ไม่รวม `docs/` (เจาะจงเฉพาะ `bin`/`.warnyin`/`.claude` + root docs); scaffold `docs/stages` installer สร้างเองตอนติดตั้ง
-> อัปเดต: 2026-06-06 · ทยอยติ๊ก `- [ ]` เมื่อทำเสร็จ
+> อัปเดต: 2026-06-07 · ทยอยติ๊ก `- [ ]` เมื่อทำเสร็จ
 
 ## หลักการชี้นำ (กันเดินผิดทาง)
 
@@ -29,17 +29,18 @@
 - [ ] (ทำต่อจากข้อ 12) lint/format check
 - **เสร็จแล้ว:** `.github/workflows/ci.yml` (test matrix + job pack-verify, security baseline); ยืนยัน CI เขียวบน PR จริงทำตอนเปิด PR/merge
 
-### 3. CHANGELOG.md + migration note 0.6.0
-- [ ] สร้าง `CHANGELOG.md` (รูปแบบ Keep a Changelog)
-- [ ] บันทึก 0.6.0: ย้าย `warnyin/` → `.warnyin/` (core) + `docs/stages/` (งานจริง) — **breaking**
-- [ ] เขียน migration ที่ผู้ใช้เดิมต้องทำ (อ้าง legacy warning ใน installer)
-- **เสร็จเมื่อ:** ผู้ใช้ 0.5.x อ่านแล้ว migrate เองได้โดยไม่ต้องเดา
+### 3. CHANGELOG.md + migration note 0.6.0 ✅ (topic `roadmap-sync-p0`)
+- [x] สร้าง `CHANGELOG.md` (รูปแบบ Keep a Changelog)
+- [x] บันทึก 0.6.0: ย้าย `warnyin/` → `.warnyin/` (core) + `docs/stages/` (งานจริง) — **breaking** (รวมใน Migration guide section)
+- [x] เขียน migration ที่ผู้ใช้เดิมต้องทำ
+- [ ] **(defer · พบใน VERIFY topic `roadmap-sync-p0`)** แก้ legacy warning ใน `src/bin/cli.mjs` ให้ตรง Migration guide ใหม่ — คำสั่งเดิม `git mv warnyin/stages docs/stages` ทำงานจริง**ซ้อน** (`docs/stages/stages/`) เมื่อผู้ใช้รัน installer ก่อน migrate (installer สร้าง `docs/stages/` เปล่าไปแล้ว); เอกสาร CHANGELOG แก้ robust แล้ว (`git mv .../* docs/stages/` + `rm -rf` core เก่า) — cli ควรตามให้ตรง
+- **เสร็จแล้ว:** Migration guide section ใน `CHANGELOG.md` ครอบ ≤0.2.x / 0.3–0.5.x + ระบุ 0.6.0→0.7.0 ไม่กระทบผู้ใช้ปลายทาง; คำสั่ง verify จริงแล้วทั้งกรณี migrate-ก่อน/หลัง-install (VERIFY)
 
-### 4. ตรวจ/เสริม README
-- [ ] เช็คว่าทุก path/โครงใน README ตรงโครง 0.6.0
-- [ ] มี quickstart (`npx @warnyin/agents` → `/warnyin:init` → stage แรก)
-- [ ] ลิงก์ไป migration ใน CHANGELOG
-- **เสร็จเมื่อ:** อ่าน README แล้วเริ่มใช้ได้โดยไม่ต้องเปิดซอร์ส
+### 4. ตรวจ/เสริม README ✅ (topic `roadmap-sync-p0`)
+- [x] เช็คว่าทุก path/โครงใน README ตรงโครง (อัปเดตเป็น 0.7.0 layout `.warnyin/` + `src/` แล้ว — topic `src-bootstrap`)
+- [x] มี quickstart (`npx @warnyin/agents` → `/warnyin:init` → stage แรก)
+- [x] ลิงก์ไป migration ใน CHANGELOG (section "ติดตั้ง" → `CHANGELOG.md#migration-guide`)
+- **เสร็จแล้ว:** อ่าน README แล้วเริ่มใช้ + อัปเกรดจากรุ่นเก่าได้โดยไม่ต้องเปิดซอร์ส
 
 ---
 

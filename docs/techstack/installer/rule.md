@@ -20,3 +20,8 @@
 ## dev tooling (`src/scripts/setup-*.mjs` — bootstrap/dogfood)
 - **npm scripts (`setup:*`) ต้องเป็น node script cross-platform** — zero-dep/ESM ใน `src/scripts/`; ใช้ `os.tmpdir()`+`mkdtempSync` (ห้าม hardcode `/tmp`), `path.join`; spawn array args **ห้าม `shell:true`** ยกเว้นเรียก npx บน win32 (`.cmd`); ต้องมี fallback (npm pack→extract→node) หรือ exit ด้วย error ชัดเจน (ห้าม false-green)
 - **`setup:dogfood` เตือน review payload diff ก่อนเปิด session** — payload ที่ install จาก `@latest` ถูก agent execute ต่อ = supply-chain surface (low risk เพราะ release ตัวเอง แต่ comment เตือนเป็น policy)
+
+## เอกสาร migration / CHANGELOG
+- **migration guide ต้อง executable-verified — ไม่ mirror legacy warning ของ `cli.mjs` แบบดิบ** — รุ่น/อาการ/codepoint (en-dash `–` U+2013, `≤` U+2264) ให้ตรง cli ได้ แต่ **คำสั่งที่ผู้ใช้รันต้องทน edge จริง** โดยเฉพาะ dir ที่ installer สร้างไว้ (`docs/stages/`): ใช้ `git mv <src>/* docs/stages/` (ย้าย contents) + `rm -rf <core เก่า>` — ไม่ใช่ `git mv <src> docs/stages` ที่ซ้อนเป็น `docs/stages/stages/` (บทเรียน `troubleshooting.md` #10)
+- **ถ้า `cli.mjs` legacy warning มี edge → เอกสารทำให้ถูกก่อน แล้ว defer แก้ cli ให้ตรง** (track ใน `docs/roadmap.md`) — ห้ามปล่อยเอกสารผิดตาม cli; เอกสารเป็น source ที่ผู้ใช้ทำตามจริง
+- **verify ด้วย executable migration proof เสมอ** ก่อนปิดงานที่แตะ migration guide (ดู `docs/techstack/installer/test.md` §executable migration proof)
