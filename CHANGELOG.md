@@ -23,6 +23,11 @@
 
 ## [Unreleased]
 
+## [0.8.3] - 2026-06-07
+
+### Added
+- **Learned-rule capture ใน SHIP** — `ship.md` playbook (§3 principle 7 ขยาย + §4 step 1/3/5 + §6 gate) + command + template `[topic]/ship.md` (section "Learned rules"): จับ rule ที่ได้จากการทำจริง (planned + emergent จาก build/verify/troubleshooting) ด้วย `rule + evidence(บังคับ) + scope` แล้ว user ยืนยัน per-rule ก่อน promote — unify กับกลไก "รอ SHIP" เดิม; global `docs/rule.md` §1 + continuous-learning discipline + unify-in-place — `.md` ล้วน, ติดมากับ `--update` รอบถัดไป
+
 ## [0.8.2] - 2026-06-07
 
 ### Added

@@ -35,20 +35,24 @@
 4. **กลั่น ไม่ใช่ copy ดิบ** — merge สาระเข้าโครงสร้างของไฟล์กลางเดิม ระวัง duplicate/ขัดแย้งกับเนื้อหาที่มีอยู่; เขียนแบบ "ความรู้ถาวร" ไม่ใช่บันทึกรายงาน
 5. **เอกสารต้องตรงโค้ดจริง** — structure/codemap อัปเดตจากการดูโค้ดจริง ไม่ใช่จากความจำหรือ design เดิม
 6. **อย่าเดา** — เนื้อหาที่ไม่แน่ใจว่าควร promote หรือควรวางไว้ไฟล์ไหน → ถามทีละข้อ + เสนอคำตอบที่แนะนำ
-7. **เก็บ "รอ SHIP" ให้หมด** — rule/standard ที่ note ค้างไว้ใน tasks ต้องถูกพิจารณาครบทุกข้อ (promote หรือตัดทิ้งพร้อมเหตุผล) ห้ามปล่อยค้าง
+7. **เก็บ learned-rule ให้หมด — planned + emergent** — รวบรวม rule ที่จะ promote ทุกตัว: ทั้ง **planned** (note "รอ SHIP" ใน `tasks/*/rule.md` §2) และ **emergent** (บทเรียนที่โผล่ตอนลงมือ — สแกน `build.md`/`verify.md`/`troubleshooting.md`/diff); ทุกตัวต้องมี **evidence (บังคับ)** + **scope** + **user ยืนยัน** ก่อน promote — ไม่มี evidence ไม่ promote (สอด "ห้ามเดา"); **learned-rule = กฎ generalize ไม่ใช่ incident** (troubleshooting = incident ที่ *อ้าง* เป็น evidence ได้). พิจารณาครบทุกข้อ (promote หรือตัดทิ้งพร้อมเหตุผล) ห้ามปล่อยค้าง
 
 ---
 
 ## 4. ลำดับขั้นการทำงาน (process)
 
-1. **อ่านทำความเข้าใจ topic:** อ่าน `docs/stages/<slug>/` ทุกไฟล์ — topic นี้ทำอะไร ทำอย่างไร เกิดความรู้ใหม่อะไรบ้าง (เช็คก่อนว่า VERIFY ผ่าน Gate แล้ว — มี `verify.md` สรุปผลผ่าน)
+1. **อ่านทำความเข้าใจ topic + รวบรวม learned-rule candidate:** อ่าน `docs/stages/<slug>/` ทุกไฟล์ — topic นี้ทำอะไร ทำอย่างไร เกิดความรู้ใหม่อะไรบ้าง (เช็คก่อนว่า VERIFY ผ่าน Gate แล้ว — มี `verify.md` สรุปผลผ่าน) — พร้อมกันนั้น **รวบรวม learned-rule candidate** เป็นตาราง (ทุกตัว = `rule + evidence + scope + promote?`):
+   - **planned:** จาก `tasks/*/rule.md` §2 "เสนอเพิ่ม rule ใหม่ (รอ SHIP)"
+   - **emergent:** สแกนบทเรียนที่โผล่ตอนลงมือ — `build.md` (pattern แก้ซ้ำ/integration), `verify.md` (รายการแก้+จำนวนรอบ), `troubleshooting.md` (ปัญหายาก→"กันซ้ำ" = candidate ชัดสุด), diff/commit
+   - **entry แต่ละตัว:** `rule` = ข้อความ **generalize** (ถ้าเป็น incident "X พังเพราะ Y" ยกเป็นกฎ "ก่อนแก้ Z เช็ค Y เสมอ") · `evidence` = **บังคับ** concrete pointer 1 บรรทัด + ลิงก์ artifact (`build.md`/`verify.md`/`troubleshooting.md`/diff/commit) — **ไม่มี evidence = ไม่ promote** · `scope` = `component:<c>`→`docs/techstack/<c>/rule.md` หรือ `project`→`docs/rule.md`
 2. **จำแนก feature:** สิ่งที่ทำเป็น **feature ใหม่** หรือ **ปรับปรุง feature เดิม** (เทียบกับ `docs/features/` ที่มีอยู่)
-3. **สรุป promotion plan + ขออนุมัติ (ครั้งเดียว):** feature ใหม่/ปรับปรุง, รายการไฟล์กลางที่จะอัปเดต + สาระ, ชื่อโฟลเดอร์ archive → รอ user ไฟเขียว
+3. **สรุป promotion plan + ขออนุมัติ (ครั้งเดียว):** feature ใหม่/ปรับปรุง, รายการไฟล์กลางที่จะอัปเดต + สาระ, ชื่อโฟลเดอร์ archive — **fold ตาราง learned-rule (rule + evidence + scope) เข้า approval เดียวกันนี้ ให้ user ยืนยัน per-rule** (✅ promote / ✂️ ตัด + เหตุผล) → รอ user ไฟเขียว
 4. **★ Archive:** ย้ายทั้งโฟลเดอร์ → `docs/stages/achieved/<YYYY-MM-DD>-<slug>/` (ใช้ `git mv` ถ้าเป็น git repo)
 5. **อัปเดตเอกสารกลาง** (อ่านเนื้อหาจาก path ใน achieved):
    1. **`docs/features/<feature-name>/`** — feature ใหม่ → สร้างโฟลเดอร์ใหม่ (`feature.md` + `business.md`); ปรับปรุง feature เดิม → อัปเดตโฟลเดอร์เดิม โดยใช้เนื้อหาจาก `business.md` / `proposal.md` / `design.md` ของ topic
-   2. **`docs/techstack/<component>/`** — `rule.md` / `standard.md` (จาก note "รอ SHIP" ใน tasks), `structure.md` (โครงสร้างที่เปลี่ยน), `test.md` (merge แผนเทสจาก `test.md` ของ topic)
-   3. **`docs/rule.md`** — global rule ใหม่/ที่เปลี่ยน (เฉพาะข้อที่เป็นกฎระดับโปรเจกต์ ไม่ผูกกับ component เดียว)
+   2. **`docs/techstack/<component>/`** — `rule.md` / `standard.md` (learned-rule ที่ยืนยันแล้ว scope `component:<c>` + note "รอ SHIP" ใน tasks), `structure.md` (โครงสร้างที่เปลี่ยน), `test.md` (merge แผนเทสจาก `test.md` ของ topic)
+   3. **`docs/rule.md`** — global rule ใหม่/ที่เปลี่ยน (learned-rule ที่ยืนยันแล้ว scope `project` — กฎระดับโปรเจกต์ ไม่ผูกกับ component เดียว)
+   > promote learned-rule **เฉพาะตัวที่ user ยืนยัน (step 3)** ตาม scope: `component:<c>` → `docs/techstack/<c>/rule.md` · `project` → `docs/rule.md`
    4. **`docs/troubleshooting.md`** — merge entry จาก `troubleshooting.md` ของ topic (ปัญหา/อาการ/root cause/วิธีแก้/ป้องกันซ้ำ)
    5. **`docs/infra.md` + `docs/project.md`** — เฉพาะถ้ามีข้อมูลที่เกี่ยวข้อง (env/service ใหม่, scope/เป้าหมายโปรเจกต์ที่ขยับ)
    6. **`docs/codemap/` ทั้งหมด** — อัปเดต code map ให้ตรงกับโค้ดจริงปัจจุบัน ทำตาม playbook `.warnyin/workflow/codemap.md` (Claude Code: `/warnyin:update-codemaps`)
@@ -75,7 +79,7 @@
 
 - [ ] topic ถูกย้ายไป `docs/stages/achieved/<YYYY-MM-DD>-<slug>/` แล้ว (ไม่เหลือใน `docs/stages/`)
 - [ ] `docs/features/` สะท้อน feature ใหม่/ที่ปรับปรุงแล้ว
-- [ ] note "รอ SHIP" ทุกข้อใน `tasks/*/rule.md` + `standard.md` ถูกพิจารณาครบ — promote หรือตัดทิ้งพร้อมเหตุผล
+- [ ] learned-rules (planned + emergent) พิจารณาครบทุกตัว — note "รอ SHIP" ใน `tasks/*/rule.md` + `standard.md` + บทเรียน emergent จาก build/verify/troubleshooting; ทุก promote มี **evidence + user ยืนยัน**, ตัดทิ้งมีเหตุผล
 - [ ] `docs/troubleshooting.md` รวม entry จาก topic แล้ว
 - [ ] `docs/techstack/`, `docs/rule.md`, `docs/infra.md`, `docs/project.md` อัปเดตตามที่เกี่ยวข้อง
 - [ ] `docs/codemap/` ตรงกับโค้ดจริงปัจจุบัน
