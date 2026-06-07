@@ -26,7 +26,7 @@ npm run setup:sandbox    # ติดตั้ง v-next จาก src/ ลง te
 2. `git mv` source ทั้งหมด → `src/` (bin/tests/scripts/.warnyin/.claude/AGENTS.md)
 3. `git mv CLAUDE.md CONTRIBUTING.md` + rewrite (dev focus)
 4. แก้ `package.json` (bin→src/bin/cli.mjs, files allowlist, scripts) + `src/scripts/verify-pack.mjs`
-5. เพิ่ม `.gitignore` dogfood layer (root-anchored ทุกบรรทัด)
+5. เพิ่ม `.gitignore` dogfood layer (root-anchored ทุกบรรทัด) + **`git rm -r --cached` root dogfood เก่าที่ track อยู่** ⚠️ — step นี้ **ตกหล่นจริงตอน src-bootstrap** (`.gitignore` ไม่ได้เพิ่ม dogfood + ไม่ได้ untrack → root dogfood ค้าง tracked 64 ไฟล์) แก้ภายหลังโดย topic `gitignore-dogfood-fix` (2026-06-07); ดู `troubleshooting.md` #11 — **บทเรียน:** verify ด้วย `git ls-files .warnyin/ .claude/` = 0 ไม่ใช่แค่ทำตาม runbook
 6. `npm test` เขียว + `npm run verify:pack` ผ่าน
 7. `npm run setup:dogfood` → คืน dogfood env ที่ root (gitignored, จาก release)
 8. bump version → 0.7.0 + CHANGELOG

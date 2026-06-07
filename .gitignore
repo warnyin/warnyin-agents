@@ -5,9 +5,6 @@ Thumbs.db
 .idea/
 .vscode/
 
-# Claude Code local-only settings (ไม่ commit ค่าเฉพาะเครื่อง)
-.claude/settings.local.json
-
 # Dependencies / build (เผื่อ project จริงมาใช้ template นี้)
 node_modules/
 dist/
@@ -17,5 +14,12 @@ build/
 
 # skill ที่ติดตั้ง local — ไม่ใช่ส่วนหนึ่งของ workflow ที่แจกจ่าย
 .agents/
-.claude/skills/
 skills-lock.json
+
+# === DOGFOOD layer (root) — gitignored ตาม docs/rule.md §6; source อยู่ src/** ===
+# ★ root-anchored (/) เพื่อไม่ให้ match src/.warnyin, src/.claude (source ที่ต้อง publish)
+# /.claude/ ครอบทั้ง commands/agents/skills/settings.local.json (root .claude = dogfood 100%)
+/.warnyin/
+/.claude/
+/CLAUDE.md
+/AGENTS.md
