@@ -12,7 +12,7 @@
 - กัน false-green แบบ #3 (เช่น `node --test <dir>` เปล่า exit 0 แต่ไม่มีเคสรัน) — acceptance = เห็น **pass count ≥ 9** ไม่ใช่แค่ exit 0 (BL-2)
 - step CI ใช้ `set -o pipefail` (`shell: bash`) ให้ pipe ยัง fail ตาม node --test
 
-## เคสที่ test suite ครอบ (19 เคส รวม — bare discovery เจอครบ)
+## เคสที่ test suite ครอบ (26 เคส รวม — bare discovery เจอครบ)
 
 ### `src/tests/installer.test.mjs` — 9 เคส (black-box, spawn `src/bin/cli.mjs`)
 1. ติดตั้งสด — โครงครบ (`.warnyin/workflow`, `.warnyin/template`, `.claude/commands/warnyin`, `.claude/skills/update-codemaps/SKILL.md`, `docs/stages`, `docs/project.md`, `CLAUDE.md`, `AGENTS.md`)
@@ -37,9 +37,24 @@
 9. allowlist: ไฟล์นอก allow (เช่น `src/.vscode/`) → จับได้ (skills อยู่ใน allow แล้ว → ใช้ subdir อื่นที่ยังนอก allow พิสูจน์ guard)
 10. R1 assertion: ขาด `src/.claude/skills/` → คืน error (skills เป็น required payload)
 
+### `src/tests/lint-md.test.mjs` — 7 เคส (unit, import `checkLinks` ตรง — BL-4 testable)
+1. good link (exists→true) → `deepEqual([])`
+2. dead link (exists→false) → error มี target
+3. link ใน **inline-code** `` `[x](y)` `` → ข้าม (ไม่ error แม้ exists→false)
+4. link ใน **fenced code** → ข้าม
+5. `http(s)://` / `mailto:` / `#anchor` → ข้าม
+6. `path#sec` (path exists) → ไม่ error (ตัด anchor ก่อนเช็ค path)
+7. fake `exists` injectable → resolved path ถูกส่งเข้า (ไม่แตะ fs จริง)
+
 ## verify-pack testable (BL-4)
 - `checkFiles(files[]) → error[]` = pure function ใน `src/scripts/verify-pack.mjs`, `export` ออกมา → unit ป้อน file list ปลอม (มี `src/tests/` ฯลฯ) แล้ว assert จับได้ — พิสูจน์ว่า denylist **ทำงานจริง** ไม่ใช่เขียวเพราะ allowlist ปิดอยู่
 - main-guard ใช้ `fileURLToPath(import.meta.url) === process.argv[1]` (ไม่ใช่ `import.meta.main` ที่ undefined บน node 20) → import จาก unit test ไม่ trigger `npm pack`
+
+## lint-md dead-link gate (zero-dep — pattern เดียวกับ verify-pack)
+- `checkLinks(docs, exists) → error[]` = pure function ใน `src/scripts/lint-md.mjs` (`docs=[{file,content}]`, `exists` injectable) + main-guard เดียวกัน — unit feed docs ปลอม + fake `exists` (ไม่แตะ fs จริง); `main()` walk `src/`+`docs/` (exclude `src/.warnyin/template/` + `docs/stages/achieved/`), validate markdown-link `[](path)` relative resolve
+- **strip-code-before-link-match (L2 — ป้องกัน false-positive):** strip code-span ก่อน match link ด้วย **alternation pass เดียว** `/```[\s\S]*?```|`[^`\n]*`/g` — **ห้าม** sequential `.replace(fenced).replace(inline)` (พังเมื่อ `` ``` `` ฝังใน inline-code ของ meta-doc; ดู `troubleshooting.md` #12)
+- **verify gate = executable ไม่ใช่แค่ unit:** (1) **positive** — inject dead-link ในไฟล์ scanned ชั่วคราว (`docs/_tmp.md`) → `npm run lint:md` ต้อง exit≠0 + ระบุไฟล์ → ลบ temp; (2) **negative** — meta-doc/code-span ไม่ flag; (3) **exclusion** — template/archived ที่มี dead-link จริงไม่ถูก scan
+- skip: `http(s)://` / `mailto:` / `#anchor`-only; `path#sec` → validate path (ตัด anchor); ทำงานเฉพาะ markdown-link — **ไม่ validate backtick runtime-ref** ของ adapter (target-root path ไม่ใช่ repo-relative)
 
 ## หลักการเทส
 - **black-box spawn จริง** (installer.test) — ห้าม import logic จาก `cli.mjs`; assert side-effect จริง

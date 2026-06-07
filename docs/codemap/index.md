@@ -30,7 +30,7 @@ single library (zero-dependency, ESM, Node ≥20) เผยแพร่ผ่า
 - `src/.claude/skills/*/SKILL.md` — utility skill auto-invocable (`/update-codemaps`, `/explore`, `/next`) ชี้ playbook กลาง
 
 ## Dev tooling (`src/scripts/` — ไม่ publish)
-- `verify-pack.mjs` (pack-verify gate, export `checkFiles`) · `check-test-count.mjs` (pass-count gate)
+- `verify-pack.mjs` (pack-verify gate, export `checkFiles`) · `check-test-count.mjs` (pass-count gate) · `lint-md.mjs` (dead-link gate, export `checkLinks`)
 - `setup-dogfood.mjs` (install release → root) · `setup-sandbox.mjs` (install v-next จาก src/ → temp)
 
 ## ไฟล์ codemap

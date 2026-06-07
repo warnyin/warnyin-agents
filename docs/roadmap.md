@@ -92,9 +92,11 @@
 - **ระวัง:** **อย่าเอา SQLite state store** ของ ECC มา (over-engineer)
 - **ตัดสิน (2026-06-07):** **ยังไม่ทำ** — ไม่มี user/use-case จริงที่ต้องเลือกติดตั้งบาง stage; selective install สวนปรัชญาแก่น "opinionated ครบชุด เป็นจุดแข็ง" (`rule.md` §1) → ทำเมื่อมี demand จริงเท่านั้น (กัน catalog creep)
 
-### 12. Lint/format ของ repo เอง
-- [ ] markdownlint + prettier สำหรับ playbook `.md` หลายสิบไฟล์ (ความสม่ำเสมอ)
-- [ ] เชื่อมเข้า CI (ข้อ 2)
+### 12. Lint ของ repo เอง ✅ DONE (2026-06-07 · topic `repo-lint`)
+- [x] **dead-link gate zero-dep** `src/scripts/lint-md.mjs` (node:* ล้วน — **ไม่ใช้ markdownlint/prettier** เพราะขัด zero-dep) — validate markdown-link `[](path)` ใน `src/**`+`docs/**` resolve จริง (exclude template+archived; strip-code alternation กัน false-positive)
+- [x] unit 7 เคส (pure `checkLinks`) + `npm run lint:md` + **CI job `lint-md`** (เชื่อม CI ข้อ 2)
+- [x] global: `docs/rule.md` §2 zero-dep lint-gate convention; troubleshooting #12 (strip-code) + #13 (main-loop ตรวจ exit)
+- **หมายเหตุ:** เลือก dead-link เป็นแกน (need ที่ทำมือซ้ำทุก VERIFY) แทน markdownlint/prettier เต็มชุด — opinionated high-signal + คง zero-dep (จุดขาย)
 
 ---
 

@@ -10,6 +10,8 @@ src/tests/installer.test.mjs      black-box integration test ของ installer
 src/tests/verify-pack.test.mjs    unit test ของ checkFiles (10 เคส, BL-4 testable denylist)
 src/scripts/verify-pack.mjs       pack-verify gate (allowlist + denylist; export checkFiles)
 src/scripts/check-test-count.mjs  pass-count gate (anti-false-green; MIN_PASS=9)
+src/scripts/lint-md.mjs           dead-link gate (zero-dep; export checkLinks; strip-code alternation)
+src/tests/lint-md.test.mjs        unit test ของ checkLinks (7 เคส, BL-4 testable)
 src/scripts/setup-dogfood.mjs     dev: ติดตั้ง release ลง root (dogfood)
 src/scripts/setup-sandbox.mjs     dev: ติดตั้ง v-next จาก src/ ลง temp (sandbox)
 src/.warnyin/{workflow,template}  playbook กลาง (stages/ roles/ contexts/ scripts/) + template (payload)
@@ -59,6 +61,7 @@ checkFiles(files[]) → error[]    pure function (verify-pack.mjs); export ใ�
 setup-dogfood.mjs                installViaNpx() || installViaPack() → appendContributingPointer() (idempotent marker 'CONTRIBUTING.md')
 setup-sandbox.mjs                mkdtempSync(os.tmpdir(),'wy-sandbox-') → spawn node src/bin/cli.mjs ลง temp
 check-test-count.mjs             อ่าน summary node --test จาก stdin → fail ถ้า fail!=0 / pass<MIN_PASS / pass!=tests
+checkLinks(docs,exists) → error[] pure function (lint-md.mjs); export ให้ unit; dead-link gate ของ .md (src/+docs/, exclude template+achieved)
 ```
 
 ## ค่าคงที่สำคัญ
