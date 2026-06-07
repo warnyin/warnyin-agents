@@ -101,6 +101,7 @@
 > รัน workflow ตัวเองทำ P0#1-2 จริง → จับ bug ที่ test/design มองไม่เห็น (พิสูจน์คุณค่า BUILD/VERIFY)
 - [x] **`build-wave.mjs` รับ `args` เป็น string** — harness ส่ง `args` ของ Workflow เป็น JSON string → defensive parse (commit `0770104`); ดู `troubleshooting.md` #5
 - [x] **scaffold leak** — installer `copyTree(docs/stages)` ลากงานจริงของ repo ต้นทางไป target + ติด published package → เปลี่ยนเป็น generate scaffold เอง (commit `e3c0074`); ดู `troubleshooting.md` #1, `rule.md` §4
+- [x] **root dogfood ถูก commit (tracked)** ทั้งที่ rule §6 ว่า gitignored (2026-06-07 · topic `gitignore-dogfood-fix`) — `.gitignore` ไม่มี dogfood entries + runbook src-bootstrap step ตกหล่น → `git rm -r --cached` 64 ไฟล์ + `.gitignore` root-anchored; verify ด้วย fresh-clone sim (src 78 ไม่หาย) + regen round-trip; ดู `troubleshooting.md` #11, `rule.md` §6
 
 ## ❌ Non-goals — ตัดสินใจไม่ทำ (กันบวมตาม ECC)
 
