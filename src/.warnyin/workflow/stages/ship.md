@@ -41,7 +41,7 @@
 
 ## 4. ลำดับขั้นการทำงาน (process)
 
-1. **อ่านทำความเข้าใจ topic + รวบรวม learned-rule candidate:** อ่าน `docs/stages/<slug>/` ทุกไฟล์ — topic นี้ทำอะไร ทำอย่างไร เกิดความรู้ใหม่อะไรบ้าง (เช็คก่อนว่า VERIFY ผ่าน Gate แล้ว — มี `verify.md` สรุปผลผ่าน) — พร้อมกันนั้น **รวบรวม learned-rule candidate** เป็นตาราง (ทุกตัว = `rule + evidence + scope + promote?`):
+1. **อ่านทำความเข้าใจ topic + รวบรวม learned-rule candidate:** อ่าน `docs/stages/<slug>/` ทุกไฟล์ — topic นี้ทำอะไร ทำอย่างไร เกิดความรู้ใหม่อะไรบ้าง (เช็คก่อนว่า VERIFY ผ่าน Gate แล้ว — มี `verify.md` สรุปผลผ่าน; ถ้ารัน node ได้ → รัน `node .warnyin/workflow/scripts/validate-topic.mjs <slug>` — มี ✖ ควรแก้ก่อน promote (script เช็คโครง; ความถูกของเนื้อหายังเป็นหน้าที่ผู้ ship)) — พร้อมกันนั้น **รวบรวม learned-rule candidate** เป็นตาราง (ทุกตัว = `rule + evidence + scope + promote?`):
    - **planned:** จาก `tasks/*/rule.md` §2 "เสนอเพิ่ม rule ใหม่ (รอ SHIP)"
    - **emergent:** สแกนบทเรียนที่โผล่ตอนลงมือ — `build.md` (pattern แก้ซ้ำ/integration), `verify.md` (รายการแก้+จำนวนรอบ), `troubleshooting.md` (ปัญหายาก→"กันซ้ำ" = candidate ชัดสุด), diff/commit
    - **entry แต่ละตัว:** `rule` = ข้อความ **generalize** (ถ้าเป็น incident "X พังเพราะ Y" ยกเป็นกฎ "ก่อนแก้ Z เช็ค Y เสมอ") · `evidence` = **บังคับ** concrete pointer 1 บรรทัด + ลิงก์ artifact (`build.md`/`verify.md`/`troubleshooting.md`/diff/commit) — **ไม่มี evidence = ไม่ promote** · `scope` = `component:<c>`→`docs/techstack/<c>/rule.md` หรือ `project`→`docs/rule.md`

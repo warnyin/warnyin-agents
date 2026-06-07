@@ -14,6 +14,7 @@ NEXT คือโหมด **อ่านอย่างเดียว (read-on
 
 ## 2. วิธีหาสถานะ (สแกนจากไฟล์จริง — ไม่ถาม user ก่อน)
 
+0. **structural pre-scan (ถ้ารัน node ได้):** ถ้ารัน node ได้ → รัน `node .warnyin/workflow/scripts/validate-topic.mjs` (โหมด status) เป็น structural pre-scan ก่อน แล้วค่อยอ่านเชิง semantic เฉพาะจุดที่ต้องตัดสิน — เครื่องที่รันไม่ได้ ใช้ตาราง heuristic ด้านล่างเหมือนเดิม
 1. **หา topic ที่ active:** โฟลเดอร์ใน `docs/stages/<slug>/` ทั้งหมด ยกเว้น `achieved/` และ `context.md`
    - ไม่มี topic เลย → รายงานว่า "ไม่มีงานค้าง" + แนะนำเริ่มงานใหม่ด้วย `/warnyin:discovery` หรือ `/warnyin:design`
 2. **อ่าน `docs/stages/context.md`** — บริบทงานที่จดไว้ (ถ้ามี)

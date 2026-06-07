@@ -12,5 +12,6 @@ argument-hint: "[slug (optional — ไม่ระบุ = สแกนทุ�
    - ไม่ระบุ → สแกนทุก topic ใน `docs/stages/` (ยกเว้น `achieved/`)
 3. ต่อ topic: ระบุ stage ปัจจุบันจาก artifact ที่ถูกเติมจริง (ไฟล์ที่ยังเป็นโครง template = ยังไม่ทำ)
    + ไล่ gate ของ playbook stage นั้น + สถานะ task ใน `tasks/*/task.md`
+   - ทำตาม step pre-scan ใน playbook §2 — ถ้ารัน node ได้ รัน `validate-topic.mjs` โหมด status ก่อนอ่าน semantic (รายการเช็คอยู่ใน script + playbook)
 4. รายงานในแชท: ตารางภาพรวม (topic · stage · งานค้าง · command ถัดไป) + รายละเอียดงานค้าง + ลำดับงานที่แนะนำ
 5. ไม่รัน stage ต่อให้เอง — เสนอ command ให้ user ตัดสินใจ

@@ -110,7 +110,7 @@
 - [ ] **ไม่มีการเดา** — ทุกจุดที่ไม่ชัดถูกถาม (ทีละข้อ + recommended answer) และปิดแล้ว
 - [ ] design เป็น vertical slice ชัด — แต่ละ task/slice ส่งมอบคุณค่า end-to-end ได้
 - [ ] **Spec delta ครบ** — เทียบ `docs/features/<name>/spec.md` ของ feature ที่แตะ (ADDED/MODIFIED/REMOVED) หรือระบุ "ไม่มี delta"
-- [ ] ทุก task มี `spec.md` + `standard.md` + `rule.md` + `task.md` ครบ
+- [ ] ทุก task มี `spec.md` + `standard.md` + `rule.md` + `task.md` ครบ (ถ้ารัน node ได้: `node .warnyin/workflow/scripts/validate-topic.mjs <slug>` ควรไม่มี ✖ — เช็คโครง ไม่แทนการอ่าน semantic)
 - [ ] dependency / ลำดับระหว่าง task และ sub-task ชัดเจน เชื่อมต่อกัน
 - [ ] rule ที่ต้อง follow ถูกระบุครบ; rule/standard ใหม่ที่อยากเพิ่มถูก note ไว้ (รอ SHIP)
 - [ ] ถ้าทำ review panel: **blocker จากทุก role ถูกแก้/ปิดครบ** — สรุปผลบันทึกใน `design.md` section "Design review"
