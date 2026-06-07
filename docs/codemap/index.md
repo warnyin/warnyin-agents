@@ -25,6 +25,8 @@ single library (zero-dependency, ESM, Node ≥20) เผยแพร่ผ่า
 - `src/bin/cli.mjs` — installer (npx; bin → ที่นี่)
 - `src/.warnyin/workflow/scripts/build-wave.mjs` — Workflow fan-out ของ BUILD stage
 - `src/.warnyin/workflow/stages/*.md` — playbook ต้นทางของแต่ละ stage (single source of truth)
+- `src/.warnyin/workflow/contexts/*.md` — context profile (session-level posture: research/build/review) ที่ stage playbook ชี้ถึง
+- `src/.warnyin/workflow/roles/*.md` — role card (task-level lens)
 
 ## Dev tooling (`src/scripts/` — ไม่ publish)
 - `verify-pack.mjs` (pack-verify gate, export `checkFiles`) · `check-test-count.mjs` (pass-count gate)

@@ -7,6 +7,8 @@
 - **กระทัดรัด opinionated** — 5 stage + role จำกัด เป็นจุดแข็ง ห้ามไหลเป็น catalog
 - **tool-agnostic** — แก่นเป็น `.md` กลางที่ทุก harness อ่านได้ (`.warnyin/workflow/`); ส่วนที่ผูก tool (hook/skill) เป็น *adapter บาง* ชี้กลับแก่น
 - **ห้ามเดา** — ไม่ชัดถาม user; enforce ด้วย rule/checklist ใน playbook
+- **context (session) ⊥ role (task) — คนละชั้น ห้าม duplicate** — `contexts/` = session-level posture (โหมดทั้ง session: research/build/review), `roles/` = task-level lens (บทบาทต่องาน); context อยู่ `.warnyin/workflow/contexts/` โครงบาง **ชี้กลับ playbook ไม่ copy checklist** ของ stage/role (single source of truth); เพิ่ม context = เพิ่มไฟล์ + callout ใน stage ที่เข้าคู่ + ตารางใน `contexts/README.md` — เก็บ opinionated (3 ตัวพอ ไม่เป็น catalog)
+- **ทุก stage playbook ชี้ context ที่เข้าคู่** — แต่ละ `stages/*.md` มี callout `Context profile` ใต้ title (Discovery→research · DESIGN→research+build · BUILD→build · VERIFY→review · SHIP→review); เพิ่ม stage ใหม่ต้องระบุ context posture ของมัน
 
 ## 2. Engineering rules
 - **zero-dependency** — `devDependencies` ต้องว่างเสมอ; ทุกเครื่องมือใช้ built-in `node:*` (test = `node:test`) — เหตุผล: กระทัดรัด + ไม่มี supply-chain risk (จุดขายของ tool)

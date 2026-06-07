@@ -59,7 +59,8 @@ check-test-count.mjs  parse summary node --test → fail ถ้า fail!=0 / pas
 ## tool-agnostic design
 - **แก่นเดียว** = `src/.warnyin/workflow/*.md` (ทุก harness อ่านชุดเดียวกัน)
 - **adapter บาง:** `src/.claude/commands/warnyin/*.md` + `src/.claude/agents/warnyin-*.md` + `src/AGENTS.md` (Codex) — ชี้กลับ playbook กลาง ไม่ duplicate logic
-- role card: `src/.warnyin/workflow/roles/` (BA/PO/SA/Tech Lead/Developer/QA/Security/Infra); reviewer subagent `src/.claude/agents/warnyin-{sa,tech-lead,qa,security,infra}.md`
+- role card: `src/.warnyin/workflow/roles/` (BA/PO/SA/Tech Lead/Developer/QA/Security/Infra) = **task-level lens**; reviewer subagent `src/.claude/agents/warnyin-{sa,tech-lead,qa,security,infra}.md`
+- context profile: `src/.warnyin/workflow/contexts/` (research/build/review) = **session-level posture** (คนละชั้นกับ role); playbook แต่ละ stage มี callout ชี้ context ที่เข้าคู่ (Discovery→research · DESIGN→research+build · BUILD→build · VERIFY→review · SHIP→review)
 
 ## เผยแพร่ (packaging)
 - `package.json files` granular: `src/bin`, `src/.warnyin`, `src/.claude/commands`, `src/.claude/agents`, `src/AGENTS.md`, `README/CHANGELOG/LICENSE` — **ไม่รวม** `src/tests`/`src/scripts` (dev), root dogfood (gitignored)
