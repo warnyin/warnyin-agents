@@ -70,11 +70,12 @@
 - [x] global: `docs/rule.md` §1 + continuous-learning discipline + unify-in-place (dogfood: SHIP ของ topic นี้ promote 2 learned-rule เอง)
 - **ที่มา:** ECC instinct/continuous-learning — ยืมแค่*แก่น* manual ~80% โดยไม่มี runtime observer (hook+SQLite) · **ลงที่:** `ship.md` playbook + command + template `[topic]/ship.md` + global rule §1
 
-### 9. Skill-format สำหรับ utility ที่ปลอดภัย
-- [ ] `update-codemaps` → skill-format (script ในโฟลเดอร์ + auto-invoke เมื่อโครงโค้ดเปลี่ยน)
-- [ ] `explore` / `next` → auto-invoke (read-only ปลอดภัย)
-- [ ] ใส่ `disable-model-invocation: true` ให้ `build` / `ship` (irreversible — ต้อง user สั่งชัด)
-- **หมายเหตุ:** คง playbook กลางไว้ skill แค่ชี้ไป + คง `AGENTS.md` adapter สำหรับ Codex
+### 9. Skill-format สำหรับ utility ที่ปลอดภัย ✅ DONE (2026-06-07 · ship 0.8.4)
+- [x] `update-codemaps` / `explore` / `next` → 3 skill auto-invocable (`src/.claude/skills/<name>/SKILL.md`, description-driven; read-only allowed-tools) body ชี้ playbook กลาง ไม่ duplicate
+- [x] `build` / `ship` **คงเป็น command (user-only)** + note เหตุผล (irreversible/stateful) — *แทน* `disable-model-invocation` ที่ moot สำหรับ command (DESIGN D3); ไม่แปลง package เป็น plugin (รักษา namespace `/warnyin:*` = non-breaking)
+- [x] plumbing: `cli.mjs` CORE + `package.json files` + `verify-pack` (`hasSkills` R1) + 2 test (suite 18→19); คง playbook กลาง + `AGENTS.md` (Codex) ไม่แตะ
+- [x] global: `docs/rule.md` §1 skill-adapter convention + feature `docs/features/utility-skills/`
+- **ที่มา:** roadmap P1 ปิดท้าย · **ลงที่:** Claude adapter (`src/.claude/skills/`) + installer/packaging/test + global rule §1 + feature doc
 
 ---
 
