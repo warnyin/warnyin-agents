@@ -23,6 +23,14 @@
 
 ## [Unreleased]
 
+## [0.8.4] - 2026-06-07
+
+### Added
+- **Utility skills (Claude adapter, auto-invocable)** — 3 safe utility skill ใหม่ `src/.claude/skills/{update-codemaps,explore,next}/SKILL.md` (`/update-codemaps`, `/explore`, `/next`): Claude project skill ที่ model **auto-invoke ได้เอง (description-driven)** body ชี้ playbook กลางเดิม (`.warnyin/workflow/{codemap,explore,next}.md`) ไม่ duplicate — auto-invoke เฉพาะ utility **read-only safe**; ผู้ใช้ปลายทางรับ skills อัตโนมัติตอน `npx @warnyin/agents` / `--update`. command `/warnyin:*` เดิม **ไม่เปลี่ยน** (non-breaking); build/ship คงเป็น command user-only (irreversible). global `docs/rule.md` §1 skill-adapter convention
+
+### Changed
+- **installer/packaging รองรับ skills** — `cli.mjs` CORE +`.claude/skills`; `package.json files` +`src/.claude/skills` (nested dotfolder ระบุชัด); `verify-pack` ALLOWED_PREFIX +`src/.claude/skills/` + R1 assert `hasSkills` (skills เป็น required payload กันหล่นเงียบ); test suite 18→19 (verify-pack 9→10)
+
 ## [0.8.3] - 2026-06-07
 
 ### Added
