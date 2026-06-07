@@ -52,10 +52,11 @@
 - **ที่มา:** ECC `contexts/` · `.md` ล้วน ไม่ผูก tool ตรงปรัชญา · ดู `docs/features/context-profiles/`
 - **ต่อยอด (future):** auto-activation ตาม stage (รอบนี้ manual); context เพิ่มเกิน 3 ตัวถ้าจำเป็น
 
-### 6. Defensive rules ใน BUILD/VERIFY playbook
-- [ ] **investigate-before-edit** — ก่อนแก้ไฟล์ ต้องเข้าใจ (ใครใช้ไฟล์นี้ / schema / เจตนา user) ก่อน
-- [ ] **ห้ามแก้ config linter/formatter ให้ผ่าน** แทนการแก้โค้ดจริง
+### 6. Defensive rules ใน BUILD/VERIFY playbook ✅ DONE (2026-06-07 · topic `defensive-rules`)
+- [x] **investigate-before-edit** — ก่อนแก้ไฟล์ ต้องเข้าใจ (ใครใช้ไฟล์นี้ / schema/contract / เจตนา) ก่อน
+- [x] **ห้ามแก้ config linter/formatter ให้ผ่าน** แทนการแก้โค้ดจริง (config-protection)
 - **ที่มา:** ECC hook `gateguard-fact-force` + `config-protection` — แต่เราทำเป็น **rule ใน playbook** (portable) ไม่ใช่ vendor hook (Claude-only) = เวอร์ชัน enforce ของ "ห้ามเดา"
+- **ผล:** 2 operating principle ใน build.md/verify.md §3 + checklist ใน developer.md/qa.md + global `docs/rule.md` §1
 
 ### 7. Security checklist รูปธรรม
 - [ ] เสริม `.warnyin/workflow/roles/security.md` + VERIFY: permission deny (`Read(**/.env*)`, `~/.ssh`), sandbox no-egress, แยก identity
