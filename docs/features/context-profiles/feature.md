@@ -18,7 +18,8 @@
 - **mapping (primary posture ต่อ stage):**
   Discovery→`research` · DESIGN→`research`+`build` · BUILD→`build` · VERIFY→`review` · SHIP→`review`
 - **activate = manual:** AI เปิด stage เจอ callout → อ่าน context → สวม posture; หรือ user สั่งโหมดตรงๆ
-- `contexts/README.md` อธิบาย context-vs-role + ตาราง mapping + วิธี activate + โครง card
+- **model-tier guidance** (ใน "Tool preference" ของแต่ละ context) — แนะนำ model tier ตาม posture เพื่อคุม token/cost: `research`→`deepest reasoning` · `build`→`balanced` (fan-out worker เชิงกลไก→`cheap`) · `review`→`balanced+` (ไม่ลด); **generic vocab ไม่ผูกชื่อรุ่น** (harness map เอง — `docs/rule.md` §1 payload-guidance generic); legend ใน `contexts/README.md`
+- `contexts/README.md` อธิบาย context-vs-role + ตาราง mapping + วิธี activate + โครง card + **ตาราง model-tier**
 
 ## ขอบเขต / ข้อจำกัด
 - **manual activation** (ไม่ auto ตาม stage — เก็บเป็น future)
