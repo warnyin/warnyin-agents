@@ -7,14 +7,14 @@
 ```
 src/bin/cli.mjs                   installer หลัก (zero-dep, ~190 บรรทัด); npm bin → ที่นี่
 src/tests/installer.test.mjs      black-box integration test ของ installer (9 เคส)
-src/tests/verify-pack.test.mjs    unit test ของ checkFiles (9 เคส, BL-4 testable denylist)
+src/tests/verify-pack.test.mjs    unit test ของ checkFiles (10 เคส, BL-4 testable denylist)
 src/scripts/verify-pack.mjs       pack-verify gate (allowlist + denylist; export checkFiles)
 src/scripts/check-test-count.mjs  pass-count gate (anti-false-green; MIN_PASS=9)
 src/scripts/setup-dogfood.mjs     dev: ติดตั้ง release ลง root (dogfood)
 src/scripts/setup-sandbox.mjs     dev: ติดตั้ง v-next จาก src/ ลง temp (sandbox)
 src/.warnyin/{workflow,template}  playbook กลาง (stages/ roles/ contexts/ scripts/) + template (payload)
 src/.warnyin/installer/templates/CLAUDE.md   template CLAUDE.md ของ target
-src/.claude/{commands/warnyin,agents}        adapter Claude (payload)
+src/.claude/{commands/warnyin,agents,skills}  adapter Claude (payload) — skills = utility auto-invocable (ดู docs/features/utility-skills/)
 src/AGENTS.md                     adapter Codex/Antigravity (payload)
 ```
 
@@ -36,7 +36,7 @@ guard pkgRoot === target → error   // defensive no-op หลังย้าย
 warn legacy ≤0.2.x (workflow/, warnyin-stages/)
 warn legacy 0.3–0.5.x (warnyin/{workflow,template,installer,stages})
 ─────
-for CORE      → copyTree(dir, {overwrite: UPDATE})   // .warnyin/{workflow,template}, .claude/{commands/warnyin,agents}
+for CORE      → copyTree(dir, {overwrite: UPDATE})   // .warnyin/{workflow,template}, .claude/{commands/warnyin,agents,skills}
 ensureScaffold()                                      // generate docs/stages/context.md + achieved/.gitkeep (เปล่า)
 seedDocs()                                            // .warnyin/template/docs/** → docs/** (ข้าม [...])
 installRootDoc('CLAUDE.md', pkgRoot/.warnyin/installer/templates/CLAUDE.md)
@@ -62,7 +62,7 @@ check-test-count.mjs             อ่าน summary node --test จาก stdi
 ```
 
 ## ค่าคงที่สำคัญ
-- `CORE` = `.warnyin/workflow`, `.warnyin/template`, `.claude/commands/warnyin`, `.claude/agents` (relative กับ pkgRoot=src/)
+- `CORE` = `.warnyin/workflow`, `.warnyin/template`, `.claude/commands/warnyin`, `.claude/agents`, `.claude/skills` (relative กับ pkgRoot=src/)
 - `SCAFFOLD_FILES` = `docs/stages/context.md`, `docs/stages/achieved/.gitkeep`
 - `TEMPLATE_DOCS` = `.warnyin/template/docs`
 - marker idempotent CLAUDE/AGENTS = substring `warnyin/workflow/stages/`
@@ -73,9 +73,10 @@ src/bin
 src/.warnyin
 src/.claude/commands
 src/.claude/agents
+src/.claude/skills
 src/AGENTS.md
 README.md  CHANGELOG.md  LICENSE
 ```
-- **dotfolder nested ต้องระบุชัด** (`src/.warnyin`, `src/.claude/commands`, `src/.claude/agents`) — npm ไม่รวม nested dotfolder อัตโนมัติ (บทเรียน 0.6.0 ขยายผล)
+- **dotfolder nested ต้องระบุชัด** (`src/.warnyin`, `src/.claude/commands`, `src/.claude/agents`, `src/.claude/skills`) — npm ไม่รวม nested dotfolder อัตโนมัติ (บทเรียน 0.6.0 ขยายผล)
 - **ไม่อยู่ใน list:** `src/tests`, `src/scripts` (dev-only), root `CLAUDE.md`/`AGENTS.md` (dogfood gitignored — payload AGENTS.md อยู่ `src/AGENTS.md`)
 - `package.json` รวมเองโดย npm เสมอ; `verify-pack` เป็นตัวพิสูจน์ allowlist (ดู `test.md`)
