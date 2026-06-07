@@ -1,46 +1,30 @@
-# Test Plan — <ชื่อ change>
+# Test Plan — defensive-rules
 
 > Output ของ VERIFY stage · playbook: `.warnyin/workflow/stages/verify.md`
-> แผน/วิธีเทสของ topic นี้ — ตอน **SHIP** จะ merge เข้า `docs/techstack/<component>/test.md`
-> อิง guideline จาก `docs/techstack/<component>/test.md` (ถ้าไม่มี = เสนอวิธีใหม่ที่นี่)
+> guideline: `docs/techstack/installer/test.md` (§verify feature ที่เป็น payload `.md` ล้วน) · QA lens: `roles/qa.md`
 
-| | |
-|---|---|
-| **Slug** | `<kebab-case>` |
-| **Component** | `api-service` / `admin-console` |
-| **จุดประสงค์ที่ต้อง verify** | (สรุปจาก spec/tasks) |
+## 1. จุดประสงค์ที่ต้อง verify
+docs/.md ล้วน (ไม่มี service) — เจตนา: 2 defensive rule (R1 investigate-before-edit, R2 config-protection) เป็น **enforce ของ "ห้ามเดา"** ปรากฏครบทุก enforce point (playbook §3 + role checklist) wording สม่ำเสมอ ไม่ขัด rule เดิม และ ship ได้
 
-## 1. ขอบเขตการเทส (ตามจุดประสงค์ topic)
-- สิ่งที่ต้องยืนยันว่าทำงานถูก:
+## 2. วิธีเทส
+static structural + executable install proof + behavioral read (ไม่มี runtime)
 
-## 2. ชนิดการเทส
-- [ ] Functional (ตาม test-flow ใน `tasks/*/spec.md`)
-- [ ] E2E smoke — เครื่องมือ: `playwright-cli` (ถ้าเป็น FE)
-- [ ] Integration / API
-- [ ] UX/UI verify (ถ้าเป็น FE)
-- [ ] อื่นๆ:
-
-## 3. Local env ที่ต้องรัน (จาก `docs/infra.md`)
-| Service | คำสั่งรัน | port / หมายเหตุ |
-|---|---|---|
-| | | |
-
-## 4. Test cases
-| # | สถานการณ์ (อิงจุดประสงค์) | ขั้นตอน | ผลที่คาดหวัง |
+## 3. Test cases
+| # | เคส | วิธี | ผ่านเมื่อ |
 |---|---|---|---|
-| 1 | | | |
+| T1 | functional regression | `npm test` + `verify:pack` | 18/18 · 72 ไฟล์ (ไม่มี test เดิมพัง) |
+| T2 | executable install proof | `setup:sandbox` → ตรวจ target | R1+R2 ลงครบ 4 ไฟล์ payload ผ่าน cli.mjs; root dogfood ไม่โดนแตะ |
+| T3 | ครบทุก enforce point | grep R1/R2 ใน 4 ไฟล์ | build.md §3 + verify.md §3 + developer.md + qa.md มีครบ (ไม่ซ้ำ) |
+| T4 | wording consistency | เทียบ 4 จุดกับ canonical design §2 | ตรงกัน ไม่ขัด (playbook ฉบับเต็ม, role ฉบับสั้น) |
+| T5 | ไม่ขัด "ห้ามเดา" เดิม | ตรวจ framing | ทั้ง 2 rule ระบุ "enforce ของ ห้ามเดา" — ขยาย ไม่ขัด |
+| T6 | numbering §3 ต่อเนื่อง | ตรวจลำดับ | build 10→11,12 · verify 9→10,11 (ไม่ทับเลขเดิม) |
+| T7 | global note พร้อม SHIP | ตรวจ rule.md §2 | bullet ขยาย "ห้ามเดา" รอ promote |
 
-## 5. E2E smoke (FE)
-- flow ที่ smoke:
-- คำสั่ง playwright-cli:
+## 4. Regression / edge ที่ QA ระวัง
+- เพิ่ม principle แล้วทำ test เดิมพังไหม → T1 (installer test = black-box ไม่ assert playbook content)
+- wording drift ระหว่าง 4 จุด → T4 (canonical เดียว)
+- เลขข้อ §3 ชน/ข้าม → T6
+- rule ใหม่ขัด/ซ้ำ "ห้ามเดา" → T5
 
-## 6. UX/UI checklist (FE)
-- [ ] layout ตรงตาม spec/wireframe
-- [ ] states: loading / empty / error / success
-- [ ] responsive
-- [ ] interaction / user-flow ลื่นไหล
-
-## 7. วิธีรันเทส (reproducible)
-```
-<คำสั่ง / ขั้นตอน>
-```
+## 5. env
+local: npm + git + tar · ไม่ต้องรัน service
