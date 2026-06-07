@@ -1,46 +1,27 @@
-# Test Plan — <ชื่อ change>
+# Test Plan — model-tier-guidance
 
 > Output ของ VERIFY stage · playbook: `.warnyin/workflow/stages/verify.md`
-> แผน/วิธีเทสของ topic นี้ — ตอน **SHIP** จะ merge เข้า `docs/techstack/<component>/test.md`
-> อิง guideline จาก `docs/techstack/<component>/test.md` (ถ้าไม่มี = เสนอวิธีใหม่ที่นี่)
+> payload `.md` (context profile) → verify เชิงโครงสร้าง + tool-agnostic + install proof + consistency
 
-| | |
-|---|---|
-| **Slug** | `<kebab-case>` |
-| **Component** | `api-service` / `admin-console` |
-| **จุดประสงค์ที่ต้อง verify** | (สรุปจาก spec/tasks) |
+## 1. จุดประสงค์ที่ต้อง verify
+model-tier guidance ครบ 3 context (generic vocab) + README legend สอดคล้อง + **tool-agnostic** (ไม่ผูกชื่อรุ่น) + ไม่ทำลายโครง card/installer
 
-## 1. ขอบเขตการเทส (ตามจุดประสงค์ topic)
-- สิ่งที่ต้องยืนยันว่าทำงานถูก:
+## 2. วิธีเทส
+grep/structural บน payload + `setup:sandbox` install proof + regression (lint:md/test/pack)
 
-## 2. ชนิดการเทส
-- [ ] Functional (ตาม test-flow ใน `tasks/*/spec.md`)
-- [ ] E2E smoke — เครื่องมือ: `playwright-cli` (ถ้าเป็น FE)
-- [ ] Integration / API
-- [ ] UX/UI verify (ถ้าเป็น FE)
-- [ ] อื่นๆ:
-
-## 3. Local env ที่ต้องรัน (จาก `docs/infra.md`)
-| Service | คำสั่งรัน | port / หมายเหตุ |
+## 3. Test cases
+| # | เคส | คาดหวัง |
 |---|---|---|
-| | | |
+| V1 | 3 context มี Model tier (generic) | research=deepest · build=balanced · review=balanced+ |
+| V2 | tool-agnostic | grep `opus\|sonnet\|haiku\|claude-\|gpt-\|gemini` ใน contexts = 0 |
+| V3 | README legend | section `## Model tier` + ตาราง 3 tier + tool-agnostic note |
+| V4 | โครง card 4-section | Model tier = บรรทัดใน Tool preference (ไม่เพิ่ม section) — ทุก context 4 `##` |
+| V5 | consistency | tier ใน context ตรงกับ legend table |
+| V6 | install proof | `setup:sandbox` → target `.warnyin/workflow/contexts/{research,build,review}.md` มี Model tier; root dogfood ไม่ dirty |
+| V7 | regression | `lint:md` 0 dead · `npm test` 26/26 · `verify:pack` 75 |
 
-## 4. Test cases
-| # | สถานการณ์ (อิงจุดประสงค์) | ขั้นตอน | ผลที่คาดหวัง |
-|---|---|---|---|
-| 1 | | | |
+## 4. Env
+- local macOS + node; ไม่มี service; `setup:sandbox` → temp (ไม่แตะ root)
 
-## 5. E2E smoke (FE)
-- flow ที่ smoke:
-- คำสั่ง playwright-cli:
-
-## 6. UX/UI checklist (FE)
-- [ ] layout ตรงตาม spec/wireframe
-- [ ] states: loading / empty / error / success
-- [ ] responsive
-- [ ] interaction / user-flow ลื่นไหล
-
-## 7. วิธีรันเทส (reproducible)
-```
-<คำสั่ง / ขั้นตอน>
-```
+## 5. หมายเหตุ (merge ตอน SHIP)
+- เพิ่ม verify pattern: payload guidance ที่อ้าง harness model/tool → **tool-agnostic grep** (ไม่ผูกชื่อรุ่น) เป็น acceptance; แม้ประโยคปฏิเสธก็เลี่ยง enumerate ชื่อรุ่น (กัน literal-grep false-positive)
