@@ -1,4 +1,4 @@
-<!-- Generated: 2026-06-07 | Files scanned: ~64 | Token estimate: ~780 -->
+<!-- Generated: 2026-06-07 | Files scanned: ~67 | Token estimate: ~800 -->
 # Architecture — Warnyin Standard Workflow
 
 ## 2-layer (bootstrap / self-hosting)
@@ -18,7 +18,7 @@ SOURCE (committed, publish)              DOGFOOD (gitignored, install จาก 
    ▼
 src/bin/cli.mjs ──copy──▶ โปรเจกต์ปลายทาง:
    │                    .warnyin/{workflow,template}  (core, อัปเดตได้)
-   │                    .claude/{commands/warnyin,agents}  (adapter Claude)
+   │                    .claude/{commands/warnyin,agents,skills}  (adapter Claude; skills=utility auto-invocable)
    │                    docs/stages/ (scaffold เปล่า — generate)
    │                    docs/* (seed จาก template), CLAUDE.md, AGENTS.md
    ▼
@@ -41,7 +41,7 @@ output งานจริง: docs/stages/<slug>/  (copy จาก template src/
 pkgRoot = resolve(dirname(import.meta.url), '..')  → src/ (sibling ของ bin/)
 guard pkgRoot===target → error  (defensive no-op หลังย้าย: pkgRoot=src/ ไม่มีทาง===target)
  → warn legacy(≤0.2.x / 0.3–0.5.x)
- → copyTree(CORE, overwrite=--update)   .warnyin/{workflow,template} + .claude/{commands/warnyin,agents}
+ → copyTree(CORE, overwrite=--update)   .warnyin/{workflow,template} + .claude/{commands/warnyin,agents,skills}
  → ensureScaffold()                     generate docs/stages/{context.md, achieved/.gitkeep} เปล่า (ไม่ copy → กัน leak)
  → seedDocs()                           .warnyin/template/docs/** → docs/** (ข้าม [...], ไม่ทับ)
  → installRootDoc CLAUDE.md + AGENTS.md (append section ถ้ามีอยู่ + marker กันซ้ำ)
@@ -58,7 +58,7 @@ check-test-count.mjs  parse summary node --test → fail ถ้า fail!=0 / pas
 
 ## tool-agnostic design
 - **แก่นเดียว** = `src/.warnyin/workflow/*.md` (ทุก harness อ่านชุดเดียวกัน)
-- **adapter บาง:** `src/.claude/commands/warnyin/*.md` + `src/.claude/agents/warnyin-*.md` + `src/AGENTS.md` (Codex) — ชี้กลับ playbook กลาง ไม่ duplicate logic
+- **adapter บาง:** `src/.claude/commands/warnyin/*.md` (user-invoked) + `src/.claude/skills/*/SKILL.md` (auto-invocable, utility read-only) + `src/.claude/agents/warnyin-*.md` + `src/AGENTS.md` (Codex) — ชี้กลับ playbook กลาง ไม่ duplicate logic (skill-adapter convention: `docs/rule.md` §1)
 - role card: `src/.warnyin/workflow/roles/` (BA/PO/SA/Tech Lead/Developer/QA/Security/Infra) = **task-level lens**; reviewer subagent `src/.claude/agents/warnyin-{sa,tech-lead,qa,security,infra}.md`
 - context profile: `src/.warnyin/workflow/contexts/` (research/build/review) = **session-level posture** (คนละชั้นกับ role); playbook แต่ละ stage มี callout ชี้ context ที่เข้าคู่ (Discovery→research · DESIGN→research+build · BUILD→build · VERIFY→review · SHIP→review)
 

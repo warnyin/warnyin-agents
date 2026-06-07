@@ -6,6 +6,7 @@
 ## 1. ปรัชญาแก่น (จาก CLAUDE.md + roadmap)
 - **กระทัดรัด opinionated** — 5 stage + role จำกัด เป็นจุดแข็ง ห้ามไหลเป็น catalog
 - **tool-agnostic** — แก่นเป็น `.md` กลางที่ทุก harness อ่านได้ (`.warnyin/workflow/`); ส่วนที่ผูก tool (hook/skill) เป็น *adapter บาง* ชี้กลับแก่น
+  - **skill-adapter convention** (enforce ของ "adapter บาง") — Claude skill (`.claude/skills/<name>/SKILL.md`) = adapter บาง **ชี้ playbook กลาง ไม่ duplicate** (เหมือน command); ทำ **auto-invocable เฉพาะ utility read-only safe** (ไม่ใส่ `disable-model-invocation`) เพื่อคุม blast radius; **irreversible/stateful (build/ship/design ฯลฯ) คงเป็น command** (user-only — ต้อง user สั่งชัด); **ไม่แปลง package เป็น plugin** (รักษา namespace `/warnyin:*` ของ command = non-breaking; skill ยอมรับ `/<name>` ไม่มี prefix) — auto-invoke เป็น description-driven (ไม่มี event/file-watch)
 - **ห้ามเดา** — ไม่ชัดถาม user; enforce ด้วย rule/checklist ใน playbook
   - **investigate-before-edit** (enforce ของ "ห้ามเดา") — ก่อนแก้ไฟล์ที่มีอยู่ ต้องเข้าใจก่อน: **ใครใช้/อ่านไฟล์นี้, schema/contract/สัญญาของมัน, เจตนาเดิม**; แก้โดยไม่เข้าใจ = เดา (ไม่ชัด → ถาม user / อ่านโค้ดที่อ้างถึง ก่อนแก้) — อยู่ใน BUILD/VERIFY playbook §3 + developer.md/qa.md checklist
   - **config-protection** (enforce ของ "ห้ามเดา") — ห้ามแก้ config (linter/formatter/test threshold) หรือ disable rule **"เพื่อให้ build/test ผ่าน"** แทนการแก้โค้ดจริง; config ผิดจริงแก้ได้แต่ต้องมี **เหตุผลชัด + note** (ไม่ใช่เพื่อเลี่ยง finding) — สำคัญสุดตอน VERIFY fix loop ("แก้จนผ่าน" = แก้ root cause ไม่ลด bar)

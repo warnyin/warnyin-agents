@@ -9,7 +9,7 @@ CLI zero-dependency (`src/bin/cli.mjs`) เผยแพร่เป็น npm pa
 - `npx @warnyin/agents --dry-run` — แสดงรายการไฟล์ที่จะทำ โดยไม่เขียนจริง
 
 ## หน้าที่ (4 อย่าง)
-1. **copy CORE** — playbook กลาง + command + agent + template ลง `.warnyin/` + `.claude/` (เขียนทับได้เมื่อ `--update`)
+1. **copy CORE** — playbook กลาง + command + agent + **skills** + template ลง `.warnyin/` + `.claude/` (เขียนทับได้เมื่อ `--update`)
 2. **สร้าง scaffold** — generate `docs/stages/context.md` + `docs/stages/achieved/.gitkeep` เปล่าใน target เอง (ไม่ copy จาก package — กัน scaffold leak)
 3. **seed docs** — copy `.warnyin/template/docs/**` → `docs/**` (ข้ามโฟลเดอร์ template `[...]`, ไม่ทับไฟล์ที่มี)
 4. **root docs** — สร้าง/ต่อท้าย `CLAUDE.md` + `AGENTS.md` (มี marker กัน append ซ้ำ)

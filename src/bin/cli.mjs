@@ -68,6 +68,7 @@ const CORE = [
   path.join('.warnyin', 'template'),
   path.join('.claude', 'commands', 'warnyin'),
   path.join('.claude', 'agents'),
+  path.join('.claude', 'skills'),
 ]
 // scaffold = พื้นที่ทำงานเปล่าของโปรเจกต์ — installer "สร้างเอง" ไม่ copy tree จาก package
 // (สำคัญ: ถ้า copy docs/stages จาก pkgRoot งานจริงของ repo ต้นทางจะรั่วไป target ทุกครั้ง — ดู verify installer-test-ci)
