@@ -34,6 +34,10 @@ Discovery(optional) ▶ DESIGN ▶ BUILD ▶ VERIFY ▶ SHIP
 
 output งานจริง: docs/stages/<slug>/  (copy จาก template src/.warnyin/template/stages/[topic]/)
 ความรู้ถาวร: docs/  (SHIP promote ขึ้นมา: features/techstack/rule/troubleshooting/codemap)
+
+วงจร spec (living behavior spec — docs/features/<name>/spec.md):
+DESIGN เขียน "Spec delta" (design.md §9: ADDED/MODIFIED/REMOVED) ▶ VERIFY ใช้ spec เป็น regression baseline
+▶ SHIP merge กึ่ง mechanical (key ไม่เจอ → STOP) ▶ spec ใหม่ = baseline รอบถัดไป — ดู docs/features/spec-delta/
 ```
 
 ## installer flow (src/bin/cli.mjs)

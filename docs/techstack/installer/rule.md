@@ -11,6 +11,7 @@
 - **legacy = เตือน ไม่ทำให้** — ตรวจโครงเก่าแล้วแนะนำคำสั่ง `git mv` ให้ user ทำเอง ไม่ย้ายงานจริงอัตโนมัติ
 - **guard self-install = defensive no-op** — เก็บ guard `pkgRoot === target` ไว้ (zero-cost) แต่หลังย้าย source เข้า `src/` แล้ว `pkgRoot=src/` ไม่มีทาง === target (repo root/temp) → guard เป็น **no-op โดยตั้งใจ** (ยัง error เฉพาะ edge ที่ target===`src/` เอง) — comment ต้องตรงพฤติกรรมนี้ ห้ามลงทุน guard ใหม่
 - **mirror layout `src/` = target paths** — โครงใน `src/` ต้องสะท้อน path ตอน install เป๊ะ (installer copy `src/<rel> → target/<rel>` ไม่มี mapping table); ฝืน invariant นี้ = ต้องเพิ่ม mapping → ขัดปรัชญากระทัดรัด
+- **template ระดับ feature/หน่วยผู้ใช้ ต้องอยู่ใต้โฟลเดอร์ `[...]` เสมอ** (seedDocs-skip invariant) — `seedDocs` ข้าม entry ที่ขึ้นต้น `[` เท่านั้น (`cli.mjs` seedDocs); วาง template ชื่อ concrete ใต้ `template/docs/` = seed leak ลง target จริง — evidence: topic `feature-spec-delta` (spec.md template ใต้ `[feature-name]/` + verify T2 negative: target ไม่มี `docs/features/` หลัง install)
 
 ## packaging / publish
 - **`package.json files` เป็น allowlist (granular)** — เพิ่ม path ต้องพิจารณา publish; **dotfolder nested ต้องระบุชัดทุกก้อน** (`src/.warnyin`, `src/.claude/commands`, `src/.claude/agents`) — npm ไม่รวม nested dotfolder อัตโนมัติ (บทเรียน 0.6.0 ขยายผล); งานจริง (`docs/`) + dev tooling (`src/tests`/`src/scripts`) ห้ามหลุด

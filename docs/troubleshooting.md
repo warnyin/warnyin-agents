@@ -95,3 +95,9 @@
 - **Root cause:** trust sub-agent report + เช็ค exit ผ่าน pipe ที่ swallow exit code ของคำสั่งจริง
 - **วิธีแก้:** **main-loop full-gate ต้องรัน gate เองทุกครั้ง + ตรวจ exit จริง** — `cmd > /tmp/out 2>&1; E=$?` (เก็บ exit ก่อน pipe) ไม่ใช่ `cmd | tail` แล้วเชื่อ; ไม่ปิด BUILD จาก self-report ของ sub-agent
 - **ป้องกันซ้ำ:** build.md §8 full-gate = แหล่งความจริงเดียว (sub-agent report เป็น hint); เช็ค exit code ต้องไม่อยู่หลัง `|` — แยก `$?` หรือ `set -o pipefail`
+
+### 14. build agent ใน worktree แก้ไฟล์ topic working dir ไม่ได้ (Edit tool block + ไฟล์ไม่อยู่ใน worktree)
+- **อาการ:** agent ใน git worktree เจอ `Edit tool: This agent is isolated in the worktree ... Edit the worktree copy instead` เมื่อพยายามอัปเดต `docs/stages/<slug>/tasks/<task>/task.md` — แต่ไฟล์นั้นไม่มีอยู่ใน worktree (เจอซ้ำ 2/2 task ใน wave เดียว — topic `feature-spec-delta`)
+- **Root cause:** worktree เห็นเฉพาะไฟล์ที่ track ใน branch ที่ checkout — ถ้า topic docs ยังไม่ commit (หรืออยู่บน build branch ที่ worktree ไม่ได้ branch จาก) โฟลเดอร์ topic จะไม่ปรากฏใน worktree; Edit tool ของ harness block การแก้ path นอก worktree
+- **วิธีแก้:** แยกหน้าที่ — ไฟล์ output จริง (git-tracked) แก้+commit ใน worktree ปกติ; สถานะ/บันทึกใน topic dir ให้ **main loop อัปเดตตอน integrate** (หรือ agent เขียนผ่าน node script ทาง Bash ที่ absolute path ของ main checkout)
+- **ป้องกันซ้ำ:** orchestrator **commit topic docs ลง build branch ก่อน fan-out** + ให้ worktree **branch จาก build branch** (ไม่ใช่ main) — agent เห็น task ของตัวเองครบ; agent รายงานแก้ task.md ไม่ได้ ≠ task ล้ม (ดู `docs/rule.md` §1 build-orchestration)

@@ -1,4 +1,4 @@
-<!-- Generated: 2026-06-07 | Files scanned: ~80 src (70 .md + 10 .mjs) | Token estimate: ~560 -->
+<!-- Generated: 2026-06-07 (rescan หลัง feature-spec-delta) | Files scanned: ~81 src (71 .md + 10 .mjs) | Token estimate: ~580 -->
 # Codemap — Warnyin Standard Workflow
 
 > repo = **tool/library** (npm `@warnyin/agents`) ไม่ใช่ app — ส่งมอบ "ways of work" 5 stage ลงโปรเจกต์อื่น
@@ -18,7 +18,7 @@ single library (zero-dependency, ESM, Node ≥20) เผยแพร่ผ่า
 |---|---|---|---|
 | **installer** | `src/bin/cli.mjs` + `src/tests/` + `src/scripts/` + `.github/` | ติดตั้ง/อัปเดต workflow ลงโปรเจกต์ปลายทาง (โค้ดรันได้เดียวใน repo) | `docs/techstack/installer/` |
 | **workflow core** | `src/.warnyin/workflow/` | playbook กลาง 5 stage + role card + script (เนื้อหา `.md` tool-agnostic) | `architecture.md` |
-| **templates** | `src/.warnyin/template/` | โครง output ของแต่ละ stage + seed `docs/` | `architecture.md` |
+| **templates** | `src/.warnyin/template/` | โครง output ของแต่ละ stage + seed `docs/` + living behavior spec ต่อ feature (`docs/features/[feature-name]/spec.md` — ดู `docs/features/spec-delta/`) | `architecture.md` |
 | **adapters** | `src/.claude/` (`commands/warnyin` user-invoked · `skills` auto-invocable utility · `agents`) + `src/AGENTS.md` | thin adapter ชี้กลับ playbook กลาง (Claude Code / Codex) | `architecture.md` · `docs/features/utility-skills/` |
 
 ## Entry points

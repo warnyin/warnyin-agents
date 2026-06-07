@@ -77,6 +77,13 @@
 - **3-way consistency:** ความรู้ชุดเดียวกระจายหลายที่ (เช่น `contexts/README.md` mapping ↔ callout ใน `stages/*` ↔ section "ใช้คู่ stage" ของ card) → ทั้งสามต้องตรงกัน (บทเรียนเดียวกับ cli↔CHANGELOG↔test ใน `cli-legacy-warning-fix`)
 - **โครง conformance:** ไฟล์ประเภทเดียวกันโครงเดียวกัน (เช่น context card ทุกใบมี 4 section คงที่) + บาง ไม่ duplicate logic ของไฟล์ที่ชี้ไป
 
+## verify spec/delta payload (L: topic `feature-spec-delta`)
+> change ที่แตะ behavior spec (`docs/features/*/spec.md`), template spec, หรือกติกา Spec delta ใน playbook — ขยายจาก "payload `.md` ล้วน"
+- **merge trace ด้วยมือ (executable proof ของกติกา merge):** sandbox copy ของ spec จริงใน temp → เดินกติกา ship §4 step 5.1 ครบทุกเคส: ADDED ต่อท้าย · MODIFIED แทนที่ (ไม่ duplicate) · MODIFIED rename `[เดิมชื่อ:]` (ชื่อเก่าหาย ไม่ทิ้งซาก) · REMOVED หาย · **key ไม่เจอ → STOP** (ไฟล์ไม่ถูกแตะ ไม่กลายเป็น ADDED แฝง) — assert ผลทุกเคส (ดู verify ของ topic `feature-spec-delta` T5)
+- **sandbox negative (seedDocs-skip):** `npm run setup:sandbox` → target ต้องมี template `.warnyin/template/docs/features/[feature-name]/spec.md` แต่**ไม่มี** `docs/features/[feature-name]/` (seed ข้าม `[...]`)
+- **accuracy ของ spec ที่สกัดจาก source:** ไล่ทุก Requirement/Scenario เทียบ source จริง — **โดย agent อิสระจากผู้เขียน** (self-check ไม่พอ — ดู `docs/rule.md` §5 ข้อ 4); THEN ทุกข้อต้องเป็น observable artifact
+- **semantic consistency ของ canonical:** กติกา merge ใน playbook/template/command ต้องตรง canonical ของ design **คำต่อคำ** (grep key อย่างเดียวจับ "wording ขัดกัน" ไม่ได้)
+
 ## verify skill (Claude adapter) — payload `.md` + frontmatter (L2: topic `skill-format`)
 > skill (`src/.claude/skills/<name>/SKILL.md`) = adapter บางชี้ playbook กลาง (เหมือน command) — ไม่มี service ให้รัน → verify เชิงโครงสร้าง + install proof + dead-link + consistency (ขยายจาก "payload `.md`")
 - **executable install proof:** `npm run setup:sandbox` → target มี `.claude/skills/<name>/SKILL.md` ครบทุกตัว; root dogfood ไม่โดนแตะ — **ห้ามรัน `cli.mjs` ที่ cwd=repo root** (dogfood leak #6)

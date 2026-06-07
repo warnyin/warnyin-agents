@@ -99,6 +99,19 @@
 - [x] global: `docs/rule.md` §2 zero-dep lint-gate convention; troubleshooting #12 (strip-code) + #13 (main-loop ตรวจ exit)
 - **หมายเหตุ:** เลือก dead-link เป็นแกน (need ที่ทำมือซ้ำทุก VERIFY) แทน markdownlint/prettier เต็มชุด — opinionated high-signal + คง zero-dep (จุดขาย)
 
+
+### 13. Feature behavior spec + delta discipline (จาก OpenSpec) ✅ DONE (2026-06-07 · topic `feature-spec-delta`)
+- [x] template `docs/features/[feature-name]/spec.md` — living behavior spec แบบ lean (Requirement + Scenario GIVEN/WHEN/THEN, ไม่บังคับ RFC 2119)
+- [x] วงจร delta ครบ 3 stage: DESIGN เขียน "Spec delta" (§9, ADDED/MODIFIED/REMOVED) → VERIFY ใช้ spec เป็น regression baseline → SHIP merge กึ่ง mechanical (read-modify-verify, key ไม่เจอ → STOP, rename `[เดิมชื่อ:]`, stale re-check)
+- [x] dogfood: backfill spec จริง 2 feature (`context-profiles`, `utility-skills`) + merge trace 5 เคสพิสูจน์กติกา
+- **ที่มา:** วิเคราะห์ OpenSpec (Fission-AI) 2026-06-07 — ยืม 2 เทคนิคที่ผ่านเกณฑ์ปรัชญา; **ตัดทิ้ง:** OPSX schema engine (over-engineer), เลิก phase gate (gate คือจุดขายเรา), workspaces (beta), adapter 30+ tools (ขัด non-goal) · ดู `docs/features/spec-delta/`
+
+### 14. Structural validator + status script (จาก OpenSpec — topic แยกขนาดเล็ก)
+- [ ] `validate-topic.mjs` (zero-dep `node:*` ตาม precedent `lint-md.mjs`) — เช็คโครง topic: artifact ครบตาม stage, task มี 4 ไฟล์, ship.md มีตาราง learned-rules, spec/delta format ถูกโครง
+- [ ] status แบบ deterministic — ทางเลือกถูก token ของ `/warnyin:next` ระดับ structural (model ยังตัดสิน semantic)
+- **เงื่อนไข:** ทำหลัง #13 ship แล้ว (validator เช็คโครง spec/delta ที่นิ่งแล้ว) — ตกลงไว้ตอน discovery `feature-spec-delta`
+- **ระวัง:** เกณฑ์ roadmap เดิม — เขียนเอง zero-dep, เฉพาะ high-signal, ไม่ไหลเป็น validation framework
+
 ---
 
 ## 🐛 Core bug ที่เจอ+แก้ระหว่าง dogfood (2026-06-06 · topic `installer-test-ci`)
