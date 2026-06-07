@@ -27,6 +27,8 @@ npx @warnyin/agents --update    # อัปเดต playbook กลางเป
 - โปรเจกต์ที่มี `CLAUDE.md` / `AGENTS.md` อยู่แล้ว → installer **ต่อท้ายเป็น section** ไม่เขียนทับ
 - `--update` เขียนทับเฉพาะ core (`.warnyin/workflow/`, `.claude/commands/warnyin/`, template ใน `.warnyin/template/`) — ไม่แตะ `docs/` และงานจริง
 
+> **อัปเกรดจากรุ่นเก่า?** (`workflow/` หรือ `warnyin/` layout) ดู [Migration guide](CHANGELOG.md#migration-guide) ก่อนรัน installer รอบใหม่
+
 ## เริ่มใช้งาน
 
 ```bash
