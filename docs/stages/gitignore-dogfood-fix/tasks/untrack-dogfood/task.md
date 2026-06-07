@@ -7,7 +7,7 @@
 | **Task** | `untrack-dogfood` |
 | **Slice อ้างอิง** | `design.md` slice #1 |
 | **Component** | repo meta (git index + `.gitignore`) |
-| **สถานะ** | `รอ build` |
+| **สถานะ** | `เสร็จ` |
 
 ## 1. เป้าหมายของ task (vertical slice)
 git state ตรง rule §6 — root dogfood untracked + ignored (anchored) โดย **`src/` ปลอดภัย** + dogfood working tree ใช้งานได้ + regression เขียว
