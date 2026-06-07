@@ -1,46 +1,28 @@
-# Test Plan — <ชื่อ change>
+# Test Plan — repo-lint (zero-dep dead-link gate)
 
 > Output ของ VERIFY stage · playbook: `.warnyin/workflow/stages/verify.md`
-> แผน/วิธีเทสของ topic นี้ — ตอน **SHIP** จะ merge เข้า `docs/techstack/<component>/test.md`
-> อิง guideline จาก `docs/techstack/<component>/test.md` (ถ้าไม่มี = เสนอวิธีใหม่ที่นี่)
+> linter เป็น testing tool เอง → verify เชิง **behavioral/executable** (จับจริง + ไม่ false-positive) ไม่ใช่แค่ unit ผ่าน
 
-| | |
-|---|---|
-| **Slug** | `<kebab-case>` |
-| **Component** | `api-service` / `admin-console` |
-| **จุดประสงค์ที่ต้อง verify** | (สรุปจาก spec/tasks) |
+## 1. จุดประสงค์ที่ต้อง verify
+gate จับ dead-link จริง (positive) + ไม่ flag code-span/meta-doc (negative) + exclusion (template/archived) ทำงาน + zero-dep คง + ไม่กระทบ payload
 
-## 1. ขอบเขตการเทส (ตามจุดประสงค์ topic)
-- สิ่งที่ต้องยืนยันว่าทำงานถูก:
+## 2. วิธีเทส (executable + regression)
+รัน `npm run lint:md` จริงบน repo + inject dead-link ชั่วคราว (temp file, ลบหลังเทส) พิสูจน์ pipeline ครบ (walk→read→check→exit); regression npm test/verify:pack
 
-## 2. ชนิดการเทส
-- [ ] Functional (ตาม test-flow ใน `tasks/*/spec.md`)
-- [ ] E2E smoke — เครื่องมือ: `playwright-cli` (ถ้าเป็น FE)
-- [ ] Integration / API
-- [ ] UX/UI verify (ถ้าเป็น FE)
-- [ ] อื่นๆ:
-
-## 3. Local env ที่ต้องรัน (จาก `docs/infra.md`)
-| Service | คำสั่งรัน | port / หมายเหตุ |
-|---|---|---|
-| | | |
-
-## 4. Test cases
-| # | สถานการณ์ (อิงจุดประสงค์) | ขั้นตอน | ผลที่คาดหวัง |
+## 3. Test cases
+| # | เคส | วิธี | คาดหวัง |
 |---|---|---|---|
-| 1 | | | |
+| V1 | baseline | `npm run lint:md` | 0 dead, exit 0 |
+| V2 | **executable positive** | inject `[broken](./nope.md)` ใน `docs/_tmp.md` (scanned) | exit≠0 + error ระบุไฟล์ → ลบ temp |
+| V3 | **negative (meta-doc)** | active stage `design.md`/`spec.md` (มี `[](...)`+`` ``` `` ใน code) | ไม่ flag (exit 0) |
+| V4 | exclusion | `src/.warnyin/template/` + `docs/stages/achieved/` (มี dead-link จริงจาก pre-scan) | ไม่ถูก scan (lint เขียว) |
+| V5 | unit | `npm test` | lint-md 7/7 |
+| V6 | regression + payload | `npm test` / `verify:pack` / devDeps / tarball | 26/26 · 75 · `{}` · lint-md ไม่ ship |
+| V7 | CI yaml | ตรวจ job lint-md | pinned SHA · no secrets · no npm-ci |
 
-## 5. E2E smoke (FE)
-- flow ที่ smoke:
-- คำสั่ง playwright-cli:
+## 4. Env
+- local macOS + node 24; ไม่มี service; CI ตรวจ yaml เชิงโครงสร้าง (รันจริงตอนเปิด PR)
 
-## 6. UX/UI checklist (FE)
-- [ ] layout ตรงตาม spec/wireframe
-- [ ] states: loading / empty / error / success
-- [ ] responsive
-- [ ] interaction / user-flow ลื่นไหล
-
-## 7. วิธีรันเทส (reproducible)
-```
-<คำสั่ง / ขั้นตอน>
-```
+## 5. หมายเหตุ (merge เข้า techstack/rule ตอน SHIP)
+- เพิ่ม pattern verify **lint gate**: executable positive (inject dead-link → จับ) + negative (meta-doc/code-span ไม่ flag) — ไม่ใช่แค่ unit
+- บทเรียน strip-code alternation (troubleshooting #1) — md-tooling ที่ strip nested code construct ต้อง alternation pass เดียว
