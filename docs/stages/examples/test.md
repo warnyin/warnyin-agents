@@ -1,46 +1,28 @@
-# Test Plan — <ชื่อ change>
+# Test Plan — examples (worked-example walkthrough)
 
 > Output ของ VERIFY stage · playbook: `.warnyin/workflow/stages/verify.md`
-> แผน/วิธีเทสของ topic นี้ — ตอน **SHIP** จะ merge เข้า `docs/techstack/<component>/test.md`
-> อิง guideline จาก `docs/techstack/<component>/test.md` (ถ้าไม่มี = เสนอวิธีใหม่ที่นี่)
+> guideline: ไม่มี `docs/techstack/` สำหรับ "เอกสาร repo" → ใช้รูปแบบ verify เอกสาร (dead-link + accuracy + UX + regression)
 
-| | |
-|---|---|
-| **Slug** | `<kebab-case>` |
-| **Component** | `api-service` / `admin-console` |
-| **จุดประสงค์ที่ต้อง verify** | (สรุปจาก spec/tasks) |
+## 1. จุดประสงค์ที่ต้อง verify
+worked example ช่วยผู้ใช้ใหม่เข้าใจ "output ที่ทำดีแล้ว" ของ workflow — ต้อง (1) ลิงก์ใช้ได้จริง, (2) **เล่าตรงกับ achieved จริง** (ไม่ misrepresent), (3) อ่านเข้าใจ flow (UX เอกสาร), (4) ไม่ทำ payload/test เดิมพัง
 
-## 1. ขอบเขตการเทส (ตามจุดประสงค์ topic)
-- สิ่งที่ต้องยืนยันว่าทำงานถูก:
+## 2. วิธีเทส (เอกสาร — ไม่มี service)
+local grep/node resolve + เทียบเนื้อหากับ achieved artifacts จริง; regression ด้วย `npm test`/`verify:pack`
 
-## 2. ชนิดการเทส
-- [ ] Functional (ตาม test-flow ใน `tasks/*/spec.md`)
-- [ ] E2E smoke — เครื่องมือ: `playwright-cli` (ถ้าเป็น FE)
-- [ ] Integration / API
-- [ ] UX/UI verify (ถ้าเป็น FE)
-- [ ] อื่นๆ:
-
-## 3. Local env ที่ต้องรัน (จาก `docs/infra.md`)
-| Service | คำสั่งรัน | port / หมายเหตุ |
-|---|---|---|
-| | | |
-
-## 4. Test cases
-| # | สถานการณ์ (อิงจุดประสงค์) | ขั้นตอน | ผลที่คาดหวัง |
+## 3. Test cases
+| # | เคส | วิธี | คาดหวัง |
 |---|---|---|---|
-| 1 | | | |
+| V1 | dead-link | node `existsSync` ทุกลิงก์ walkthrough + README | 0 dead |
+| V2 | **accuracy** — claim ตรง achieved | เทียบ 5 claim หลักกับ achieved build/verify/proposal/ship/discovery | ตรงทุก claim |
+| V3 | snapshot honesty | walkthrough รายงาน 18/18 (ประวัติ) ไม่ใช่ 19/19 (ปัจจุบัน) | ซื่อตรงต่อ snapshot |
+| V4 | โครงครบ | 5 stage + 1 task + disclaimer | ครบ |
+| V5 | ไม่ duplicate playbook | grep ชี้กลับ ไม่ลอก checklist | ชี้กลับ ≥5 จุด, 0 lift |
+| V6 | UX เอกสาร (QA lens) | อ่านไล่ลำดับ: disclaimer เด่น, ตารางภาพรวม→รายละเอียด, decision สื่อ, pointer ชัด | flow ชัด เข้าใจได้ |
+| V7 | regression | `npm test` + `verify:pack` + git status | 19/19 เขียว, payload ไม่แตะ |
+| V8 | ลิงก์ playbook ชี้ source | ตรวจ walkthrough ใช้ `src/.warnyin/` ไม่ใช่ root `.warnyin/` | ชี้ committed source |
 
-## 5. E2E smoke (FE)
-- flow ที่ smoke:
-- คำสั่ง playwright-cli:
+## 4. Env
+- local: macOS + node; ไม่มี service ภายนอก; ไม่มี FE (เอกสาร markdown)
 
-## 6. UX/UI checklist (FE)
-- [ ] layout ตรงตาม spec/wireframe
-- [ ] states: loading / empty / error / success
-- [ ] responsive
-- [ ] interaction / user-flow ลื่นไหล
-
-## 7. วิธีรันเทส (reproducible)
-```
-<คำสั่ง / ขั้นตอน>
-```
+## 5. หมายเหตุ (merge เข้า techstack ตอน SHIP)
+- เพิ่ม pattern verify **เอกสาร worked-example**: dead-link + **accuracy เทียบ source** (จุดเสี่ยงเฉพาะของ doc ที่เล่าเรื่อง — อาจ misrepresent) + snapshot honesty + UX flow — อาจตั้ง `docs/techstack/docs/` หรือ note ใน rule (ยืนยัน SHIP)

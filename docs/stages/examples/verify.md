@@ -1,44 +1,37 @@
-# Verify Report — <ชื่อ change>
+# Verify Report — examples (worked-example walkthrough)
 
 > Output ของ VERIFY stage · playbook: `.warnyin/workflow/stages/verify.md`
-> สรุปผลการ verify ตามจุดประสงค์ของ topic + การแก้ไขที่เกิดขึ้น
 
-| | |
-|---|---|
-| **Slug** | `<kebab-case>` |
-| **วันที่** | `YYYY-MM-DD` |
-| **ผลรวม** | ผ่าน / ไม่ผ่าน |
-| **จำนวนรอบการแก้ไข (fix iterations)** | __ รอบ |
-| **จำนวนจุดที่แก้** | __ จุด |
+## 1. ผลรวม
+✅ **ผ่านทั้งหมด — จำนวนการแก้ไข: 0 รอบ**
 
-## 1. จุดประสงค์ที่ verify (จาก spec/tasks)
--
+## 2. ผลต่อ test case
+| # | เคส | ผล |
+|---|---|---|
+| V1 | dead-link | ✅ **0 dead** จาก 34 ลิงก์ (walkthrough 30 + README 4) — node `existsSync` |
+| V2 | accuracy vs achieved | ✅ ตรงทุก claim: BUILD 18/18 0 รอบ · VERIFY 0 รอบ · DESIGN เลือก A ปัด B · SHIP ปิด defer P0 #3 + ไม่มี rule ใหม่ · Discovery template เปล่า |
+| V3 | snapshot honesty | ✅ รายงาน **18/18 (ประวัติ)** ไม่ใช่ 19/19 ปัจจุบัน — ซื่อตรงต่อ snapshot ของ topic |
+| V4 | โครงครบ | ✅ 5 stage (Discovery/DESIGN/BUILD/VERIFY/SHIP) + 1 task `fix-legacy-warning` + disclaimer |
+| V5 | ไม่ duplicate playbook | ✅ ชี้กลับ playbook 7 จุด, 0 gate-checkbox ลอก |
+| V6 | UX เอกสาร (QA lens) | ✅ disclaimer เด่นบนสุด → ตารางภาพรวม 5 stage → รายละเอียดราย stage เน้น decision → ปิดท้าย `/warnyin:discovery`; ไล่ลำดับชัด อ่านเข้าใจ flow |
+| V7 | regression | ✅ `npm test` 19/19 · `verify:pack` 75 ไฟล์ · git status = เฉพาะ `docs/` + `README.md` (payload ไม่แตะ) |
+| V8 | ลิงก์ playbook ชี้ source | ✅ ใช้ `src/.warnyin/workflow/stages/` (committed) ไม่ใช่ root `.warnyin/` (dogfood gitignored) — resolve บน GitHub ได้ |
 
-## 2. ผลการเทส
-| # | Test case / flow | ชนิด | ผล | หมายเหตุ |
-|---|---|---|---|---|
-| 1 | | functional / e2e / uxui | ✅ / ❌→✅ (แก้แล้ว) | |
+## 3. UX/UI
+เอกสาร markdown (ไม่มี FE app) — verify เชิง **readability/flow**: ผ่าน (โครงไล่ภาพรวม→รายละเอียด, decision สื่อชัด, disclaimer ป้องกันเข้าใจผิด, pointer ออกใช้ได้). ไม่มี layout/state ของหน้าจอให้ตรวจ
 
-## 3. UX/UI verify (ถ้าเป็น FE)
-- [ ] layout / states / responsive / user-flow — ผล:
+## 4. รายการแก้ไข
+- ไม่มี (0 รอบ) — ไม่มี troubleshooting entry ใหม่
 
-## 4. รายการแก้ไข (สรุปการแก้ระหว่าง verify)
-> นับรวมเป็น "จำนวนการแก้ไข" ด้านบน
+## 5. ข้อสังเกต (ไม่ block — บันทึกให้ SHIP/ภายหลังพิจารณา)
+- **DESIGN doc คลาดเล็กน้อย:** task.md/standard เขียน "13 ไฟล์ achieved" จริงมี 14 (10 stage + 4 task) — **ไม่กระทบ deliverable** (walkthrough ไม่ได้อ้างตัวเลขนี้); ปล่อยได้ (จะถูก archive)
+- **นอก scope topic นี้:** agent สังเกตว่า root `.warnyin/` ดูเหมือนยัง tracked ใน git (ควร gitignored ตาม `docs/rule.md` §6) — **แยกเรื่อง** ควรเช็คเป็น topic/งานต่างหาก ไม่แก้ในนี้
 
-| รอบ | ปัญหาที่เจอ | วิธีแก้ | ไฟล์ที่แก้ |
-|---|---|---|---|
-| 1 | | | |
+## 6. Gate (verify.md §6) — ผ่านครบ
+- [x] เทสตามจุดประสงค์ topic ครบ (dead-link + accuracy + completeness + UX)
+- [x] FE UX/UI — N/A (เอกสาร; readability ผ่าน)
+- [x] ทุกข้อ verify ผ่าน (0 ข้อต้องแก้)
+- [x] `test.md` + `verify.md` เขียนครบ (จำนวนการแก้ไข = 0)
+- [x] ปัญหายาก/ซ้ำ — ไม่มี
 
-## 5. ปัญหายาก/ซ้ำ → troubleshooting
-- บันทึกไว้ที่ `./troubleshooting.md` (SHIP ยกขึ้น `docs/troubleshooting.md`): มี/ไม่มี
-
-## 6. หมายเหตุถึง user (ถ้าถามระหว่างทาง)
-> กรณีวนแก้นาน/หลายรอบ แล้วถาม user — สรุปคำถาม/คำตอบ/การตัดสินใจ
--
-
-## ✅ Gate → SHIP (ดู `.warnyin/workflow/stages/verify.md` ข้อ 6)
-- [ ] เทสตามจุดประสงค์ครบ (functional)
-- [ ] FE: UX/UI verify ผ่าน
-- [ ] ทุกข้อที่ไม่ผ่านถูกแก้จนผ่าน
-- [ ] test.md + verify.md เขียนครบ
-- [ ] ปัญหายากบันทึก troubleshooting.md แล้ว
+→ พร้อมเข้า **SHIP** ด้วย `/warnyin:ship examples`
