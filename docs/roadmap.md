@@ -87,9 +87,10 @@
 - [x] global: `docs/rule.md` §1 worked-example convention + §5 verify-doc accuracy-vs-source
 - **หมายเหตุ:** ไม่สร้างโฟลเดอร์ `examples/` แยก (achieved/ เป็น single source — walkthrough ชี้กลับ); ดูแลง่าย maintenance ต่ำ
 
-### 11. Selective install (manifest-driven)
+### 11. Selective install (manifest-driven) — ⏸️ เลื่อน (ประเมิน 2026-06-07: YAGNI)
 - [ ] เฉพาะถ้าจะรองรับ "เลือกติดตั้งบาง stage/role" — แพทเทิร์น `install-modules.json` + JSON Schema validate
 - **ระวัง:** **อย่าเอา SQLite state store** ของ ECC มา (over-engineer)
+- **ตัดสิน (2026-06-07):** **ยังไม่ทำ** — ไม่มี user/use-case จริงที่ต้องเลือกติดตั้งบาง stage; selective install สวนปรัชญาแก่น "opinionated ครบชุด เป็นจุดแข็ง" (`rule.md` §1) → ทำเมื่อมี demand จริงเท่านั้น (กัน catalog creep)
 
 ### 12. Lint/format ของ repo เอง
 - [ ] markdownlint + prettier สำหรับ playbook `.md` หลายสิบไฟล์ (ความสม่ำเสมอ)
