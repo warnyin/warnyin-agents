@@ -64,10 +64,11 @@
 - [x] global: `docs/rule.md` §3 ขยายเป็น Security baseline 2 มิติ (3.1 CI + 3.2 agent-runtime)
 - **ที่มา:** ECC `the-security-guide.md` — หยิบเฉพาะสาระ portable · **ลงที่:** role card + VERIFY playbook + install-skill command + global rule §3.2
 
-### 8. Learned-rule artifact ใน SHIP (instinct แบบ manual)
-- [ ] SHIP เพิ่ม artifact: `rule + evidence + scope (project/global)` ที่ **user ยืนยันเอง**
-- [ ] ต่อยอดกลไก promote-to-`docs/` ที่มีอยู่แล้ว
-- **ที่มา:** ECC instinct/continuous-learning — ยืมแค่*แก่น* ได้คุณค่า ~80% โดยไม่ต้องมี runtime observer (hook+SQLite) ที่ขัดปรัชญา
+### 8. Learned-rule artifact ใน SHIP (instinct แบบ manual) ✅ DONE (2026-06-07)
+- [x] SHIP เพิ่ม learned-rule capture: `rule (generalize) + evidence (บังคับ) + scope (component/project)` ที่ **user ยืนยัน per-rule** — fold เข้า approval เดิม (`ship.md` §4 step 1/3/5 + §6 gate)
+- [x] ต่อยอดกลไก promote เดิม (unify — note "รอ SHIP" = subset planned ของ learned-rule); mirror command + template section "Learned rules"
+- [x] global: `docs/rule.md` §1 + continuous-learning discipline + unify-in-place (dogfood: SHIP ของ topic นี้ promote 2 learned-rule เอง)
+- **ที่มา:** ECC instinct/continuous-learning — ยืมแค่*แก่น* manual ~80% โดยไม่มี runtime observer (hook+SQLite) · **ลงที่:** `ship.md` playbook + command + template `[topic]/ship.md` + global rule §1
 
 ### 9. Skill-format สำหรับ utility ที่ปลอดภัย
 - [ ] `update-codemaps` → skill-format (script ในโฟลเดอร์ + auto-invoke เมื่อโครงโค้ดเปลี่ยน)
