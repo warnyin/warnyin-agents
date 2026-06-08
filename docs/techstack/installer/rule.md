@@ -7,6 +7,7 @@
 - **ESM** — `import.meta.url` หา `pkgRoot`; ห้าม `__dirname`/`require`
 - **ห้าม copy พื้นที่ทำงานของผู้ใช้จาก repo ต้นทาง** — `docs/stages/` ต้อง generate scaffold เปล่าใน target (`ensureScaffold`) ไม่ใช่ `copyTree` จาก `pkgRoot` (กัน scaffold leak — `troubleshooting.md` #1)
 - **ไม่เขียนทับงานจริง** — SCAFFOLD/seed/root docs ข้ามไฟล์ที่มีอยู่; `--update` เขียนทับเฉพาะ CORE
+  - **scaffold ที่เป็น user working-doc ต้อง seed-from-template + seed-if-absent** (enforce ของ "ไม่เขียนทับงานจริง") — ไฟล์ scaffold ที่ผู้ใช้เป็นเจ้าของและต้องมี **เนื้อหาเริ่มต้น** (เช่น `docs/stages/context.md` working-memory) ต้อง seed content จาก `.warnyin/template/` ผ่าน `ensureScaffold` path (skip-if-exists) — **ห้ามอยู่ใน `CORE`** ที่ `--update` overwrite (จะทับ working-notes ของ user) และ **ห้าม hardcode เป็นไฟล์เปล่า** (`writeFileSync(dest,'')`) เมื่อไฟล์ต้องมี content — evidence: topic `context-working-memory` (`ensureScaffold` seed context.md จาก template + test 11/12/14 no-overwrite install/update/legacy-empty)
 - **idempotent** — รันซ้ำต้องไม่พัง/ไม่ append ซ้ำ (CLAUDE.md/AGENTS.md มี marker `warnyin/workflow/stages/`)
 - **legacy = เตือน ไม่ทำให้** — ตรวจโครงเก่าแล้วแนะนำคำสั่ง `git mv` ให้ user ทำเอง ไม่ย้ายงานจริงอัตโนมัติ
 - **guard self-install = defensive no-op** — เก็บ guard `pkgRoot === target` ไว้ (zero-cost) แต่หลังย้าย source เข้า `src/` แล้ว `pkgRoot=src/` ไม่มีทาง === target (repo root/temp) → guard เป็น **no-op โดยตั้งใจ** (ยัง error เฉพาะ edge ที่ target===`src/` เอง) — comment ต้องตรงพฤติกรรมนี้ ห้ามลงทุน guard ใหม่

@@ -55,6 +55,20 @@ const RESULT_SCHEMA = {
         },
       },
     },
+    events: {
+      type: 'array',
+      maxItems: 10,                 // soft guard กัน raw dump — ชน cap = ควรกลั่นเป็น narrative ขึ้น (ไม่ใช่ limit เนื้อเรื่อง)
+      description: 'เหตุการณ์สำคัญระหว่าง implement (narrative material) — main loop กลั่นลง build-log.md; เก็บเฉพาะจุดเปลี่ยน ไม่ใช่ทุก step',
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['kind', 'note'],
+        properties: {
+          kind: { enum: ['start', 'decision', 'error', 'done'], description: 'ชนิดเหตุการณ์สำคัญ' },
+          note: { type: 'string', description: 'สิ่งที่เกิด 1 บรรทัด (ตัดสินใจอะไร/ติดอะไร/แก้ยังไง)' },
+        },
+      },
+    },
   },
 }
 
@@ -79,6 +93,7 @@ function prompt(task) {
     `6. ห้ามแก้ไฟล์ rule/standard กลางใน docs/ (rule ใหม่ note ไว้ใน ${dir}/rule.md อยู่แล้ว รอ SHIP)`,
     `7. อัปเดตสถานะ + acceptance ที่ผ่านใน ${dir}/task.md`,
     `8. ปัญหาที่ "ยาก/เจอซ้ำ" และแก้สำเร็จ → ใส่ในฟิลด์ troubleshooting (main loop จะรวมลง topic troubleshooting.md)`,
+    `8.1 บันทึกจุดเปลี่ยนสำคัญระหว่างทำ (start/decision/error/done) ลงฟิลด์ events (นิยาม kind ดู design.md §3.1) — เฉพาะจุดเปลี่ยน ไม่ใช่ทุก step; main loop กลั่นลง build-log.md`,
   ]
   if (isolate) {
     lines.push(

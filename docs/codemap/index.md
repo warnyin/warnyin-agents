@@ -1,4 +1,4 @@
-<!-- Generated: 2026-06-08 (rescan หลัง validator-status) | Files scanned: ~83 src (71 .md + 12 .mjs) | Token estimate: ~600 -->
+<!-- Generated: 2026-06-08 (rescan หลัง build-log-narrative) | Files scanned: ~85 src (73 .md + 12 .mjs) | Token estimate: ~600 -->
 # Codemap — Warnyin Standard Workflow
 
 > repo = **tool/library** (npm `@warnyin/agents`) ไม่ใช่ app — ส่งมอบ "ways of work" 5 stage ลงโปรเจกต์อื่น
@@ -17,13 +17,13 @@ single library (zero-dependency, ESM, Node ≥20) เผยแพร่ผ่า
 | component | ที่อยู่ | หน้าที่ | codemap |
 |---|---|---|---|
 | **installer** | `src/bin/cli.mjs` + `src/tests/` + `src/scripts/` + `.github/` | ติดตั้ง/อัปเดต workflow ลงโปรเจกต์ปลายทาง (โค้ดรันได้เดียวใน repo) | `docs/techstack/installer/` |
-| **workflow core** | `src/.warnyin/workflow/` | playbook กลาง 5 stage + role card + script (เนื้อหา `.md` tool-agnostic) | `architecture.md` |
-| **templates** | `src/.warnyin/template/` | โครง output ของแต่ละ stage + seed `docs/` + living behavior spec ต่อ feature (`docs/features/[feature-name]/spec.md` — ดู `docs/features/spec-delta/`) | `architecture.md` |
+| **workflow core** | `src/.warnyin/workflow/` | playbook กลาง 5 stage + role card + script (เนื้อหา `.md` tool-agnostic) — BUILD orchestration (`build-wave.mjs` + `build.md`) | `architecture.md` · `docs/techstack/workflow-core/` |
+| **templates** | `src/.warnyin/template/` | โครง output ของแต่ละ stage + seed `docs/` + working-memory skeleton (`template/stages/context.md` — ดู `docs/features/context-working-memory/`) + living behavior spec ต่อ feature (`docs/features/[feature-name]/spec.md` — ดู `docs/features/spec-delta/`) | `architecture.md` |
 | **adapters** | `src/.claude/` (`commands/warnyin` user-invoked · `skills` auto-invocable utility · `agents`) + `src/AGENTS.md` | thin adapter ชี้กลับ playbook กลาง (Claude Code / Codex) | `architecture.md` · `docs/features/utility-skills/` |
 
 ## Entry points
 - `src/bin/cli.mjs` — installer (npx; bin → ที่นี่)
-- `src/.warnyin/workflow/scripts/build-wave.mjs` — Workflow fan-out ของ BUILD stage
+- `src/.warnyin/workflow/scripts/build-wave.mjs` — Workflow fan-out ของ BUILD stage (RESULT_SCHEMA `events[]` → main loop เขียน `build-log.md` narrative; ดู `docs/features/build-log-narrative/`)
 - `src/.warnyin/workflow/scripts/validate-topic.mjs` — structural validator + status (zero-dep; เรียกจาก next/DESIGN gate/SHIP — ดู `docs/features/topic-validator/`)
 - `src/.warnyin/workflow/stages/*.md` — playbook ต้นทางของแต่ละ stage (single source of truth)
 - `src/.warnyin/workflow/contexts/*.md` — context profile (session-level posture: research/build/review) ที่ stage playbook ชี้ถึง

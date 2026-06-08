@@ -12,9 +12,9 @@
 - กัน false-green แบบ #3 (เช่น `node --test <dir>` เปล่า exit 0 แต่ไม่มีเคสรัน) — acceptance = เห็น **pass count ≥ 9** ไม่ใช่แค่ exit 0 (BL-2)
 - step CI ใช้ `set -o pipefail` (`shell: bash`) ให้ pipe ยัง fail ตาม node --test
 
-## เคสที่ test suite ครอบ (26 เคส รวม — bare discovery เจอครบ)
+## เคสที่ test suite ครอบ (58 เคส รวม — bare discovery เจอครบ)
 
-### `src/tests/installer.test.mjs` — 9 เคส (black-box, spawn `src/bin/cli.mjs`)
+### `src/tests/installer.test.mjs` — 14 เคส (black-box, spawn `src/bin/cli.mjs`)
 1. ติดตั้งสด — โครงครบ (`.warnyin/workflow`, `.warnyin/template`, `.claude/commands/warnyin`, `.claude/skills/update-codemaps/SKILL.md`, `docs/stages`, `docs/project.md`, `CLAUDE.md`, `AGENTS.md`)
 2. idempotent — รัน 2 ครั้ง byte-equal + ไม่ append ซ้ำ (`stdout` มี "ข้าม")
 3. `--update` ไม่ทับงานจริง — `docs/project.md`/`docs/stages/demo/` คงเดิม
@@ -24,6 +24,11 @@
 7. `seedDocs` ข้าม `[...]` (negative — ไม่มี path ใต้ `docs/` ขึ้นต้น `[`)
 8. `--dry-run` ไม่เขียนไฟล์ (temp ยังว่าง)
 9. **scaffold สร้างเปล่า ไม่ leak `docs/stages/<topic>`** — มี `context.md`+`achieved/.gitkeep` แต่ไม่มี topic ของ repo ต้นทาง
+10. **context.md seed skeleton** — temp ว่าง → install → `docs/stages/context.md` non-empty + 4 header (โฟกัส/decision/parking-lot/เพิ่ง ship)
+11. **context.md ไม่ทับ (install)** — มี context.md เดิม → install → byte-equal
+12. **context.md ไม่ทับ (`--update`)** — เช่นเดียวกัน → `--update` → byte-equal
+13. **`--dry-run` ไม่สร้าง context.md** — temp ว่าง → `--dry-run` → ไม่มีไฟล์จริง แต่ exit 0
+14. **legacy context.md ว่างคง `""`** — context.md ว่าง (`''`) อยู่ก่อน → install → คง `''` (seed-if-absent ไม่ทับด้วย skeleton)
 
 ### `src/tests/verify-pack.test.mjs` — 10 เคส (unit, import `checkFiles` ตรง — BL-4 testable denylist)
 1. payload ถูกต้อง → ไม่มี error (GOOD baseline รวม `src/.claude/skills/explore/SKILL.md`)
@@ -45,6 +50,9 @@
 5. `http(s)://` / `mailto:` / `#anchor` → ข้าม
 6. `path#sec` (path exists) → ไม่ error (ตัด anchor ก่อนเช็ค path)
 7. fake `exists` injectable → resolved path ถูกส่งเข้า (ไม่แตะ fs จริง)
+
+### `src/tests/validate-topic.test.mjs` — 27 เคส (unit + behavior, structural validator)
+- ครอบ CLI contract (status ไม่มี arg / validate `<slug>` / arg แปลก → exit code) + positive/negative ต่อเช็คใน temp fixture + dogfood self-validate (รายละเอียดดู §verify structural validator)
 
 ## verify-pack testable (BL-4)
 - `checkFiles(files[]) → error[]` = pure function ใน `src/scripts/verify-pack.mjs`, `export` ออกมา → unit ป้อน file list ปลอม (มี `src/tests/` ฯลฯ) แล้ว assert จับได้ — พิสูจน์ว่า denylist **ทำงานจริง** ไม่ใช่เขียวเพราะ allowlist ปิดอยู่

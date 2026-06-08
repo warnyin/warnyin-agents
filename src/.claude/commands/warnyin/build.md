@@ -16,15 +16,18 @@ argument-hint: "[slug ของ topic]"
    - เมื่อ workflow คืนผล: ถ้า `isolate` → **merge** branch ที่แต่ละ agent รายงาน (`result.branch`) เข้า build branch ทีละอัน, แก้ conflict ถ้ามี; ถ้า shared-tree → review + commit ให้
    - ถ้ามี task `failed` หรือ `skipped` → **หยุด** รายงาน user ก่อนไป wave ถัดไป
    - **รวม troubleshooting:** ดึงฟิลด์ `troubleshooting` จากผลของทุก agent ในรอบนี้ → เขียนรวมลง `docs/stages/<slug>/troubleshooting.md` (main loop เขียนเอง กันไฟล์ชนกันใน worktree)
+   - **เขียน build-log.md (narrative):** ดึงฟิลด์ `result.results[].events` (+ `status`/`summary`) ของทุก task ในรอบนี้ → **กลั่นเป็นเรื่องเล่า** (ไม่ dump ดิบ) append section `## Wave N` ลง `docs/stages/<slug>/build-log.md` (โครง/ไอคอนตาม `design.md §3.2`: start→🟢 · decision→🤔 · error→🔴 · done→✅); task ที่ไม่มี `events` → เขียนจาก `summary`+`status` (graceful). ไฟล์ไม่มี → main loop สร้างจาก canonical (`template/stages/[topic]/build-log.md`) — เขียนเอง กันไฟล์ชนใน worktree. **ไม่จด status board** (ชนิด/ผลต่อ task เต็มอยู่ `build.md` — เล่า "ระหว่างทาง" เท่านั้น)
 7. **★ Full build & test gate (หลัง merge ทุก wave):** บน build branch ที่ integrate แล้ว รัน build ทั้งหมด + test suite ทั้งหมด (รวม unit test) ของทุก component ที่กระทบ
    - **เจอ error → อ่าน `docs/troubleshooting.md` ก่อน** เผื่อเคยแก้แล้ว
    - มี build error / test แดง → **แก้จนเขียวหมด (loop)**: วิเคราะห์ error, แก้ (จะ delegate fix ให้ sub-agent ทีละจุดก็ได้), rerun build/test ใหม่ ทำซ้ำจนผ่าน
    - ปัญหา **ยาก/เจอซ้ำ** ที่แก้สำเร็จในรอบนี้ → บันทึกลง `docs/stages/<slug>/troubleshooting.md`
+   - หลัง full gate เขียวแล้ว → append `## Full gate` ลง `docs/stages/<slug>/build-log.md` (ผล full build+test รอบรวม + รอบแก้ถ้ามี)
    - ห้ามปิด BUILD ถ้ายังแดง; ถ้าวนหลายรอบยังไม่ผ่าน → หยุด รายงาน user พร้อม error log
 8. **ปิดงาน:** เขียน `docs/stages/<slug>/build.md` (ผลต่อ task + ผล full build/test + integration notes), อัปเดตสถานะใน `task.md` แต่ละใบ → เสนอเข้า VERIFY ด้วย `/warnyin:verify`
 
 หมายเหตุ:
 - ห้ามแก้ rule/standard กลางใน `docs/` (rule ใหม่ที่เสนอถูก note ไว้ใน `tasks/<task>/rule.md` รอ SHIP)
 - ปัญหายาก/ซ้ำที่แก้ได้ → `docs/stages/<slug>/troubleshooting.md` (SHIP จะยกขึ้น `docs/troubleshooting.md`)
+- `build-log.md` = narrative timeline ของ fan-out (เล่า "ระหว่างทาง" — เหตุการณ์สำคัญจาก `events`); สถานะ/ผลต่อ task เต็มอยู่ `build.md` (ไม่ duplicate)
 - เกณฑ์ปิด BUILD ดู Gate ข้อ 7 ของ playbook
 - คงเป็น command (user-only) โดยตั้งใจ — BUILD เป็น stateful/irreversible (สร้าง branch, fan-out, แก้ไฟล์) ต้องให้ user สั่งชัด ไม่ทำเป็น skill auto-invoke

@@ -39,6 +39,7 @@ BUILD จะ **orchestrate การ implement** โดยกระจายง�
 10. **★ ใช้ Troubleshooting KB** — เจอปัญหา/error ระหว่าง build ให้ **อ่าน `docs/troubleshooting.md` ก่อนเสมอ** เผื่อเคยแก้แล้ว; เมื่อแก้ปัญหาที่ **ยาก/เจอซ้ำ** สำเร็จ ให้บันทึก entry ลง `docs/stages/<slug>/troubleshooting.md` (ปัญหา/อาการ/root cause/วิธีแก้/ป้องกันซ้ำ) — ตอน SHIP จะยกขึ้น KB กลาง
 11. **★ investigate-before-edit** (enforce ของ "ห้ามเดา") — ก่อนแก้ไฟล์ที่มีอยู่ ต้องเข้าใจก่อน — **ใครใช้/อ่านไฟล์นี้, schema/contract/สัญญาของมัน, เจตนาเดิม**; แก้โดยไม่เข้าใจ = เดา (กรณีไม่ชัด → ถาม user / อ่านโค้ดที่อ้างถึง ก่อนแก้)
 12. **★ config-protection** (enforce ของ "ห้ามเดา") — ห้ามแก้ config (linter/formatter/test threshold) หรือ disable rule **"เพื่อให้ build/test ผ่าน"** แทนการแก้โค้ดจริง — ถ้า config ผิดจริง แก้ได้แต่ต้องมี **เหตุผลชัด + note** (ไม่ใช่เพื่อเลี่ยง finding)
+13. **★ Observability artifact (`build-log.md`)** — BUILD ผลิต narrative timeline ของ fan-out: sub-agent คืนเหตุการณ์สำคัญผ่าน schema (field `events`: start/decision/error/done — worktree เขียน topic dir ไม่ได้), main loop **กลั่นเขียนเอง** หลังแต่ละ wave (pattern เดียวกับ troubleshooting.md). เล่า "ระหว่างทาง" **ไม่จด status board** (ชนิด/ผลต่อ task เต็มอยู่ `build.md` — unify-in-place); harness ที่ fan-out เองก็เขียน build-log.md เองตาม playbook generic
 
 ---
 
@@ -71,6 +72,7 @@ BUILD จะ **orchestrate การ implement** โดยกระจายง�
 | โค้ดจริงใน target repo | การ implement ของแต่ละ task (merge เข้า build branch) |
 | `docs/stages/<slug>/build.md` | รายงานผล build: สถานะ/ผล test/ไฟล์ที่แก้ ต่อ task + integration notes |
 | `docs/stages/<slug>/troubleshooting.md` | ปัญหายาก/ซ้ำที่แก้สำเร็จ (SHIP ยกขึ้น `docs/troubleshooting.md`) |
+| `docs/stages/<slug>/build-log.md` | narrative timeline ของ fan-out (เหตุการณ์สำคัญต่อ wave จาก `events` — เล่า "ระหว่างทาง", ไม่ใช่ status board) |
 | `tasks/<task>/task.md` (อัปเดต) | สถานะ task → เสร็จ + acceptance ที่ผ่าน |
 
 ---
@@ -92,6 +94,7 @@ main loop เรียก script นี้ **ทีละ wave** แล้ว in
 - [ ] **★ Full build ของทุก component ผ่าน — ไม่มี build error**
 - [ ] **★ test suite ทั้งหมด (รวม unit test) เขียวทั้งหมดบน build branch**
 - [ ] `build.md` สรุปผลครบทุก task + ผล full build/test
+- [ ] `build-log.md` เขียน narrative ครบทุก wave (`## Wave N`) + `## Full gate` (เหตุการณ์สำคัญจาก `events`)
 - [ ] ไม่มีการแตะ rule/standard กลางใน `docs/` (rule ใหม่ยัง note รอ SHIP)
 
 ยังไม่ครบ → อยู่ BUILD ต่อ ห้ามข้ามไป VERIFY

@@ -6,7 +6,7 @@
 ## ไฟล์ (SOURCE layer — `src/`)
 ```
 src/bin/cli.mjs                   installer หลัก (zero-dep, ~190 บรรทัด); npm bin → ที่นี่
-src/tests/installer.test.mjs      black-box integration test ของ installer (9 เคส)
+src/tests/installer.test.mjs      black-box integration test ของ installer (14 เคส — รวม context.md seed 10-14)
 src/tests/verify-pack.test.mjs    unit test ของ checkFiles (10 เคส, BL-4 testable denylist)
 src/scripts/verify-pack.mjs       pack-verify gate (allowlist + denylist; export checkFiles)
 src/scripts/check-test-count.mjs  pass-count gate (anti-false-green; MIN_PASS=9)
@@ -14,7 +14,7 @@ src/scripts/lint-md.mjs           dead-link gate (zero-dep; export checkLinks; s
 src/tests/lint-md.test.mjs        unit test ของ checkLinks (7 เคส, BL-4 testable)
 src/scripts/setup-dogfood.mjs     dev: ติดตั้ง release ลง root (dogfood)
 src/scripts/setup-sandbox.mjs     dev: ติดตั้ง v-next จาก src/ ลง temp (sandbox)
-src/.warnyin/{workflow,template}  playbook กลาง (stages/ roles/ contexts/ scripts/) + template (payload)
+src/.warnyin/{workflow,template}  playbook กลาง (stages/ roles/ contexts/ scripts/) + template (payload; รวม template/stages/context.md = canonical skeleton ของ working-memory)
 src/.warnyin/installer/templates/CLAUDE.md   template CLAUDE.md ของ target
 src/.claude/{commands/warnyin,agents,skills}  adapter Claude (payload) — skills = utility auto-invocable (ดู docs/features/utility-skills/)
 src/AGENTS.md                     adapter Codex/Antigravity (payload)
@@ -39,7 +39,7 @@ warn legacy ≤0.2.x (workflow/, warnyin-stages/)
 warn legacy 0.3–0.5.x (warnyin/{workflow,template,installer,stages})
 ─────
 for CORE      → copyTree(dir, {overwrite: UPDATE})   // .warnyin/{workflow,template}, .claude/{commands/warnyin,agents,skills}
-ensureScaffold()                                      // generate docs/stages/context.md + achieved/.gitkeep (เปล่า)
+ensureScaffold()                                      // seed docs/stages/context.md (skeleton จาก template) + achieved/.gitkeep (ว่าง); skip ถ้ามี
 seedDocs()                                            // .warnyin/template/docs/** → docs/** (ข้าม [...])
 installRootDoc('CLAUDE.md', pkgRoot/.warnyin/installer/templates/CLAUDE.md)
 installRootDoc('AGENTS.md', pkgRoot/AGENTS.md)
@@ -50,7 +50,7 @@ print สรุป created/updated/skipped
 ## helper signatures
 ```
 copyTree(relDir, {overwrite})    recursive copy pkgRoot→target; skip ถ้ามีอยู่+!overwrite หรือ byte-equal
-ensureScaffold()                 generate SCAFFOLD_FILES เปล่า; skip ถ้ามี; เคารพ DRY
+ensureScaffold()                 seed SCAFFOLD_FILES (content จาก template ถ้ามี tplRel ไม่งั้นว่าง); skip ถ้ามี; เคารพ DRY
 seedDocs(relDir=TEMPLATE_DOCS)   copy template docs→docs/; ข้าม entry ขึ้นต้น '['; ไม่ทับ
 installRootDoc(name, srcPath)    ไม่มี→สร้าง; มีแต่ไม่มี marker→append section; มี marker→skip
 ```
@@ -66,7 +66,7 @@ checkLinks(docs,exists) → error[] pure function (lint-md.mjs); export ให�
 
 ## ค่าคงที่สำคัญ
 - `CORE` = `.warnyin/workflow`, `.warnyin/template`, `.claude/commands/warnyin`, `.claude/agents`, `.claude/skills` (relative กับ pkgRoot=src/)
-- `SCAFFOLD_FILES` = `docs/stages/context.md`, `docs/stages/achieved/.gitkeep`
+- `SCAFFOLD_FILES` = object form `{dest, tplRel}`: `docs/stages/context.md` (tplRel→`.warnyin/template/stages/context.md` skeleton), `docs/stages/achieved/.gitkeep` (tplRel=null → ว่าง)
 - `TEMPLATE_DOCS` = `.warnyin/template/docs`
 - marker idempotent CLAUDE/AGENTS = substring `warnyin/workflow/stages/`
 

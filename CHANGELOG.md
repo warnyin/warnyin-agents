@@ -23,6 +23,10 @@
 
 ## [Unreleased]
 
+### Added
+- **`docs/stages/context.md` scaffold เป็น skeleton (working-memory ข้าม topic)** — installer (`src/bin/cli.mjs` `ensureScaffold`) เปลี่ยนจากการสร้าง context.md เป็นไฟล์ว่าง → seed โครง working-notes 4 section (โฟกัส/ธีมปัจจุบัน · Decision ข้าม topic · Parking lot · เพิ่ง ship) จาก template ที่ ship มากับ package (`src/.warnyin/template/stages/context.md`, canonical schema design.md §3). **seed-if-absent — ห้ามทับ:** ถ้า target มี `docs/stages/context.md` อยู่แล้ว (รวมไฟล์ว่างเดิมจากรุ่นก่อน) → skip ทั้ง install และ `--update` (context.md เป็น working-notes ของ user ไม่อยู่ใน CORE ที่ overwrite). seed อ่านจาก `.warnyin/template/` เท่านั้น (กัน scaffold-leak จาก `docs/stages/` ของ repo ต้นทาง). payload `.md` + installer ติดมากับ `--update` รอบถัดไป
+  - **backward-compat:** target รุ่นเก่าที่มี `docs/stages/context.md` ว่าง (`''`) อยู่แล้ว → **ไม่ถูกทับด้วย skeleton** (มีไฟล์ = skip); ผู้ใช้ที่อยากได้ skeleton ลบไฟล์ว่างแล้ว install ใหม่ หรือ copy จาก `.warnyin/template/stages/context.md` เอง
+
 ## [0.9.0] - 2026-06-08
 
 ### Added
