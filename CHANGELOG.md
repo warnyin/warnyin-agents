@@ -23,6 +23,9 @@
 
 ## [Unreleased]
 
+### Fixed
+- **BUILD worktree เห็น dependency ครบทุก wave (build-wave sync build branch)** — harness fork worktree จาก **main** (คุมไม่ได้) ทำให้ build sub-agent ไม่เห็น `docs/stages/<slug>/` (topic docs) + output ของ wave ก่อนหน้า แล้ว improvise (KB#14). แก้ที่ payload แบบ **unify-in-place**: `src/.warnyin/workflow/scripts/build-wave.mjs` รับ arg `baseRef?` (ชื่อ build branch) + แทรก prompt **step `0.`** ให้ agent `git merge <baseRef> --no-edit` เป็นงานแรกก่อนอ่าน task **เฉพาะ `isolate && baseRef`** (`!baseRef` → ไม่แทรก = backward compat ไม่ renumber step 1-9) — มี **abort-on-conflict** (`|| git merge --abort` กันค้าง MERGE state) + retry transient lock + **hard-stop** (merge สำเร็จแต่ `task.md` ไม่ปรากฏ → STOP failed ห้าม improvise) + บันทึกผล merge ใน `notes`; command `src/.claude/commands/warnyin/build.md` step 6 ส่ง `baseRef` + integrate ด้วย `git checkout <branch> -- <scoped src files>` (เลี่ยง topic-docs copy + ปลอด KB#11 tracked-deletion); playbook `src/.warnyin/workflow/stages/build.md` §3 principle 3 + §4 step 5 อธิบายกลไก. **backward compatible** (caller ไม่ส่ง `baseRef`/`isolate:false` → พฤติกรรมเดิม); payload ติดมากับ `--update` รอบถัดไป
+
 ## [0.9.0] - 2026-06-08
 
 ### Added

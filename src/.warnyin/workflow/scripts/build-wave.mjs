@@ -5,6 +5,7 @@
 //   slug: string,            // ชื่อ topic เช่น "billing-redesign"
 //   tasks: string[],         // ชื่อ task ใน wave นี้ (โฟลเดอร์ docs/stages/<slug>/tasks/<task>)
 //   isolate?: boolean,       // true = worktree ต่อ task (ดีฟอลต์), false = shared tree (sequential)
+//   baseRef?: string,        // ชื่อ build branch เช่น "build/my-topic"; ไม่ส่ง = ไม่ sync (backward compat)
 // }
 
 export const meta = {
@@ -18,6 +19,7 @@ const A = typeof args === 'string' ? JSON.parse(args) : (args || {})
 const slug = A.slug
 const tasks = A.tasks || []
 const isolate = !(A.isolate === false)
+const baseRef = A.baseRef || null   // ชื่อ build branch เช่น "build/my-topic"; ไม่ส่ง = ไม่ sync (backward compat)
 
 if (!slug || tasks.length === 0) {
   log('ไม่มี slug หรือ tasks — ไม่มีอะไรให้ build')
@@ -80,6 +82,20 @@ function prompt(task) {
     `7. อัปเดตสถานะ + acceptance ที่ผ่านใน ${dir}/task.md`,
     `8. ปัญหาที่ "ยาก/เจอซ้ำ" และแก้สำเร็จ → ใส่ในฟิลด์ troubleshooting (main loop จะรวมลง topic troubleshooting.md)`,
   ]
+  // worktree fork จาก main (คุมไม่ได้) → ให้ agent sync build branch เข้า worktree เองก่อนทำงาน
+  // แทรกเป็น step "0." ก่อน "1. อ่านให้ครบ" — เฉพาะ isolate && baseRef (ไม่ renumber step 1-9; !baseRef = พฤติกรรมเดิม)
+  if (isolate && baseRef) {
+    lines.splice(2, 0,
+      `0. **★ Sync build branch เข้า worktree ก่อน (ทำก่อน Read ไฟล์ใดๆ):** รัน`,
+      `   \`git merge ${baseRef} --no-edit || (git merge --abort; <รายงาน failed>)\``,
+      `   (worktree fork จาก main — ต้อง merge build branch เพื่อให้เห็น docs/stages/${slug}/ + output ของ wave ก่อนหน้า)`,
+      `   - ปกติเป็น fast-forward (main มักเป็น ancestor ของ build branch); ถ้าเป็น 3-way แล้ว conflict → **abort + รายงาน failed** (ห้ามทิ้ง worktree ค้าง MERGE state — step commit ท้ายจะพัง)`,
+      `   - ถ้าล้มด้วย lock error ชั่วคราว (transient \`index.lock\`/\`packed-refs\`) → **retry 1 ครั้ง** ก่อนรายงาน failed`,
+      `   - **★ hard-stop กัน improvise (panel B2):** หลัง merge ถ้าไฟล์ \`${dir}/task.md\` **ยังไม่ปรากฏ** → **STOP รายงาน failed ทันที ห้าม improvise/git reset เอง** (กันวนรอย KB#14)`,
+      `   - บันทึกผล merge ลงฟิลด์ \`notes\` (เช่น "merged ${baseRef}: fast-forward to <sha>") เพื่อ main loop verify ว่า sync เกิดจริง (Infra-S5)`,
+      ``,
+    )
+  }
   if (isolate) {
     lines.push(
       `9. คุณอยู่ใน git worktree แยก: เมื่อเสร็จและเขียวแล้ว ให้ commit งาน (git add -A && git commit -m "build(${task}): ...")`,

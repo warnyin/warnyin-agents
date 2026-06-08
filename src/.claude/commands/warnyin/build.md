@@ -12,8 +12,8 @@ argument-hint: "[slug ของ topic]"
 4. **Pre-check:** target เป็น git repo ไหม (จำเป็นสำหรับ worktree isolation) — ถ้าไม่ใช่ → fallback sequential shared-tree (`isolate:false`) และแจ้ง user. สร้าง build branch ใหม่ก่อนเริ่ม
 5. **ขออนุมัติครั้งเดียว** — ใช้ AskUserQuestion แสดง execution plan: แต่ละ wave มี task อะไร, อันไหน parallel, isolation mode, build branch → รอ go/no-go (อย่าเริ่มก่อนได้ไฟเขียว)
 6. **เดินทีละ wave** (หลังอนุมัติ):
-   - เรียก **Workflow** ด้วย `{ scriptPath: ".warnyin/workflow/scripts/build-wave.mjs", args: { slug, tasks: [<task ใน wave นี้>], isolate } }`
-   - เมื่อ workflow คืนผล: ถ้า `isolate` → **merge** branch ที่แต่ละ agent รายงาน (`result.branch`) เข้า build branch ทีละอัน, แก้ conflict ถ้ามี; ถ้า shared-tree → review + commit ให้
+   - เรียก **Workflow** ด้วย `{ scriptPath: ".warnyin/workflow/scripts/build-wave.mjs", args: { slug, tasks: [<task ใน wave นี้>], isolate, baseRef: "<ชื่อ build branch ที่สร้าง step 4>" } }` — `baseRef` = build branch จริง (worktree fork จาก main → agent merge build branch เองก่อนทำงาน เพื่อเห็น `docs/stages/<slug>/` + output ของ wave ก่อนหน้า)
+   - เมื่อ workflow คืนผล: ถ้า `isolate` → **integrate ด้วย `git checkout <result.branch> -- <ไฟล์ source ที่ task แก้>`** (checkout เฉพาะไฟล์ source ที่ scoped — เลี่ยง topic-docs copy ที่ agent merge เข้า worktree + ปลอด KB#11 tracked-deletion), แก้ conflict ถ้ามี; ถ้า shared-tree → review + commit ให้ · `task.md` status/checklist → main loop อัปเดตที่ main working dir ตอน integrate (E1 — agent แก้จาก worktree ไม่ได้ถ้า gitignored)
    - ถ้ามี task `failed` หรือ `skipped` → **หยุด** รายงาน user ก่อนไป wave ถัดไป
    - **รวม troubleshooting:** ดึงฟิลด์ `troubleshooting` จากผลของทุก agent ในรอบนี้ → เขียนรวมลง `docs/stages/<slug>/troubleshooting.md` (main loop เขียนเอง กันไฟล์ชนกันใน worktree)
 7. **★ Full build & test gate (หลัง merge ทุก wave):** บน build branch ที่ integrate แล้ว รัน build ทั้งหมด + test suite ทั้งหมด (รวม unit test) ของทุก component ที่กระทบ

@@ -29,6 +29,7 @@ BUILD จะ **orchestrate การ implement** โดยกระจายง�
    - task ใน wave เดียวกัน = independent → รัน **parallel**
    - ข้าม wave = มี dependency → wave ถัดไปเริ่มหลัง wave ก่อนหน้ารวมผลเสร็จ
 3. **Worktree isolation ต่อ task** — แต่ละ parallel task ทำใน git worktree ของตัวเอง ไม่แก้ไฟล์ชนกัน แล้ว **integrate (merge) เข้า build branch หลังจบแต่ละ wave**
+   - **★ worktree fork จาก main (คุมไม่ได้) → agent ต้อง sync build branch ก่อน** — harness fork worktree จาก main จึงยังไม่เห็น `docs/stages/<slug>/` (topic docs) + output ของ wave ก่อนหน้า; build-wave สั่ง agent `git merge <baseRef>` (= build branch) เป็น step แรกก่อนอ่าน task เพื่อให้เห็น dependency ครบ (กลไกอยู่ใน `build-wave.mjs` — orchestrator ส่ง `baseRef` เข้ามา)
    - ถ้า target ไม่ใช่ git repo → fallback เป็น **sequential shared-tree** (ทีละ task ตาม dependency)
 4. **แต่ละ build agent ต้อง self-verify** — implement → รัน test-flow ใน `spec.md` + build/lint → **ต้องผ่านก่อนถึง mark passed**; ถ้าแก้ไม่ได้ให้รายงาน `failed` พร้อมเหตุผล **ห้ามรายงานผ่านทั้งที่ยังแดง**
 5. **เคารพ standard/rule ของ task** — ทำตาม `standard.md` (pattern โค้ด, reuse shared component) และ `rule.md` (กฎ) อย่างเคร่งครัด
@@ -52,9 +53,9 @@ BUILD จะ **orchestrate การ implement** โดยกระจายง�
 3. **Pre-check:** target เป็น git repo ไหม (สำหรับ worktree) — ถ้าไม่ใช่ → fallback sequential shared-tree และแจ้ง user
 4. **เสนอ execution plan + ขออนุมัติ (ครั้งเดียว):** แสดง wave / task ในแต่ละ wave / อันไหน parallel / isolation mode → ถาม user go/no-go
 5. **เดินทีละ wave:**
-   - fan-out sub-agent ของ task ใน wave นั้น (parallel, worktree isolation) ผ่าน **Workflow** (`.warnyin/workflow/scripts/build-wave.mjs`)
-   - แต่ละ agent: implement → test/lint → commit (ถ้า worktree) → รายงานผลแบบ structured (status, files, branch, test result)
-   - **integrate:** main loop merge worktree branch ของ wave นั้นเข้า build branch (ทีละอันเพื่อเลี่ยง conflict); ถ้า conflict → แก้/รายงาน
+   - fan-out sub-agent ของ task ใน wave นั้น (parallel, worktree isolation) ผ่าน **Workflow** (`.warnyin/workflow/scripts/build-wave.mjs`) — orchestrator **ส่ง `baseRef` (= build branch)** เข้า build-wave เพื่อให้ agent sync build branch เข้า worktree ก่อน (เห็น topic docs + output wave ก่อนหน้า)
+   - แต่ละ agent: sync build branch (`git merge <baseRef>`) → implement → test/lint → commit (ถ้า worktree) → รายงานผลแบบ structured (status, files, branch, test result)
+   - **integrate:** main loop checkout **เฉพาะไฟล์ source ที่ scoped** ของ wave นั้นจาก worktree branch (`git checkout <branch> -- <files>` — เลี่ยง topic-docs copy ที่ agent merge เข้า worktree + ปลอด KB#11); ถ้า conflict → แก้/รายงาน
    - ถ้ามี task `failed` → หยุด รายงาน user
 6. **★ Full build & test gate (หลังทุก wave merge เสร็จ):** บน build branch ที่ integrate แล้ว รัน **build ทั้งหมด + test suite ทั้งหมด (รวม unit test)** ของทุก component ที่กระทบ
    - มี error / test แดง → **แก้จนเขียวหมด (loop)** อาจ delegate fix ให้ sub-agent ทีละจุด แล้ว rerun ใหม่
