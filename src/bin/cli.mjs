@@ -72,9 +72,12 @@ const CORE = [
 ]
 // scaffold = พื้นที่ทำงานเปล่าของโปรเจกต์ — installer "สร้างเอง" ไม่ copy tree จาก package
 // (สำคัญ: ถ้า copy docs/stages จาก pkgRoot งานจริงของ repo ต้นทางจะรั่วไป target ทุกครั้ง — ดู verify installer-test-ci)
+// แต่ละ entry: { dest, tplRel } — tplRel=null = เขียนไฟล์ว่าง; tplRel ชี้ template ที่ ship มากับ package (.warnyin/template/) → seed จาก template (ไม่ leak docs/stages/ ของ repo ต้นทาง)
 const SCAFFOLD_FILES = [
-  path.join('docs', 'stages', 'context.md'), // บริบทงานที่จดไว้ (next/discovery/explore อ่าน "ถ้ามี")
-  path.join('docs', 'stages', 'achieved', '.gitkeep'), // ให้ git track โฟลเดอร์ archive เปล่า
+  // context.md = working-notes ของ user — seed โครง skeleton จาก template (seed-if-absent, ห้ามทับ); next/discovery/explore อ่าน "ถ้ามี"
+  { dest: path.join('docs', 'stages', 'context.md'), tplRel: path.join('.warnyin', 'template', 'stages', 'context.md') },
+  // ให้ git track โฟลเดอร์ archive เปล่า
+  { dest: path.join('docs', 'stages', 'achieved', '.gitkeep'), tplRel: null },
 ]
 
 const stats = { created: 0, updated: 0, skipped: 0 }
@@ -108,17 +111,23 @@ function copyTree(relDir, { overwrite }) {
   }
 }
 
-/** สร้างโครง scaffold เปล่าของ docs/stages เอง (ไม่ copy จาก package — กันงานจริงของ repo ต้นทางรั่วไป target) — ไม่ทับไฟล์ที่มีอยู่ */
+/** สร้างโครง scaffold ของ docs/stages เอง (seed-if-absent — ไม่ทับไฟล์ที่มีอยู่) — content จาก template ที่ ship มากับ package (.warnyin/template/) ไม่ copy งานจริงของ repo ต้นทาง (กัน scaffold-leak) */
 function ensureScaffold() {
-  for (const rel of SCAFFOLD_FILES) {
+  for (const { dest: rel, tplRel } of SCAFFOLD_FILES) {
     const dest = path.join(target, rel)
     if (fs.existsSync(dest)) {
       stats.skipped++
       continue
     }
+    // อ่าน content จาก template (ถ้ามี tplRel + มีไฟล์จริง) — ไม่งั้น fallback เป็นไฟล์ว่าง (behavior ปลอดภัย ไม่ throw)
+    let content = ''
+    if (tplRel) {
+      const tplPath = path.join(pkgRoot, tplRel)
+      if (fs.existsSync(tplPath)) content = fs.readFileSync(tplPath, 'utf8')
+    }
     if (!DRY) {
       fs.mkdirSync(path.dirname(dest), { recursive: true })
-      fs.writeFileSync(dest, '')
+      fs.writeFileSync(dest, content)
     }
     stats.created++
     console.log(`  + ${rel}`)

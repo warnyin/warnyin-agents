@@ -183,3 +183,70 @@ test('9. installer สร้าง scaffold เปล่า ไม่ leak docs/
     .map((e) => e.name)
   assert.deepEqual(topics, [], `ต้องไม่มี topic หลุดมา target: ${topics.join(', ')}`)
 })
+
+// header ทั้ง 4 ของ context.md ตาม canonical (design.md §3) — ใช้ร่วมหลายเคส
+const CONTEXT_HEADERS = [
+  '## โฟกัส/ธีมปัจจุบัน',
+  '## Decision ข้าม topic',
+  '## Parking lot',
+  '## เพิ่ง ship',
+]
+
+// 10. seed-fresh — context.md ถูก seed ด้วย skeleton (non-empty + ครบ 4 header)
+test('10. context.md seed skeleton ใน temp ว่าง (non-empty + 4 header)', (t) => {
+  const tmp = makeTempProject(t)
+  ok(runCli(tmp), 'install')
+
+  const ctx = path.join(tmp, 'docs', 'stages', 'context.md')
+  assert.ok(existsSync(ctx), 'ต้องสร้าง docs/stages/context.md')
+  const body = readFileSync(ctx, 'utf8')
+  assert.ok(body.trim().length > 0, 'context.md ต้อง non-empty (มี skeleton)')
+  for (const h of CONTEXT_HEADERS) {
+    assert.ok(body.includes(h), `context.md ต้องมี header "${h}"`)
+  }
+})
+
+// 11. no-overwrite (install) — มี context.md เนื้อหาเดิม → install → byte-equal เดิม
+test('11. context.md ที่มีอยู่แล้วต้องไม่ถูกทับ (install)', (t) => {
+  const tmp = makeTempProject(t)
+  const ctxDir = path.join(tmp, 'docs', 'stages')
+  mkdirSync(ctxDir, { recursive: true })
+  const ctx = path.join(ctxDir, 'context.md')
+  const mine = 'งานของฉัน'
+  writeFileSync(ctx, mine)
+
+  ok(runCli(tmp), 'install')
+  assert.equal(readFileSync(ctx, 'utf8'), mine, 'context.md ต้อง byte-equal เดิม (skip)')
+})
+
+// 12. no-overwrite (--update) — มี context.md เนื้อหาเดิม → --update → byte-equal เดิม
+test('12. context.md ที่มีอยู่แล้วต้องไม่ถูกทับ (--update)', (t) => {
+  const tmp = makeTempProject(t)
+  const ctxDir = path.join(tmp, 'docs', 'stages')
+  mkdirSync(ctxDir, { recursive: true })
+  const ctx = path.join(ctxDir, 'context.md')
+  const mine = 'งานของฉัน'
+  writeFileSync(ctx, mine)
+
+  ok(runCli(tmp, ['--update']), 'update')
+  assert.equal(readFileSync(ctx, 'utf8'), mine, 'context.md ต้อง byte-equal เดิม (skip ตอน --update)')
+})
+
+// 13. dry-run — context.md ต้องไม่ถูกสร้างจริง แต่ exit 0
+test('13. --dry-run ไม่สร้าง context.md จริง', (t) => {
+  const tmp = makeTempProject(t)
+  ok(runCli(tmp, ['--dry-run']), 'dry-run')
+  assert.ok(!existsSync(path.join(tmp, 'docs', 'stages', 'context.md')), 'dry-run ต้องไม่สร้าง context.md')
+})
+
+// 14. edge: legacy context.md ว่าง ('') → install → คง '' (skip, ไม่ทับด้วย skeleton)
+test('14. context.md ว่างเดิม (legacy) ต้องคง "" ไม่ถูกทับด้วย skeleton', (t) => {
+  const tmp = makeTempProject(t)
+  const ctxDir = path.join(tmp, 'docs', 'stages')
+  mkdirSync(ctxDir, { recursive: true })
+  const ctx = path.join(ctxDir, 'context.md')
+  writeFileSync(ctx, '')
+
+  ok(runCli(tmp), 'install')
+  assert.equal(readFileSync(ctx, 'utf8'), '', 'context.md ว่างเดิมต้องคง "" (seed-if-absent นับว่ามีไฟล์ = skip)')
+})
