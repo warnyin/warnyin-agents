@@ -107,3 +107,9 @@
 - **Root cause:** validator ข้ามเช็คเมื่อ `/ไม่มี delta/.test(content)` (เคสผู้เขียนระบุ "ไม่มี delta" โดยตั้งใจ = ถูกต้อง); fixture filler text "เนื้อหา design ไม่มี delta section" มี substring `ไม่มี delta` บังเอิญ → validator ตีความว่า topic ระบุ "ไม่มี delta" → ข้ามเช็ค — **โค้ดถูก test data ผิด**
 - **วิธีแก้:** แก้ fixture filler เป็นข้อความที่ **ไม่มี trigger keyword** (`ไม่มี delta`/`Spec delta`) — ใช้คำ orthogonal ชัดเจน
 - **ป้องกันซ้ำ:** เขียน negative fixture ของ keyword-heuristic ต้องเลี่ยง trigger phrase ในข้อความ filler ทุกตัว; test แดงทั้งที่โค้ดดูถูก → สงสัย fixture ก่อนแก้โค้ด (ดู `docs/rule.md` §5)
+
+### 16. `node --check` Workflow script ขึ้น "Illegal return statement" (false-red ตอน validate)
+- **อาการ:** `node --check src/.warnyin/workflow/scripts/build-wave.mjs` → `SyntaxError: Illegal return statement` (exit 1) ทั้งที่แก้ schema ถูก — acceptance/design ที่อ้าง "node --check ผ่าน" จึงดูเหมือนไม่ผ่าน (topic `build-log-narrative`)
+- **Root cause:** `build-wave.mjs` เป็น **Workflow script body** ที่รันใน runtime sandbox (inject global `parallel`/`agent`/`log`/`phase`/`args`) ไม่ใช่ ES module ปกติ — มี **top-level `return`** (early exit เมื่อไม่มี slug/tasks) + top-level `await parallel()`; `node --check` parse เป็น plain module จึง flag illegal return **เสมอ ไม่เกี่ยวกับการแก้** (ญาติ #13 — เครื่องมือ check ให้ false signal)
+- **วิธีแก้:** ยืนยัน pre-existing ด้วย `git stash; node --check …; git stash pop` (error เดียวกันบน HEAD ก่อนแก้ = edit ไม่ได้ทำให้พังใหม่) → validate schema จริงด้วย **parse object literal** (brace-match `const RESULT_SCHEMA = {…}` → `new Function('return …')()`) แล้ว assert structure
+- **ป้องกันซ้ำ:** **ห้ามใช้ `node --check` กับ Workflow script เป็นเกณฑ์ผ่าน** (top-level return/await = false-red เสมอ) — validate ด้วย parse + executable trace (ดู `docs/techstack/workflow-core/{rule,test}.md`); spec/acceptance ที่แตะ Workflow script ใช้ "schema parse N/N" ไม่ใช่ `node --check`
