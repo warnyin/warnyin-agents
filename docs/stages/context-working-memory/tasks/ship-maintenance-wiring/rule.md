@@ -11,4 +11,4 @@
 - [ ] **continuous-learning discipline** — ถ้าจะเพิ่ม global rule เรื่อง context.md maintenance → note รอ SHIP + ต้องมี evidence
 
 ## 2. เสนอเพิ่ม rule ใหม่ (⏳ รอ SHIP)
-- [ ] rule ที่เสนอ: *"working-memory (context.md) เก็บเฉพาะสิ่งที่ derive จาก folder ไม่ได้ — status/stage ของ topic ให้ NEXT derive ไม่จดซ้ำ"* — เหตุผล: enforce ของ `unify-in-place` เฉพาะกรณี context.md vs next.md; scope `project` (`docs/rule.md`) — **evidence รอจาก build/verify** (เช่น grep ยืนยันไม่มี status board ใน context.md)
+- [ ] rule ที่เสนอ: *"working-memory (context.md) เก็บเฉพาะสิ่งที่ derive จาก folder ไม่ได้ — status/stage ของ topic ให้ NEXT derive ไม่จดซ้ำ"* — เหตุผล: enforce ของ `unify-in-place` เฉพาะกรณี context.md vs next.md; scope `project` (`docs/rule.md`) — **evidence (build):** grep `context\.md` ทั่ว `src/.warnyin/workflow/` → ทุก reader เป็น pointer ระบุ "ไม่ใช่ status board"; `ship.md` §4 ข้อ 4 ห้ามจด status board ชัด; `next.md:18` ยัง exclude context.md จาก topic-status scan และ `next.md:46` คง read-only invariant → ไม่มีจุดใดจด topic-status ลง context.md

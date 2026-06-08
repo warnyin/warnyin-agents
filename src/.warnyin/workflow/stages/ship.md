@@ -47,7 +47,12 @@
    - **entry แต่ละตัว:** `rule` = ข้อความ **generalize** (ถ้าเป็น incident "X พังเพราะ Y" ยกเป็นกฎ "ก่อนแก้ Z เช็ค Y เสมอ") · `evidence` = **บังคับ** concrete pointer 1 บรรทัด + ลิงก์ artifact (`build.md`/`verify.md`/`troubleshooting.md`/diff/commit) — **ไม่มี evidence = ไม่ promote** · `scope` = `component:<c>`→`docs/techstack/<c>/rule.md` หรือ `project`→`docs/rule.md`
 2. **จำแนก feature:** สิ่งที่ทำเป็น **feature ใหม่** หรือ **ปรับปรุง feature เดิม** (เทียบกับ `docs/features/` ที่มีอยู่)
 3. **สรุป promotion plan + ขออนุมัติ (ครั้งเดียว):** feature ใหม่/ปรับปรุง, รายการไฟล์กลางที่จะอัปเดต + สาระ, ชื่อโฟลเดอร์ archive — **fold ตาราง learned-rule (rule + evidence + scope) เข้า approval เดียวกันนี้ ให้ user ยืนยัน per-rule** (✅ promote / ✂️ ตัด + เหตุผล) → รอ user ไฟเขียว
-4. **★ Archive:** ย้ายทั้งโฟลเดอร์ → `docs/stages/achieved/<YYYY-MM-DD>-<slug>/` (ใช้ `git mv` ถ้าเป็น git repo)
+4. **★ Archive + maintain working-notes:** ย้ายทั้งโฟลเดอร์ → `docs/stages/achieved/<YYYY-MM-DD>-<slug>/` (ใช้ `git mv` ถ้าเป็น git repo) — จากนั้น **SHIP เป็น producer ของ `docs/stages/context.md`** (working-notes ข้าม topic; canonical schema = `.warnyin/template/stages/context.md` / design ของ topic context-working-memory):
+   - append 1 แถวใน section **"เพิ่ง ship"**: `| <YYYY-MM-DD> | <slug> | <ไฮไลต์ 1 บรรทัด ชี้ achieved/> |`
+   - **prune** ให้เหลือ **5 แถวล่าสุด** (เก่าเกินตัดออก — รายละเอียดเต็มอยู่ใน `achieved/` แล้ว)
+   - ถ้าโฟกัส/ธีมงานของโปรเจกต์ขยับ → อัปเดต section **"โฟกัส/ธีมปัจจุบัน"**
+   - section/ไฟล์ไม่มี → สร้างจาก canonical skeleton (robust) ก่อน append
+   - **อย่าจด status board (topic อยู่ stage ไหน) ลง context.md** — สถานะ derive ด้วย `/warnyin:next` เท่านั้น (honors `unify-in-place`)
 5. **อัปเดตเอกสารกลาง** (อ่านเนื้อหาจาก path ใน achieved):
    1. **`docs/features/<feature-name>/`** — feature ใหม่ → สร้างโฟลเดอร์ใหม่ (`feature.md` + `business.md`); ปรับปรุง feature เดิม → อัปเดตโฟลเดอร์เดิม โดยใช้เนื้อหาจาก `business.md` / `proposal.md` / `design.md` ของ topic — **และ merge `spec.md`** ตาม Spec delta ใน `design.md` §9: **ADDED** → ต่อท้าย `spec.md` · **MODIFIED** → แทนที่ requirement ชื่อตรงกัน (rename → หาด้วย `[เดิมชื่อ:]`) · **REMOVED** → ลบ requirement; **read-modify-verify — key ไม่เจอ → STOP:** MODIFIED/REMOVED ที่หา key ไม่เจอใน `spec.md` ของ feature ที่ `(→ feature:)` ระบุ → **หยุด ถาม user ห้าม merge เงียบ** (ห้ามตีความเป็น ADDED เอง); **feature ใหม่** → สร้าง `spec.md` จาก ADDED ทั้งก้อน (template `[feature-name]/spec.md`); **feature เดิมยังไม่มี `spec.md`** → สร้างใหม่จาก delta + พฤติกรรมจริง
    2. **`docs/techstack/<component>/`** — `rule.md` / `standard.md` (learned-rule ที่ยืนยันแล้ว scope `component:<c>` + note "รอ SHIP" ใน tasks), `structure.md` (โครงสร้างที่เปลี่ยน), `test.md` (merge แผนเทสจาก `test.md` ของ topic)
@@ -78,6 +83,7 @@
 ## 6. Gate → topic ปิดสมบูรณ์เมื่อ
 
 - [ ] topic ถูกย้ายไป `docs/stages/achieved/<YYYY-MM-DD>-<slug>/` แล้ว (ไม่เหลือใน `docs/stages/`)
+- [ ] **`docs/stages/context.md` ถูก maintain** — append แถว "เพิ่ง ship" (วันที่|slug|ไฮไลต์) + prune เหลือ 5 ล่าสุด + อัปเดต "โฟกัส/ธีมปัจจุบัน" ถ้าขยับ (ไม่จด status board)
 - [ ] `docs/features/` สะท้อน feature ใหม่/ที่ปรับปรุงแล้ว
 - [ ] **Spec delta merge แล้ว** — `spec.md` ของ feature ที่แตะถูก merge ตาม delta; ทุก MODIFIED/REMOVED match requirement จริง (read-modify-verify — key ไม่เจอ → STOP ถาม user แล้ว ไม่ merge เงียบ)
 - [ ] learned-rules (planned + emergent) พิจารณาครบทุกตัว — note "รอ SHIP" ใน `tasks/*/rule.md` + `standard.md` + บทเรียน emergent จาก build/verify/troubleshooting; ทุก promote มี **evidence + user ยืนยัน**, ตัดทิ้งมีเหตุผล

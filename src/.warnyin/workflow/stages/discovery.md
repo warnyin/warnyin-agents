@@ -24,7 +24,7 @@ Discovery คือขั้นตอน **ค้นหาข้อมูล + d
 2. `docs/rule.md`, `docs/infra.md` — กฎและโครงสร้างพื้นฐาน
 3. `docs/codemap/index.md` — แผนที่โค้ด (ไปอ่านโค้ดจริงต่อได้)
 4. `docs/features/*`, `docs/techstack/*` — ฟีเจอร์เดิม + tech stack ของแต่ละ component
-5. `docs/stages/context.md` และ topic ที่ `achieved/` ที่ใกล้เคียง — เคยทำอะไรไปแล้ว
+5. `docs/stages/context.md` (**working-notes ข้าม topic** — โฟกัส/decision/parking-lot/ไฮไลต์ที่เพิ่ง ship; ไม่ใช่ status board) และ topic ที่ `achieved/` ที่ใกล้เคียง — เคยทำอะไรไปแล้ว
 
 ---
 

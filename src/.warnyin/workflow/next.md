@@ -17,7 +17,7 @@ NEXT คือโหมด **อ่านอย่างเดียว (read-on
 0. **structural pre-scan (ถ้ารัน node ได้):** ถ้ารัน node ได้ → รัน `node .warnyin/workflow/scripts/validate-topic.mjs` (โหมด status) เป็น structural pre-scan ก่อน แล้วค่อยอ่านเชิง semantic เฉพาะจุดที่ต้องตัดสิน — เครื่องที่รันไม่ได้ ใช้ตาราง heuristic ด้านล่างเหมือนเดิม
 1. **หา topic ที่ active:** โฟลเดอร์ใน `docs/stages/<slug>/` ทั้งหมด ยกเว้น `achieved/` และ `context.md`
    - ไม่มี topic เลย → รายงานว่า "ไม่มีงานค้าง" + แนะนำเริ่มงานใหม่ด้วย `/warnyin:discovery` หรือ `/warnyin:design`
-2. **อ่าน `docs/stages/context.md`** — บริบทงานที่จดไว้ (ถ้ามี)
+2. **อ่าน `docs/stages/context.md`** — **working-notes ข้าม topic** (โฟกัส/decision ข้าม topic/parking-lot/ไฮไลต์ที่เพิ่ง ship): อ่านเพื่อ orient เท่านั้น; **status ของ topic ไม่ได้มาจากที่นี่** — derive จากการ scan folder (ข้อ 3) — canonical schema = `.warnyin/template/stages/context.md`
 3. **ต่อ topic — ระบุ stage ปัจจุบันจาก artifact ที่ "ถูกเติมจริง":**
    ไฟล์ที่ยังเป็นโครง template (มี placeholder `<...>` / ตารางว่าง) = **ยังไม่ทำ** — ดูเนื้อหา ไม่ใช่แค่ว่าไฟล์มีอยู่
 
