@@ -107,3 +107,9 @@
 - **Root cause:** validator ข้ามเช็คเมื่อ `/ไม่มี delta/.test(content)` (เคสผู้เขียนระบุ "ไม่มี delta" โดยตั้งใจ = ถูกต้อง); fixture filler text "เนื้อหา design ไม่มี delta section" มี substring `ไม่มี delta` บังเอิญ → validator ตีความว่า topic ระบุ "ไม่มี delta" → ข้ามเช็ค — **โค้ดถูก test data ผิด**
 - **วิธีแก้:** แก้ fixture filler เป็นข้อความที่ **ไม่มี trigger keyword** (`ไม่มี delta`/`Spec delta`) — ใช้คำ orthogonal ชัดเจน
 - **ป้องกันซ้ำ:** เขียน negative fixture ของ keyword-heuristic ต้องเลี่ยง trigger phrase ในข้อความ filler ทุกตัว; test แดงทั้งที่โค้ดดูถูก → สงสัย fixture ก่อนแก้โค้ด (ดู `docs/rule.md` §5)
+
+### 16. `node --check` ใช้ไม่ได้กับ payload workflow script (harness wrap + top-level return/export)
+- **อาการ:** `node --check src/.warnyin/workflow/scripts/build-wave.mjs` → `SyntaxError: Illegal return statement` (และ `Unexpected token export` ถ้า wrap ใน function) — ทั้งที่โค้ดถูกในบริบท harness (topic `build-wave-branch-fix`)
+- **Root cause:** workflow script (`*.mjs` ใน `.warnyin/workflow/scripts/` มี `export const meta` + ใช้ globals `args`/`agent`/`parallel`/`log`/`phase` ที่ harness inject) — harness wrap body ในฟังก์ชันแล้ว inject globals จึงมี **top-level return** (early guard + tail) ที่ผิดกฎ standalone ES module แต่ valid ในบริบทนั้น; `export` ก็อยู่ top-level จึง wrap ใน function ไม่ได้
+- **วิธีแก้:** (1) ยืนยัน pre-existing ด้วย `git show HEAD:<file> | node --check` (ก่อนแก้ก็ fail = ไม่ใช่ regression); (2) syntax สะอาด: module-parse หลัง `sed` neutralize top-level return เป็น `throw`/`void`; (3) behavior/ordering: `new Function(...)` inject globals แล้วรันฟังก์ชันที่แก้จริง (เช่น `prompt()`) — แข็งกว่า grep source line order เพราะ `splice`/`unshift` ทำให้ลำดับ runtime ต่างจาก source
+- **ป้องกันซ้ำ:** payload workflow script — **อย่าใช้ `node --check` standalone เป็น gate**; ใช้ runtime proof + `npm test`/`verify:pack` ที่เป็น gate จริง (ดู `docs/techstack/installer/test.md`)

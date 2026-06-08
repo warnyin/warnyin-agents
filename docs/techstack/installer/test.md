@@ -84,6 +84,13 @@
 - **accuracy ของ spec ที่สกัดจาก source:** ไล่ทุก Requirement/Scenario เทียบ source จริง — **โดย agent อิสระจากผู้เขียน** (self-check ไม่พอ — ดู `docs/rule.md` §5 ข้อ 4); THEN ทุกข้อต้องเป็น observable artifact
 - **semantic consistency ของ canonical:** กติกา merge ใน playbook/template/command ต้องตรง canonical ของ design **คำต่อคำ** (grep key อย่างเดียวจับ "wording ขัดกัน" ไม่ได้)
 
+## verify payload workflow script (agent-driven, harness-wrapped) (L: topic `build-wave-branch-fix`)
+> script ใน `.warnyin/workflow/scripts/` ที่มี `export const meta` + ใช้ globals harness inject (`args`/`agent`/`parallel`/`log`/`phase`) เช่น `build-wave.mjs` — ต่างจาก dev-tooling `src/scripts/*.mjs` (standalone) — verify ต่างกัน
+- **อย่าใช้ `node --check` standalone เป็น gate** — fail ด้วย `Illegal return statement`/`Unexpected token export` เพราะ top-level return + export ที่ valid เฉพาะตอน harness wrap (ดู `docs/troubleshooting.md` #16); ก่อนแก้ก็ fail = ไม่ใช่ regression
+- **runtime proof แทน:** สกัดฟังก์ชันที่แก้ (เช่น `prompt()`) → รันใน sandbox ด้วย `new Function(body)` inject globals → assert **behavior + ordering ที่ runtime** (เช่น step ที่ `splice`/`unshift` แทรกอยู่ก่อน step อื่นจริง — แข็งกว่า grep source line เพราะลำดับ runtime ต่างจาก source); + syntax สะอาดด้วย module-parse หลัง neutralize top-level return
+- **gate จริงที่เชื่อถือได้:** `npm test` + `npm run verify:pack` (script ยังติด tarball ผ่าน allowlist `src/.warnyin/`) — ไม่พึ่ง `node --check`
+- **git-mechanics ใน prompt (เช่น `git merge`):** พิสูจน์ assumption ใน **git sandbox จริง** (`mktemp -d` + `git init` + จำลอง branch graph) ไม่ใช่อ้างในเอกสาร — เช่น fast-forward เมื่อ main เป็น ancestor ของ build branch
+
 ## verify structural validator / zero-dep CLI tool (L: topic `validator-status`)
 > change ที่เพิ่ม/แก้ payload script ที่มี runtime จริง (เช่น `validate-topic.mjs`) — เทสพฤติกรรมได้เต็ม (ต่างจาก payload `.md` ที่ verify เชิงโครงสร้าง)
 - **behavior จริงตาม CLI contract:** รัน script ตรงทุกโหมด (status ไม่มี arg / validate มี `<slug>` / arg แปลก) — assert **output + exit code** ตรง contract (เช่น ✖→exit 1, ⚠-only/สะอาด→exit 0, slug ไม่ถูกต้อง→exit 2)

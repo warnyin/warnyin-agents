@@ -1,4 +1,4 @@
-<!-- Generated: 2026-06-08 (rescan หลัง validator-status) | Files scanned: ~83 src (71 .md + 12 .mjs) | Token estimate: ~600 -->
+<!-- Generated: 2026-06-08 (rescan หลัง build-wave-branch-fix) | Files scanned: ~83 src (71 .md + 12 .mjs) | Token estimate: ~600 -->
 # Codemap — Warnyin Standard Workflow
 
 > repo = **tool/library** (npm `@warnyin/agents`) ไม่ใช่ app — ส่งมอบ "ways of work" 5 stage ลงโปรเจกต์อื่น
@@ -23,7 +23,7 @@ single library (zero-dependency, ESM, Node ≥20) เผยแพร่ผ่า
 
 ## Entry points
 - `src/bin/cli.mjs` — installer (npx; bin → ที่นี่)
-- `src/.warnyin/workflow/scripts/build-wave.mjs` — Workflow fan-out ของ BUILD stage
+- `src/.warnyin/workflow/scripts/build-wave.mjs` — Workflow fan-out ของ BUILD stage (รับ `baseRef` → agent sync build branch เข้า worktree ก่อนทำงาน)
 - `src/.warnyin/workflow/scripts/validate-topic.mjs` — structural validator + status (zero-dep; เรียกจาก next/DESIGN gate/SHIP — ดู `docs/features/topic-validator/`)
 - `src/.warnyin/workflow/stages/*.md` — playbook ต้นทางของแต่ละ stage (single source of truth)
 - `src/.warnyin/workflow/contexts/*.md` — context profile (session-level posture: research/build/review) ที่ stage playbook ชี้ถึง
