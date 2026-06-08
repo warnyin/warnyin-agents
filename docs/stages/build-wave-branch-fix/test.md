@@ -1,46 +1,34 @@
-# Test Plan — <ชื่อ change>
+# Test Plan — build-wave-branch-fix
 
 > Output ของ VERIFY stage · playbook: `.warnyin/workflow/stages/verify.md`
-> แผน/วิธีเทสของ topic นี้ — ตอน **SHIP** จะ merge เข้า `docs/techstack/<component>/test.md`
-> อิง guideline จาก `docs/techstack/<component>/test.md` (ถ้าไม่มี = เสนอวิธีใหม่ที่นี่)
+> อิง guideline `docs/techstack/installer/test.md` §"verify structural validator / zero-dep CLI tool" + design §8 + TS-1 (runtime proof แทน node --check)
 
 | | |
 |---|---|
-| **Slug** | `<kebab-case>` |
-| **Component** | `api-service` / `admin-console` |
-| **จุดประสงค์ที่ต้อง verify** | (สรุปจาก spec/tasks) |
+| **Slug** | `build-wave-branch-fix` |
+| **Component** | workflow build-wave (payload agent-driven script) |
+| **Env** | local — build branch `build/build-wave-branch-fix` (รัน node + git sandbox) |
+| **วันที่** | `2026-06-08` |
 
-## 1. ขอบเขตการเทส (ตามจุดประสงค์ topic)
-- สิ่งที่ต้องยืนยันว่าทำงานถูก:
+## เคสทดสอบ
 
-## 2. ชนิดการเทส
-- [ ] Functional (ตาม test-flow ใน `tasks/*/spec.md`)
-- [ ] E2E smoke — เครื่องมือ: `playwright-cli` (ถ้าเป็น FE)
-- [ ] Integration / API
-- [ ] UX/UI verify (ถ้าเป็น FE)
-- [ ] อื่นๆ:
+### T1 — Ship integrity (gate เดิม)
+- `npm test` (53) เขียว · `lint:md` 0 dead-link · `verify:pack` (build-wave.mjs ยังติด tarball)
 
-## 3. Local env ที่ต้องรัน (จาก `docs/infra.md`)
-| Service | คำสั่งรัน | port / หมายเหตุ |
-|---|---|---|
-| | | |
+### T2 — Static guards (grep ใน source)
+- `baseRef` arg parse + `isolate && baseRef` guard + abort-on-conflict (`git merge --abort`) + hard-stop (`task.md ไม่ปรากฏ`) + retry transient lock + command ส่ง baseRef + playbook อธิบายกลไก
 
-## 4. Test cases
-| # | สถานการณ์ (อิงจุดประสงค์) | ขั้นตอน | ผลที่คาดหวัง |
-|---|---|---|---|
-| 1 | | | |
+### T3 — Runtime proof (รัน prompt() จริง — TS-1: แข็งกว่า grep เพราะ splice ทำลำดับ runtime ต่างจาก source)
+- สกัด `prompt()` จาก source → รันใน sandbox (`new Function` inject isolate/baseRef/slug) 3 เคส:
+  - **Case A** (isolate && baseRef): step 0 มี + อยู่**ก่อน** step 1 (idx จริง) · `git merge <baseRef>` expand ถูก · abort-on-conflict · hard-stop full-path `docs/stages/<slug>/tasks/<task>/task.md` · บันทึก notes
+  - **Case B** (!baseRef): ไม่แทรก step 0 = backward compat · ยังมี step 9 commit
+  - **Case C** (!isolate): ไม่แทรก step 0 · shared-tree note
 
-## 5. E2E smoke (FE)
-- flow ที่ smoke:
-- คำสั่ง playwright-cli:
+### T4 — Fast-forward assumption (git sandbox จริง)
+- สร้าง repo จำลอง: main(base) → build/demo(topic docs + wave1) → worktree fork จาก main → `git merge build/demo` → ต้องเป็น **Fast-forward** + topic docs/wave output มาครบ (พิสูจน์กลไก step 0 ทำงานตามออกแบบ)
 
-## 6. UX/UI checklist (FE)
-- [ ] layout ตรงตาม spec/wireframe
-- [ ] states: loading / empty / error / success
-- [ ] responsive
-- [ ] interaction / user-flow ลื่นไหล
+### T5 — §9 ไม่มี delta (no regression baseline)
+- topic นี้ §9 = "ไม่มี delta" — ไม่มี feature spec ให้เทียบ; observable behavior ของ user (`/warnyin:build`) ไม่เปลี่ยน → regression = suite เดิม 53/53 ไม่พัง (ครอบใน T1)
 
-## 7. วิธีรันเทส (reproducible)
-```
-<คำสั่ง / ขั้นตอน>
-```
+## เกณฑ์ผ่านรวม
+T1-T5 ผ่าน · ไม่มี regression · executable real-proof (multi-wave dogfood) = topic ถัดไป (ระบุใน verify)
