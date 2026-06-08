@@ -7,6 +7,7 @@
 - ทุก helper เคารพ flag `DRY` (ไม่เขียนจริง แต่ log + นับ stats) และ `stats.{created,updated,skipped}`
 - path ทุกที่ใช้ `path.join` (cross-platform); หา root ด้วย `fileURLToPath(import.meta.url)` → `pkgRoot = resolve(dirname, '..')` = `src/`
 - ข้อความ log: `+` สร้างใหม่ · `↻` อัปเดต · `±` ต่อท้าย section · ภาษาไทย
+- **`SCAFFOLD_FILES` = object form `{dest, tplRel}`** — แต่ละ scaffold entry ระบุ source ของตัวเอง: `tplRel` ชี้ template ที่ seed content (`ensureScaffold` อ่าน `path.join(pkgRoot, tplRel)`), `tplRel: null` = เขียนไฟล์ว่าง (เช่น `.gitkeep`); pattern นี้ reuse ได้กับ scaffold file ใหม่ที่ต้องมี content โดยไม่ hardcode เงื่อนไขชื่อไฟล์ใน `ensureScaffold` — evidence: topic `context-working-memory` (`SCAFFOLD_FILES` ใน `cli.mjs`)
 
 ## Test harness กลาง (`src/tests/installer.test.mjs`) — ใช้ซ้ำทุก test ของ CLI
 ```js
