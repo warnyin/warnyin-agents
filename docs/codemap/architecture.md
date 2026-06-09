@@ -1,4 +1,4 @@
-<!-- Generated: 2026-06-07 | Files scanned: ~80 src (70 .md + 10 .mjs) | Token estimate: ~820 -->
+<!-- Generated: 2026-06-09 (rescan หลัง adaptive-api-doc) | Files scanned: ~84 src (72 .md + 12 .mjs) | Token estimate: ~840 -->
 # Architecture — Warnyin Standard Workflow
 
 ## 2-layer (bootstrap / self-hosting)
@@ -38,6 +38,9 @@ output งานจริง: docs/stages/<slug>/  (copy จาก template src/
 วงจร spec (living behavior spec — docs/features/<name>/spec.md):
 DESIGN เขียน "Spec delta" (design.md §9: ADDED/MODIFIED/REMOVED) ▶ VERIFY ใช้ spec เป็น regression baseline
 ▶ SHIP merge กึ่ง mechanical (key ไม่เจอ → STOP) ▶ spec ใหม่ = baseline รอบถัดไป — ดู docs/features/spec-delta/
+
+capability เสริม conditional (เฉพาะ topic แตะ REST API — auto-detect): api-doc.md
+▶ DESIGN ผลิต openapi.yaml ▶ VERIFY validate โค้ดตรง contract ▶ SHIP promote docs/techstack/<c>/openapi.yaml — ดู docs/features/api-doc/
 ```
 
 ## installer flow (src/bin/cli.mjs)

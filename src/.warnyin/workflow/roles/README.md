@@ -43,4 +43,5 @@
 | QA | `browser-test` | `npx skills add ruvnet/ruflo@browser-test -g` |
 | Tech Lead | `/code-review` | Claude Code built-in |
 | Security | `/security-review` | Claude Code built-in |
+| SA, Developer | `openapi-spec-generation` | `wshobson/agents` → `plugins/documentation-generation/skills/openapi-spec-generation/` (template library — ใช้คู่ capability `.warnyin/workflow/api-doc.md`) · ⚠ third-party: ตรวจ `SKILL.md`/`references` ก่อนติดตั้ง + pin ที่ commit/tag (prompt-injection surface — `docs/rule.md` §3.2) |
 | BA, Infra | — | ยังไม่มี skill ภายนอกที่ผ่านเกณฑ์คุณภาพ (ใช้ role card พอ) |

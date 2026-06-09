@@ -18,6 +18,7 @@
 1. **spec + tasks ทั้งหมด** — `docs/stages/<slug>/tasks/*/spec.md` + `task.md`, `design.md`, `proposal.md`
    → เข้าใจ **จุดประสงค์ของ topic** และสิ่งที่ต้องยืนยัน (อย่าเทสผ่านๆ โดยไม่เข้าใจ)
 2. **`docs/features/<name>/spec.md` = regression baseline** — อ่าน behavior spec ของ feature ที่ topic แตะ (ดูจาก Spec delta ใน `design.md`); topic แตะหลาย feature → baseline = union ของ spec ทุก feature ที่ delta อ้างถึง; feature ยังไม่มี spec → ข้ามได้ (วิธีเดิม)
+   - **`docs/stages/<slug>/openapi.yaml` (ถ้ามี)** = API contract ที่ต้องยืนยัน — topic ที่แตะ REST API ต้อง verify ว่าโค้ดจริง **ตรง contract** (ดูข้อ 4)
 3. **`docs/techstack/<component>/test.md`** — guideline ว่าเทสยังไง (เช่น frontend: e2e smoke ผ่าน **playwright-cli**)
    → ถ้า **ไม่มี** guideline → แนะนำว่าควรเทสแบบไหน/วิธีใดได้บ้าง แล้วเขียนแผนลง `test.md`
 4. **`docs/infra.md`** — local env / service ที่ต้องรันเพื่อเทส
@@ -49,6 +50,7 @@
 2. **วางแผนเทส → เขียน `test.md`:** ตาม guideline `docs/techstack/<component>/test.md`; ไม่มีก็เสนอวิธี (e2e smoke / integration / manual ฯลฯ) แล้วเขียนแผน — **ครอบทั้ง regression (scenario เดิมใน baseline) + test case ใหม่ (scenario ใน Spec delta)**
 3. **เตรียม local env:** รัน service ที่เกี่ยวข้องตาม `infra.md`
 4. **รันเทสตามแผน:** functional ตาม test-flow ใน spec; FE → e2e smoke (playwright-cli) + ตรวจ UX/UI
+   - **★ contract validation (ถ้ามี `openapi.yaml`):** ยืนยัน implementation จริง = contract ตาม `.warnyin/workflow/api-doc.md` §4 (code-first regen → diff, หรือยิง request จริง → ตรวจ response/status/error ตรง schema); mismatch = ไม่ผ่าน → เข้า fix loop ข้อ 5
 5. **ไม่ผ่าน → แก้ → rerun:** วนจนผ่าน **นับจำนวนรอบ/จำนวนแก้**; ปัญหายาก→`troubleshooting.md`; ถ้านานเกิน→ถาม user (ทีละข้อ + recommended)
 6. **เขียนสรุป `verify.md`:** ผลเทส + รายการแก้ไข + **จำนวนการแก้ไข** + ผล UX/UI
 7. **ปิดงาน:** เสนอเข้า SHIP ด้วย `/warnyin:ship`
@@ -70,6 +72,7 @@
 - [ ] เทสตาม **จุดประสงค์ของ topic** ครบ (functional ตาม test-flow ใน spec)
 - [ ] **regression ตาม baseline** — scenario เดิมใน `docs/features/<name>/spec.md` ของ feature ที่แตะ ยังผ่าน (ยกเว้นที่ MODIFIED/REMOVED) + scenario ใน Spec delta ผ่าน
 - [ ] Frontend: **UX/UI verify ผ่าน**
+- [ ] **API contract (ถ้ามี `openapi.yaml`)** — implementation จริงตรง contract (path/schema/status/error/auth); mismatch ถูกแก้จนตรง (ตาม `.warnyin/workflow/api-doc.md`)
 - [ ] ทุกข้อที่ไม่ผ่านถูกแก้จน **verify ผ่านหมด**
 - [ ] `test.md` (แผน) + `verify.md` (สรุป + จำนวนการแก้ไข) เขียนครบ
 - [ ] ปัญหายาก/ซ้ำถูกบันทึก `troubleshooting.md`
