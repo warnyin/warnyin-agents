@@ -1,4 +1,4 @@
-<!-- Generated: 2026-06-08 (rescan หลัง build-wave-branch-fix) | Files scanned: ~83 src (71 .md + 12 .mjs) | Token estimate: ~600 -->
+<!-- Generated: 2026-06-09 (rescan หลัง adaptive-api-doc) | Files scanned: ~84 src (72 .md + 12 .mjs) | Token estimate: ~610 -->
 # Codemap — Warnyin Standard Workflow
 
 > repo = **tool/library** (npm `@warnyin/agents`) ไม่ใช่ app — ส่งมอบ "ways of work" 5 stage ลงโปรเจกต์อื่น
@@ -28,6 +28,7 @@ single library (zero-dependency, ESM, Node ≥20) เผยแพร่ผ่า
 - `src/.warnyin/workflow/stages/*.md` — playbook ต้นทางของแต่ละ stage (single source of truth)
 - `src/.warnyin/workflow/contexts/*.md` — context profile (session-level posture: research/build/review) ที่ stage playbook ชี้ถึง
 - `src/.warnyin/workflow/roles/*.md` — role card (task-level lens)
+- `src/.warnyin/workflow/api-doc.md` — capability เสริม conditional (stage เรียกเองเมื่อ auto-detect topic แตะ REST API): ผลิต/verify/promote OpenAPI 3.1 contract — ดู `docs/features/api-doc/`
 - `src/.claude/skills/*/SKILL.md` — utility skill auto-invocable (`/update-codemaps`, `/explore`, `/next`) ชี้ playbook กลาง
 
 ## Dev tooling (`src/scripts/` — ไม่ publish)

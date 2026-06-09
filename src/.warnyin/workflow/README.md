@@ -41,6 +41,7 @@ Discovery (optional) ──▶ DESIGN ──▶ BUILD ──▶ VERIFY ──▶
     codemap.md         #   playbook: CODEMAP — สแกน + สร้าง codemap แบบ token-lean
     explore.md         #   playbook: EXPLORE — สำรวจ/ตอบคำถามแบบ read-only ไม่สร้าง artifact
     next.md            #   playbook: NEXT — เช็คงานค้าง + แนะนำขั้นตอนถัดไป (read-only)
+    api-doc.md         #   capability: API-DOC — adaptive OpenAPI 3.1 contract (DESIGN/VERIFY/SHIP เรียกเอง)
     stages/            #   discovery ✅ · design ✅ · build ✅ · verify ✅ · ship ✅
     roles/             #   role card กลาง (task-level lens): ba, po, sa, tech-lead, developer, qa, security, infra
     contexts/          #   context profile กลาง (session-level posture): research, build, review + README
