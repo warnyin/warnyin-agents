@@ -3,7 +3,10 @@
 //
 // args = {
 //   slug: string,            // ชื่อ topic เช่น "billing-redesign"
-//   tasks: string[],         // ชื่อ task ใน wave นี้ (โฟลเดอร์ docs/stages/<slug>/tasks/<task>)
+//   tasks: string[] | Array<{ name: string, model?: string }>,
+//                            // ชื่อ task ใน wave นี้ (โฟลเดอร์ docs/stages/<slug>/tasks/<task>)
+//                            // รับทั้ง string[] (เดิม, backward compat) และ {name, model?}[] — normalize ภายในเป็น {name, model}
+//                            // model = pass-through string (orchestrator map tier→รุ่นจริงก่อนส่งเข้ามา); script ไม่ map/ไม่ hardcode ชื่อรุ่น
 //   isolate?: boolean,       // true = worktree ต่อ task (ดีฟอลต์), false = shared tree (sequential)
 //   baseRef?: string,        // ชื่อ build branch เช่น "build/my-topic"; ไม่ส่ง = ไม่ sync (backward compat)
 // }
@@ -17,9 +20,28 @@ export const meta = {
 // บาง harness ส่ง args ของ Workflow เป็น string (JSON text) ไม่ใช่ object — รับทั้งสองแบบ
 const A = typeof args === 'string' ? JSON.parse(args) : (args || {})
 const slug = A.slug
-const tasks = A.tasks || []
 const isolate = !(A.isolate === false)
 const baseRef = A.baseRef || null   // ชื่อ build branch เช่น "build/my-topic"; ไม่ส่ง = ไม่ sync (backward compat)
+
+// normalize tasks: รับทั้ง string[] (เดิม) และ {name, model?}[] (ใหม่) → ภายในเป็น {name, model} เสมอ
+// string element → {name, model: undefined} (backward compat); model = pass-through string ไม่ map/ไม่ hardcode
+export function normalizeTasks(rawTasks) {
+  return (rawTasks || []).map((t) =>
+    typeof t === 'string' ? { name: t, model: undefined } : { name: t.name, model: t.model })
+}
+
+// สร้าง opts ของ agent() แบบ immutable — conditional spread: key หายเมื่อไม่มีค่า (ไม่ใช่ undefined)
+// แนวเดียวกับ baseRef เดิม (optional arg, conditional เฉพาะเมื่อมีค่า)
+export function buildOpts(task, isolate) {
+  return {
+    label: `build:${task.name}`,
+    schema: RESULT_SCHEMA,
+    ...(isolate && { isolation: 'worktree' }),
+    ...(task.model && { model: task.model }),
+  }
+}
+
+const tasks = normalizeTasks(A.tasks)
 
 if (!slug || tasks.length === 0) {
   log('ไม่มี slug หรือ tasks — ไม่มีอะไรให้ build')
@@ -109,16 +131,12 @@ function prompt(task) {
 }
 
 const results = await parallel(
-  tasks.map((task) => () =>
-    agent(prompt(task), isolate
-      ? { label: `build:${task}`, schema: RESULT_SCHEMA, isolation: 'worktree' }
-      : { label: `build:${task}`, schema: RESULT_SCHEMA })
-  )
+  tasks.map((task) => () => agent(prompt(task.name), buildOpts(task, isolate)))
 )
 
 const clean = results.filter(Boolean)
 const failed = clean.filter((r) => r.status === 'failed').map((r) => r.task)
-const skipped = tasks.filter((t) => !clean.some((r) => r.task === t))
+const skipped = tasks.filter((t) => !clean.some((r) => r.task === t.name)).map((t) => t.name)
 
 log(`เสร็จ ${clean.length}/${tasks.length} · ผ่าน ${clean.length - failed.length} · ล้ม ${failed.length}${skipped.length ? ` · ข้าม ${skipped.length}` : ''}`)
 
