@@ -50,7 +50,7 @@
 4. **★ Archive:** ย้ายทั้งโฟลเดอร์ → `docs/stages/achieved/<YYYY-MM-DD>-<slug>/` (ใช้ `git mv` ถ้าเป็น git repo)
 5. **อัปเดตเอกสารกลาง** (อ่านเนื้อหาจาก path ใน achieved):
    1. **`docs/features/<feature-name>/`** — feature ใหม่ → สร้างโฟลเดอร์ใหม่ (`feature.md` + `business.md`); ปรับปรุง feature เดิม → อัปเดตโฟลเดอร์เดิม โดยใช้เนื้อหาจาก `business.md` / `proposal.md` / `design.md` ของ topic — **และ merge `spec.md`** ตาม Spec delta ใน `design.md` §9: **ADDED** → ต่อท้าย `spec.md` · **MODIFIED** → แทนที่ requirement ชื่อตรงกัน (rename → หาด้วย `[เดิมชื่อ:]`) · **REMOVED** → ลบ requirement; **read-modify-verify — key ไม่เจอ → STOP:** MODIFIED/REMOVED ที่หา key ไม่เจอใน `spec.md` ของ feature ที่ `(→ feature:)` ระบุ → **หยุด ถาม user ห้าม merge เงียบ** (ห้ามตีความเป็น ADDED เอง); **feature ใหม่** → สร้าง `spec.md` จาก ADDED ทั้งก้อน (template `[feature-name]/spec.md`); **feature เดิมยังไม่มี `spec.md`** → สร้างใหม่จาก delta + พฤติกรรมจริง
-   2. **`docs/techstack/<component>/`** — `rule.md` / `standard.md` (learned-rule ที่ยืนยันแล้ว scope `component:<c>` + note "รอ SHIP" ใน tasks), `structure.md` (โครงสร้างที่เปลี่ยน), `test.md` (merge แผนเทสจาก `test.md` ของ topic)
+   2. **`docs/techstack/<component>/`** — `rule.md` / `standard.md` (learned-rule ที่ยืนยันแล้ว scope `component:<c>` + note "รอ SHIP" ใน tasks), `structure.md` (โครงสร้างที่เปลี่ยน), `test.md` (merge แผนเทสจาก `test.md` ของ topic); **`openapi.yaml` (ถ้า topic มี)** — promote `docs/stages/<slug>/openapi.yaml` → `docs/techstack/<component>/openapi.yaml` (living API contract): มีอยู่แล้ว → **merge ตาม delta** (path/schema ที่ topic แตะ) ไม่ทับทั้งไฟล์; ยังไม่มี → สร้างใหม่ — ทำตาม `.warnyin/workflow/api-doc.md` §4
    3. **`docs/rule.md`** — global rule ใหม่/ที่เปลี่ยน (learned-rule ที่ยืนยันแล้ว scope `project` — กฎระดับโปรเจกต์ ไม่ผูกกับ component เดียว)
    > promote learned-rule **เฉพาะตัวที่ user ยืนยัน (step 3)** ตาม scope: `component:<c>` → `docs/techstack/<c>/rule.md` · `project` → `docs/rule.md`
    4. **`docs/troubleshooting.md`** — merge entry จาก `troubleshooting.md` ของ topic (ปัญหา/อาการ/root cause/วิธีแก้/ป้องกันซ้ำ)
@@ -67,6 +67,7 @@
 |---|---|
 | `docs/features/<feature-name>/` | feature.md + business.md + spec.md (สร้างใหม่หรืออัปเดต — spec.md merge ตาม Spec delta) |
 | `docs/techstack/<component>/{rule,standard,structure,test}.md` | rule/standard ใหม่, โครงสร้าง, วิธีเทสที่ promote ขึ้น |
+| `docs/techstack/<component>/openapi.yaml` | living API contract — เฉพาะ topic ที่แตะ REST API (merge ตาม delta) |
 | `docs/rule.md` | global rule ที่เพิ่ม/เปลี่ยน |
 | `docs/troubleshooting.md` | KB ปัญหา-วิธีแก้ที่ merge เข้า |
 | `docs/infra.md`, `docs/project.md` | อัปเดตเฉพาะถ้ามีข้อมูลเกี่ยวข้อง |
@@ -83,6 +84,7 @@
 - [ ] learned-rules (planned + emergent) พิจารณาครบทุกตัว — note "รอ SHIP" ใน `tasks/*/rule.md` + `standard.md` + บทเรียน emergent จาก build/verify/troubleshooting; ทุก promote มี **evidence + user ยืนยัน**, ตัดทิ้งมีเหตุผล
 - [ ] `docs/troubleshooting.md` รวม entry จาก topic แล้ว
 - [ ] `docs/techstack/`, `docs/rule.md`, `docs/infra.md`, `docs/project.md` อัปเดตตามที่เกี่ยวข้อง
+- [ ] **API contract (ถ้า topic มี `openapi.yaml`)** — promote/merge เข้า `docs/techstack/<component>/openapi.yaml` ตาม delta แล้ว (`.warnyin/workflow/api-doc.md`)
 - [ ] `docs/codemap/` ตรงกับโค้ดจริงปัจจุบัน
 - [ ] `ship.md` สรุปการส่งมอบเขียนครบใน achieved
 - [ ] user รับทราบผลการส่งมอบ

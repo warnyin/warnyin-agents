@@ -83,6 +83,7 @@
 | `business.md` | what & why เชิงธุรกิจ (goal, persona, success metric) | ✅ ข้ามได้ถ้า change เล็ก | `.warnyin/template/stages/[topic]/business.md` |
 | `proposal.md` | what & why ของ change + ทางเลือก + scope | จำเป็น | `.warnyin/template/stages/[topic]/proposal.md` |
 | `design.md` | how — vertical slice, data model, contract, flow, **Spec delta** | จำเป็น | `.warnyin/template/stages/[topic]/design.md` |
+| `openapi.yaml` | API contract (OpenAPI 3.1) ของ topic ที่แตะ REST API | ✅ เฉพาะ topic ที่แตะ backend/REST API (`.warnyin/workflow/api-doc.md`) | — |
 | `tasks/<task-name>/spec.md` | spec เฉพาะ task (ดูข้อ 6) | จำเป็นต่อ task | `.warnyin/template/stages/[topic]/tasks/[task-name]/spec.md` |
 | `tasks/<task-name>/standard.md` | pattern โค้ด/shared component อิง techstack standard | จำเป็นต่อ task | `.warnyin/template/stages/[topic]/tasks/[task-name]/standard.md` |
 | `tasks/<task-name>/rule.md` | rule ที่ต้อง follow + rule ที่เสนอเพิ่ม (รอ SHIP) | จำเป็นต่อ task | `.warnyin/template/stages/[topic]/tasks/[task-name]/rule.md` |
@@ -95,6 +96,7 @@
 
 ใส่เฉพาะหัวข้อที่เกี่ยวกับ task นั้น:
 - **API task** → API SPEC ตามมาตรฐาน (endpoint, method, request/response schema, error, auth, status code)
+  - **★ adaptive API-doc:** ถ้า topic แตะ **backend/REST API จริง** (auto-detect ตาม `.warnyin/workflow/api-doc.md` §2) → ผลิต/อัปเดต `openapi.yaml` (OpenAPI 3.1) เป็น contract; `spec.md` **ชี้มาที่ `openapi.yaml`** ไม่เขียน schema ซ้ำ — ไม่ใช่ REST API → ข้าม
 - **UX/UI task** → UXUI SPEC (wireframe หรือ figma ref ถ้ามี), states, responsive
 - **data-flow** — ข้อมูลไหลจากไหนไปไหน
 - **user-flow** — ผู้ใช้เดินผ่านขั้นตอนไหน
@@ -114,6 +116,7 @@
 - [ ] **ไม่มีการเดา** — ทุกจุดที่ไม่ชัดถูกถาม (ทีละข้อ + recommended answer) และปิดแล้ว
 - [ ] design เป็น vertical slice ชัด — แต่ละ task/slice ส่งมอบคุณค่า end-to-end ได้
 - [ ] **Spec delta ครบ** — เทียบ `docs/features/<name>/spec.md` ของ feature ที่แตะ (ADDED/MODIFIED/REMOVED) หรือระบุ "ไม่มี delta"
+- [ ] **API contract (ถ้าแตะ REST API)** — topic ที่ auto-detect ว่าแตะ backend/REST API มี `openapi.yaml` (OpenAPI 3.1) ครบ + `spec.md` ของ API task ชี้มาที่ contract (ตาม `.warnyin/workflow/api-doc.md`); ไม่ใช่ REST API → ข้อนี้ N/A
 - [ ] ทุก task มี `spec.md` + `standard.md` + `rule.md` + `task.md` ครบ (ถ้ารัน node ได้: `node .warnyin/workflow/scripts/validate-topic.mjs <slug>` ควรไม่มี ✖ — เช็คโครง ไม่แทนการอ่าน semantic)
 - [ ] dependency / ลำดับระหว่าง task และ sub-task ชัดเจน เชื่อมต่อกัน — **critical-path gate (judgment, ไม่ใช่ mechanical check):** ระบุ critical-path depth + max wave width; ถ้า DAG เป็น chain เส้นตรง (ทุก wave มี 1 task) → ต้องมี **เหตุผล explicit** ว่าทำไม decouple ด้วย DAG-width toolkit (§3 ข้อ 2) ไม่ได้ (กัน chain เผลอ)
 - [ ] rule ที่ต้อง follow ถูกระบุครบ; rule/standard ใหม่ที่อยากเพิ่มถูก note ไว้ (รอ SHIP)

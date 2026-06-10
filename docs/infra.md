@@ -19,6 +19,7 @@ npm run setup:sandbox    # ติดตั้ง v-next จาก src/ ลง te
 
 ## Environment อื่น (staging/prod)
 - **publish:** npm registry (`@warnyin/agents`) — CI gate `.github/workflows/ci.yml` (test matrix + pack-verify) ก่อน publish
+- **เครื่องมือ API-doc = optional ของโปรเจกต์ปลายทาง ไม่ใช่ dependency ของ repo นี้** — capability `.warnyin/workflow/api-doc.md` อ้างถึง Spectral/Redocly/openapi-generator/FastAPI/tsoa แบบ "ติดตั้งเองเมื่ออยากใช้" (reference ไม่ vendor); repo นี้ยัง **zero-dep** ไม่ต้องลง tool เหล่านี้
 
 ## Runbook — transition `src/` restructure (topic src-bootstrap, design §5.3)
 ลำดับ one-time ตอนแยก source → `src/` + เปิด dogfood (ทำครั้งเดียว):

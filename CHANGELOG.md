@@ -23,6 +23,11 @@
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-06-09
+
+### Added
+- **Adaptive API documentation (OpenAPI 3.1) ตลอด lifecycle** — capability กลางใหม่ `.warnyin/workflow/api-doc.md`: stage **auto-detect** ว่า topic แตะ backend/REST API ไหม (techstack/route/annotation/API task/endpoint change) ถ้าใช่ → ผลิต+ยืนยัน+ส่งมอบ **OpenAPI 3.1 contract** ให้อัตโนมัติ (ไม่ใช่ REST API → ข้ามเงียบ ไม่ยัดเยียด). เสียบ hook บางๆ เข้า 3 stage โดย **ไม่ duplicate logic**: **DESIGN** ผลิต `docs/stages/<slug>/openapi.yaml` (design-first/code-first/hybrid) + `spec.md` ของ API task ชี้มาที่ contract; **VERIFY** ยืนยัน implementation จริงตรง contract (regen+diff หรือยิง request จริง — mismatch = ไม่ผ่าน เข้า fix loop); **SHIP** promote/merge → `docs/techstack/<component>/openapi.yaml` (living API contract). เพิ่มเกณฑ์ Gate ทั้ง 3 stage (N/A ถ้าไม่ใช่ REST API). ยึดหลัก **reference ไม่ vendor**: ชี้ skill `openapi-spec-generation` (`wshobson/agents`) เป็น template library + เครื่องมือ (Spectral/Redocly/OpenAPI Generator) แบบติดตั้งเอง — เพิ่มแถว SA/Developer ใน `roles/README.md` §"Skill เสริม". tool-agnostic (Codex/Antigravity ใช้ playbook ชุดเดียวกัน); payload ติดมากับ `--update` รอบถัดไป
+
 ## [0.9.1] - 2026-06-08
 
 ### Fixed
