@@ -23,6 +23,11 @@
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-06-10
+
+### Added
+- **Build orchestration — BUILD เร็วขึ้นด้วย DAG กว้าง + model routing + lean verify** (feature `build-orchestration`) — แก้ root cause ที่ BUILD ช้า ("1 agent/wave, chain ยาว") โดยปรับ playbook 2 ชั้นแบบ **unify-in-place**: **(โครงสร้าง — DESIGN)** `src/.warnyin/workflow/stages/design.md` §3 เพิ่ม **DAG-width toolkit** (3 เทคนิคลด serialization: contract-first decouple / re-slice ต่างแกน / ยอม serialize เฉพาะ chain แท้ — toolkit optional คงนิยาม vertical slice เดิม) + **critical-path gate** (Gate §8 judgment: วัด critical-path depth + max wave width; chain เส้นตรงต้องมีเหตุผล explicit) + **task/context lean**; `roles/tech-lead.md` checklist + template `design.md` §7 (ช่อง depth/wave-width). **(กลไก — BUILD)** `src/.warnyin/workflow/scripts/build-wave.mjs` รับ `tasks: string[] | Array<{name, model?}>` — `model` per task แบบ **pass-through** เข้า `agent()` (ไม่ map/hardcode ชื่อรุ่น — payload generic); orchestrator `src/.claude/commands/warnyin/build.md` map tier→รุ่นจริง (Claude adapter); `stages/build.md` §3 ทำ **self-verify = scope component ตัวเอง** (integration เลื่อนไป full-gate ที่คง blocking). vocab tier generic `{cheap, balanced, deepest}` ใน `task.md` field `Model tier` (ไม่ระบุ = balanced; ไม่แตะ `balanced+` ของ review). **พิสูจน์เชิงประจักษ์:** งานอิสระ 4 task ขนาน 1 wave เทียบ chain 4 wave = **~3.95× เร็วขึ้น** (token เท่ากัน) + redesign DAG ของ scaffold-foundation chain depth 4 → wave width 2. **backward compatible** (`tasks: string[]` เดิม + ไม่ส่ง `model` → พฤติกรรมเดิม); payload ติดมากับ `--update` รอบถัดไป
+
 ## [0.10.0] - 2026-06-09
 
 ### Added
