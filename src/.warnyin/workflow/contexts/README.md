@@ -47,3 +47,5 @@
 | `review` | `balanced+` | ตรวจ/จับ bug — ไม่ลด (พลาดแพงกว่า token) |
 
 > **tool-agnostic:** ใช้ vocab generic **ไม่ผูกชื่อรุ่น/ผลิตภัณฑ์ของ harness ใด ๆ** — แต่ละ harness map tier → รุ่นเอง (เทียบแนวทาง model selection ของ harness เช่นไฟล์ rules ฝั่ง performance); เป็น **guidance** ไม่ใช่ enforce
+
+> **per-task ใน BUILD (เพิ่มจาก per-context):** นอกจาก tier ระดับ context ด้านบน BUILD ยังกำหนด **model tier ต่อ task** ได้ผ่าน field `Model tier` ใน `task.md` — ใช้ subset `{cheap, balanced, deepest}` (ไม่ระบุ = `balanced` ตาม context build); mapping: mechanical/scaffold/config → `cheap` · implement ตาม spec ปกติ → `balanced` · logic หนัก/security/algorithm/ไม่เคยทำ → `deepest`. orchestrator ใน command (adapter) map tier→รุ่นจริง แล้วส่งเข้า `build-wave` per task — payload คง generic ตามเดิม

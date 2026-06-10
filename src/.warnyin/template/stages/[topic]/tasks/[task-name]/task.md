@@ -8,6 +8,7 @@
 | **Task** | `<kebab-case>` |
 | **Slice อ้างอิง** | `design.md` slice #__ |
 | **Component** | `admin-console` / `api-service` / ... |
+| **Model tier** | `cheap` / `balanced` / `deepest` _(optional; ไม่ระบุ = `balanced` — ดู `contexts/README.md` §"Model tier")_ |
 | **สถานะ** | `รอ build` / `กำลังทำ` / `เสร็จ` |
 
 ## 1. เป้าหมายของ task (vertical slice)

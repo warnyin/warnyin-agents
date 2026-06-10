@@ -18,7 +18,7 @@ slice เล็กจบในตัว, "เขียว" ต้องเขี
 ## Tool preference
 - **ควรใช้:** Edit / Write / Bash, sub-agent fan-out, `build-wave`
 - **เลี่ยง:** แก้นอก scope task, แตะ rule/standard กลางใน `docs/`
-- **Model tier:** `balanced` (orchestrator/main loop ที่ตัดสินใจ integrate); **fan-out worker** ที่ทำ task ชัด/เชิงกลไกตาม spec → ลดเป็น `cheap` ได้ (คุม cost — งานกำหนดไว้แล้ว)
+- **Model tier:** `balanced` (orchestrator/main loop ที่ตัดสินใจ integrate); **fan-out worker per task** ตาม field `Model tier` ใน `task.md` (subset `{cheap, balanced, deepest}`; ไม่ระบุ = `balanced`): mechanical/scaffold/config → `cheap` · implement ตาม spec ปกติ → `balanced` · logic หนัก/security/algorithm/ไม่เคยทำ → `deepest` (คุม token/cost ต่อ agent — ดู `contexts/README.md` §"Model tier")
 
 ## ใช้คู่ stage ไหน
 - ปลาย DESIGN (แตก task) → [`stages/design.md`](../stages/design.md)
