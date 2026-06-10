@@ -19,6 +19,7 @@
   Discovery→`research` · DESIGN→`research`+`build` · BUILD→`build` · VERIFY→`review` · SHIP→`review`
 - **activate = manual:** AI เปิด stage เจอ callout → อ่าน context → สวม posture; หรือ user สั่งโหมดตรงๆ
 - **model-tier guidance** (ใน "Tool preference" ของแต่ละ context) — แนะนำ model tier ตาม posture เพื่อคุม token/cost: `research`→`deepest reasoning` · `build`→`balanced` (fan-out worker เชิงกลไก→`cheap`) · `review`→`balanced+` (ไม่ลด); **generic vocab ไม่ผูกชื่อรุ่น** (harness map เอง — `docs/rule.md` §1 payload-guidance generic); legend ใน `contexts/README.md`
+- **per-task model tier ใน BUILD** (เพิ่มจาก per-context — topic `improve-performance`) — นอก tier ระดับ context, BUILD กำหนด tier **ต่อ task** ได้ผ่าน field `Model tier` ใน `task.md` (subset `{cheap, balanced, deepest}`; ไม่ระบุ = `balanced`): mechanical/scaffold/config→`cheap` · implement ปกติ→`balanced` · logic หนัก/security/algorithm/ไม่เคยทำ→`deepest`. orchestrator (adapter `command/build.md`) map tier→รุ่นจริง แล้วส่ง `model` per task เข้า `build-wave.mjs` (pass-through); **ไม่แตะ `balanced+` ของ review** (คนละมิติ)
 - `contexts/README.md` อธิบาย context-vs-role + ตาราง mapping + วิธี activate + โครง card + **ตาราง model-tier**
 
 ## ขอบเขต / ข้อจำกัด

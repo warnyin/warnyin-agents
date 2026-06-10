@@ -119,3 +119,11 @@
 - **ต้องเทส 2 ลำดับ:** (1) **migrate-ก่อน-install** (ลำดับแนะนำ) (2) **install-ก่อน-migrate** (สถานการณ์จริง — ผู้ใช้เห็น warning หลังรัน installer แล้ว `docs/stages/` ถูกสร้างไปก่อน) — คำสั่งต้องผ่านทั้งคู่
 - **ต้องเทสทุกรุ่น legacy** ที่ `cli.mjs` ตรวจจับ (≤0.2.x, 0.3–0.5.x)
 - **cross-platform / leak guard:** รันใน temp (`mktemp -d`) เท่านั้น — **ห้ามรัน `cli.mjs` ที่ cwd=repo root** (`troubleshooting.md` #6 dogfood leak); ใช้ `git mv <src>/* <dest>/` (ย้าย contents) — ไม่ใช่ `git mv <src> <dest>` (ซ้อน)
+
+## verify build-orchestration / DAG-width change (L: topic `improve-performance`)
+> change ที่แตะ DESIGN/BUILD orchestration (toolkit, critical-path gate, model routing, lean verify) — ขยายจาก "payload `.md`" + "payload workflow script"
+- **model-routing runtime proof (`build-wave.mjs`):** สกัด pure helper `normalizeTasks`/`buildOpts` ด้วย `new Function` (inject `RESULT_SCHEMA` stub) → assert: `string[]` เดิม→opts ไม่มี key `model` (backward compat) · `{name,model}`→`opts.model` = pass-through ตรงตัว (ไม่ map/hardcode) · `{name}`→ไม่มี key `model` · shared-tree→ไม่มี `isolation`/`model` key; รันทั้ง body ด้วย `AsyncFunction` (top-level await — `troubleshooting.md` #16)
+- **payload generic boundary:** grep ชื่อรุ่นจริงของ harness ใน payload (`src/.warnyin/workflow/contexts/`, `template/`, `build-wave.mjs`) → **ต้องว่าง**; ชื่อรุ่นปรากฏเฉพาะ adapter (`src/.claude/commands/warnyin/build.md`) — กัน tier→model map รั่วเข้า payload (`docs/rule.md` §1)
+- **empirical DAG-width proof (structural/observable — gate ตัดสิน, wall-clock = informational):** redesign DAG ของ achieved topic จริง (เช่น `scaffold-foundation`) ด้วย toolkit ใหม่ใน **sandbox doc** (อ่าน example read-only — ห้ามแก้ `example/`) → assert **DAG ใหม่มี ≥1 wave ที่ task >1** (เทียบ baseline chain depth) + decouple มี **หลักฐานจริง** (มี contract artifact เช่น `openapi.yaml`/stub type รองรับ — ไม่ใช่สมมุติ); 2nd data point = DAG ของ topic ที่กำลัง build เอง
+- **critical-path gate = judgment ไม่ใช่ validator:** ยืนยัน gate item อยู่ใน `design.md` Gate §8 (judgment) + template §7 (ช่อง depth/width) — **ไม่** เพิ่ม mechanical check ใน `validate-topic.mjs` (gate นี้ reviewer ตีความ)
+- **full-gate ยัง blocking:** grep `build.md` ยืนยัน lean self-verify (§3 ข้อ 4 scope component) **ไม่** ลด full-gate (§3 ข้อ 8 / §4 ข้อ 6) เป็น optional/informational
