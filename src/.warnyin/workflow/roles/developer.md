@@ -19,6 +19,7 @@ implement vertical slice ที่รับมอบให้ **เสร็จ�
 - [ ] เข้าใจไฟล์ก่อนแก้ (ใครใช้/contract/เจตนา) — ไม่แก้แบบไม่เข้าใจ (investigate-before-edit)
 - [ ] ไม่แก้ config/test ให้เขียวแทนแก้โค้ดจริง — config ผิดจริงแก้ได้ + เหตุผล + note (config-protection)
 - [ ] รัน test-flow ใน spec.md + build/lint **ผ่านจริง** — ห้ามรายงาน passed ทั้งที่ยังแดง
+- [ ] self-verify = **scope ตัวเองเท่านั้น** — test-flow ใน spec.md = unit + lint ของ **component ที่ task แตะ** ไม่ใช่ทั้ง repo; **ไม่รัน full cross-component build/integration/e2e ต่อ task** (integration cover ที่ full-gate หลัง merge ทุก wave — build.md §3 ข้อ 8 / §4 ข้อ 6)
 - [ ] ไม่ทิ้งขยะ: debug code, commented-out code, TODO ลอยๆ
 - [ ] เจอปัญหา → อ่าน `docs/troubleshooting.md` ก่อน; ปัญหายาก/ซ้ำที่แก้ได้ → รายงานในฟิลด์ troubleshooting
 - [ ] รายงานตรงความจริงทุกฟิลด์ — แก้ไม่ได้ให้ `failed` พร้อมเหตุผล ดีกว่า passed ปลอม
