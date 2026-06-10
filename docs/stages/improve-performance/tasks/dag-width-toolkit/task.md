@@ -8,7 +8,7 @@
 | **Slice อ้างอิง** | `design.md` slice #1 |
 | **Component** | `installer` (playbook กลาง) |
 | **Model tier** | `deepest` (แก้ playbook แกน + reconcile philosophy = งานคิดหนัก) |
-| **สถานะ** | `รอ build` |
+| **สถานะ** | `เสร็จ (BUILD)` — commit `e54adc0`, full-gate เขียว |
 
 ## 1. เป้าหมายของ task (vertical slice)
 ฝัง **DAG-width toolkit + critical-path gate + task-lean** ลง DESIGN playbook → DESIGN แตก DAG กว้างได้เอง (end-to-end: หลักการ + checklist + template + gate)
