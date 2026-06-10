@@ -31,12 +31,18 @@
 - จุดที่ต้องระวัง / backward compatibility:
 
 ## 7. Dependency ระหว่าง slice/task
-> slice/task เชื่อมกันยังไง ลำดับการทำ
+> slice/task เชื่อมกันยังไง ลำดับการทำ — วาด DAG แล้ววัด width (กัน chain เผลอ)
 
 ```
 task-1 ──▶ task-2 ──▶ task-3
               └──▶ task-4
 ```
+
+- **critical-path depth (longest chain):** <จำนวน wave ของ chain ที่ยาวที่สุด>
+- **max wave width:** <จำนวน task สูงสุดใน wave เดียว — >1 = ขนานได้>
+- **เหตุผลถ้า task ใดถูก serialize:** <ถ้า DAG เป็น chain เส้นตรง (ทุก wave 1 task) → ทำไม decouple ด้วย DAG-width toolkit (design.md §3 ข้อ 2) ไม่ได้>
+
+
 
 ## 8. Test strategy ระดับ design
 - จะยืนยันว่า design ทำงานถูกอย่างไร (ภาพรวม — รายละเอียดอยู่ใน task spec):

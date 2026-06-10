@@ -18,6 +18,10 @@
 - **pack-verify เป็น gate ก่อน publish + ต้อง testable** — แยก pure function `checkFiles(files)→errors[]` ออกจาก `npm pack` มี unit ป้อน file list ปลอมพิสูจน์ denylist จับได้ (กัน "gate ลวง" ที่เขียวเพราะ allowlist ปิด ไม่ใช่ denylist ทำงาน); assert payload ติดครบ (`src/.warnyin/workflow/` **และ** `src/.claude/commands/warnyin/`)
 - **denylist ต้องครอบ dogfood ที่ root + tripwire** — bootstrap layout ทำให้ installed payload (`^.warnyin/`, `^.claude/`, root `CLAUDE.md`/`AGENTS.md`) เสี่ยงหลุดขึ้น package เอง → denylist ต้องจับ + tripwire (`settings.local.json`, `*.tgz`, `.env*`)
 
+## build orchestration (`build-wave.mjs`)
+- **worktree base ปนเปื้อน → cherry-pick commit เดี่ยว ไม่ merge ทั้ง branch** — harness fork worktree จาก base ที่คุมไม่ได้ (อาจคนละสายกับ build branch) → ตอน integrate ผล wave ถ้า branch ของ agent ต่อยอดบน base ผิด/ปนเปื้อน ให้ `git cherry-pick <commit เดี่ยวของ agent>` (เอาเฉพาะ diff ไฟล์ที่ task own — file-ownership disjoint การันตีไม่ชน) **ห้าม `git merge` ทั้ง branch** (ลาก divergence ของ base เข้ามา)
+- **worktree sync เชื่อถือไม่ได้ → fallback `isolate:false` (shared-tree)** — ถ้า root script stale/ขาด `baseRef` (sync-gap, `docs/rule.md` §1 build-orchestration) → รัน shared-tree: agent ทำใน working tree จริง (เห็น root `.warnyin/`+docs/+src/ ครบ) main loop commit ให้; เสีย parallelism ใน wave แต่ได้ correctness (file-ownership disjoint → sequential ก็ปลอดภัย) — evidence: topic `improve-performance` (build.md §3 integration notes — wave 1 worktree fail → cherry-pick 2 task + shared-tree re-run failed task + wave 2)
+
 ## dev tooling (`src/scripts/setup-*.mjs` — bootstrap/dogfood)
 - **npm scripts (`setup:*`) ต้องเป็น node script cross-platform** — zero-dep/ESM ใน `src/scripts/`; ใช้ `os.tmpdir()`+`mkdtempSync` (ห้าม hardcode `/tmp`), `path.join`; spawn array args **ห้าม `shell:true`** ยกเว้นเรียก npx บน win32 (`.cmd`); ต้องมี fallback (npm pack→extract→node) หรือ exit ด้วย error ชัดเจน (ห้าม false-green)
 - **`setup:dogfood` เตือน review payload diff ก่อนเปิด session** — payload ที่ install จาก `@latest` ถูก agent execute ต่อ = supply-chain surface (low risk เพราะ release ตัวเอง แต่ comment เตือนเป็น policy)

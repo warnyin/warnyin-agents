@@ -12,9 +12,9 @@
 - reuse ก่อนเขียนใหม่เสมอ
 
 ## Checklist
-- [ ] แต่ละ task ขนาดพอเหมาะ: sub-agent ตัวเดียวทำจบ มี spec ครบในตัว ไม่ต้องเดา
+- [ ] แต่ละ task ขนาดพอเหมาะ: sub-agent ตัวเดียวทำจบ มี spec ครบในตัว **+ กระชับ; brief ยาวผิดปกติ → recheck dependency/re-slice** ไม่ต้องเดา
 - [ ] dependency graph ถูกต้อง ไม่มี cycle, ไม่มี dependency แอบแฝงที่ไม่ได้ระบุ (เช่น แก้ไฟล์เดียวกัน)
-- [ ] task ใน wave เดียวกัน parallel ได้จริง — ไม่ชนไฟล์/ตารางเดียวกัน
+- [ ] task ใน wave เดียวกัน parallel ได้จริง — ไม่ชนไฟล์/ตารางเดียวกัน **และ DAG ไม่ลึกเกินจำเป็น (ลอง DAG-width toolkit ก่อนยอม serialize — contract-first / re-slice ต่างแกน / serialize เฉพาะ chain แท้)**
 - [ ] จุดเสี่ยง technical (ของยาก/ไม่เคยทำ/พึ่งระบบนอก) ถูกระบุ + มีแผนรองรับ
 - [ ] ของเดิมที่ reuse ได้ถูกชี้ใน standard.md ของ task — ไม่ปล่อยให้ agent เขียนซ้ำ
 - [ ] effort สมเหตุผลกับคุณค่า — ถ้า task ใดแพงผิดปกติ ตั้งคำถามกับ design

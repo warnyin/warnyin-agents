@@ -66,3 +66,22 @@ guidance ของ model tier ใช้คำ generic (`deepest reasoning`/`bala
 - GIVEN section `## Tool preference` ใน `src/.warnyin/workflow/contexts/research.md`
 - WHEN อ่านบรรทัด `**Model tier:**`
 - THEN ระบุคำ generic เช่น `deepest reasoning` โดยไม่ปรากฏชื่อผลิตภัณฑ์/รุ่นของ harness ใด
+
+## Requirement: per-task model tier ใน BUILD (route ผ่าน build-wave)
+
+นอก tier ระดับ context, BUILD route model **ต่อ task** ได้ผ่าน field `Model tier` ใน `task.md` (subset generic `{cheap, balanced, deepest}`) — `build-wave.mjs` รับ `model` per task แล้วส่งเข้า runtime แบบ pass-through; adapter เป็นคน map tier→รุ่นจริง (payload ไม่ map)
+
+### Scenario: task มี Model tier → build-wave ส่ง model
+- GIVEN `tasks` ที่ส่งเข้า `build-wave.mjs` เป็น `Array<{name, model}>` (เช่น element มี `model` truthy)
+- WHEN script ประกอบ opts ของ `agent()` ต่อ task
+- THEN opts มี key `model` เท่ากับค่าที่ส่งเข้ามา (pass-through — script ไม่ map/hardcode ชื่อรุ่น)
+
+### Scenario: task ไม่มี Model tier → opts ไม่มี key model (backward compat)
+- GIVEN `tasks` เป็น `string[]` เดิม หรือ element `{name}` ที่ไม่มี `model`
+- WHEN script ประกอบ opts ของ `agent()`
+- THEN opts **ไม่มี** key `model` (พฤติกรรมเดิมก่อนเพิ่ม feature ยังคงอยู่)
+
+### Scenario: tier→model mapping อยู่ที่ adapter ไม่ใช่ payload
+- GIVEN ไฟล์ payload `src/.warnyin/workflow/contexts/` และ `src/.warnyin/workflow/scripts/build-wave.mjs`
+- WHEN grep ชื่อรุ่นจริงของ harness (เช่น product/version string)
+- THEN ไม่พบชื่อรุ่นใน payload — ชื่อรุ่นปรากฏเฉพาะใน adapter `src/.claude/commands/warnyin/build.md`

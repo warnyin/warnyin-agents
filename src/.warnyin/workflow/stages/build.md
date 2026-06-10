@@ -31,11 +31,11 @@ BUILD จะ **orchestrate การ implement** โดยกระจายง�
 3. **Worktree isolation ต่อ task** — แต่ละ parallel task ทำใน git worktree ของตัวเอง ไม่แก้ไฟล์ชนกัน แล้ว **integrate (merge) เข้า build branch หลังจบแต่ละ wave**
    - **★ worktree fork จาก main (คุมไม่ได้) → agent ต้อง sync build branch ก่อน** — harness fork worktree จาก main จึงยังไม่เห็น `docs/stages/<slug>/` (topic docs) + output ของ wave ก่อนหน้า; build-wave สั่ง agent `git merge <baseRef>` (= build branch) เป็น step แรกก่อนอ่าน task เพื่อให้เห็น dependency ครบ (กลไกอยู่ใน `build-wave.mjs` — orchestrator ส่ง `baseRef` เข้ามา)
    - ถ้า target ไม่ใช่ git repo → fallback เป็น **sequential shared-tree** (ทีละ task ตาม dependency)
-4. **แต่ละ build agent ต้อง self-verify** — implement → รัน test-flow ใน `spec.md` + build/lint → **ต้องผ่านก่อนถึง mark passed**; ถ้าแก้ไม่ได้ให้รายงาน `failed` พร้อมเหตุผล **ห้ามรายงานผ่านทั้งที่ยังแดง**
+4. **แต่ละ build agent ต้อง self-verify (scope = component ตัวเองเท่านั้น)** — implement → รัน test-flow ใน `spec.md` + build/lint **ของ component ที่ task นั้นแตะ (unit + lint ของ component นั้น) ไม่ใช่ทั้ง repo** → **ต้องผ่านก่อนถึง mark passed**; ถ้าแก้ไม่ได้ให้รายงาน `failed` พร้อมเหตุผล **ห้ามรายงานผ่านทั้งที่ยังแดง** — **cross-component / integration / e2e ไม่ต้องรันต่อ task** (เลื่อนไป full-gate ข้อ 8 / §4 ข้อ 6) กันรันซ้ำเสียเวลา
 5. **เคารพ standard/rule ของ task** — ทำตาม `standard.md` (pattern โค้ด, reuse shared component) และ `rule.md` (กฎ) อย่างเคร่งครัด
 6. **ห้ามแตะ rule/standard กลางใน `docs/`** — rule ใหม่ที่เสนอถูก note ไว้ใน `tasks/<task>/rule.md` แล้ว รอ SHIP ค่อยอัปเดตไฟล์กลาง
 7. **fail = หยุดที่ wave นั้น** — ถ้า task ใน wave ล้ม ให้รายงาน user ก่อนไป wave ถัดไป (เพราะ wave ถัดไปอาจ depend อยู่)
-8. **★ ปิดท้ายด้วย full build + full test เสมอ** — หลัง merge ทุก wave แล้ว ต้องรัน build ทั้งหมด + test suite ทั้งหมด (รวม unit test) บน build branch ที่ integrate; **แก้วนจนเขียวหมด** ก่อนปิด BUILD (กันกรณี task รายเดี่ยวเขียวแต่พอรวมกันแล้วพัง)
+8. **★ ปิดท้ายด้วย full build + full test เสมอ (blocking gate — ห้ามลด bar)** — หลัง merge ทุก wave แล้ว ต้องรัน build ทั้งหมด + test suite ทั้งหมด (รวม unit test) + cross-component/integration บน build branch ที่ integrate; **แก้วนจนเขียวหมด** ก่อนปิด BUILD (กันกรณี task รายเดี่ยวเขียวแต่พอรวมกันแล้วพัง) — **gate นี้คงเป็น blocking เสมอ** การที่ข้อ 4 ลด self-verify ของ agent เหลือ scope component เดียว **ไม่ได้ลดความเข้มของ full-gate** (integration coverage ย้ายมารวมที่นี่ ไม่ใช่ตัดทิ้ง); ห้ามแปลง gate นี้เป็น optional/informational เพื่อให้ "ดูเร็วขึ้น"
 9. **ทุก build agent สวม role Developer** — ทำตาม role card `.warnyin/workflow/roles/developer.md` (lens + checklist ก่อนส่งงาน) — build-wave.mjs ใส่ให้ใน prompt แล้ว
 10. **★ ใช้ Troubleshooting KB** — เจอปัญหา/error ระหว่าง build ให้ **อ่าน `docs/troubleshooting.md` ก่อนเสมอ** เผื่อเคยแก้แล้ว; เมื่อแก้ปัญหาที่ **ยาก/เจอซ้ำ** สำเร็จ ให้บันทึก entry ลง `docs/stages/<slug>/troubleshooting.md` (ปัญหา/อาการ/root cause/วิธีแก้/ป้องกันซ้ำ) — ตอน SHIP จะยกขึ้น KB กลาง
 11. **★ investigate-before-edit** (enforce ของ "ห้ามเดา") — ก่อนแก้ไฟล์ที่มีอยู่ ต้องเข้าใจก่อน — **ใครใช้/อ่านไฟล์นี้, schema/contract/สัญญาของมัน, เจตนาเดิม**; แก้โดยไม่เข้าใจ = เดา (กรณีไม่ชัด → ถาม user / อ่านโค้ดที่อ้างถึง ก่อนแก้)
@@ -57,7 +57,7 @@ BUILD จะ **orchestrate การ implement** โดยกระจายง�
    - แต่ละ agent: sync build branch (`git merge <baseRef>`) → implement → test/lint → commit (ถ้า worktree) → รายงานผลแบบ structured (status, files, branch, test result)
    - **integrate:** main loop checkout **เฉพาะไฟล์ source ที่ scoped** ของ wave นั้นจาก worktree branch (`git checkout <branch> -- <files>` — เลี่ยง topic-docs copy ที่ agent merge เข้า worktree + ปลอด KB#11); ถ้า conflict → แก้/รายงาน
    - ถ้ามี task `failed` → หยุด รายงาน user
-6. **★ Full build & test gate (หลังทุก wave merge เสร็จ):** บน build branch ที่ integrate แล้ว รัน **build ทั้งหมด + test suite ทั้งหมด (รวม unit test)** ของทุก component ที่กระทบ
+6. **★ Full build & test gate (หลังทุก wave merge เสร็จ — blocking, ห้ามลด bar):** บน build branch ที่ integrate แล้ว รัน **build ทั้งหมด + test suite ทั้งหมด (รวม unit test) + cross-component/integration** ของทุก component ที่กระทบ — นี่คือจุดที่ครอบ integration ที่ self-verify ต่อ task (§3 ข้อ 4) ไม่ได้รัน จึง **ต้องคงเป็น blocking gate เต็มเสมอ**
    - มี error / test แดง → **แก้จนเขียวหมด (loop)** อาจ delegate fix ให้ sub-agent ทีละจุด แล้ว rerun ใหม่
    - **ห้ามปิด BUILD ถ้ายังมี build error หรือ test ตัวใดแดง**
    - ถ้าวนแก้หลายรอบยังไม่ผ่าน → หยุด รายงาน user พร้อม log error
