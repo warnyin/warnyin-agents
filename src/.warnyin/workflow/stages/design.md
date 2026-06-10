@@ -32,7 +32,11 @@
 
 1. **ห้ามเดาเอง** — จุดที่ไม่มั่นใจ ให้ **ถามทีละข้อ + เสนอคำตอบที่แนะนำ (recommended answer) ทุกข้อ** (เหมือน Discovery) คำถามที่ตอบได้ด้วยโค้ด/เอกสาร → ไปอ่านเอง
 2. **Vertical slice architecture** — ออกแบบและแตก task เป็น "slice ที่ตัดผ่านทุก layer" (UI → API → domain → data → test) ทำงาน end-to-end ได้ในตัว **ไม่แบ่งตาม layer แนวนอน**
-3. **task = หน่วยที่โยนให้ sub-agent ได้** — แต่ละ task self-contained (มี spec + standard + rule ของตัวเอง) แต่ **เชื่อมต่อกัน** ผ่าน dependency/ลำดับที่ระบุชัด
+   - **DAG-width toolkit (เทคนิคเสริม optional ลด serialization)** — คงนิยาม vertical slice เดิม (slice ตัดทุก layer end-to-end); toolkit เป็นเทคนิคเสริม เลือกตามเคส ไม่ใช่ข้อบังคับ — ใช้เมื่อแตก slice แล้วได้ dependency chain ลึก:
+     1. **Contract-first decouple** — เมื่อ task B ต้องการแค่ **interface/contract** ของ A (ไม่ใช่ runtime จริง) → ให้ B พึ่ง **contract artifact** (type/schema/openapi/ไฟล์กลางที่ตกลงใน design) แทน → A‖B ขนาน; integration พิสูจน์ที่ **full-gate** (`build.md` §3 ข้อ 8) — slice ยัง end-to-end แค่ stub ฝั่ง dependency ชั่วคราว
+     2. **Re-slice ต่างแกน** — ถ้าแตกตาม component-layer แล้วได้ chain → ลองแตกตาม **feature/capability ที่ independent** แทน
+     3. **ยอม serialize เฉพาะ chain แท้** — dependency ที่เลี่ยงไม่ได้ (foundation ต้องก่อน / doc ต้องอ้าง code) → ยอมรับ แล้วโฟกัส **ลดเวลา node บน critical path** (model tier + task-lean)
+3. **task = หน่วยที่โยนให้ sub-agent ได้** — แต่ละ task self-contained (มี spec + standard + rule ของตัวเอง) **กระชับพอ agent ทำจบ ไม่ฟุ่มเฟือย** (brief ยาวผิดปกติ → recheck dependency/re-slice) แต่ **เชื่อมต่อกัน** ผ่าน dependency/ลำดับที่ระบุชัด — เมื่อแตก task ต้อง **วาด DAG แล้ววัด critical-path depth (longest chain) + max wave width**: ถ้า DAG เป็น chain เส้นตรง (ทุก wave มี 1 task) ต้องมี **เหตุผล explicit** ว่าทำไม decouple ด้วย toolkit ข้อ 2 (3 เทคนิค) ไม่ได้ (กัน chain เผลอ)
 4. **สอดคล้องมาตรฐานเสมอ** — อิง rule + standard ของ techstack; ถ้าจะเพิ่ม rule/standard ใหม่ ให้ **note ไว้ก่อน** (ยังไม่แก้ไฟล์กลาง — รอ SHIP)
 5. **Gate ก่อนเขียนไฟล์ task จริง** — ต้องผ่านเกณฑ์ข้อ 8 ก่อนจะ generate ไฟล์ task และก่อนโยนให้ sub-agent
 6. **ใช้ role lens** — ออกแบบ (design.md) ด้วยมุม **SA** (`.warnyin/workflow/roles/sa.md`) และแตก/ตรวจ task ด้วยมุม **Tech Lead** (`.warnyin/workflow/roles/tech-lead.md`)
@@ -54,7 +58,7 @@
    3. **blocker → แก้ design ให้ครบ** โดยห้ามเดา — ติดจริงถาม user ทีละข้อ + เสนอคำตอบแนะนำ; suggestion → พิจารณา/บันทึกเหตุผลถ้าไม่ทำ
    4. บันทึกสรุปผล panel + สิ่งที่แก้ ลงท้าย `design.md` (section "Design review")
    5. เครื่องที่ fan-out ไม่ได้ → รีวิวทีละ role ด้วย checklist เดียวกัน
-7. **แตก tasks:** แปลง design เป็น task (= vertical slice / step ที่แก้); task ซับซ้อน → แตก **sub-task** ย่อย; เขียน **dependency graph / ลำดับ** ให้ sub-task เชื่อมกัน
+7. **แตก tasks:** แปลง design เป็น task (= vertical slice / step ที่แก้); task ซับซ้อน → แตก **sub-task** ย่อย; **วาด DAG** + ระบุ **critical-path depth (longest chain) + max wave width + เหตุผลถ้า task ใดถูก serialize** — ถ้าได้ chain ลึก ลอง DAG-width toolkit (§3 ข้อ 2) ก่อนยอม serialize; เขียน **dependency graph / ลำดับ** ให้ sub-task เชื่อมกัน
 8. **rule check ต่อ task:** เปิด `docs/techstack/<component>/rule.md` หา rule ที่ task นี้ต้องโฟกัส → ใส่ใน `tasks/<task>/rule.md`; rule ใหม่ที่อยากเพิ่ม → note ใน section "เสนอเพิ่ม (รอ SHIP)"
 9. **เช็ค Gate (ข้อ 8)** → เมื่อผ่าน จึง **เขียนไฟล์ task ครบทุกใบ** (แตก task ด้วย lens `.warnyin/workflow/roles/tech-lead.md`)
 10. **Dry-run (optional — ถาม user ก่อน):** ถาม user ว่าต้องการ dry-run ทั้งหมดเพื่อหาจุดบกพร่องก่อนเข้า BUILD ไหม — ถ้า ok:
@@ -111,7 +115,7 @@
 - [ ] design เป็น vertical slice ชัด — แต่ละ task/slice ส่งมอบคุณค่า end-to-end ได้
 - [ ] **Spec delta ครบ** — เทียบ `docs/features/<name>/spec.md` ของ feature ที่แตะ (ADDED/MODIFIED/REMOVED) หรือระบุ "ไม่มี delta"
 - [ ] ทุก task มี `spec.md` + `standard.md` + `rule.md` + `task.md` ครบ (ถ้ารัน node ได้: `node .warnyin/workflow/scripts/validate-topic.mjs <slug>` ควรไม่มี ✖ — เช็คโครง ไม่แทนการอ่าน semantic)
-- [ ] dependency / ลำดับระหว่าง task และ sub-task ชัดเจน เชื่อมต่อกัน
+- [ ] dependency / ลำดับระหว่าง task และ sub-task ชัดเจน เชื่อมต่อกัน — **critical-path gate (judgment, ไม่ใช่ mechanical check):** ระบุ critical-path depth + max wave width; ถ้า DAG เป็น chain เส้นตรง (ทุก wave มี 1 task) → ต้องมี **เหตุผล explicit** ว่าทำไม decouple ด้วย DAG-width toolkit (§3 ข้อ 2) ไม่ได้ (กัน chain เผลอ)
 - [ ] rule ที่ต้อง follow ถูกระบุครบ; rule/standard ใหม่ที่อยากเพิ่มถูก note ไว้ (รอ SHIP)
 - [ ] ถ้าทำ review panel: **blocker จากทุก role ถูกแก้/ปิดครบ** — สรุปผลบันทึกใน `design.md` section "Design review"
 - [ ] ถ้าทำ dry-run: **ไม่มี blocker ค้าง** — ทุก issue ถูกแก้/ปิดใน `issue.md`, defer ที่เหลือ user รับทราบแล้ว
