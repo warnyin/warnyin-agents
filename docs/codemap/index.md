@@ -1,4 +1,4 @@
-<!-- Generated: 2026-06-10 (rescan หลัง improve-performance: build-wave model arg + DAG-width toolkit; รวม adaptive-api-doc) | Files scanned: ~85 src | Token estimate: ~610 -->
+<!-- Generated: 2026-06-11 (rescan หลัง change-sizing-router: triage.md router + design §7 3-tier; ต่อจาก improve-performance/adaptive-api-doc) | Files scanned: ~86 src | Token estimate: ~625 -->
 # Codemap — Warnyin Standard Workflow
 
 > repo = **tool/library** (npm `@warnyin/agents`) ไม่ใช่ app — ส่งมอบ "ways of work" 5 stage ลงโปรเจกต์อื่น
@@ -29,7 +29,9 @@ single library (zero-dependency, ESM, Node ≥20) เผยแพร่ผ่า
 - `src/.warnyin/workflow/contexts/*.md` — context profile (session-level posture: research/build/review) ที่ stage playbook ชี้ถึง
 - `src/.warnyin/workflow/roles/*.md` — role card (task-level lens)
 - `src/.warnyin/workflow/api-doc.md` — capability เสริม conditional (stage เรียกเองเมื่อ auto-detect topic แตะ REST API): ผลิต/verify/promote OpenAPI 3.1 contract — ดู `docs/features/api-doc/`
+- `src/.warnyin/workflow/triage.md` — capability `/warnyin:triage` (read-only router): ประเมินขนาด change → tier `{fast,standard,large}` (rubric canonical: signals + hard-floor 5 หมวด + escalation + fast-track skip-list) → แนะนำ route แล้วหยุด; `design.md §7`/`verify.md`/`ship.md` ชี้ skip-list canonical นี้ — ดู `docs/features/change-sizing/`
 - `src/.claude/skills/*/SKILL.md` — utility skill auto-invocable (`/update-codemaps`, `/explore`, `/next`) ชี้ playbook กลาง
+- `src/.claude/commands/warnyin/triage.md` — command adapter `/warnyin:triage` (user-invoked, read-only) ชี้ `triage.md` playbook
 
 ## Dev tooling (`src/scripts/` — ไม่ publish)
 - `verify-pack.mjs` (pack-verify gate, export `checkFiles`) · `check-test-count.mjs` (pass-count gate) · `lint-md.mjs` (dead-link gate, export `checkLinks`)
