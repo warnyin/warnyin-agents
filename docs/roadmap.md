@@ -98,6 +98,7 @@
 - [x] unit 7 เคส (pure `checkLinks`) + `npm run lint:md` + **CI job `lint-md`** (เชื่อม CI ข้อ 2)
 - [x] global: `docs/rule.md` §2 zero-dep lint-gate convention; troubleshooting #12 (strip-code) + #13 (main-loop ตรวจ exit)
 - **หมายเหตุ:** เลือก dead-link เป็นแกน (need ที่ทำมือซ้ำทุก VERIFY) แทน markdownlint/prettier เต็มชุด — opinionated high-signal + คง zero-dep (จุดขาย)
+- [ ] **follow-up (เสนอ 2026-06-11 · topic `build-wave-export-fix`):** lint-gate ตรวจ `^export ` ใน `src/.warnyin/workflow/scripts/*.mjs` ให้เหลือเฉพาะ `export const meta` (workflow script รันผ่าน Workflow tool — `export function` อื่น = Workflow loader พัง). เหตุผล: rule นี้ documented (`installer/rule.md` §build orchestration + troubleshooting #16/#20) แต่ **เจอละเมิดซ้ำ 3×** เพราะไม่มี mechanical gate — pattern เดียวกับ #12 (zero-dep node script + unit + CI). bounded ทำเมื่อคุ้ม (low-signal ถ้า script มีไฟล์เดียว)
 
 
 ### 13. Feature behavior spec + delta discipline (จาก OpenSpec) ✅ DONE (2026-06-07 · topic `feature-spec-delta`)
