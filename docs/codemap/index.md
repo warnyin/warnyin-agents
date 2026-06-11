@@ -1,4 +1,4 @@
-<!-- Generated: 2026-06-11 (rescan หลัง change-sizing-router: triage.md router + design §7 3-tier; ต่อจาก improve-performance/adaptive-api-doc) | Files scanned: ~86 src | Token estimate: ~625 -->
+<!-- Generated: 2026-06-11 (rescan หลัง global-install: cli global mode; ต่อจาก change-sizing-router) | Files scanned: ~87 src | Token estimate: ~635 -->
 # Codemap — Warnyin Standard Workflow
 
 > repo = **tool/library** (npm `@warnyin/agents`) ไม่ใช่ app — ส่งมอบ "ways of work" 5 stage ลงโปรเจกต์อื่น
@@ -16,7 +16,7 @@ single library (zero-dependency, ESM, Node ≥20) เผยแพร่ผ่า
 ## Component หลัก (อยู่ใน SOURCE layer `src/`)
 | component | ที่อยู่ | หน้าที่ | codemap |
 |---|---|---|---|
-| **installer** | `src/bin/cli.mjs` + `src/tests/` + `src/scripts/` + `.github/` | ติดตั้ง/อัปเดต workflow ลงโปรเจกต์ปลายทาง (โค้ดรันได้เดียวใน repo) | `docs/techstack/installer/` |
+| **installer** | `src/bin/cli.mjs` + `src/tests/` + `src/scripts/` + `.github/` | ติดตั้ง/อัปเดต workflow ลงโปรเจกต์ปลายทาง (per-project default) + **global mode** (`--global` → `~/`, ใช้ทุกโปรเจกต์ — `docs/features/global-install/`) | `docs/techstack/installer/` |
 | **workflow core** | `src/.warnyin/workflow/` | playbook กลาง 5 stage + role card + script (เนื้อหา `.md` tool-agnostic) | `architecture.md` |
 | **templates** | `src/.warnyin/template/` | โครง output ของแต่ละ stage + seed `docs/` + living behavior spec ต่อ feature (`docs/features/[feature-name]/spec.md` — ดู `docs/features/spec-delta/`) | `architecture.md` |
 | **adapters** | `src/.claude/` (`commands/warnyin` user-invoked · `skills` auto-invocable utility · `agents`) + `src/AGENTS.md` | thin adapter ชี้กลับ playbook กลาง (Claude Code / Codex) | `architecture.md` · `docs/features/utility-skills/` |

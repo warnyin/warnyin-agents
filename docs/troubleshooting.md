@@ -131,3 +131,14 @@
 - **Root cause:** task-brief เขียน **ตัวอย่าง** markdown-link ที่ agent ต้องไปใส่ในไฟล์ stage แต่เขียนเป็น **live link** `[..](../path)` ในตัว brief เอง → `lint-md` resolve จาก location ของ brief (`tasks/<task>/`) ไม่ใช่จาก location ปลายทาง → path ไม่มีจริง = dead-link. บรรทัดที่ห่อ backtick (`` `[..](..)` ``) lint ข้าม (inline-code) แต่บรรทัดที่ไม่ห่อถูก resolve
 - **วิธีแก้:** ห่อ illustrative link ในtask-brief ด้วย backtick (inline-code) ให้เป็น documentation ไม่ใช่ live link — `lint-md.mjs` strip code-span ก่อน match link จึงข้ามให้
 - **ป้องกันซ้ำ:** เวลาเขียน brief/เอกสารที่ **ยกตัวอย่าง** markdown-link ของไฟล์ปลายทาง → ห่อ backtick เสมอ (illustrative ≠ live link); dead-link ของ **artifact จริง** ต่างหากที่เป็น integration-proof ที่ full-gate ต้องการ (topic `change-sizing-router` BUILD full-gate)
+
+### 20. Workflow loader พัง `Unexpected keyword 'export'` เมื่อ workflow script มี top-level `export function`
+- **อาการ:** เรียก `Workflow({ scriptPath: ".warnyin/workflow/scripts/build-wave.mjs", ... })` → `Workflow script has a syntax error and was not launched: SyntaxError: Unexpected keyword 'export'`
+- **Root cause:** Workflow tool ของ harness wrap script แล้วยอมรับเฉพาะ `export const meta` (ตัวบังคับ); build-wave.mjs ตั้งแต่ 0.12.0 มี **top-level `export function normalizeTasks`/`export function buildOpts`** (export ออกให้ unit test import) → parse ล้ม (ธีมเดียวกับ #16 — payload workflow script valid เฉพาะตอน harness wrap แบบเฉพาะ; ก่อน 0.11.0 ไม่มี `export function` จึงไม่เคยเจอ)
+- **วิธีแก้:** สร้าง temp copy ที่ตัด `export` ออกจาก function declaration (ฟังก์ชันใช้ภายในสคริปต์อยู่แล้ว ไม่ต้อง export ตอนรันจริง) — คง `export const meta`:
+  ```bash
+  sed 's/^export function /function /' .warnyin/workflow/scripts/build-wave.mjs \
+    > .warnyin/workflow/scripts/build-wave-run.mjs   # root .warnyin gitignored
+  # Workflow({ scriptPath: ".../build-wave-run.mjs", ... }) แล้วลบ temp หลังเสร็จ
+  ```
+- **ป้องกันซ้ำ:** fix ถาวร = `src/.warnyin/workflow/scripts/*.mjs` **อย่า `export function`** — pure-fn ให้ unit test สกัดด้วย `new Function`/module-parse (pattern #16) หรือย้ายไป helper แยก; กฎใน `docs/techstack/installer/rule.md` §build orchestration (topic `global-install` TS-1)
