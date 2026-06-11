@@ -1,4 +1,4 @@
-<!-- Generated: 2026-06-11 (rescan หลัง global-install: cli global mode; ต่อจาก change-sizing-router) | Files scanned: ~87 src | Token estimate: ~635 -->
+<!-- Generated: 2026-06-11 (rescan หลัง discovery-mode-selector: Discovery 5 mode + ไต่สวน; ต่อจาก global-install) | Files scanned: ~87 src | Token estimate: ~650 -->
 # Codemap — Warnyin Standard Workflow
 
 > repo = **tool/library** (npm `@warnyin/agents`) ไม่ใช่ app — ส่งมอบ "ways of work" 5 stage ลงโปรเจกต์อื่น
@@ -30,6 +30,7 @@ single library (zero-dependency, ESM, Node ≥20) เผยแพร่ผ่า
 - `src/.warnyin/workflow/roles/*.md` — role card (task-level lens)
 - `src/.warnyin/workflow/api-doc.md` — capability เสริม conditional (stage เรียกเองเมื่อ auto-detect topic แตะ REST API): ผลิต/verify/promote OpenAPI 3.1 contract — ดู `docs/features/api-doc/`
 - `src/.warnyin/workflow/triage.md` — capability `/warnyin:triage` (read-only router): ประเมินขนาด change → tier `{fast,standard,large}` (rubric canonical: signals + hard-floor 5 หมวด + escalation + fast-track skip-list) → แนะนำ route แล้วหยุด; `design.md §7`/`verify.md`/`ship.md` ชี้ skip-list canonical นี้ — ดู `docs/features/change-sizing/`
+- `src/.warnyin/workflow/stages/discovery.md §3.5` — capability **Discovery modes** (canonical): 5 mode ปรับความเข้ม Discovery `{ไว, สมดุล, ละเอียด, โต้วาที, ไต่สวน}` + auto-suggest (precedence) + multi-agent (`โต้วาที` fan-out / `ไต่สวน` Blue/Red iterative + memory `debate/`); orthogonal กับ tier/context-profile; command `/warnyin:discovery <slug> [mode]` ชี้มา — ดู `docs/features/discovery-modes/`
 - `src/.claude/skills/*/SKILL.md` — utility skill auto-invocable (`/update-codemaps`, `/explore`, `/next`) ชี้ playbook กลาง
 - `src/.claude/commands/warnyin/triage.md` — command adapter `/warnyin:triage` (user-invoked, read-only) ชี้ `triage.md` playbook
 
