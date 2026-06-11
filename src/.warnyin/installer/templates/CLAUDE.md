@@ -15,6 +15,7 @@
 - `/warnyin:update-codemaps` → สแกนโครงสร้าง + สร้าง/อัปเดต codemap แบบ token-lean (`.warnyin/workflow/codemap.md`)
 - `/warnyin:explore [คำถาม]` → สำรวจ/ตอบคำถามแบบ read-only — ไม่สร้าง artifact (`.warnyin/workflow/explore.md`)
 - `/warnyin:next [slug]` → เช็คงานค้าง + แนะนำ command ถัดไป แบบ read-only (`.warnyin/workflow/next.md`)
+- `/warnyin:triage [คำอธิบาย change]` → ประเมินขนาด + แนะนำ path (read-only) (`.warnyin/workflow/triage.md`)
 - `/warnyin:discovery [topic]` → Discovery stage (`.warnyin/workflow/stages/discovery.md`)
 - `/warnyin:design [slug] [change]` → DESIGN stage (`.warnyin/workflow/stages/design.md`)
 - `/warnyin:build [slug]` → BUILD stage — fan-out sub-agent ตาม dependency (`.warnyin/workflow/stages/build.md` + `.warnyin/workflow/scripts/build-wave.mjs`)
