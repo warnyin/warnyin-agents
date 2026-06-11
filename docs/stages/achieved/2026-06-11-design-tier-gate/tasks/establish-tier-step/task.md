@@ -8,7 +8,7 @@
 | **Slice อ้างอิง** | `design.md` slice #1 (เดียว) |
 | **Component** | `installer` (playbook + template) |
 | **Model tier** | `cheap` (wording-guidance, modify ของเดิม mechanical) |
-| **สถานะ** | `รอ build` |
+| **สถานะ** | `เสร็จ` |
 
 ## 1. เป้าหมายของ task
 เพิ่ม **establish-tier step** ใน DESIGN playbook + ปรับ vocab ช่อง `ขนาด` ใน proposal template ให้ตรง tier — ทำให้ DESIGN ประเมินขนาดก่อนเดินเสมอ (มั่นใจ→กำหนด, ไม่มั่นใจ→ถาม user)
