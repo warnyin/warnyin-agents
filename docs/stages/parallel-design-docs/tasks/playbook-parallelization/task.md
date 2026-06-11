@@ -9,7 +9,7 @@
 | **Slice อ้างอิง** | `design.md` slice #1 |
 | **Component** | `installer` (workflow payload — `src/.warnyin/workflow/`) |
 | **Model tier** | `deepest` _(guidance ละเอียดอ่อน: tool-agnostic vocab + fallback ครบ + ห้าม break cross-ref/หลักการเดิม — งานคิดหนัก)_ |
-| **สถานะ** | `รอ build` |
+| **สถานะ** | `เสร็จ` |
 
 ## 1. เป้าหมายของ task (vertical slice)
 แก้ playbook กลาง `src/.warnyin/workflow/stages/design.md` ให้มี guidance parallelization ครบ 3 capability (C1 grounding · C2 task-fanout-default · C3 narrative-guardrail) + หลักการแกน 1 ข้อใน §3 — เมื่อ AI อ่าน playbook นี้ DESIGN run จะ parallelize งานที่ independent ได้จริง และมี fallback ครบทุกจุด (tool-agnostic) — **end-to-end:** อ่าน playbook → ทำตาม → เร็วขึ้นจริง โดย correctness floor (Gate §8) ไม่ลด

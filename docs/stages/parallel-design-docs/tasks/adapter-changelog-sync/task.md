@@ -9,7 +9,7 @@
 | **Slice อ้างอิง** | `design.md` slice #2 |
 | **Component** | `installer` (Claude adapter `src/.claude/` + CHANGELOG) |
 | **Model tier** | `cheap` _(sync pointer + changelog entry — mechanical, อ้าง behavior contract ที่ fix แล้ว)_ |
-| **สถานะ** | `รอ build` |
+| **สถานะ** | `เสร็จ` |
 
 ## 1. เป้าหมายของ task (vertical slice)
 sync 2 ไฟล์ peripheral ให้สะท้อนพฤติกรรมใหม่ตาม behavior contract `design.md §3`:

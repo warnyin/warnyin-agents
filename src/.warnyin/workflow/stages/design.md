@@ -36,6 +36,10 @@
      1. **Contract-first decouple** — เมื่อ task B ต้องการแค่ **interface/contract** ของ A (ไม่ใช่ runtime จริง) → ให้ B พึ่ง **contract artifact** (type/schema/openapi/ไฟล์กลางที่ตกลงใน design) แทน → A‖B ขนาน; integration พิสูจน์ที่ **full-gate** (`build.md` §3 ข้อ 8) — slice ยัง end-to-end แค่ stub ฝั่ง dependency ชั่วคราว
      2. **Re-slice ต่างแกน** — ถ้าแตกตาม component-layer แล้วได้ chain → ลองแตกตาม **feature/capability ที่ independent** แทน
      3. **ยอม serialize เฉพาะ chain แท้** — dependency ที่เลี่ยงไม่ได้ (foundation ต้องก่อน / doc ต้องอ้าง code) → ยอมรับ แล้วโฟกัส **ลดเวลา node บน critical path** (model tier + task-lean)
+   - **Parallelize gathering, serialize judgment/narrative (หลักการแกนของการ fan-out ใน stage นี้)** — fan-out read-only sub-agent เพื่อ **"เก็บข้อมูล / เขียนหน่วยที่ independent"** ได้ (เร็วขึ้นฟรีเพราะงาน independent) แต่ **"การตัดสิน scope + เขียน narrative ที่ต้อง coherent"** คงเป็น **single-writer** (main loop):
+     - ✅ ขนานได้ (gathering/independent unit): grounding อ่าน input หลายโดเมน (step 2), research เก็บ fact ก่อนเขียน design (step 5), เขียนไฟล์ task แต่ละใบที่อยู่คนละโฟลเดอร์ (step 9)
+     - ❌ ห้ามขนาน (judgment/narrative): การตัดสิน scope + ถาม user, การเขียน narrative ของ `proposal.md`/`design.md` (แตกให้หลาย agent เขียนคนละ section → ต่อไม่เนียน → review+rewrite แพงกว่าเขียนรอบเดียว)
+     - หลักการนี้ **ขยายของเดิมในที่เดิม ไม่ใช่กลไกใหม่ขนาน** — เป็นกรอบร่วมของ DAG-width toolkit (ข้อ 2 ข้างบน) + review panel fan-out (ข้อ 7) + task-file fan-out (step 9); ทุกจุด fan-out ต้องมี **fallback** "เครื่องที่ fan-out ไม่ได้ → ทำตามลำดับเหมือนเดิม" (tool-agnostic)
 3. **task = หน่วยที่โยนให้ sub-agent ได้** — แต่ละ task self-contained (มี spec + standard + rule ของตัวเอง) **กระชับพอ agent ทำจบ ไม่ฟุ่มเฟือย** (brief ยาวผิดปกติ → recheck dependency/re-slice) แต่ **เชื่อมต่อกัน** ผ่าน dependency/ลำดับที่ระบุชัด — เมื่อแตก task ต้อง **วาด DAG แล้ววัด critical-path depth (longest chain) + max wave width**: ถ้า DAG เป็น chain เส้นตรง (ทุก wave มี 1 task) ต้องมี **เหตุผล explicit** ว่าทำไม decouple ด้วย toolkit ข้อ 2 (3 เทคนิค) ไม่ได้ (กัน chain เผลอ)
 4. **สอดคล้องมาตรฐานเสมอ** — อิง rule + standard ของ techstack; ถ้าจะเพิ่ม rule/standard ใหม่ ให้ **note ไว้ก่อน** (ยังไม่แก้ไฟล์กลาง — รอ SHIP)
 5. **Gate ก่อนเขียนไฟล์ task จริง** — ต้องผ่านเกณฑ์ข้อ 8 ก่อนจะ generate ไฟล์ task และก่อนโยนให้ sub-agent
@@ -49,6 +53,9 @@
 
 1. **เตรียมพื้นที่:** ใช้/สร้างโฟลเดอร์ `docs/stages/<slug>/` (ถ้ามาจาก Discovery ใช้อันเดิม)
 2. **Ground + เคลียร์ความไม่ชัด:** อ่าน Input; ทุกจุดกำกวมเรื่อง design → ถามทีละข้อ + recommended answer จนชัด (ถ้าใหญ่/ไม่ชัดมาก → แนะนำ Discovery ก่อน)
+   - **อ่าน Input §2 หลายโดเมนทำขนานได้ (gathering — §3 หลักการแกน)** — fan-out read-only sub-agent หนึ่งตัวต่อหนึ่งโดเมน แล้วแต่ละตัวคืน **summary สั้น + path/บรรทัดอ้างอิง** แบ่งตามโดเมน: (ก) `project.md` + `rule.md` · (ข) `techstack/<component>/{rule,standard,about,structure,test}.md` + `codemap` · (ค) โค้ดจริงที่ change แตะ · (ง) discovery/feature-spec (ถ้ามี)
+   - main loop **สังเคราะห์ผลทุกโดเมน + ตัดสิน scope + ถาม user จุดกำกวมเอง** — ไม่ delegate การตัดสิน scope/การถาม user ให้ sub-agent (judgment = single-writer)
+   - **fallback:** เครื่องที่ fan-out ขนานไม่ได้ (ไม่มี sub-agent tool) → อ่าน Input ตามลำดับเหมือนเดิม
 1.5 **Establish tier (ก่อนจ่าย ceremony):** ประเมินขนาด change เบื้องต้นตาม rubric (`triage.md` §2 — signals + hard-floor)
    - **มั่นใจ** → กำหนด tier + บันทึก `proposal.md` ช่อง `ขนาด`
    - **ไม่มั่นใจ/ก้ำกึ่ง** → ถาม user (options): (ก) ประเมินด้วย `/warnyin:triage` ก่อน · (ข) user กำหนด tier เองถ้ารู้  [ก้ำกึ่ง default = ปัดขึ้น standard]
@@ -57,6 +64,9 @@
 3. **business.md** *(optional — ข้ามได้ถ้า change เล็ก เช่น fix bug นิดหน่อย)*: what & why เชิงธุรกิจ — goal, คุณค่า, persona, success metric
 4. **proposal.md** (what & why): สรุป change ที่จะทำ, เหตุผล, ทางเลือกที่พิจารณา/ตัดทิ้ง, scope in/out
 5. **design.md** (how): ออกแบบเชิงเทคนิคแบบ vertical slice — slice มีอะไรบ้าง, แต่ละ slice ตัดผ่าน layer ไหน, data model, interface/contract, flow, ผลกระทบต่อระบบเดิม (ใช้ lens `.warnyin/workflow/roles/sa.md`) — **ครอบ "Spec delta" ด้วย**: เทียบพฤติกรรมที่ change นี้แตะกับ `docs/features/<name>/spec.md` ปัจจุบัน แล้วเขียน ADDED/MODIFIED/REMOVED (SHIP merge ตามนี้); change ไม่แตะพฤติกรรม feature → ระบุ "ไม่มี delta"
+   - **เก็บ fact ก่อนเขียนทำขนานได้ (gathering — §3 หลักการแกน)** — ถ้าต้องรวบรวมข้อเท็จจริงจากหลายจุด (โค้ด/contract/impact analysis) ก่อนเขียน → fan-out **research** sub-agent ขนาน (read-only) คืน fact + path/บรรทัด
+   - **single-writer guardrail (narrative = serialize):** การเขียน narrative ของ `design.md` ทำโดย main loop คนเดียว — **ห้ามแตก narrative ให้หลาย agent เขียนคนละ section** (coherence cost: เอกสารต่อกันไม่เนียน → review+rewrite แพงกว่าเขียนรอบเดียว)
+   - **fallback:** เครื่องที่ fan-out ขนานไม่ได้ → main loop อ่าน + เขียนเองตามลำดับเหมือนเดิม
 6. **Review panel (optional — ถาม user ก่อน):** เสนอ user ว่าจะให้ panel หลาย role รีวิว design ก่อนแตก task ไหม — ถ้า ok:
    1. fan-out sub-agent reviewer **ขนาน (read-only)** ตาม role card: **SA** (architecture/data model/contract), **Tech Lead** (feasibility/ขนาด task/dependency), **QA** (testability/acceptance), **Security** (ช่องโหว่/ข้อมูลอ่อนไหว), **Infra** (env/config/migration) — แต่ละตัวอ่าน `proposal.md` + `design.md` + โค้ดจริงที่เกี่ยว แล้วให้ความเห็นตาม checklist ใน `.warnyin/workflow/roles/<role>.md` แบ่งเป็น **blocker / suggestion**
    2. รวมความเห็นทุก role → สรุปให้ user เห็นภาพ
@@ -66,6 +76,12 @@
 7. **แตก tasks:** แปลง design เป็น task (= vertical slice / step ที่แก้); task ซับซ้อน → แตก **sub-task** ย่อย; **วาด DAG** + ระบุ **critical-path depth (longest chain) + max wave width + เหตุผลถ้า task ใดถูก serialize** — ถ้าได้ chain ลึก ลอง DAG-width toolkit (§3 ข้อ 2) ก่อนยอม serialize; เขียน **dependency graph / ลำดับ** ให้ sub-task เชื่อมกัน
 8. **rule check ต่อ task:** เปิด `docs/techstack/<component>/rule.md` หา rule ที่ task นี้ต้องโฟกัส → ใส่ใน `tasks/<task>/rule.md`; rule ใหม่ที่อยากเพิ่ม → note ใน section "เสนอเพิ่ม (รอ SHIP)"
 9. **เช็ค Gate (ข้อ 8)** → เมื่อผ่าน จึง **เขียนไฟล์ task ครบทุกใบ** (แตก task ด้วย lens `.warnyin/workflow/roles/tech-lead.md`)
+   - **standard/large tier → fan-out task-file generation เป็น default** (gathering/independent unit — §3 หลักการแกน): หลัง **ผ่าน Gate ข้อ 8 ก่อนเสมอ** → spawn read-only-capable sub-agent หนึ่งตัวต่อหนึ่ง task เขียน 4 ไฟล์ (`spec/standard/rule/task`) **ขนาน**
+     - **ไม่ต้องใช้ worktree** — แต่ละ task อยู่คนละโฟลเดอร์ `tasks/<task>/` → ไม่มี file conflict (ต่างจาก BUILD ที่ agent แก้ source ชนกัน); spawn agent ขนานตรงๆ ได้ (แนวเดียวกับ wave fan-out ของ BUILD ที่ `build-wave.mjs` — อ้างเป็น reference ไม่ duplicate logic)
+     - หลัง fan-out → main loop **review coherence ข้าม task** (dependency/contract/naming สอดคล้องกัน) — single-writer ตรวจเอง ไม่ delegate (judgment = serialize)
+   - **fast tier → 1 task เขียนเอง ไม่ fan-out** (คงเดิม)
+   - **fan-out คือวิธีเขียนเร็วขึ้น ไม่ใช่ข้าม Gate** — Gate ข้อ 8 ยังต้องผ่านก่อน fan-out เสมอ
+   - **fallback:** เครื่องที่ fan-out ขนานไม่ได้ → เขียนไฟล์ task ทีละใบตามลำดับเหมือนเดิม
 10. **Dry-run (optional — ถาม user ก่อน):** ถาม user ว่าต้องการ dry-run ทั้งหมดเพื่อหาจุดบกพร่องก่อนเข้า BUILD ไหม — ถ้า ok:
    1. **fan-out agent หนึ่งตัวต่อหนึ่ง task แบบขนาน (read-only — ห้ามแก้โค้ด/ไฟล์ design)** — แต่ละตัวอ่าน task ทั้ง 4 ไฟล์ + `design.md`/`proposal.md` + โค้ดจริงที่เกี่ยว แล้ว "เดิน implement ในหัว" เพื่อหา:
       - **blocker** — สิ่งที่ทำให้ implement ตาม spec ไม่ได้ (ขัดแย้งกับโค้ดจริง/กับ task อื่น, ข้อมูล/spec ขาด, dependency ผิด) — BUILD จะล้มถ้าไม่แก้
@@ -76,8 +92,8 @@
    5. แก้แล้ว rerun dry-run เฉพาะ task ที่กระทบ วนจน **ไม่มี blocker ค้าง** (อัปเดตสถานะใน `issue.md` — defer ที่เหลือให้ user รับทราบ)
 11. **เสนอเข้า BUILD:** พร้อม implement ด้วย `/warnyin:build`
 
-> generate ไฟล์ task หลายใบพร้อมกันได้โดยใช้ sub-agent (เช่น fan-out หนึ่ง agent ต่อหนึ่ง task) — แต่ต้องผ่าน Gate ก่อนเสมอ
-> เครื่องที่ fan-out ขนานไม่ได้ (ไม่มี sub-agent tool) → dry-run สแกนทีละ task ตามลำดับด้วยหลักการเดียวกัน
+> generate ไฟล์ task หลายใบพร้อมกันด้วย sub-agent (หนึ่ง agent ต่อหนึ่ง task) เป็น **default สำหรับ standard/large** (step 9) — แต่ต้องผ่าน Gate ก่อนเสมอ; fast tier (1 task) เขียนเอง
+> เครื่องที่ fan-out ขนานไม่ได้ (ไม่มี sub-agent tool) → เขียน task / dry-run สแกนทีละ task ตามลำดับด้วยหลักการเดียวกัน
 
 ---
 
@@ -115,8 +131,8 @@
 ปรับ ceremony ตาม **tier** (canonical rubric ดู `.warnyin/workflow/triage.md`) — fast/standard/large:
 
 - **fast** (bugfix, typo, config tweak, wording-guidance สั้น, 1-2 ไฟล์ modify ของเดิม ไม่ cross-cutting): **fast-track** — ข้าม `business.md`, proposal/design สั้น, **ไม่ panel ไม่ dry-run**, 1 task; ทำตาม [fast-track skip-list](../triage.md#fast-track-skip-list) (canonical ใน `triage.md` — ไม่ลอก rubric มาที่นี่). **คง correctness floor:** spec/acceptance ขั้นต่ำของ task ยังต้องครบ
-- **standard** (feature ปกติ, modify หลายไฟล์/หลาย component, มี logic ใหม่): flow เต็ม — ครบทุก artifact, แตก vertical slice หลาย task + sub-task, dependency ชัด, panel/dry-run ตามเหมาะ
-- **large** (greenfield/project ใหม่, cross-cutting หลาย component, mega): **บังคับ `/warnyin:discovery` ก่อน** แล้วค่อยกลับมา DESIGN → decompose เต็ม
+- **standard** (feature ปกติ, modify หลายไฟล์/หลาย component, มี logic ใหม่): flow เต็ม — ครบทุก artifact, แตก vertical slice หลาย task + sub-task, dependency ชัด, panel/dry-run ตามเหมาะ; **task-file generation = fan-out default** (หนึ่ง agent ต่อหนึ่ง task หลังผ่าน Gate §8 — step 9)
+- **large** (greenfield/project ใหม่, cross-cutting หลาย component, mega): **บังคับ `/warnyin:discovery` ก่อน** แล้วค่อยกลับมา DESIGN → decompose เต็ม; **task-file generation = fan-out default** เช่นเดียวกับ standard (step 9)
 
 > hard-floor (auth/migration/secret/public-API/security-sensitive) บังคับ ≥ standard เสมอ — ดู [triage rubric](../triage.md#fast-track-skip-list) (`triage.md` §3B); fast-track ลดเฉพาะ ceremony ไม่ลด correctness — Gate §8 ของ standard/large คงเดิม
 
