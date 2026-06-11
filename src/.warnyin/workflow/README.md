@@ -44,7 +44,7 @@ Discovery (optional) ──▶ DESIGN ──▶ BUILD ──▶ VERIFY ──▶
     triage.md          #   capability: TRIAGE — ประเมินขนาด change → tier + route (read-only)
     api-doc.md         #   capability: API-DOC — adaptive OpenAPI 3.1 contract (DESIGN/VERIFY/SHIP เรียกเอง)
     stages/            #   discovery ✅ · design ✅ · build ✅ · verify ✅ · ship ✅
-      # discovery: mode ปรับความเข้ม {ไว|สมดุล|ละเอียด|โต้วาที} + auto-suggest + debate
+      # discovery: mode ปรับความเข้ม {ไว|สมดุล|ละเอียด|โต้วาที|ไต่สวน} + auto-suggest + debate
       # → taxonomy + behavior + auto-suggest signal อยู่ใน section "Discovery modes (ความเข้มของ Discovery)" ของ discovery.md
     roles/             #   role card กลาง (task-level lens): ba, po, sa, tech-lead, developer, qa, security, infra
     contexts/          #   context profile กลาง (session-level posture): research, build, review + README
@@ -98,7 +98,7 @@ npx @warnyin/agents --dry-run   # ดูก่อนว่าจะสร้า�
 1. เริ่มงานใหม่ → copy `.warnyin/template/stages/[topic]/` เป็น `docs/stages/<ชื่อ-งาน-kebab-case>/`
 2. รัน stage ตามลำดับ (Discovery ข้ามได้ถ้าเข้าใจ scope ชัดแล้ว)
    - Claude Code: `/warnyin:discovery <topic> [mode]`, `/warnyin:design <slug> <change>`
-     - mode (ความเข้ม Discovery): `ไว` | `สมดุล` | `ละเอียด` | `โต้วาที` — ไม่ระบุ → auto-suggest (ดู playbook `discovery.md` section "Discovery modes (ความเข้มของ Discovery)")
+     - mode (ความเข้ม Discovery): `ไว` | `สมดุล` | `ละเอียด` | `โต้วาที` | `ไต่สวน` — ไม่ระบุ → auto-suggest (ดู playbook `discovery.md` section "Discovery modes (ความเข้มของ Discovery)")
    - Codex / Antigravity: บอกให้ทำตาม `.warnyin/workflow/stages/<stage>.md`
 3. ผ่าน "gate" ของแต่ละ stage แล้วจึงไป stage ถัดไป
 4. เมื่อ SHIP (`/warnyin:ship <slug>`) → promote ความรู้ของ topic ขึ้นเอกสารกลางใน `docs/`

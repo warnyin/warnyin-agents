@@ -13,7 +13,7 @@ Discovery คือขั้นตอน **ค้นหาข้อมูล + d
 
 - **optional** — ข้ามได้ถ้า scope ชัดอยู่แล้ว (งานเล็ก/ชัดเจน) แล้วไป DESIGN ตรงๆ
 - ใช้เมื่อ: โจทย์กว้าง/กำกวม, มีหลายทางเลือก, มี trade-off ที่ต้องตัดสินใจ, หรือ user พิมพ์ **"ซักถามฉันหน่อย" / "grill me"** (→ เข้า mode `ละเอียด` ดู §3.5)
-- **ความเข้มของ Discovery ปรับได้ด้วย mode** (`ไว` / `สมดุล` / `ละเอียด` / `โต้วาที`) — ดู section **"Discovery modes (ความเข้มของ Discovery)"** (§3.5) เป็น single source ของพฤติกรรมแต่ละ mode
+- **ความเข้มของ Discovery ปรับได้ด้วย mode** (`ไว` / `สมดุล` / `ละเอียด` / `โต้วาที` / `ไต่สวน`) — ดู section **"Discovery modes (ความเข้มของ Discovery)"** (§3.5) เป็น single source ของพฤติกรรมแต่ละ mode
 
 ---
 
@@ -48,9 +48,9 @@ Discovery คือขั้นตอน **ค้นหาข้อมูล + d
 ## 3.5 Discovery modes (ความเข้มของ Discovery)
 
 > **★ Single source ของ mode** — taxonomy + behavior + auto-suggest + debate อยู่ที่ section นี้ที่เดียว command/README/ที่อื่นชี้มา ไม่ duplicate
-> mode = **dial ปรับความเข้มของ loop §3** ไม่ใช่ flow ใหม่ 4 ชุด; ทั้ง 4 mode ยังสวม context-profile `research` (`.warnyin/workflow/contexts/research.md`) เหมือนกัน
+> mode = **dial ปรับความเข้มของ loop §3** ไม่ใช่ flow ใหม่ 5 ชุด; ทั้ง 5 mode ยังสวม context-profile `research` (`.warnyin/workflow/contexts/research.md`) เหมือนกัน
 
-### 3.5.1 Taxonomy (4 ค่า canonical)
+### 3.5.1 Taxonomy (5 ค่า canonical)
 
 | mode | ชื่อ canonical | เหมาะกับ |
 |---|---|---|
@@ -58,6 +58,7 @@ Discovery คือขั้นตอน **ค้นหาข้อมูล + d
 | `สมดุล` | `สมดุล` | งานทั่วไป (= พฤติกรรม Discovery ปัจจุบัน, เป็น baseline + ค่า fallback) |
 | `ละเอียด` | `ละเอียด` | งานเสี่ยง/กำกวม/หลาย trade-off (รวม grill) |
 | `โต้วาที` | `โต้วาที` | งานที่ต้อง stress-test สมมติฐานหลายมุม |
+| `ไต่สวน` | `ไต่สวน` | งาน high-stakes ที่ต้องตรวจความครบ/ถูกต้องเข้มสุด แบบ adversarial มี user ในวง (**explicit-only** — auto-suggest ไม่แนะเอง) |
 
 ### 3.5.2 3 แกนที่ต้องไม่สับสน (mode ≠ tier ≠ context-profile)
 
@@ -65,7 +66,7 @@ Discovery คือขั้นตอน **ค้นหาข้อมูล + d
 
 | แกน | คุมอะไร | scope | ค่า |
 |---|---|---|---|
-| **mode** (อันนี้) | **ความเข้มของ Discovery** | stage Discovery stage เดียว | `ไว`/`สมดุล`/`ละเอียด`/`โต้วาที` |
+| **mode** (อันนี้) | **ความเข้มของ Discovery** | stage Discovery stage เดียว | `ไว`/`สมดุล`/`ละเอียด`/`โต้วาที`/`ไต่สวน` |
 | **tier** (`change-sizing`/`triage.md`) | **ขนาดของ change** | ข้าม stage (route ทั้ง workflow) | `fast`/`standard`/`large` |
 | **context-profile** (`.warnyin/workflow/contexts/`) | **session posture** ของ stage | session-level | `research`/`build`/`review` |
 
@@ -75,13 +76,15 @@ Discovery คือขั้นตอน **ค้นหาข้อมูล + d
 
 > baseline = `สมดุล` (= loop §3 ปัจจุบัน, ถาม N คำถามครบกิ่งหลัก); mode อื่นวัดเทียบ baseline นี้
 
-| มิติ | `ไว` | `สมดุล` (=ปัจจุบัน, baseline) | `ละเอียด` | `โต้วาที` |
-|---|---|---|---|---|
-| ground input | `project.md` + เท่าที่จำเป็น | input หลัก (§2) | input ครบ (§2) | input ครบ (§2) |
-| การถาม | เฉพาะจุดที่ block จริง (ถาม ≤ K, K<N) | ทีละข้อ ครบกิ่งหลัก (N คำถาม) | ทุกกิ่ง decision tree + role lens BA/PO เต็ม + **grill turn ≥1** | ขับเคลื่อนด้วยประเด็นจาก debate |
-| research | minimal (ไม่มี deep research) | คู่ขนานพอประมาณ | deep | deep |
-| decision tree | skip branch ที่ไม่ block ≥1 กิ่ง | เดินกิ่งหลัก | เดินครบทุกกิ่ง | เดินครบ + แย้งทุกกิ่ง |
-| multi-agent | ✗ | ✗ | ✗ | ✓ (debate §3.5.5) |
+| มิติ | `ไว` | `สมดุล` (=ปัจจุบัน, baseline) | `ละเอียด` | `โต้วาที` | `ไต่สวน` |
+|---|---|---|---|---|---|
+| ground input | `project.md` + เท่าที่จำเป็น | input หลัก (§2) | input ครบ (§2) | input ครบ (§2) | input ครบ (§2, Blue) |
+| การถาม | เฉพาะจุดที่ block จริง (ถาม ≤ K, K<N) | ทีละข้อ ครบกิ่งหลัก (N คำถาม) | ทุกกิ่ง decision tree + role lens BA/PO เต็ม + **grill turn ≥1** | ขับเคลื่อนด้วยประเด็นจาก debate | **grill ทุก finding** ของ Red ทุกรอบ (user-in-loop) |
+| research | minimal (ไม่มี deep research) | คู่ขนานพอประมาณ | deep | deep | deep (Blue) + adversarial audit (Red) |
+| decision tree | skip branch ที่ไม่ block ≥1 กิ่ง | เดินกิ่งหลัก | เดินครบทุกกิ่ง | เดินครบ + แย้งทุกกิ่ง | เดินครบ + Red audit ครบ 5 มุมทุกรอบ |
+| multi-agent | ✗ | ✗ | ✗ | ✓ (debate §3.5.5, fan-out ครั้งเดียว) | ✓✓ (Blue/Red 2 ทีม **iterative** §3.5.7) |
+
+> **`โต้วาที` vs `ไต่สวน`:** `โต้วาที` = fan-out persona **ครั้งเดียว** → สังเคราะห์ → ถามตอนจบ (เบากว่า); `ไต่สวน` = Blue/Red **วนหลายรอบ** + memory persist + grill ทุก finding + user ยืนยันทุกรอบ (หนักสุด)
 
 **Observable proxy (verify นับได้ deterministic เทียบ baseline `สมดุล`):**
 
@@ -91,6 +94,7 @@ Discovery คือขั้นตอน **ค้นหาข้อมูล + d
 | `ไว` | ถาม **≤ K** (K < N) + branch ของ decision tree ที่ skip **≥1** + ไม่มี deep research |
 | `ละเอียด` | เดิน**ครบทุกกิ่ง** decision tree + grill turn **≥1** + role lens BA/PO ปรากฏ |
 | `โต้วาที` | Agent-tool call (persona) **≥3** + decision-log มี entry **"สังเคราะห์จาก debate"** + ไม่ทะลุ cap ≤4 persona/≤2 รอบ |
+| `ไต่สวน` | มี `debate/{blue-memory,red-memory,debate-round-NN}.md` **≥1 รอบ** + Red fan-out role (audit ครบ 5 มุม) + grill user ทุก finding ใน round + **ถาม user ก่อน audit รอบใหม่** + converge เมื่อ 0 finding ใหม่/user หยุด + **explicit-only** (auto-suggest ไม่แนะ) |
 
 ### 3.5.4 Auto-suggest (ใช้เมื่อ user ไม่ระบุ mode)
 
@@ -113,9 +117,11 @@ ground เบื้องต้นก่อน → ประเมิน signals
 | `สมดุล` | "สมดุล", "ปกติ", "balanced", "default" |
 | `ละเอียด` | "ละเอียด", "ลึก", "deep", "grill", "ซักถามฉันหน่อย", "grill me" |
 | `โต้วาที` | "โต้วาที", "debate", "ถกเถียง", "แย้งกัน" |
+| `ไต่สวน` | "ไต่สวน", "audit", "red-team", "blue-red", "ตรวจเข้ม" |
 
 - **multi-match / keyword ขัดกัน** (เช่น "เอาเร็วแต่ขอละเอียด" เจอทั้ง `ไว`+`ละเอียด`) → **ห้าม** first-match เงียบ; **fall through ไป auto-suggest precedence ข้างบน** (เสนอ + เหตุผล → user ยืนยัน)
 - ไม่ match keyword ใดเลย → auto-suggest precedence
+- **`ไต่สวน` = explicit-only:** auto-suggest **ไม่แนะ `ไต่สวน` เอง** (หนักสุด: user-in-loop หลายรอบ) — เข้าได้ก็ต่อเมื่อ user พิมพ์ keyword `ไต่สวน` ตรงๆ หรือขอ "ตรวจให้เข้มสุด/audit/red-team" ชัด
 
 **Fixture (verify assert mode ที่ได้ตรงตาราง):**
 
@@ -166,6 +172,54 @@ ground เบื้องต้นก่อน → ประเมิน signals
 - **decision-log scrub:** entry ที่จดลง `discovery.md` = ข้อสรุป/ประเด็น ไม่ paste raw value/credential/internal path
 - **generic persona/tier:** ระบุ persona + tier แบบ generic (ba/po/sa/security/tech-lead · deepest/balanced) ไม่ผูกชื่อรุ่น model จริง — playbook กลางใช้ได้ทุกเครื่อง (Claude/Codex/Antigravity)
 
+### 3.5.7 ไต่สวน orchestration (mode `ไต่สวน`) — Blue/Red adversarial iterative + user-in-loop
+
+> **หลัก:** Blue สร้าง → Red audit (adversarial) → grill user ทุก finding → Blue แก้ → วนจน converge
+> **reuse (ไม่เขียนซ้ำ):** หลักการ fan-out จาก debate (§3.5.5) + grill จาก mode `ละเอียด` (§3.5.3) + role cards (`.warnyin/workflow/roles/`); ต่างที่ memory **persist ข้ามรอบ** + วน iterative + user ยืนยันทุกรอบ
+> **explicit-only:** เข้าได้เฉพาะ user ขอชัด (keyword `ไต่สวน`/audit/red-team) — auto-suggest ไม่แนะเอง (§3.5.4)
+> เหมือน debate: เป็น **Agent-tool call (read-only sub-agent)** ที่ AI หลักเรียกตาม playbook นี้ — ไม่ใช่ Workflow script; เครื่องที่ไม่มี Agent tool → fallback (ดูล่าง)
+
+**Memory artifact (เกิดใน `docs/stages/<slug>/debate/` ของ topic ที่ใช้ mode นี้ — archive พร้อม topic):**
+
+| ไฟล์ | เจ้าของ | เนื้อหา |
+|---|---|---|
+| `blue-memory.md` | 🔵 Blue | ความเข้าใจ/scope/findings ที่ Blue สะสม (อัปเดตทุกรอบที่ user ยอมรับ) |
+| `red-memory.md` | 🔴 Red | audit findings ข้ามรอบ + สถานะ (open/resolved) — กัน Red ซ้ำประเด็นเดิม |
+| `debate-round-NN.md` | 🔴 Red | finding ของรอบ NN (5 มุม × role) — 1 ไฟล์/รอบ |
+
+**Flow (วน ROUND NN):**
+
+```
+1. 🔵 Blue Team → discovery + research
+   (รอบแรก = ground เต็มตาม §2; รอบถัดไป = update ตาม finding ที่ user ยอมรับ)
+   → สรุป "มีอะไรบ้าง" → เขียน/อัปเดต blue-memory.md
+2. 🔴 Red Team → fan-out role ที่เกี่ยวกับ scope (sa/security/qa/tech-lead/infra, read-only)
+   แต่ละ role audit ครบ 5 มุม "ตามลำดับ" ในมุมมอง role ตัวเอง — complain ละเอียด ไม่เสนอวิธีแก้:
+     ① จุดผิด/บกพร่อง  ② จุดขาดหาย (Must Have)  ③ จุดเสี่ยงที่กลไกพลาด
+     ④ จุดไม่สอดคล้อง/ขัดแย้ง  ⑤ จุดขาดแล้วกระทบ (Should Have)
+   → main loop รวบ (judgment ไม่ delegate) → เขียน debate-round-NN.md + อัปเดต red-memory.md
+3. 📋 สรุป finding → 🎤 grill user ทีละ item (สัมภาษณ์ทุกรายการใน debate-round-NN — reuse mode `ละเอียด`/grill)
+4. user ยอมรับ/เข้าใจตรงกัน:
+   → 🔵 Blue update discovery.md + research.md + blue-memory.md ตาม finding ที่ตกลง
+   → ❓ ถาม user "audit รอบต่อไหม?" (เผื่อ user พอแล้ว — ไม่วนเงียบ)
+   → ต่อ: กลับข้อ 2 (Red audit) → debate-round-(NN+1)
+5. converge เมื่อ: Red audit แล้ว **0 finding ใหม่** (ไม่สร้าง round) หรือ user บอกพอ → ปิด ไต่สวน
+```
+
+**Cap / guard:**
+
+- ก่อน audit รอบใหม่ทุกครั้ง **ถาม user ก่อน** (ไม่วนเงียบ) — soft cap, user คุมจำนวนรอบ
+- Red fan-out cap **≤ 5 role/รอบ**; แต่ละ role audit ครบ 5 มุม
+
+**Fallback (degrade ต้องมี observable signal แจ้ง user ไม่เงียบ — เหมือน §3.5.5):**
+
+| เงื่อนไข trigger | พฤติกรรม fallback |
+|---|---|
+| **spawn ไม่ได้เลย** (Agent tool fail) | degrade เป็น mode `ละเอียด` (grill เดี่ยว) + **แจ้ง user เหตุผลชัด** |
+| **เครื่องไม่มี Agent tool** (เช่น Codex/Antigravity ที่ไม่มี sub-agent) | degrade เป็น mode `ละเอียด` + **แจ้ง user** ว่า ไต่สวน ไม่รองรับบนเครื่องนี้ |
+
+**Security (reuse §3.5.6 หลัก):** Red รับ artifact-level context (blue-memory/discovery) ไม่ใช่ raw filesystem; memory files (`blue-memory`/`red-memory`/`debate-round-NN`) = ข้อสรุป/ประเด็น ไม่ paste raw value/credential/internal path
+
 ---
 
 ## 4. ลำดับขั้นการทำงาน (process loop)
@@ -173,8 +227,8 @@ ground เบื้องต้นก่อน → ประเมิน signals
 1. **เตรียมพื้นที่:** ถ้ายังไม่มีโฟลเดอร์ topic → copy `.warnyin/template/stages/[topic]/` เป็น `docs/stages/<slug>/` (slug = kebab-case ของหัวข้องาน)
 2. **เลือก mode (§3.5):** user ระบุ mode/keyword → ใช้ตามนั้น; ไม่ระบุ → ground เบื้องต้นแล้ว **auto-suggest** (§3.5.4) เสนอ mode + เหตุผล → user ยืนยัน/เปลี่ยน — แล้วปรับความเข้มของ loop ข้อ 3-5 ตาม behavior contract (§3.5.3)
 3. **Ground:** อ่าน Input ในข้อ 2 ให้ครบ สรุปความเข้าใจเริ่มต้น 3-5 บรรทัด ให้ user ยืนยัน
-4. **ตี scope กว้าง→แคบ ผ่านการสัมภาษณ์:** วนลูป — ถาม 1 ข้อ (พร้อม recommended answer) → user ตอบ → จดผลลง decision log → ถ้าตอบได้ด้วยโค้ดให้ไปอ่านเอง _(mode `โต้วาที`: ขับเคลื่อนด้วยประเด็นจาก debate §3.5.5 แทน/เสริมการถามทีละข้อ)_
-5. **research คู่ขนาน:** สิ่งที่ต้องค้นจริง (prior art, ทางเลือก technical, ข้อจำกัด) → จดลง `research.md` พร้อม evidence/links _(ความลึก research ปรับตาม mode: `ไว` minimal · `ละเอียด`/`โต้วาที` deep)_
+4. **ตี scope กว้าง→แคบ ผ่านการสัมภาษณ์:** วนลูป — ถาม 1 ข้อ (พร้อม recommended answer) → user ตอบ → จดผลลง decision log → ถ้าตอบได้ด้วยโค้ดให้ไปอ่านเอง _(mode `โต้วาที`: ขับเคลื่อนด้วยประเด็นจาก debate §3.5.5 แทน/เสริมการถามทีละข้อ · mode `ไต่สวน`: เดิน Blue/Red iterative §3.5.7 — grill user ทุก finding ของ Red ทุกรอบ)_
+5. **research คู่ขนาน:** สิ่งที่ต้องค้นจริง (prior art, ทางเลือก technical, ข้อจำกัด) → จดลง `research.md` พร้อม evidence/links _(ความลึก research ปรับตาม mode: `ไว` minimal · `ละเอียด`/`โต้วาที` deep · `ไต่สวน` deep + adversarial audit)_
 6. **เช็ค gate (ข้อ 6):** เมื่อครบเกณฑ์ → สรุปและเสนอ "พร้อมเข้า DESIGN"
 
 ---
