@@ -69,3 +69,22 @@ sizing เป็น default ที่ปรับได้ทุกเมื่�
 - GIVEN section `## 7. ปรับความละเอียดตามขนาด change` ใน `src/.warnyin/workflow/stages/design.md`
 - WHEN อ่านเนื้อหา
 - THEN ระบุ 3 tier (fast/standard/large), fast ชี้ skip-list canonical, และ `large` ระบุ "บังคับ `/warnyin:discovery` ก่อน"
+
+## Requirement: DESIGN establish tier ก่อนเดินต่อ (sizing gate)
+
+DESIGN มี step ต้นทาง (§4 step 1.5) ที่ **establish tier ก่อนจ่าย ceremony** — ประเมินขนาด change เบื้องต้นเอง → **มั่นใจ = กำหนด tier + บันทึก proposal**; **ไม่มั่นใจ = ถาม user** (ประเมินด้วย `/warnyin:triage` หรือ user กำหนด tier เอง); hard-floor ยังบังคับ ≥ standard. กัน DESIGN เดินโดยไม่รู้ขนาด (tier = judgment ⚠ ไม่ใช่ validator)
+
+### Scenario: design.md มี establish-tier step
+- GIVEN ไฟล์ `src/.warnyin/workflow/stages/design.md`
+- WHEN อ่าน §4 (process)
+- THEN มี step "Establish tier" ก่อน business/proposal ที่ระบุ: ประเมินเอง · มั่นใจ→กำหนด+บันทึก proposal · ไม่มั่นใจ→ถาม user (options: `/warnyin:triage` / user ระบุ tier เอง) · hard-floor → ≥ standard
+
+### Scenario: §7 ชี้ที่มาของ tier
+- GIVEN section `## 7` ใน `design.md`
+- WHEN อ่านประโยคนำ
+- THEN ระบุว่า "tier ถูก established ที่ §4 step 1.5" (§7 = ceremony per tier, ไม่ inline rubric ซ้ำ — ชี้ `triage.md`)
+
+### Scenario: proposal บันทึก tier ด้วย vocab ตรง triage
+- GIVEN template `src/.warnyin/template/stages/[topic]/proposal.md`
+- WHEN อ่านช่อง `ขนาด`
+- THEN ค่าเป็น `fast`/`standard`/`large` (ไม่ใช่ เล็ก/กลาง/ใหญ่)

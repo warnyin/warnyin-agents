@@ -16,6 +16,7 @@ capability ที่ **ประเมินขนาด (sizing) ของ chan
 | 2 | **`/warnyin:triage` command** | `.claude/commands/warnyin/triage.md` | adapter บาง (read-only, user-invoked) ชี้ playbook ด้วย backtick runtime-ref — รับคำอธิบาย change → รายงาน tier+route |
 | 3 | **fast-track wiring (4 stage)** | `design.md §7` + `verify.md` + `ship.md` hook | reframe §7 (2-level → 3-tier) + pointer hook ใน verify/ship → tier `fast` เดิน lite ตาม skip-list canonical; ชี้ด้วย markdown-link (ไม่ inline rubric) |
 | 4 | **hard-floor (5 หมวด)** | `triage.md §2B` | auth/authz · data-migration/schema · secret/credential · public-API/contract(breaking) · security-sensitive → บังคับ ≥ standard เสมอ (fail-safe กันงานอ่อนไหว fast) |
+| 5 | **DESIGN sizing gate** | `design.md §4 step 1.5` | **establish tier ก่อนจ่าย ceremony** — DESIGN ประเมินเอง → มั่นใจกำหนด / ไม่มั่นใจถาม user (triage / กำหนดเอง); กัน DESIGN เดินโดยไม่รู้ขนาด (enforcement — topic `design-tier-gate` 2026-06-11) |
 
 ## ทำงานยังไง (flow)
 - **triage:** user อธิบาย change → `/warnyin:triage` → อ่าน rubric → ประเมิน signals → ตัด tier (เคารพ hard-floor, ก้ำกึ่ง→ปัดขึ้น standard) → รายงาน **tier + เหตุผล + route + คำเตือน hard-floor** → **หยุด** ให้ user สั่ง command
