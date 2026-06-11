@@ -9,7 +9,7 @@
 | **Slice อ้างอิง** | `design.md` slice #2 |
 | **Component** | `installer` (payload command + workflow README) |
 | **Model tier** | `balanced` _(adapter บาง + keyword map + README pointer)_ |
-| **สถานะ** | `เสร็จ` |
+| **สถานะ** | `รอ build` _(amend: build รอบ 1 ครบ 4 mode; รอ build รอบ 2 = +keyword ไต่สวน)_ |
 
 ## 1. เป้าหมายของ task (vertical slice)
 > ให้ `/warnyin:discovery` รับ/แนะนำ mode แล้วพา agent เข้า flow — command map keyword → mode (explicit) หรือ ชี้ playbook auto-suggest (ไม่ระบุ); + เพิ่ม mode ใน capability tree (`README.md`)
@@ -20,7 +20,7 @@
 - รับ input: ชื่อ section anchor "Discovery modes (ความเข้มของ Discovery)" ที่ Task A สร้าง — **ชี้ด้วยชื่อ ไม่ inline behavior** (contract-first → ขนานกับ Task A ได้)
 
 ## 3. Sub-tasks (แตกย่อยถ้าซับซ้อน)
-- [ ] 1. แก้ command `src/.claude/commands/warnyin/discovery.md` — เพิ่มขั้น "เลือก/แนะนำ mode": map keyword จาก `$ARGUMENTS` (§4.1) → mode; multi-match/ไม่ match → ชี้ playbook auto-suggest; **mention 4 mode + ชี้ section anchor playbook (ไม่ duplicate behavior/auto-suggest table)** — _ผลลัพธ์:_ entry mode
+- [ ] 1. แก้ command `src/.claude/commands/warnyin/discovery.md` — เพิ่มขั้น "เลือก/แนะนำ mode": map keyword จาก `$ARGUMENTS` (§4.1, **5 mode** รวม `ไต่สวน`: ไต่สวน/audit/red-team/blue-red) → mode; multi-match/ไม่ match → ชี้ playbook auto-suggest; **mention 5 mode + ชี้ section anchor playbook (ไม่ duplicate behavior/auto-suggest table)** — _ผลลัพธ์:_ entry mode
 - [ ] 2. แก้ `src/.warnyin/workflow/README.md` — เพิ่ม mode ใน capability ของ discovery (capability tree) ชี้ playbook canonical — _ขึ้นกับ 1:_ สอดคล้องชื่อ
 
 ## 4. ขอบเขตไฟล์/โค้ดที่จะแตะ

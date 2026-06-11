@@ -47,6 +47,7 @@
 | 6 | default mode เมื่อไม่ระบุ | static "สมดุล" / AI-suggest จากบริบท | static สมดุล | **AI-suggest จากบริบท ✅** | Discovery ground ข้อมูลก่อน → ประเมิน+**แนะนำ mode พร้อมเหตุผล** → user ยืนยัน/เปลี่ยน (mode ยังเป็น option ของ user); pattern เดียวกับ "DESIGN sizing gate" ของ `change-sizing` (assess→recommend→ยืนยัน) |
 | 7 | tier:large แนะนำ mode ไหน (สะพาน) | ละเอียด / โต้วาที / ไม่แนะ | ละเอียด | **ละเอียด ✅** | งานใหญ่ = ควรขุดลึก+grill; เป็น *signal หนึ่ง* ในการ auto-suggest (ไม่บังคับ — user override ได้) |
 | 8 | ขอบเขต MVP | 4 mode โต้วาที minimal / 3 mode เฟส / 4 mode โต้วาทีเต็ม | 4 mode โต้วาที minimal | **4 mode โต้วาทีเต็ม ✅** | user เลือก feature สมบูรณ์ — โต้วาทีทำเต็ม (dynamic agent + หลายรอบจน converge); reuse pattern "Parallelize gathering, serialize judgment" + fallback |
+| 9 | เพิ่ม mode 5 `ไต่สวน` (amend หลัง VERIFY) | แทนโต้วาที / mode 5 ใหม่ / เสริมโต้วาที | mode 5 ใหม่ | **mode 5 ใหม่ ✅** | Blue/Red adversarial iterative + memory + grill ทุก finding + user-in-loop; โต้วาทีเดิมคงไว้ (quick); amend topic เดิม (ดู `design.md §11`) |
 
 ## 5. สมมติฐาน & ข้อจำกัด
 - **สมมติฐาน:** mode = แกนคุม "ความเข้มของ Discovery stage เดียว" คนละมิติกับ tier (ขนาด change ข้าม stage)

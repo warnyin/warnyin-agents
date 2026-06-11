@@ -23,6 +23,7 @@
 - [ ] `ไว` = ถาม ≤ K (K<N) + skip branch decision tree ≥1 + research minimal
 - [ ] `ละเอียด` = เดินครบทุกกิ่ง + grill turn ≥1 + role lens BA/PO ปรากฏ
 - [ ] `โต้วาที` = Agent-tool call ≥3 (persona) + decision-log มี entry "สังเคราะห์จาก debate" + ไม่ทะลุ cap ≤4/≤2
+- [ ] `ไต่สวน` = มี `debate/{blue-memory,red-memory,debate-round-NN}.md` ≥1 รอบ + Red fan-out role audit ครบ 5 มุม + grill user ทุก finding + ถาม user ก่อน audit รอบใหม่ + converge (0 finding/user หยุด) + explicit-only (auto-suggest ไม่แนะ)
 
 **auto-suggest (fixture `design.md §4.4.1`):**
 - [ ] เดิน 5 เคส fixture → mode ที่ได้ตรงตาราง

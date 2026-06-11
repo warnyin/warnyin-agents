@@ -19,7 +19,7 @@
 | 1 | **playbook modes** — Discovery รองรับครบ 4 mode + auto-suggest + debate orchestration (อ่าน playbook แล้ว AI เดิน Discovery ได้ทุก mode end-to-end) | logic (playbook นิยาม behavior) · test (verify: เดินแต่ละ mode สังเกตพฤติกรรมต่าง) | `deepest` (เขียน behavior 4 mode + debate mechanics + auto-suggest — logic หนัก, ไม่เคยทำ) | `tasks/discovery-playbook-modes/` |
 | 2 | **command adapter** — `/warnyin:discovery` รับ/แนะนำ mode แล้วพา agent เข้า flow (entry → playbook) + capability tree | entry/adapter (command) · doc (README) · test (verify: เรียก command เลือก mode ได้) | `balanced` (adapter บาง + keyword map + README pointer) | `tasks/discovery-command-adapter/` |
 
-> **sub-task ใน Task A** (SA-2): แตกย่อย (a) mode taxonomy + behavior 4 mode (b) auto-suggest §4.4 (c) **debate orchestration §5.2** (d) grill fold — verify แยก scenario ได้ แต่คงอยู่ task เดียว (ไฟล์เดียว `discovery.md` — แตกเป็นคนละ task = 2 agent แก้ไฟล์เดียว = ชน)
+> **sub-task ใน Task A** (SA-2): แตกย่อย (a) mode taxonomy + behavior **5 mode** (b) auto-suggest §4.4 (c) **debate orchestration §5.2** (d) grill fold (e) **ไต่สวน orchestration §5.3** (Blue/Red iterative + memory artifact) — verify แยก scenario ได้ แต่คงอยู่ task เดียว (ไฟล์เดียว `discovery.md` — แตกเป็นคนละ task = 2 agent แก้ไฟล์เดียว = ชน)
 > **debate self-contained (TechLead-S3):** debate = playbook-driven **Agent-tool call (read-only, no worktree)** เขียนจบใน `discovery.md` — **ไม่พึ่ง/ไม่อ้าง** `build.md §6` หรือ `build-wave.mjs` (คนละ pattern; build §6 เป็น Workflow script ล้วน)
 
 > แต่ละ slice end-to-end: Slice 1 = ผู้ใช้ได้พฤติกรรม mode จริงเมื่อ AI ทำตาม playbook; Slice 2 = ผู้ใช้ trigger mode ผ่าน command ได้ — เสริมกันแต่ test แยกได้
@@ -37,21 +37,25 @@
 | สมดุล | `สมดุล` | "สมดุล", "ปกติ", "balanced", "default" (= ค่า fallback ของ auto-suggest) |
 | ละเอียด | `ละเอียด` | "ละเอียด", "ลึก", "deep", "grill", "ซักถามฉันหน่อย", "grill me" |
 | โต้วาที | `โต้วาที` | "โต้วาที", "debate", "ถกเถียง", "แย้งกัน" |
+| ไต่สวน | `ไต่สวน` | "ไต่สวน", "audit", "red-team", "blue-red", "ตรวจเข้ม" |
 
 - **multi-match / ขัดกัน** (เช่น "เอาเร็วแต่ขอละเอียด" เจอทั้ง ไว+ละเอียด) → **ไม่** first-match เงียบ; **fall through ไป auto-suggest §4.4** (เสนอ + เหตุผล → user ยืนยัน)
 - ไม่ match keyword ใดเลย → auto-suggest §4.4
+- **`ไต่สวน` = explicit-only** — auto-suggest **ไม่แนะเอง** (หนักสุด: user-in-loop หลายรอบ) เว้นผู้ใช้ขอ "ตรวจให้เข้มสุด/audit" ชัด
 
 ### 4.2 Section anchor ใน playbook (Task B ชี้มาด้วยชื่อนี้)
 - section ใหม่ในชื่อ **"Discovery modes (ความเข้มของ Discovery)"** ใน `discovery.md` — เป็น single source ของ taxonomy + behavior + auto-suggest + debate
 
 ### 4.3 Behavior contract ต่อ mode (Task A เขียนรายละเอียด)
-| มิติ | ไว | สมดุล (=ปัจจุบัน) | ละเอียด | โต้วาที |
-|---|---|---|---|---|
-| ground input | project.md + ที่จำเป็น | input หลัก (playbook §2) | input ครบ | input ครบ |
-| การถาม | เฉพาะที่ block จริง | ทีละข้อ ครบกิ่งหลัก | ทุกกิ่ง decision tree + role lens BA/PO เต็ม + **grill** | ขับเคลื่อนด้วยประเด็นจาก debate |
-| research | minimal | คู่ขนานพอประมาณ | deep | deep |
-| multi-agent | ✗ | ✗ | ✗ | ✓ (debate §5.2) |
-| เหมาะกับ | งานชัด/เล็ก | งานทั่วไป | งานเสี่ยง/กำกวม/หลาย trade-off | งานที่ต้อง stress-test สมมติฐานหลายมุม |
+| มิติ | ไว | สมดุล (=ปัจจุบัน) | ละเอียด | โต้วาที | ไต่สวน |
+|---|---|---|---|---|---|
+| ground input | project.md + ที่จำเป็น | input หลัก (playbook §2) | input ครบ | input ครบ | input ครบ (Blue) |
+| การถาม | เฉพาะที่ block จริง | ทีละข้อ ครบกิ่งหลัก | ทุกกิ่ง decision tree + role lens BA/PO เต็ม + **grill** | ขับเคลื่อนด้วยประเด็นจาก debate | **grill ทุก finding** ของ Red ทุกรอบ (user-in-loop) |
+| research | minimal | คู่ขนานพอประมาณ | deep | deep | deep (Blue) + adversarial audit (Red) |
+| multi-agent | ✗ | ✗ | ✗ | ✓ (debate §5.2, fan-out ครั้งเดียว) | ✓✓ (Blue/Red 2 ทีม **iterative** §5.3) |
+| เหมาะกับ | งานชัด/เล็ก | งานทั่วไป | งานเสี่ยง/กำกวม/หลาย trade-off | งานที่ต้อง stress-test สมมติฐานหลายมุม | งาน high-stakes ที่ต้องตรวจความครบ/ถูกต้องเข้มสุด แบบ adversarial มี user ในวง |
+
+> **โต้วาที vs ไต่สวน:** โต้วาที = fan-out persona **ครั้งเดียว** → สังเคราะห์ → ถามตอนจบ (เบากว่า); ไต่สวน = Blue/Red **วนหลายรอบ** + memory persist + grill ทุก finding + user ยืนยันทุกรอบ (หนักสุด)
 
 ### 4.4 Auto-suggest signals (Task A — ใช้ตอนผู้ใช้ไม่ระบุ mode)
 ประเมินจาก signals: ความกำกวม/ความกว้างของ request · tier ถ้ารู้ (`large`→แนะ `ละเอียด`) · จำนวน trade-off/decision ที่คาด · ความอ่อนไหว (แตะ hard-floor 5 หมวดของ `change-sizing`) · งานชัด+เล็ก. **ผลลัพธ์ = แนะนำ + เหตุผล → user ยืนยัน/เปลี่ยน** (ไม่ auto-run — pattern เดียวกับ "DESIGN sizing gate" ของ `change-sizing/feature.md` องค์ประกอบ #5: assess → recommend + เหตุผล → user ยืนยัน; sizing logic จริงในplaybook อยู่ `design.md §7`+gate `§8`)
@@ -102,6 +106,41 @@
 - **token guard (hard cap):** สูงสุด **4 persona + 2 รอบ** — เกินให้ converge ด้วย main-loop judgment ทันที (กัน unbounded spawn)
 - **sensitivity override warning:** ถ้า user เลือก mode ต่ำกว่าที่ auto-suggest ตั้งเพราะ hard-floor signal (§4.4.1 precedence 1) → แสดง warning สั้น ("งานแตะหมวดอ่อนไหว X — mode นี้ scrutiny อาจไม่พอ") แบบ warn-not-block ก่อนเดินต่อ
 
+### 5.3 ไต่สวน flow (mode `ไต่สวน`) — Blue/Red adversarial iterative + user-in-loop
+> หลัก: Blue สร้าง → Red audit (adversarial) → grill user ทุก finding → Blue แก้ → วนจน converge
+> reuse: debate fan-out (§5.2 หลักการ) + grill (mode `ละเอียด`) + role cards; memory persist ข้ามรอบ
+
+**Memory artifact (เกิดใน `docs/stages/<slug>/debate/` ของ topic ที่ใช้ mode นี้):**
+| ไฟล์ | เจ้าของ | เนื้อหา |
+|---|---|---|
+| `blue-memory.md` | 🔵 Blue | ความเข้าใจ/scope/findings ที่ Blue สะสม (อัปเดตทุกรอบที่ user ยอมรับ) |
+| `red-memory.md` | 🔴 Red | audit findings ข้ามรอบ + สถานะ (open/resolved) — กัน Red ซ้ำประเด็นเดิม |
+| `debate-round-NN.md` | 🔴 Red | finding ของรอบ NN (5 มุม × role) — 1 ไฟล์/รอบ |
+
+**Flow (วน ROUND NN):**
+```
+1. 🔵 Blue Team → discovery + research (รอบแรก = ground เต็ม; รอบถัดไป = update ตาม finding ที่ user ยอมรับ)
+   → สรุป "มีอะไรบ้าง" → เขียน/อัปเดต blue-memory.md
+2. 🔴 Red Team → fan-out role ที่เกี่ยวกับ scope (sa/security/qa/tech-lead/infra, read-only)
+   แต่ละ role audit ครบ 5 มุม "ตามลำดับ" ในมุมมอง role ตัวเอง — complain ละเอียด ไม่เสนอวิธีแก้:
+     ① จุดผิด/บกพร่อง  ② จุดขาดหาย (Must Have)  ③ จุดเสี่ยงที่กลไกพลาด
+     ④ จุดไม่สอดคล้อง/ขัดแย้ง  ⑤ จุดขาดแล้วกระทบ (Should Have)
+   → main loop รวบ (judgment ไม่ delegate) → เขียน debate-round-NN.md + อัปเดต red-memory.md
+3. 📋 สรุป finding → 🎤 grill user ทีละ item (สัมภาษณ์ทุกรายการใน debate-round-NN — reuse mode ละเอียด/grill)
+4. user ยอมรับ/เข้าใจตรงกัน:
+   → 🔵 Blue update discovery.md + research.md + blue-memory.md ตาม finding ที่ตกลง
+   → ❓ ถาม user "audit รอบต่อไหม?" (เผื่อ user พอแล้ว)
+   → ต่อ: กลับ 2 (Red audit) → debate-round-(NN+1)
+5. converge เมื่อ: Red audit แล้ว **0 finding ใหม่** (ไม่สร้าง round) หรือ user บอกพอ → ปิด ไต่สวน
+```
+
+**Cap / guard:**
+- ก่อน audit รอบใหม่ทุกครั้ง **ถาม user ก่อน** (ไม่วนเงียบ) — soft cap, user คุมจำนวนรอบ
+- Red fan-out cap ≤ 5 role/รอบ; แต่ละ role audit ครบ 5 มุม
+- **fallback:** spawn ไม่ได้/เครื่องไม่มี Agent tool → degrade เป็น `ละเอียด` (grill เดี่ยว) + แจ้ง user (เหมือน §5.2)
+
+**Security (reuse §5.2 หลัก):** Red รับ artifact-level context (blue-memory/discovery) ไม่ใช่ raw filesystem; memory files = ข้อสรุป/ประเด็น ไม่ paste secret
+
 ## 6. ผลกระทบต่อระบบเดิม
 - `discovery.md` playbook: **เพิ่ม section + แทรกจุด mode** (operating principles/process loop อ้าง mode) — คงโครงเดิมทั้งหมด → backward-compatible
 - `grill mode` เดิม (§3): เปลี่ยนเป็น **alias ของ `ละเอียด`** — "ซักถามฉันหน่อย/grill me" ยังทำงาน (map → ละเอียด)
@@ -130,6 +169,7 @@ contract §4 (mode taxonomy + anchor)
 | ไว | ถาม **≤ K** คำถาม (K < N) + นับ branch ของ decision tree ที่ skip ≥1 + ไม่มี deep research |
 | ละเอียด | เดิน**ครบทุกกิ่ง** decision tree + มี grill turn ≥1 + role lens BA/PO ปรากฏ |
 | โต้วาที | เห็น **Agent-tool call ≥3** (persona) + decision-log มี entry "สังเคราะห์จาก debate" + cap ≤4/≤2 ไม่ทะลุ |
+| ไต่สวน | มี `debate/{blue-memory,red-memory,debate-round-NN}.md` ≥1 รอบ + Red fan-out role (audit ครบ 5 มุม) + grill user ทุก finding ใน round + **ถาม user ก่อน audit รอบใหม่** + converge เมื่อ 0 finding ใหม่/user หยุด |
 
 ### 8.2 เคส verify อื่น
 - **auto-suggest fixture (§4.4.1):** เดิน 5 เคส fixture → assert mode ที่ได้ตรงตาราง (รวมเคส precedence ขัดกัน "เล็ก+auth→สมดุล")
@@ -145,7 +185,7 @@ contract §4 (mode taxonomy + anchor)
 ### ADDED
 
 #### Requirement: Discovery mode taxonomy (→ feature: discovery-modes)
-Discovery รองรับ mode 4 ค่า `{ไว, สมดุล, ละเอียด, โต้วาที}` ที่คุมความเข้มของ stage โดยทั้งหมดยังสวม context-profile `research`
+Discovery รองรับ mode 5 ค่า `{ไว, สมดุล, ละเอียด, โต้วาที, ไต่สวน}` ที่คุมความเข้มของ stage โดยทั้งหมดยังสวม context-profile `research`
 - **Scenario:** WHEN ผู้ใช้เลือก mode `ไว` THEN Discovery ถามเฉพาะจุดที่ block + research minimal + รีบสรุป scope
 - **Scenario:** WHEN ผู้ใช้เลือก mode `ละเอียด` THEN Discovery เดินทุกกิ่ง decision tree + role lens BA/PO เต็ม + grill
 - **Scenario:** WHEN ผู้ใช้เลือก mode `สมดุล` THEN พฤติกรรม = Discovery ปัจจุบัน (สัมภาษณ์ทีละข้อ + research พอประมาณ)
@@ -169,6 +209,14 @@ mode `โต้วาที` fan-out persona agents มาเสนอ/แย้
 #### Requirement: mode orthogonal กับ tier change-sizing (→ feature: discovery-modes)
 mode (ความเข้ม Discovery) เป็นแกนแยกจาก tier (ขนาด change) — เชื่อมกันแค่ผ่าน auto-suggest signal
 - **Scenario:** WHEN เลือก mode ใดก็ตาม THEN ไม่เปลี่ยน tier ของ topic และไม่ข้าม hard-floor ของ `change-sizing`
+
+#### Requirement: ไต่สวน mode — Blue/Red adversarial iterative (→ feature: discovery-modes)
+mode `ไต่สวน` เดิน Blue/Red 2 ทีมวนหลายรอบ มี user-in-loop: Blue ทำ discovery+research → Red audit (fan-out role, ครบ 5 มุม) → grill user ทุก finding → Blue แก้ → วนจน converge; memory persist ใน `docs/stages/<slug>/debate/`
+- **Scenario:** WHEN เข้า mode ไต่สวน THEN Blue เขียน `blue-memory.md`, Red fan-out role audit ครบ 5 มุม (จุดผิด/Must-Have/จุดเสี่ยง/ขัดแย้ง/Should-Have) เขียน `debate-round-NN.md` + `red-memory.md`
+- **Scenario:** WHEN Red audit จบรอบ THEN grill user ทุก finding ใน `debate-round-NN.md` → user ยอมรับ → Blue update discovery/research/blue-memory
+- **Scenario:** WHEN จบ Blue update THEN ถาม user ก่อน audit รอบต่อ; converge เมื่อ Red 0 finding ใหม่ หรือ user หยุด
+- **Scenario:** WHEN spawn ไม่ได้/เครื่องไม่มี Agent tool THEN degrade เป็น `ละเอียด` + แจ้ง user
+- **Scenario:** WHEN auto-suggest ทำงาน THEN ไม่แนะ `ไต่สวน` เอง (explicit-only — หนักสุด user-in-loop)
 
 ---
 
@@ -202,3 +250,21 @@ fan-out reviewer ขนาน (read-only): `warnyin-{sa,tech-lead,qa,security,in
 ### Defer / ฝากให้ task author (ไม่ block)
 - SA-2 debate เป็น sub-task ใน Task A (ไฟล์เดียว — คง 2-task, แตก sub-task ภายใน) → §2 note
 - QA-S5 / full spawn-real proof = optional/defer ถ้า token จำกัด → §8.2
+
+---
+
+## 11. Amend log — mode 5 `ไต่สวน` (2026-06-11)
+
+> หลัง topic ผ่าน VERIFY (4 mode) — user ขอเพิ่ม mode ที่ 5 `ไต่สวน` (Blue/Red adversarial iterative) → กลับ DESIGN amend
+
+**การตัดสินใจ (user ยืนยัน):**
+- `ไต่สวน` = **mode ที่ 5 ใหม่** (โต้วาทีเดิมคงไว้ — quick fan-out; ไต่สวน = หนักสุด iterative)
+- amend topic เดิม (ยังไม่ ship) — re-design → re-build เฉพาะ debate/mode slice
+- memory ใน `docs/stages/<slug>/debate/` (archive พร้อม topic)
+- ชื่อ canonical `ไต่สวน`; Red = **fan-out role × audit ครบ 5 มุม** (role=ความสามารถ, 5 มุม=lens)
+
+**สิ่งที่แก้ใน design:** §4.1 taxonomy (+ไต่สวน, explicit-only) · §4.3 behavior (+คอลัมน์) · §5.3 flow ใหม่ (Blue/Red + memory) · §8.1 observable proxy · §9 spec delta (R1 4→5, +R6 ไต่สวน 5 scenario)
+
+**ผลต่อ task:** Task A เพิ่ม sub-task (e) ไต่สวน §5.3; Task B เพิ่ม keyword `ไต่สวน` — file-ownership/DAG เดิม (width 2)
+
+**re-build scope:** wave เดียว (เหมือนเดิม) — Task A rewrite §3.5 (+ §3.5.7 ไต่สวน), Task B + keyword; full-gate เดิม

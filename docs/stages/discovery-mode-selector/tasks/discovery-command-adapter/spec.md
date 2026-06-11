@@ -16,7 +16,7 @@
 - ผู้ใช้ที่เรียก `/warnyin:discovery` (Claude Code) — entry point ของ mode
 
 ## 7. Test-flow
-- [ ] keyword "ไว"/"เร็ว"/"quick"/"fast" → `ไว`; "ละเอียด"/"grill"/"ซักถามฉันหน่อย" → `ละเอียด`; "โต้วาที"/"debate" → `โต้วาที`; "ปกติ"/"balanced" → `สมดุล`
+- [ ] keyword "ไว"/"เร็ว"/"quick"/"fast" → `ไว`; "ละเอียด"/"grill"/"ซักถามฉันหน่อย" → `ละเอียด`; "โต้วาที"/"debate" → `โต้วาที`; "ไต่สวน"/"audit"/"red-team"/"blue-red" → `ไต่สวน`; "ปกติ"/"balanced" → `สมดุล`
 - [ ] ไม่ระบุ keyword → command ชี้ playbook auto-suggest (ไม่ default เงียบเป็นค่าตายตัว)
 - [ ] multi-match/ขัดกัน → fall through auto-suggest
 - [ ] **no-duplicate:** command ไม่มี behavior contract table / auto-suggest signal ซ้ำ — grep ยืนยัน command ชี้ section anchor "Discovery modes (ความเข้มของ Discovery)" จริง (anchor-resolve)
