@@ -125,3 +125,9 @@
 - **อาการ:** แก้ไฟล์ root `.claude/commands/warnyin/` หรือ `.warnyin/workflow/` แล้ว `git status` ไม่ขึ้น modified; Edit `old_string` ที่ root ไม่ match ทั้งที่ copy จาก src (root stale — ขาด baseRef line) — topic `improve-performance` (theme เดียว #11 แต่คนละทิศ: #11 = ถูก commit ทั้งที่ควร ignore; #18 = ถูก ignore เลยมองไม่เห็น/stale)
 - **Root cause:** tracked source = `src/` เท่านั้น; root = dogfood install ที่ release sync src→root regenerate
 - **วิธีแก้/ป้องกันซ้ำ:** แก้ canonical ที่ `src/` ก่อน (จะ tracked) → ยืนยัน scope ด้วย `git check-ignore <path>`; ถ้าต้อง sync root เพื่อ runtime ให้ apply **เฉพาะ delta ของ task** (อย่า `cp` ทับทั้งไฟล์ — กัน revert ฟีเจอร์อื่นที่ root ยังเก่า); **อย่ารายงานไฟล์ root เป็น `filesChanged`** ที่ main loop ต้อง commit (ถูก ignore)
+
+### 19. `lint:md` dead-link จาก illustrative markdown-link ใน task-brief
+- **อาการ:** `npm run lint:md` ขึ้น dead-link ใน `docs/stages/<slug>/tasks/<task>/task.md` ชี้ `../triage.md#...` ทั้งที่ artifact จริงใน `src/.warnyin/workflow/stages/` resolve ถูกต้อง (lint ไม่ flag ไฟล์ artifact)
+- **Root cause:** task-brief เขียน **ตัวอย่าง** markdown-link ที่ agent ต้องไปใส่ในไฟล์ stage แต่เขียนเป็น **live link** `[..](../path)` ในตัว brief เอง → `lint-md` resolve จาก location ของ brief (`tasks/<task>/`) ไม่ใช่จาก location ปลายทาง → path ไม่มีจริง = dead-link. บรรทัดที่ห่อ backtick (`` `[..](..)` ``) lint ข้าม (inline-code) แต่บรรทัดที่ไม่ห่อถูก resolve
+- **วิธีแก้:** ห่อ illustrative link ในtask-brief ด้วย backtick (inline-code) ให้เป็น documentation ไม่ใช่ live link — `lint-md.mjs` strip code-span ก่อน match link จึงข้ามให้
+- **ป้องกันซ้ำ:** เวลาเขียน brief/เอกสารที่ **ยกตัวอย่าง** markdown-link ของไฟล์ปลายทาง → ห่อ backtick เสมอ (illustrative ≠ live link); dead-link ของ **artifact จริง** ต่างหากที่เป็น integration-proof ที่ full-gate ต้องการ (topic `change-sizing-router` BUILD full-gate)

@@ -1,4 +1,4 @@
-<!-- Generated: 2026-06-09 (rescan หลัง adaptive-api-doc) | Files scanned: ~84 src (72 .md + 12 .mjs) | Token estimate: ~840 -->
+<!-- Generated: 2026-06-11 (rescan หลัง change-sizing-router: triage.md + §7 3-tier) | Files scanned: ~85 src (73 .md + 12 .mjs) | Token estimate: ~860 -->
 # Architecture — Warnyin Standard Workflow
 
 ## 2-layer (bootstrap / self-hosting)
@@ -41,6 +41,10 @@ DESIGN เขียน "Spec delta" (design.md §9: ADDED/MODIFIED/REMOVED) ▶ 
 
 capability เสริม conditional (เฉพาะ topic แตะ REST API — auto-detect): api-doc.md
 ▶ DESIGN ผลิต openapi.yaml ▶ VERIFY validate โค้ดตรง contract ▶ SHIP promote docs/techstack/<c>/openapi.yaml — ดู docs/features/api-doc/
+
+change-sizing (ต้นน้ำ ก่อนเข้า flow — read-only): triage.md
+/warnyin:triage ประเมินขนาด change → tier {fast,standard,large} (signals + hard-floor 5 หมวด) → แนะนำ route แล้วหยุด
+▶ fast = fast-track (design §7 skip-list canonical → build 1 agent → verify-lite → ship-lite, คง test floor) ▶ large = บังคับ Discovery — ดู docs/features/change-sizing/
 ```
 
 ## installer flow (src/bin/cli.mjs)
