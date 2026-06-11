@@ -23,6 +23,14 @@
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-06-11
+
+### Added
+- **DESIGN sizing gate — establish tier ก่อนจ่าย ceremony** (เสริม feature `change-sizing`) — เพิ่ม **step 1.5 "Establish tier"** ใน `src/.warnyin/workflow/stages/design.md §4` (ก่อน `business.md`/`proposal`): DESIGN **ประเมินขนาด change เบื้องต้นเอง** ตาม rubric (`triage.md` signals + hard-floor) → **มั่นใจ = กำหนด tier + บันทึก `proposal.md`**; **ไม่มั่นใจ/ก้ำกึ่ง = ถาม user เป็น options** (ประเมินด้วย `/warnyin:triage` ก่อน / user กำหนด tier เองถ้ารู้; ก้ำกึ่ง default = ปัดขึ้น `standard`); **hard-floor** (auth/migration/secret/public-API/security-sensitive) บังคับ ≥ standard เสมอ. อุดช่องว่างเดิมที่ `§7` **บริโภค** tier แต่ไม่มีตัวการันตีว่า established จริง (DESIGN เคยเดินโดยไม่รู้ขนาด). `§7` เพิ่มประโยคชี้ "tier ถูก established ที่ §4 step 1.5" (ไม่ inline rubric — ชี้ `triage.md`); ปรับช่อง `ขนาด` ใน proposal template `เล็ก/กลาง/ใหญ่` → `fast/standard/large` (vocab ตรง triage). tier = judgment (⚠ ไม่ใช่ validator). payload ติดมากับ `--update` รอบถัดไป
+
+### Fixed
+- **`docs/features/global-install/spec.md`** — เพิ่ม `WHEN` ที่ขาดใน scenario "--global + --project → error" (validate-topic C5)
+
 ## [0.13.0] - 2026-06-11
 
 ### Added
