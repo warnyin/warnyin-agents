@@ -15,7 +15,9 @@ npm run setup:sandbox    # ติดตั้ง v-next จาก src/ ลง te
 ```
 
 ## Env vars สำคัญ
-- ไม่มี env var ที่จำเป็น (zero-config)
+- **runtime (per-project default):** ไม่มี env var ที่จำเป็น (zero-config)
+- **global install mode** (`--global`) พึ่ง **`HOME`** (POSIX) / **`USERPROFILE`** (Windows) ผ่าน `os.homedir()` — resolve target `~/.warnyin/`+`~/.claude/`; ถ้าหาไม่ได้/เป็น filesystem root → installer error (guard) แนะนำ `--project`
+- **เทส global mode:** ต้อง override **ทั้ง `HOME` และ `USERPROFILE`** → temp dir ตอน spawn (`runCli(cwd, args, env)` ส่ง `{...process.env, HOME: tmp, USERPROFILE: tmp}`) — กัน side-effect เขียน homedir จริงของ dev/CI; assert side-effect อยู่ใน temp (กัน false-pass ถ้า override ไม่ติด)
 
 ## Environment อื่น (staging/prod)
 - **publish:** npm registry (`@warnyin/agents`) — CI gate `.github/workflows/ci.yml` (test matrix + pack-verify) ก่อน publish

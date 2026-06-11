@@ -8,7 +8,7 @@
 | **Slice อ้างอิง** | `design.md` slice #3 |
 | **Component** | `installer` (playbook init) |
 | **Model tier** | `balanced` (เพิ่ม step ใน playbook prose — ระวัง idempotent + อย่าทับของเดิม) |
-| **สถานะ** | `รอ build` |
+| **สถานะ** | `เสร็จ` |
 
 ## 1. เป้าหมายของ task (vertical slice)
 ให้ `/warnyin:init` **รับผิดชอบ workspace bootstrap** (D5): เพิ่ม step สร้าง scaffold (`docs/stages/context.md` + `docs/stages/achieved/.gitkeep` เปล่า) + seed `docs/` จาก template **ก่อน** วิเคราะห์โปรเจกต์ — ทำให้ global mode (installer ข้าม scaffold) มี workspace; อ่าน template แบบ **local-first → global** (§3C)

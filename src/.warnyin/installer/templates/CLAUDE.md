@@ -28,3 +28,7 @@ Claude Code อ่าน `.claude/` + ไฟล์นี้, ส่วน Codex/
 
 ## อัปเดต workflow
 `npx @warnyin/agents --update` — เขียนทับเฉพาะ playbook กลาง (`.warnyin/workflow/`, `.claude/commands/warnyin/`, template `.warnyin/template/stages/[topic]/`) ไม่แตะ `docs/` และงานจริงใน `docs/stages/`
+
+## การ resolve playbook (local-first → global)
+- path `.warnyin/workflow/...` / `.warnyin/template/...`: หาในโปรเจกต์ `./.warnyin/` ก่อน ไม่มี → `~/.warnyin/` (global install)
+- ถ้ายังไม่มี `docs/stages/` (global mode โปรเจกต์ใหม่) → รัน `/warnyin:init` ก่อน (สร้าง workspace)

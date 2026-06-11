@@ -46,3 +46,9 @@ Discovery (optional) ──▶ DESIGN ──▶ BUILD ──▶ VERIFY ──▶
 ทำตาม `.warnyin/workflow/stages/discovery.md` — เริ่มอ่าน `docs/project.md`, ตี scope กว้าง→แคบ,
 ถามทีละข้อพร้อมเสนอคำตอบที่แนะนำ, คำถามที่ตอบได้ด้วยโค้ดให้ไปอ่านโค้ดเอง,
 เขียน output ลง `docs/stages/<slug>/discovery.md` และ `research.md`
+
+## การ resolve playbook (local-first → global)
+- path `.warnyin/workflow/...` / `.warnyin/template/...`: หาในโปรเจกต์ `./.warnyin/` ก่อน ไม่มี → `~/.warnyin/` (global install)
+- ถ้ายังไม่มี `docs/stages/` (global mode โปรเจกต์ใหม่) → รัน `/warnyin:init` ก่อน (สร้าง workspace)
+
+> หมายเหตุ: global root doc ของ Codex/Antigravity ไม่รองรับรอบนี้ — convention นี้มีผลเฉพาะ per-project path

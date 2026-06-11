@@ -8,7 +8,7 @@
 | **Slice อ้างอิง** | `design.md` slice #2 |
 | **Component** | `installer` (payload templates) |
 | **Model tier** | `balanced` (wording tool-agnostic + marker contract — ระวัง consistency 3 ไฟล์) |
-| **สถานะ** | `รอ build` |
+| **สถานะ** | `เสร็จ` |
 
 ## 1. เป้าหมายของ task (vertical slice)
 เขียน **resolution convention** (local-first `./.warnyin/` → global fallback `~/.warnyin/`) + **workspace-guard** (ไม่มี `docs/stages/` → `/warnyin:init`) ลง 3 ที่ (tool-agnostic, เนื้อเดียวกัน) + สร้าง template **note-only `CLAUDE.global.md`** (มี marker `<!-- warnyin:global-note -->`) ที่ T1 เขียนลง `~/.claude/CLAUDE.md`

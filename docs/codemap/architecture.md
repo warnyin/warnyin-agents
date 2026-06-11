@@ -1,4 +1,4 @@
-<!-- Generated: 2026-06-11 (rescan หลัง change-sizing-router: triage.md + §7 3-tier) | Files scanned: ~85 src (73 .md + 12 .mjs) | Token estimate: ~860 -->
+<!-- Generated: 2026-06-11 (rescan หลัง global-install: cli global mode + CLAUDE.global.md) | Files scanned: ~86 src (74 .md + 12 .mjs) | Token estimate: ~880 -->
 # Architecture — Warnyin Standard Workflow
 
 ## 2-layer (bootstrap / self-hosting)
@@ -50,13 +50,15 @@ change-sizing (ต้นน้ำ ก่อนเข้า flow — read-only): 
 ## installer flow (src/bin/cli.mjs)
 ```
 pkgRoot = resolve(dirname(import.meta.url), '..')  → src/ (sibling ของ bin/)
-guard pkgRoot===target → error  (defensive no-op หลังย้าย: pkgRoot=src/ ไม่มีทาง===target)
+mode = resolveMode(flags/isTTY/answer)   project(default) | global(--global)   # non-TTY→project (CI-safe)
+target = global ? os.homedir()(+guard) : cwd
+guard pkgRoot===target → error  (defensive no-op: pkgRoot=src/ ไม่มีทาง===target)
  → warn legacy(≤0.2.x / 0.3–0.5.x)
- → copyTree(CORE, overwrite=--update)   .warnyin/{workflow,template} + .claude/{commands/warnyin,agents,skills}
- → ensureScaffold()                     generate docs/stages/{context.md, achieved/.gitkeep} เปล่า (ไม่ copy → กัน leak)
- → seedDocs()                           .warnyin/template/docs/** → docs/** (ข้าม [...], ไม่ทับ)
- → installRootDoc CLAUDE.md + AGENTS.md (append section ถ้ามีอยู่ + marker กันซ้ำ)
+ → copyTree(CORE, overwrite=--update)   .warnyin/{workflow,template} + .claude/{commands/warnyin,agents,skills}   (global first-install: overwrite=false)
+ [project] → ensureScaffold() + seedDocs() + installRootDoc CLAUDE.md/AGENTS.md (append+marker)
+ [global]  → skip scaffold/seed (ยกให้ /warnyin:init) + installGlobalNote()→~/.claude/CLAUDE.md (note-only+marker) + ข้าม AGENTS.md
 ```
+- **global mode (feature `global-install`):** ติดตั้ง adapter+playbook ลง `~/` ใช้ทุกโปรเจกต์ (opt-in); resolve playbook **local-first (`./.warnyin/`) → global (`~/.warnyin/`)** ผ่าน convention ใน CLAUDE.md/AGENTS.md/CLAUDE.global.md; per-project = default — ดู `docs/features/global-install/`
 รายละเอียด helper/ค่าคงที่: `docs/techstack/installer/structure.md`
 
 ## dev tooling (src/scripts/ — ไม่ publish)
