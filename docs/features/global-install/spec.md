@@ -20,6 +20,7 @@
 
 ### Scenario: --global + --project พร้อมกัน → error
 - GIVEN รัน `npx @warnyin/agents --global --project`
+- WHEN installer parse flags (resolveMode)
 - THEN exit ≠ 0 + ข้อความว่า flag ขัดแย้ง
 
 ### Scenario: global ไม่ทำลายไฟล์ user ที่มีอยู่ใน homedir
