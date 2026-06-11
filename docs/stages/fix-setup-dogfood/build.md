@@ -1,58 +1,53 @@
-# Build Report — <ชื่อ change>
+# Build Report — fix-setup-dogfood
 
 > Output ของ BUILD stage · playbook: `.warnyin/workflow/stages/build.md`
-> รายงานผลการ implement ต่อ task + การ integrate
 
 | | |
 |---|---|
-| **Slug** | `<kebab-case>` |
-| **Build branch** | `<branch>` |
-| **Isolation** | `worktree` / `shared-tree` |
-| **วันที่** | `YYYY-MM-DD` |
-| **ผลรวม** | ผ่าน __ / ล้ม __ / ทั้งหมด __ task |
+| **Slug** | `fix-setup-dogfood` |
+| **Build branch** | `build/fix-setup-dogfood` |
+| **Isolation** | `worktree` |
+| **วันที่** | 2026-06-11 |
+| **ผลรวม** | ผ่าน 1 / ล้ม 0 / ทั้งหมด 1 task |
 
 ## 1. Execution plan (waves ตาม dependency)
 ```
-wave 1 (parallel): task-a, task-b
-wave 2:            task-c  (ขึ้นกับ task-a)
-wave 3:            task-d  (ขึ้นกับ task-b, task-c)
+wave 1 (width 1): setup-dogfood-reliable (sonnet)
 ```
+- depth 1 · width 1 (bugfix ไฟล์เดียว + test — ไม่มี slice independent)
 
 ## 2. ผลต่อ task
 | Wave | Task | สถานะ | Test/Lint | ไฟล์ที่แก้ | Branch | หมายเหตุ |
 |---|---|---|---|---|---|---|
-| 1 | task-a | ✅ passed | | | | |
-| 1 | task-b | ❌ failed | | | | เหตุผล... |
+| 1 | setup-dogfood-reliable | ✅ passed | test 69/69 · lint:md 107 | `src/scripts/setup-dogfood.mjs`, `src/tests/setup-dogfood.test.mjs` (ใหม่), `CHANGELOG.md` | worktree-wf_0a4bd763-fde-1 | --update + verifyInstalled + main-guard + 3 unit เคส |
 
 ## 3. Integration notes
-- การ merge แต่ละ wave / conflict ที่เจอและวิธีแก้:
+- integrate `git checkout <worktree-branch> -- <source files>` — single task, ไม่มี conflict
+- commit integrate: `0d6c8e3`
+- **หมายเหตุ:** commit message เลี่ยงคำ/flag ที่ trigger hook `block-no-verify` (false-match ตอน batch grep+commit) → commit แยก message สะอาด
 
-## 3.5 Full build & test gate (หลัง integrate ทุก wave)
-> รัน build ทั้งหมด + test suite ทั้งหมด (รวม unit test) บน build branch — ต้องเขียวหมดก่อนปิด BUILD
-
+## 3.5 Full build & test gate
 | Component | Build | Unit test | Test อื่น | รอบที่แก้ |
 |---|---|---|---|---|
-| api-service | ✅ / ❌ | ผ่าน __/__ | | |
-| admin-console | | | | |
+| installer (dev-tooling) | N/A (ไม่ compile) | `node --test` **69/69** (+3 verifyInstalled) | `lint:md` 107 ✅ · `verify:pack` 81 ✅ | 0 (เขียวรอบแรก) |
 
-- error ที่เจอตอนรวม + วิธีแก้:
+- ไม่มี error ตอนรวม — เขียวรอบแรก
 
 ## 4. ปัญหา/ค้าง (ถ้ามี)
-- task ที่ล้ม + สาเหตุ + แผนแก้:
+- ไม่มี task ล้ม
 
 ## 5. Rule/standard ใหม่ที่ note ไว้ (รอ SHIP)
-> รวบรวมจาก `tasks/<task>/rule.md` และ `standard.md` — รอ SHIP อัปเดตไฟล์กลางใน `docs/`
--
+> จาก `tasks/setup-dogfood-reliable/rule.md §2`:
+- **"dev-tooling ที่ spawn external install (npx/npm) ต้อง verify side-effect ไม่เชื่อ exit 0 + ส่ง flag ตรงเจตนา (--update)"** — scope `component:installer` → `docs/techstack/installer/rule.md`
 
 ## 6. ปัญหายาก/ซ้ำที่เจอ
-> บันทึกละเอียดที่ `./troubleshooting.md` (SHIP ยกขึ้น `docs/troubleshooting.md`)
-- ดู `./troubleshooting.md`
+- **TS-1** setup:dogfood false-green (npx exit 0 ไม่ install) → ดู `./troubleshooting.md` (ยกขึ้น KB กลางตอน SHIP)
 
-## ✅ Gate → VERIFY (ดู `.warnyin/workflow/stages/build.md` ข้อ 7)
-- [ ] ทุก task implement + merge เข้า build branch แล้ว
-- [ ] ทุก task `passed` (test/build เขียว) ไม่มี `failed` ค้าง
-- [ ] ไม่มี merge conflict ค้าง
-- [ ] Full build ของทุก component ผ่าน (ไม่มี build error)
-- [ ] test suite ทั้งหมด (รวม unit test) เขียวหมดบน build branch
-- [ ] build.md สรุปครบทุก task + ผล full build/test
-- [ ] ไม่แตะ rule/standard กลางใน docs/
+## ✅ Gate → VERIFY
+- [x] ทุก task implement + merge เข้า build branch
+- [x] ทุก task `passed` ไม่มี `failed` ค้าง
+- [x] ไม่มี merge conflict ค้าง
+- [x] Full build ผ่าน (dev-tooling — N/A compile)
+- [x] test suite เขียวหมด — 69/69 + lint + verify:pack
+- [x] build.md สรุปครบ
+- [x] ไม่แตะ rule/standard กลางใน docs/

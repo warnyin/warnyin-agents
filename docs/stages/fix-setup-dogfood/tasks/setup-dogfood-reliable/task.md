@@ -9,7 +9,7 @@
 | **Slice อ้างอิง** | `design.md` slice #1 |
 | **Component** | `installer` (dev-tooling `src/scripts/`) |
 | **Model tier** | `balanced` |
-| **สถานะ** | `รอ build` |
+| **สถานะ** | `เสร็จ` |
 
 ## 1. เป้าหมายของ task (vertical slice)
 > ทำให้ `npm run setup:dogfood` refresh root dogfood CORE ได้จริงทุก release — เขียนทับ CORE (`--update`) + จับ false-green ด้วย verify side-effect + fallback; พิสูจน์ด้วย unit test
