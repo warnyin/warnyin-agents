@@ -11,6 +11,8 @@
 ใช้หลัง BUILD ผ่าน Gate (full build/test เขียว) — VERIFY ทดสอบ **เชิงพฤติกรรม/จุดประสงค์** ในสภาพแวดล้อมจริง (local env)
 ไม่ใช่แค่ unit test ผ่าน แต่ "ของจริงทำงานตามที่ topic ตั้งใจไหม"
 
+> **★ fast-track hook:** ถ้า topic เป็น tier `fast` (จาก `/warnyin:triage`) → **verify-lite** ตาม [fast-track skip-list](../triage.md#fast-track-skip-list) — functional ตาม spec + test เขียว, ข้าม empirical/panel ที่ไม่เกี่ยว; **correctness floor คงไว้ — test ต้องเขียวจริง**. tier `standard`/`large` → flow เต็มด้านล่าง (hook นี้ N/A ไม่ลด bar)
+
 ---
 
 ## 2. ก่อนเทส — อ่านให้เข้าใจก่อนเสมอ
