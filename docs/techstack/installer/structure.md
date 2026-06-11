@@ -12,7 +12,8 @@ src/scripts/verify-pack.mjs       pack-verify gate (allowlist + denylist; export
 src/scripts/check-test-count.mjs  pass-count gate (anti-false-green; MIN_PASS=9)
 src/scripts/lint-md.mjs           dead-link gate (zero-dep; export checkLinks; strip-code alternation)
 src/tests/lint-md.test.mjs        unit test ของ checkLinks (7 เคส, BL-4 testable)
-src/scripts/setup-dogfood.mjs     dev: ติดตั้ง release ลง root (dogfood)
+src/tests/setup-dogfood.test.mjs  unit test ของ verifyInstalled (3 เคส, BL-4 testable; false-green guard partial→false)
+src/scripts/setup-dogfood.mjs     dev: ติดตั้ง release ลง root (--update + verifyInstalled side-effect; export + main-guard)
 src/scripts/setup-sandbox.mjs     dev: ติดตั้ง v-next จาก src/ ลง temp (sandbox)
 src/.warnyin/{workflow,template}  playbook กลาง (stages/ roles/ contexts/ scripts/) + template (payload)
 src/.warnyin/installer/templates/CLAUDE.md   template CLAUDE.md ของ target (per-project root doc + resolution note)
@@ -61,7 +62,8 @@ installGlobalNote()              อ่าน templates/CLAUDE.global.md → ~/.
 ## helper dev tooling (`src/scripts/` — ไม่ publish)
 ```
 checkFiles(files[]) → error[]    pure function (verify-pack.mjs); export ให้ unit test เรียกได้ (ไม่ trigger npm pack)
-setup-dogfood.mjs                installViaNpx() || installViaPack() → appendContributingPointer() (idempotent marker 'CONTRIBUTING.md')
+setup-dogfood.mjs                installViaNpx() || installViaPack() (ทั้งคู่ส่ง `--update` + `verifyInstalled(repoRoot)` ก่อน return true — ไม่เชื่อ exit 0) → appendContributingPointer() (idempotent marker 'CONTRIBUTING.md'); export verifyInstalled + main-guard
+verifyInstalled(root) → boolean        เช็ค root CORE markers (.warnyin/workflow/stages/discovery.md + .claude/commands/warnyin); export ให้ unit test (main-guard กัน trigger install)
 setup-sandbox.mjs                mkdtempSync(os.tmpdir(),'wy-sandbox-') → spawn node src/bin/cli.mjs ลง temp
 check-test-count.mjs             อ่าน summary node --test จาก stdin → fail ถ้า fail!=0 / pass<MIN_PASS / pass!=tests
 checkLinks(docs,exists) → error[] pure function (lint-md.mjs); export ให้ unit; dead-link gate ของ .md (src/+docs/, exclude template+achieved)

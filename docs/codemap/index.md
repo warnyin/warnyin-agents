@@ -1,4 +1,4 @@
-<!-- Generated: 2026-06-11 (rescan หลัง discovery-mode-selector: Discovery 5 mode + ไต่สวน; ต่อจาก global-install) | Files scanned: ~87 src | Token estimate: ~650 -->
+<!-- Generated: 2026-06-11 (rescan หลัง fix-setup-dogfood: setup-dogfood verifyInstalled; ต่อจาก discovery-mode-selector) | Files scanned: ~88 src | Token estimate: ~655 -->
 # Codemap — Warnyin Standard Workflow
 
 > repo = **tool/library** (npm `@warnyin/agents`) ไม่ใช่ app — ส่งมอบ "ways of work" 5 stage ลงโปรเจกต์อื่น
@@ -36,7 +36,7 @@ single library (zero-dependency, ESM, Node ≥20) เผยแพร่ผ่า
 
 ## Dev tooling (`src/scripts/` — ไม่ publish)
 - `verify-pack.mjs` (pack-verify gate, export `checkFiles`) · `check-test-count.mjs` (pass-count gate) · `lint-md.mjs` (dead-link gate, export `checkLinks`)
-- `setup-dogfood.mjs` (install release → root) · `setup-sandbox.mjs` (install v-next จาก src/ → temp)
+- `setup-dogfood.mjs` (install release → root; `--update` + `verifyInstalled` side-effect ไม่เชื่อ exit 0, export+main-guard) · `setup-sandbox.mjs` (install v-next จาก src/ → temp)
 
 ## ไฟล์ codemap
 - `architecture.md` — โครงระดับสูง + 2-layer + flow installer + การไหลของ 5 stage

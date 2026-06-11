@@ -27,6 +27,7 @@
 
 ## dev tooling (`src/scripts/setup-*.mjs` — bootstrap/dogfood)
 - **npm scripts (`setup:*`) ต้องเป็น node script cross-platform** — zero-dep/ESM ใน `src/scripts/`; ใช้ `os.tmpdir()`+`mkdtempSync` (ห้าม hardcode `/tmp`), `path.join`; spawn array args **ห้าม `shell:true`** ยกเว้นเรียก npx บน win32 (`.cmd`); ต้องมี fallback (npm pack→extract→node) หรือ exit ด้วย error ชัดเจน (ห้าม false-green)
+  - **★ verify side-effect ไม่เชื่อ exit 0 + ส่ง flag ตรงเจตนา** (enforce ของ "ห้าม false-green") — dev-tooling ที่ spawn external install (`npx`/`npm`) **ต้องตรวจ side-effect จริงหลังรัน** (เช่น `verifyInstalled(root)` เช็ค CORE markers `.warnyin/workflow/stages/discovery.md` + `.claude/commands/warnyin` exists) **ไม่เชื่อแค่ `r.status===0`** — `exit 0` เกิดได้โดยไม่ install จริง (npx bin resolution เพี้ยน) → false-green แม้มี fallback (เพราะ success-detection คืน true ก่อน fallback); และ **ส่ง flag ให้ตรงเจตนา** (`setup:dogfood` ต้องส่ง `--update` ไม่งั้น cli `copyTree({overwrite:false})` ข้าม CORE เดิม → ไม่ refresh); pure-fn `verifyInstalled` **export + main-guard** (testable, เคส partial→false พิสูจน์ guard) — evidence: topic `fix-setup-dogfood` (`troubleshooting.md` #21 + verify V1-V6; เจอจริงตอน release 0.15.0 ของ `discovery-mode-selector`)
 - **`setup:dogfood` เตือน review payload diff ก่อนเปิด session** — payload ที่ install จาก `@latest` ถูก agent execute ต่อ = supply-chain surface (low risk เพราะ release ตัวเอง แต่ comment เตือนเป็น policy)
 
 ## เอกสาร migration / CHANGELOG

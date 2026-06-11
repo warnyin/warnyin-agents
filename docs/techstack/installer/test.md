@@ -155,3 +155,10 @@
 - **multi-agent fallback = structural (ไม่ spawn จริง):** verify อ่าน playbook เห็น fallback instruction + เงื่อนไข trigger ชัด (spawn ไม่ได้/เครื่องไม่มี Agent tool/skeptic หาย) + observable signal เมื่อ degrade (แจ้ง user) — **full spawn-real proof = optional/defer ถ้า token จำกัด** (debate/ไต่สวน เป็น Agent-tool call ใน playbook ไม่ใช่ Workflow script → ไม่มี runtime ให้ inject; พิสูจน์ตอนใช้จริงรอบแรก)
 - **install proof + dogfood note:** `setup:sandbox` → target มี `§3.5` + command mode + README; **verify ที่ `src/` (ที่เพิ่งแก้) ไม่ใช่ root dogfood stale** (กัน false-green) — root regen ตอน release
 - **generic boundary:** grep playbook ไม่ผูกชื่อรุ่น model (persona/tier vocab generic) — multi-agent ระบุ role generic ไม่ vendor
+
+## verify dev-tooling install script (setup-*.mjs) (L: topic `fix-setup-dogfood`)
+> dev-tooling ที่ spawn external install (`setup-dogfood.mjs`: npx/npm pack) — verify ด้วย **unit (pure-fn) + structural + false-green guard** (ไม่ต้อง spawn install จริงทุกครั้ง — เหมือน BL-4 testable)
+- **unit `verifyInstalled(root)` (export + main-guard):** temp dir → 3 เคส falsifiable: เปล่า→`false` · CORE ครบ (`.warnyin/workflow/stages/discovery.md` + `.claude/commands/warnyin`)→`true` · **partial (ขาด `.claude/commands/warnyin`)→`false`** (เคส partial = false-green guard, พิสูจน์ "ไม่เชื่อ exit 0" ทำงาน); import จาก test ไม่ trigger install (main-guard `argv[1]===fileURLToPath`)
+- **structural:** grep `--update` ส่งทั้ง npx + node paths · `verifyInstalled(repoRoot)` wire success-detection ทั้ง 2 path (`status===0 && !shimMissing && verifyInstalled`) · main-guard มีจริง
+- **regression:** `npm test` ทั้ง suite เขียว (`check-test-count`: `pass===tests`, `pass≥9` — เพิ่มเคสใหม่ไม่ลด count); `lint:md` (CHANGELOG)
+- **executable integration = defer:** รัน `npm run setup:dogfood` จริง → root CORE = release version (spawn npx/npm + network) — manual proof ตอน release ถัดไป; unit + structural ครอบ logic แล้ว
