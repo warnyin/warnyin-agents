@@ -23,6 +23,11 @@
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-06-11
+
+### Added
+- **Change sizing — ประเมินขนาด change ก่อนจ่าย ceremony แล้วจ่ายให้พอดี** (feature `change-sizing`) — capability ใหม่ `/warnyin:triage` (read-only router) + playbook `src/.warnyin/workflow/triage.md`: รับคำอธิบาย change → จัดเป็น **3 tier `{fast, standard, large}`** ด้วย rubric (signals + tie-break ก้ำกึ่ง→standard + **hard-floor 5 หมวด** [auth/authz · data-migration/schema · secret/credential · public-API/contract(breaking) · security-sensitive] บังคับ ≥ standard เสมอ + escalation/downgrade symmetric) → **แนะนำ route แล้วหยุด** (ให้ user สั่ง command เอง — pattern เดียวกับ `next`; triage = request by size, next = topic by stage). **fast-track wiring ครบ 4 stage แบบ unify-in-place:** reframe `stages/design.md §7` (2-level → 3-tier ชี้ skip-list canonical, tier `large` บังคับ `/warnyin:discovery`) + pointer hook ใน `stages/verify.md` (verify-lite) + `stages/ship.md` (ship-lite) — **rubric canonical อยู่ที่ `triage.md` เดียว** ทุกที่ชี้ด้วย markdown-link/backtick runtime-ref ไม่ duplicate. **fast-track ลดเฉพาะ ceremony ไม่ลด correctness** (skip-list ต่อ stage แต่คง test-floor/archive); ต่อยอด `build-orchestration` (fast → model `cheap` + DAG width 1). adapter `src/.claude/commands/warnyin/triage.md` + register ใน slash-command list; tool-agnostic (playbook กลางทุก harness อ่านได้). payload ติดมากับ `--update` รอบถัดไป
+
 ## [0.11.0] - 2026-06-10
 
 ### Added
