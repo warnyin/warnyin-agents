@@ -9,7 +9,7 @@
 | **Slice อ้างอิง** | `design.md` slice #1 |
 | **Component** | `installer` (payload playbook) |
 | **Model tier** | `deepest` _(เขียน behavior 4 mode + debate orchestration + auto-suggest — logic หนัก, pattern ใหม่)_ |
-| **สถานะ** | `รอ build` |
+| **สถานะ** | `เสร็จ` |
 
 ## 1. เป้าหมายของ task (vertical slice)
 > เพิ่ม section canonical **"Discovery modes (ความเข้มของ Discovery)"** ใน playbook `src/.warnyin/workflow/stages/discovery.md` ให้ AI อ่านแล้วเดิน Discovery ได้ครบ 4 mode (`ไว/สมดุล/ละเอียด/โต้วาที`) + auto-suggest + debate — end-to-end จาก playbook เดียว

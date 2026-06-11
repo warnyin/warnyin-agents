@@ -9,7 +9,7 @@
 | **Slice อ้างอิง** | `design.md` slice #2 |
 | **Component** | `installer` (payload command + workflow README) |
 | **Model tier** | `balanced` _(adapter บาง + keyword map + README pointer)_ |
-| **สถานะ** | `รอ build` |
+| **สถานะ** | `เสร็จ` |
 
 ## 1. เป้าหมายของ task (vertical slice)
 > ให้ `/warnyin:discovery` รับ/แนะนำ mode แล้วพา agent เข้า flow — command map keyword → mode (explicit) หรือ ชี้ playbook auto-suggest (ไม่ระบุ); + เพิ่ม mode ใน capability tree (`README.md`)
