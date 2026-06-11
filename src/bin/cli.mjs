@@ -1,28 +1,50 @@
 #!/usr/bin/env node
 /**
  * warnyin-agents installer
- * ติดตั้ง Warnyin Standard Workflow ลงโปรเจกต์ปัจจุบัน (cwd)
+ * ติดตั้ง Warnyin Standard Workflow ลงโปรเจกต์ปัจจุบัน (cwd) หรือแบบ global (~/)
  *
- *   npx @warnyin/agents             ติดตั้ง (ข้ามไฟล์ที่มีอยู่แล้ว)
+ *   npx @warnyin/agents             ติดตั้งลงโปรเจกต์ (ข้ามไฟล์ที่มีอยู่แล้ว)
+ *   npx @warnyin/agents --global    ติดตั้งแบบ global (~/) ใช้ได้ทุกโปรเจกต์
+ *   npx @warnyin/agents --project   ติดตั้งลงโปรเจกต์ (บังคับ — ไม่ถาม)
  *   npx @warnyin/agents --update    อัปเดต playbook กลาง (เขียนทับเฉพาะไฟล์ core)
  *   npx @warnyin/agents --dry-run   แสดงว่าจะทำอะไร โดยไม่เขียนไฟล์จริง
  *   (ทางสำรองไม่ผ่าน npm: npx github:warnyin/warnyin-agents)
  */
 import fs from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { createInterface } from 'node:readline/promises'
 
 const pkgRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
-const target = process.cwd()
+const cwd = process.cwd()
 const args = new Set(process.argv.slice(2))
 const UPDATE = args.has('--update')
 const DRY = args.has('--dry-run')
 
+/**
+ * ★ pure function — เลือก mode จาก flag/TTY/answer (ไม่มี side-effect, export ให้ unit test)
+ * @param {{globalFlag?:boolean, projectFlag?:boolean, isTTY?:boolean, answer?:string}} o
+ * @returns {'project'|'global'}
+ */
+export function resolveMode({ globalFlag, projectFlag, isTTY, answer } = {}) {
+  if (globalFlag && projectFlag) {
+    throw new Error('--global กับ --project ใช้พร้อมกันไม่ได้ (เลือกอย่างใดอย่างหนึ่ง)')
+  }
+  if (globalFlag) return 'global'
+  if (projectFlag) return 'project'
+  if (!isTTY) return 'project' // CI-safe default — npx/pipe ไม่ค้างรอ input
+  const a = (answer ?? '').trim().toLowerCase()
+  return a === '2' || a === 'global' ? 'global' : 'project'
+}
+
 if (args.has('--help') || args.has('-h')) {
-  console.log(`warnyin-agents — ติดตั้ง Warnyin Standard Workflow ลงโปรเจกต์ปัจจุบัน
+  console.log(`warnyin-agents — ติดตั้ง Warnyin Standard Workflow ลงโปรเจกต์ปัจจุบัน หรือแบบ global
 
 ใช้งาน:
-  npx @warnyin/agents             ติดตั้ง (ข้ามไฟล์ที่มีอยู่แล้ว ไม่เขียนทับ)
+  npx @warnyin/agents             ติดตั้งลงโปรเจกต์ (ถ้า TTY จะถามก่อน; ข้ามไฟล์ที่มีอยู่แล้ว)
+  npx @warnyin/agents --global    ติดตั้งแบบ global ลง ~/ (~/.warnyin + ~/.claude) ใช้ได้ทุกโปรเจกต์
+  npx @warnyin/agents --project   ติดตั้งลงโปรเจกต์ (บังคับ ไม่ถาม)
   npx @warnyin/agents --update    อัปเดต playbook กลางเป็นเวอร์ชันล่าสุด
                                   (เขียนทับเฉพาะ .warnyin/workflow/, .claude/commands/warnyin/,
                                    template .warnyin/template/stages/[topic] — ไม่แตะ docs/ และงานจริง)
@@ -33,15 +55,15 @@ if (args.has('--help') || args.has('-h')) {
 }
 
 // guard กัน self-install — เก็บไว้แบบ defensive (zero-cost)
-// หลังย้าย source เข้า src/ → pkgRoot = src/ (sibling ของ bin/) จึงแทบไม่มีทาง === target (repo root / temp sandbox)
+// หลังย้าย source เข้า src/ → pkgRoot = src/ (sibling ของ bin/) จึงแทบไม่มีทาง === cwd (repo root / temp sandbox)
 // → guard นี้เป็น no-op โดยตั้งใจในเคสปกติ/sandbox; ยังคงดักได้เฉพาะ edge case ที่ install ลงโฟลเดอร์ที่เป็น src/ เอง
-if (path.resolve(pkgRoot) === path.resolve(target)) {
+if (path.resolve(pkgRoot) === path.resolve(cwd)) {
   console.error('✖ กำลังรันอยู่ใน repo ของ warnyin-agents เอง — ให้ cd ไปที่โปรเจกต์ปลายทางก่อน')
   process.exit(1)
 }
 
 // โครงเก่า (≤0.2.x): workflow/ + warnyin-stages/ ที่ root — เตือนให้ย้ายเอง ไม่แตะงานจริงของ user
-const legacyV2 = ['workflow', 'warnyin-stages'].filter((d) => fs.existsSync(path.join(target, d)))
+const legacyV2 = ['workflow', 'warnyin-stages'].filter((d) => fs.existsSync(path.join(cwd, d)))
 if (legacyV2.length) {
   console.warn(`⚠ พบโครงเลย์เอาต์เก่า (≤0.2.x): ${legacyV2.join(', ')}
 เวอร์ชันนี้ย้าย core ไปใต้ .warnyin/ และงานจริงไป docs/stages/ — แนะนำย้ายด้วยตัวเองก่อน:
@@ -52,7 +74,7 @@ if (legacyV2.length) {
 
 // โครงเก่า (0.3–0.5.x): ทุกอย่างอยู่ใต้ warnyin/ ที่ root — เวอร์ชันนี้แยกเป็น .warnyin/ (core) + docs/stages (งานจริง)
 const legacyV5 = ['workflow', 'template', 'installer', 'stages'].filter((d) =>
-  fs.existsSync(path.join(target, 'warnyin', d)),
+  fs.existsSync(path.join(cwd, 'warnyin', d)),
 )
 if (legacyV5.length) {
   console.warn(`⚠ พบโครงเลย์เอาต์เก่า (0.3–0.5.x): warnyin/{${legacyV5.join(', ')}}
@@ -78,6 +100,9 @@ const SCAFFOLD_FILES = [
 ]
 
 const stats = { created: 0, updated: 0, skipped: 0 }
+
+// target = ปลายทางที่จะเขียนไฟล์ — ตั้งหลัง resolve mode (project=cwd | global=homedir)
+let target = cwd
 
 function copyTree(relDir, { overwrite }) {
   const srcDir = path.join(pkgRoot, relDir)
@@ -173,21 +198,113 @@ function installRootDoc(name, srcPath) {
   console.log(`  ± ${name} (ต่อท้าย section Warnyin Standard Workflow)`)
 }
 
-console.log(`Warnyin Standard Workflow → ${target}${DRY ? '  (dry-run)' : ''}\n`)
+const GLOBAL_NOTE_MARKER = '<!-- warnyin:global-note -->'
 
-for (const dir of CORE) copyTree(dir, { overwrite: UPDATE })
-ensureScaffold()
-seedDocs()
-installRootDoc('CLAUDE.md', path.join(pkgRoot, '.warnyin', 'installer', 'templates', 'CLAUDE.md'))
-installRootDoc('AGENTS.md', path.join(pkgRoot, 'AGENTS.md'))
+/**
+ * เขียน resolution note ลง ~/.claude/CLAUDE.md แบบ note-only append-with-marker (global mode)
+ * — ห้ามเขียนทับทั้งไฟล์ (personal global memory ของ user); append เฉพาะถ้ายังไม่มี marker (idempotent)
+ * — defensive skip ถ้า template ไม่มี (worktree T1 เดี่ยวก่อน merge T2) — pattern เดียวกับ copyTree/seedDocs
+ */
+function installGlobalNote() {
+  const src = path.join(pkgRoot, '.warnyin', 'installer', 'templates', 'CLAUDE.global.md')
+  const destRel = path.join('.claude', 'CLAUDE.md')
+  const dest = path.join(target, destRel)
+  if (!fs.existsSync(src)) {
+    console.log(`  · ข้าม ${destRel} (ยังไม่มี template CLAUDE.global.md)`)
+    return
+  }
+  const note = fs.readFileSync(src, 'utf8')
+  if (!fs.existsSync(dest)) {
+    if (!DRY) {
+      fs.mkdirSync(path.dirname(dest), { recursive: true })
+      fs.writeFileSync(dest, note)
+    }
+    stats.created++
+    console.log(`  + ${destRel}`)
+    return
+  }
+  const existing = fs.readFileSync(dest, 'utf8')
+  if (existing.includes(GLOBAL_NOTE_MARKER)) {
+    stats.skipped++
+    return
+  }
+  const section = (existing.endsWith('\n') ? '\n' : '\n\n') + note
+  if (!DRY) fs.appendFileSync(dest, section)
+  stats.updated++
+  console.log(`  ± ${destRel} (ต่อท้าย warnyin global note)`)
+}
 
-console.log(`\nสรุป: สร้างใหม่ ${stats.created} · อัปเดต ${stats.updated} · ข้าม (มีอยู่แล้ว) ${stats.skipped}`)
+/** เลือก mode + ติดตั้งตาม mode (target=cwd|homedir). ห่อ async เฉพาะ path TTY (readline) */
+async function main() {
+  const globalFlag = args.has('--global')
+  const projectFlag = args.has('--project')
+  const isTTY = Boolean(process.stdin.isTTY && process.stdout.isTTY)
 
-if (!UPDATE) {
-  console.log(`
+  let mode
+  try {
+    if (!globalFlag && !projectFlag && isTTY) {
+      // ถาม เฉพาะ path TTY — non-TTY/flag ไม่แตะ readline (ไม่ค้าง/ไม่ช้าลง)
+      const rl = createInterface({ input: process.stdin, output: process.stdout })
+      let answer
+      try {
+        answer = await rl.question('ติดตั้งแบบไหน? [1] โปรเจกต์นี้ (default) [2] global (~/) : ')
+      } finally {
+        rl.close()
+      }
+      mode = resolveMode({ globalFlag, projectFlag, isTTY, answer })
+    } else {
+      mode = resolveMode({ globalFlag, projectFlag, isTTY })
+    }
+  } catch (e) {
+    console.error(`✖ ${e.message}`)
+    process.exit(1)
+  }
+
+  if (mode === 'global') {
+    const home = os.homedir()
+    // homedir guard — falsy หรือ filesystem root (CI/container ไม่มี passwd) → error แทนเขียนลง root
+    if (!home || path.resolve(home) === path.parse(path.resolve(home)).root) {
+      console.error('✖ หา home directory ไม่ได้ (หรือเป็น filesystem root) — ใช้ --project แทน')
+      process.exit(1)
+    }
+    target = home
+    console.log(`Warnyin Standard Workflow → global ${target}${DRY ? '  (dry-run)' : ''}`)
+    console.log(`  จะเขียนนอกโปรเจกต์ที่: ${path.join(target, '.warnyin')}, ${path.join(target, '.claude', 'commands', 'warnyin')}, ${path.join(target, '.claude', 'CLAUDE.md')}\n`)
+    // first-install overwrite:false (skip ของเดิมใน ~/.claude/{agents,skills}) — ทับเฉพาะ --global --update
+    for (const dir of CORE) copyTree(dir, { overwrite: UPDATE })
+    // ข้าม scaffold/seedDocs (ยกให้ /warnyin:init) + ข้าม AGENTS.md global (DQ3 limitation)
+    installGlobalNote()
+  } else {
+    target = cwd
+    console.log(`Warnyin Standard Workflow → ${target}${DRY ? '  (dry-run)' : ''}\n`)
+    for (const dir of CORE) copyTree(dir, { overwrite: UPDATE })
+    ensureScaffold()
+    seedDocs()
+    installRootDoc('CLAUDE.md', path.join(pkgRoot, '.warnyin', 'installer', 'templates', 'CLAUDE.md'))
+    installRootDoc('AGENTS.md', path.join(pkgRoot, 'AGENTS.md'))
+  }
+
+  console.log(`\nสรุป: สร้างใหม่ ${stats.created} · อัปเดต ${stats.updated} · ข้าม (มีอยู่แล้ว) ${stats.skipped}`)
+
+  if (!UPDATE) {
+    if (mode === 'global') {
+      console.log(`
+ติดตั้ง global แล้ว — /warnyin:* ใช้ได้ทุกโปรเจกต์ (จาก ~/.claude/commands/)
+  เปิดโปรเจกต์ใด ๆ ใน Claude Code → รัน  /warnyin:init  เพื่อสร้าง workspace (docs/) ของโปรเจกต์นั้น
+
+อัปเดต playbook ภายหลัง:  npx @warnyin/agents --global --update`)
+    } else {
+      console.log(`
 ขั้นถัดไป:
   1. เปิด Claude Code ในโปรเจกต์นี้ แล้วรัน  /warnyin:init  — ให้ agent วิเคราะห์โปรเจกต์ + เติม docs/
   2. เริ่มงานแรก:  /warnyin:discovery <topic>  หรือ  /warnyin:design <slug> <change>
 
 อัปเดต playbook ภายหลัง:  npx @warnyin/agents --update`)
+    }
+  }
+}
+
+// main-guard: รันเฉพาะตอน execute ตรง ๆ (ไม่ trigger ตอน import เพื่อ unit-test resolveMode)
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  await main()
 }

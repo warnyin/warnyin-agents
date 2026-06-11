@@ -12,15 +12,36 @@ import { fileURLToPath } from 'node:url'
 // ★ B1: ใช้ fileURLToPath ตรง ๆ — ห้าม `.pathname` (บน Windows คืน `/D:/...` → spawn MODULE_NOT_FOUND)
 const cliPath = fileURLToPath(new URL('../bin/cli.mjs', import.meta.url))
 
+// resolveMode = pure-fn ที่ตั้งใจ export ให้ unit-test (ข้อยกเว้นเดียวจากกฎ "ห้าม import logic")
+// — main-guard ใน cli.mjs กัน side-effect ตอน import (รันเฉพาะตอน execute ตรง)
+import { resolveMode } from '../bin/cli.mjs'
+
 function makeTempProject(t) {
   const dir = mkdtempSync(path.join(os.tmpdir(), 'wy-test-'))
   t.after(() => rmSync(dir, { recursive: true, force: true })) // cleanup แม้ fail
   return dir
 }
 
-function runCli(cwd, args = []) {
-  const r = spawnSync(process.execPath, [cliPath, ...args], { cwd, encoding: 'utf8' }) // array args — ห้าม shell:true
-  return { code: r.status, stdout: r.stdout, stderr: r.stderr }
+function runCli(cwd, args = [], env, opts = {}) {
+  const r = spawnSync(process.execPath, [cliPath, ...args], {
+    cwd,
+    encoding: 'utf8', // array args — ห้าม shell:true
+    ...(env ? { env } : {}), // ไม่ส่ง env → inherit เดิม (backward compat กับเคส 1-9)
+    ...opts, // timeout/input สำหรับเคส non-TTY hang-guard
+  })
+  return { code: r.status, stdout: r.stdout, stderr: r.stderr, signal: r.signal }
+}
+
+// temp HOME แยก (อีก mkdtemp) — override {HOME, USERPROFILE} กันเขียน homedir จริงของ dev/CI
+function makeTempHome(t) {
+  const dir = mkdtempSync(path.join(os.tmpdir(), 'wy-home-'))
+  t.after(() => rmSync(dir, { recursive: true, force: true }))
+  return dir
+}
+
+// env override สำหรับเคส global — POSIX อ่าน HOME, Windows อ่าน USERPROFILE จึงตั้งทั้งคู่
+function globalEnv(home) {
+  return { ...process.env, HOME: home, USERPROFILE: home }
 }
 
 // surface stderr เมื่อ assert code===0 fail — กัน false-positive
@@ -182,4 +203,149 @@ test('9. installer สร้าง scaffold เปล่า ไม่ leak docs/
     .filter((e) => e.isDirectory() && e.name !== 'achieved')
     .map((e) => e.name)
   assert.deepEqual(topics, [], `ต้องไม่มี topic หลุดมา target: ${topics.join(', ')}`)
+})
+
+// ───────────────────────────────────────────────────────────────────────────
+// เคสใหม่ — global mode (T1: cli-global-mode). เคส 1-9 ด้านบนไม่ถูกแก้ assertion
+// ───────────────────────────────────────────────────────────────────────────
+
+const NOTE_MARKER = '<!-- warnyin:global-note -->'
+const globalTemplate = fileURLToPath(
+  new URL('../.warnyin/installer/templates/CLAUDE.global.md', import.meta.url),
+)
+const hasGlobalTemplate = existsSync(globalTemplate) // T2 owns ไฟล์นี้ — worktree T1 เดี่ยวยังไม่มี (defensive skip)
+
+// 10. unit resolveMode() — pure-fn ครอบทุกแขนง (flag/conflict/non-TTY/answer) — import ตรง ไม่ spawn
+test('10. resolveMode() — ทุกแขนง (conflict/flags/non-TTY/answer)', () => {
+  assert.throws(() => resolveMode({ globalFlag: true, projectFlag: true }), /พร้อมกันไม่ได้/, 'conflict → throw')
+  assert.equal(resolveMode({ globalFlag: true }), 'global', 'globalFlag → global')
+  assert.equal(resolveMode({ projectFlag: true }), 'project', 'projectFlag → project')
+  assert.equal(resolveMode({ isTTY: false }), 'project', 'non-TTY → project (CI-safe)')
+  assert.equal(resolveMode({ isTTY: true, answer: '2' }), 'global', "TTY answer '2' → global")
+  assert.equal(resolveMode({ isTTY: true, answer: 'global' }), 'global', "TTY answer 'global' → global")
+  assert.equal(resolveMode({ isTTY: true, answer: '' }), 'project', 'TTY answer ว่าง → project (default)')
+  assert.equal(resolveMode({ isTTY: true, answer: '1' }), 'project', "TTY answer '1' → project")
+  assert.equal(resolveMode({}), 'project', 'ไม่มี flag/TTY → project')
+})
+
+// 11. global install — ลง homedir(temp) ครบ + skip scaffold ที่ cwd
+test('11. --global ติดตั้งลง homedir(temp) ครบ + ไม่ scaffold cwd', (t) => {
+  const cwd = makeTempProject(t)
+  const home = makeTempHome(t)
+  const r = runCli(cwd, ['--global'], globalEnv(home))
+  ok(r, 'global install')
+
+  for (const rel of [
+    path.join('.warnyin', 'workflow'),
+    path.join('.warnyin', 'template'),
+    path.join('.claude', 'commands', 'warnyin'),
+  ]) {
+    assert.ok(existsSync(path.join(home, rel)), `global ต้องลง home/${rel}`)
+  }
+  // side-effect ต้องอยู่ใน temp home — กัน leak เขียน homedir จริง
+  assert.ok(home.startsWith(os.tmpdir()), 'home override ต้องอยู่ใต้ tmpdir')
+  // skip scaffold/seed → ไม่สร้าง docs/stages ที่ cwd
+  assert.ok(!existsSync(path.join(cwd, 'docs', 'stages')), 'global ต้องไม่สร้าง docs/stages ที่ cwd')
+  assert.ok(!existsSync(path.join(cwd, '.warnyin')), 'global ต้องไม่เขียนลง cwd')
+
+  // ★ contract T1↔T2: ถ้า template CLAUDE.global.md มี (post-merge) → ~/.claude/CLAUDE.md มี marker
+  if (hasGlobalTemplate) {
+    const claude = readFileSync(path.join(home, '.claude', 'CLAUDE.md'), 'utf8')
+    assert.ok(claude.includes(NOTE_MARKER), `~/.claude/CLAUDE.md ต้องมี marker ${NOTE_MARKER}`)
+  }
+})
+
+// 12. global ไม่ทำลายไฟล์ user ที่มีอยู่ก่อน + CLAUDE.md = user content + note ต่อท้าย
+test('12. --global ไม่ทำลายไฟล์ user ใน homedir', (t) => {
+  const cwd = makeTempProject(t)
+  const home = makeTempHome(t)
+  // ไฟล์ user มีอยู่ก่อน
+  const userAgent = path.join(home, '.claude', 'agents', 'my.md')
+  mkdirSync(path.dirname(userAgent), { recursive: true })
+  writeFileSync(userAgent, 'งาน agent ของฉัน\n')
+  const userClaude = path.join(home, '.claude', 'CLAUDE.md')
+  const userClaudeContent = '# My personal memory\n\nกฎส่วนตัวของฉัน\n'
+  writeFileSync(userClaude, userClaudeContent)
+
+  ok(runCli(cwd, ['--global'], globalEnv(home)), 'global over existing user files')
+
+  assert.ok(existsSync(userAgent), 'ไฟล์ user agents/my.md ต้องยังอยู่')
+  assert.equal(readFileSync(userAgent, 'utf8'), 'งาน agent ของฉัน\n', 'เนื้อ user agent ต้องไม่ถูกแตะ')
+  const after = readFileSync(userClaude, 'utf8')
+  assert.ok(after.startsWith(userClaudeContent), 'CLAUDE.md ต้องคงเนื้อ user เดิมไว้ด้านบน (append ไม่ overwrite)')
+  if (hasGlobalTemplate) {
+    assert.ok(after.includes(NOTE_MARKER), 'CLAUDE.md ต้อง append note ต่อท้าย (มี marker)')
+  }
+})
+
+// 13. global idempotent — รัน 2 ครั้ง: payload byte-equal + note marker เดียว
+test('13. --global รัน 2 ครั้ง idempotent (note ไม่ซ้ำ)', (t) => {
+  const cwd = makeTempProject(t)
+  const home = makeTempHome(t)
+  ok(runCli(cwd, ['--global'], globalEnv(home)), 'global#1')
+
+  const sample = path.join(home, '.warnyin', 'workflow', 'README.md')
+  assert.ok(existsSync(sample), 'ต้องมี sample หลังรอบแรก')
+  const before = readFileSync(sample)
+  const claudePath = path.join(home, '.claude', 'CLAUDE.md')
+  const claudeBefore = existsSync(claudePath) ? readFileSync(claudePath) : null
+
+  const r2 = runCli(cwd, ['--global'], globalEnv(home))
+  ok(r2, 'global#2')
+  assert.ok(before.equals(readFileSync(sample)), 'payload sample ต้อง byte-equal หลังรันซ้ำ')
+
+  if (hasGlobalTemplate) {
+    const after = readFileSync(claudePath, 'utf8')
+    const occ = after.split(NOTE_MARKER).length - 1
+    assert.equal(occ, 1, `marker ต้องมีครั้งเดียว (idempotent) — เจอ ${occ}`)
+    assert.ok(claudeBefore.equals(readFileSync(claudePath)), 'CLAUDE.md ต้องไม่โต/ไม่ append ซ้ำรอบ 2')
+  }
+})
+
+// 14. --global --update — payload เขียนทับ/byte-equal ได้, note ไม่ซ้ำ
+test('14. --global --update — payload overwrite ok, note ไม่ซ้ำ', (t) => {
+  const cwd = makeTempProject(t)
+  const home = makeTempHome(t)
+  ok(runCli(cwd, ['--global'], globalEnv(home)), 'global install')
+
+  const r = runCli(cwd, ['--global', '--update'], globalEnv(home))
+  ok(r, 'global --update')
+
+  const sample = path.join(home, '.warnyin', 'workflow', 'README.md')
+  const src = fileURLToPath(new URL('../.warnyin/workflow/README.md', import.meta.url))
+  assert.ok(readFileSync(sample).equals(readFileSync(src)), '--update payload ต้อง byte-equal กับ source')
+
+  if (hasGlobalTemplate) {
+    const after = readFileSync(path.join(home, '.claude', 'CLAUDE.md'), 'utf8')
+    assert.equal(after.split(NOTE_MARKER).length - 1, 1, 'note marker ต้องมีครั้งเดียวหลัง --update')
+  }
+})
+
+// 15. --global --project → error exit 1 (conflict)
+test('15. --global --project → error exit 1', (t) => {
+  const cwd = makeTempProject(t)
+  const home = makeTempHome(t)
+  const r = runCli(cwd, ['--global', '--project'], globalEnv(home))
+  assert.notEqual(r.code, 0, 'conflict ต้อง exit != 0')
+  assert.ok(/พร้อมกันไม่ได้/.test(r.stderr), `stderr ต้องระบุ conflict\nSTDERR:\n${r.stderr}`)
+  assert.ok(!existsSync(path.join(home, '.warnyin')), 'conflict ต้องไม่เขียนอะไรลง home')
+})
+
+// 16. non-TTY ไม่ส่ง flag → default project + ไม่ค้าง (hang-guard)
+test('16. non-TTY ไม่ส่ง flag → project + ไม่ค้าง', (t) => {
+  const cwd = makeTempProject(t)
+  // spawn ปกติ = non-TTY (pipe) + timeout/input กัน hang ถ้า isTTY-guard พลาด
+  const r = runCli(cwd, [], undefined, { timeout: 15000, input: '' })
+  ok(r, 'non-TTY default project')
+  assert.notEqual(r.signal, 'SIGTERM', 'ต้องไม่ถูก kill จาก timeout (ไม่ค้างรอ input)')
+  assert.ok(existsSync(path.join(cwd, 'docs', 'stages')), 'non-TTY → ติดตั้ง project ที่ cwd (มี docs/stages)')
+})
+
+// 17. homedir guard — homedir = root → error exit 1 (ไม่เขียน filesystem root)
+test('17. homedir guard — root → error exit 1', (t) => {
+  const cwd = makeTempProject(t)
+  const root = path.parse(process.cwd()).root // '/' หรือ 'C:\\' — deterministic ทุก platform
+  const r = runCli(cwd, ['--global'], globalEnv(root))
+  assert.notEqual(r.code, 0, 'homedir=root ต้อง exit != 0')
+  assert.ok(/home directory/.test(r.stderr), `stderr ต้องระบุหา home ไม่ได้\nSTDERR:\n${r.stderr}`)
 })

@@ -31,6 +31,16 @@
 
 ## 3. ลำดับขั้นการทำงาน (process)
 
+0. **Workspace bootstrap (ทำก่อนวิเคราะห์โปรเจกต์ — idempotent):**
+   - **หา template:** ตรวจ `./.warnyin/template/` ก่อน (local) — ไม่มีหรือไม่มี `./.warnyin/` → fallback `~/.warnyin/template/` (global install); ใช้ path ที่พบเป็น `<template>`
+   - **สร้าง scaffold (ถ้ายังไม่มี):**
+     - `docs/stages/context.md` — ไม่มีให้สร้างไฟล์เปล่า; มีอยู่แล้ว → ข้าม
+     - `docs/stages/achieved/.gitkeep` — ไม่มีให้สร้างไฟล์เปล่า (สร้าง dir `docs/stages/achieved/` ด้วยถ้าจำเป็น); มีอยู่แล้ว → ข้าม
+   - **seed `docs/` จาก `<template>/docs/**` (ถ้า template มี):**
+     - วน entry ใน `<template>/docs/` — **ข้าม entry ที่ชื่อขึ้นต้นด้วย `[`** (placeholder เช่น `[component]/`, `[topic]/` — seedDocs-skip invariant)
+     - entry ที่เหลือ: ปลายทาง `docs/<entry>` — **ไม่ทับไฟล์ที่มีอยู่แล้ว** (copy เฉพาะที่ยังไม่มี)
+   - **ทั้งหมดนี้เป็น agent-driven** — agent ตรวจ/สร้างไฟล์เปล่าเอง; ไม่ต้องรัน script
+
 1. **สแกนภาพรวม:** โครงสร้าง repo, package manifest, ภาษา/framework, แบ่งเป็น **component** อะไรบ้าง (เช่น api-service, admin-console)
 2. **วิเคราะห์ลึกต่อ component (ขนานได้, read-only):** โครงสร้างโฟลเดอร์/โมดูล, pattern/convention ที่ใช้จริงในโค้ด, วิธี build/test ที่มีอยู่
 3. **วิเคราะห์ infra:** docker/compose, env, service ที่ต้องรันสำหรับ local dev
@@ -44,7 +54,7 @@
 5. **เสนอ summary → user ยืนยันครั้งเดียว**
 6. **เขียนไฟล์จริงลง `docs/` ให้ครบตาราง §4 (ขั้นบังคับ ห้ามข้าม)** — ทำตามกลไก 6.1–6.4 นี้:
 
-   **6.1 ไฟล์ root** — copy template แล้วเติม:
+   **6.1 ไฟล์ root** — copy template แล้วเติม (ขั้นนี้ = เติมเนื้อหาหลังวิเคราะห์ เสริมขั้น 0 ที่สร้าง scaffold/seed ไว้แล้ว):
    ```
    mkdir -p docs
    cp .warnyin/template/docs/project.md         docs/project.md
@@ -52,6 +62,7 @@
    cp .warnyin/template/docs/rule.md            docs/rule.md
    cp .warnyin/template/docs/troubleshooting.md docs/troubleshooting.md
    ```
+   - ใช้ `.warnyin/template/` (local) — per-project install มีให้เสมอ; global mode ขั้น 0 seed ให้แล้ว (template อ่าน local→global ตามขั้น 0)
    - ไฟล์ไหนมีอยู่แล้วใน `docs/` → **ห้าม `cp` ทับ** ให้เปิดอ่านแล้ว Edit เติมแทน
    - `project.md` → เติมจากผลสัมภาษณ์ user (ข้อ 4) · `infra.md` → เติมจาก config จริง (ข้อ 3) · `rule.md`/`troubleshooting.md` → วางโครงหัวข้อ ใส่ `<!-- ยังว่าง รอเติม -->` ในส่วนที่ยังไม่มีข้อมูล
 
