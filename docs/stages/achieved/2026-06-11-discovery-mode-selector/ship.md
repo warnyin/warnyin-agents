@@ -29,6 +29,12 @@
 ## 4. Archive
 - ย้ายจาก `docs/stages/discovery-mode-selector/` → `docs/stages/achieved/2026-06-11-discovery-mode-selector/` เมื่อ 2026-06-11 (git mv)
 
-## 5. หมายเหตุ (นอก workflow)
-- **โค้ดจริงอยู่ build branch `build/discovery-mode-selector`** — SHIP จัดการเอกสาร+archive เท่านั้น; merge build branch → main (+ release sync src→root dogfood ด้วย `setup:dogfood`) จัดการนอก workflow. ก่อน sync นั้น `discovery.md §3.5` + mode keyword ใช้งานได้ผ่าน sandbox install (verify ผ่านแล้ว); root dogfood `build-wave.mjs` ยัง stale (top-level export) จน release — รัน Workflow ใช้ `src/` version
+## 5. หมายเหตุ (นอก workflow) — release 0.15.0 (2026-06-11)
+- **merge + publish เสร็จ:** `build/discovery-mode-selector` → `main` (ff) + **publish `@warnyin/agents@0.15.0`** (version minor — feature ใหม่); tarball verified มี mode ครบ (ไต่สวน 14, build-wave `export function` = 0)
+- **★ dev-tooling issue ที่เจอตอน sync root dogfood (candidate fix ต่อไป):**
+  1. **`setup:dogfood` install แบบปกติ → ข้าม CORE ที่มีอยู่** (idempotent) — discovery.md เก่าไม่ถูกแทน; ต้อง `--update` (เขียนทับ CORE) **หรือ** ลบ root CORE ก่อน install
+  2. **`npx @warnyin/agents@latest` bin resolution fail** (`sh: warnyin-agents: command not found`, exit 127) — แม้ clear `~/.npm/_npx` + `npm cache clean`; `node <pkg>/bin/cli.mjs` ตรงก็ exit 2
+  3. **workaround ที่ใช้จริง:** mirror CORE จาก verified tarball → root (`cp -r package/src/.warnyin → .warnyin` + `src/.claude/commands/warnyin`) — = installer pattern `src/<rel>→target/<rel>`; root dogfood มี mode 5 ครบหลังจากนั้น
+  → **เสนอ follow-up topic:** แก้ `setup-dogfood.mjs` ให้ `--update`/clean-install + สืบ bin-resolution (อาจชื่อ bin `warnyin-agents` ไม่ถูก npx link)
 - **defer:** full spawn-real proof ของ debate/ไต่สวน = optional (verify ทำ structural แล้ว) — พิสูจน์ตอนใช้งานจริงรอบแรก
+- **ค้าง (ยังไม่ push):** commit `release: v0.15.0` + tag `v0.15.0` บน `main` (local) — push เมื่อ user สั่ง
