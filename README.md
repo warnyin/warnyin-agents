@@ -18,12 +18,24 @@ Discovery (optional) ──▶ DESIGN ──▶ BUILD ──▶ VERIFY ──▶
 
 ```bash
 cd my-project
-npx @warnyin/agents             # ติดตั้ง (ข้ามไฟล์ที่มีอยู่ ไม่เขียนทับ)
+npx @warnyin/agents             # ติดตั้งลงโปรเจกต์นี้ (ข้ามไฟล์ที่มีอยู่ ไม่เขียนทับ)
 npx @warnyin/agents --dry-run   # ดูก่อนว่าจะสร้างอะไร
 npx @warnyin/agents --update    # อัปเดต playbook กลางเป็นเวอร์ชันล่าสุด
 # ทางสำรอง (ดึงตรงจาก main): npx github:warnyin/warnyin-agents
 ```
 
+**ติดตั้งแบบ global (ใช้ได้ทุกโปรเจกต์ — ติดตั้งครั้งเดียว):**
+
+```bash
+npx @warnyin/agents --global    # ลง ~/.claude + ~/.warnyin → /warnyin:* ใช้ได้ทุกโปรเจกต์
+npx @warnyin/agents --project   # บังคับลงโปรเจกต์ (ไม่ถาม)
+# ไม่ระบุ flag: ถ้าเป็น terminal จะถามให้เลือก; ถ้า non-TTY (CI/pipe) → ลงโปรเจกต์อัตโนมัติ
+```
+
+- **global vs project:** `--project` (ค่าเริ่มต้น) = ติดตั้ง vendored ลง repo (commit ลง git ได้ → ทีม share เวอร์ชันเป๊ะ); `--global` = ติดตั้งครั้งเดียวที่ `~/` ใช้ทุกโปรเจกต์ (สะดวกสำหรับคนทำหลาย repo)
+- **global เป็น Hybrid:** โปรเจกต์ที่มี `.warnyin/` ของตัวเอง (local) → ใช้ local ก่อนเสมอ (override global); workspace (`docs/`) ยังแยกต่อโปรเจกต์ — รัน `/warnyin:init` ครั้งแรกในแต่ละโปรเจกต์
+- **global ปลอดภัยต่อ `~/`:** ไม่ทับไฟล์ที่มีอยู่ของคุณใน `~/.claude/` (เขียนทับเฉพาะ `--update`), แสดง path ที่จะเขียนก่อน
+- _(global รองรับ Claude Code; Codex/Antigravity ใช้ติดตั้งแบบ per-project)_
 - โปรเจกต์ที่มี `CLAUDE.md` / `AGENTS.md` อยู่แล้ว → installer **ต่อท้ายเป็น section** ไม่เขียนทับ
 - `--update` เขียนทับเฉพาะ core (`.warnyin/workflow/`, `.claude/commands/warnyin/`, template ใน `.warnyin/template/`) — ไม่แตะ `docs/` และงานจริง
 
