@@ -25,14 +25,16 @@ const baseRef = A.baseRef || null   // ชื่อ build branch เช่น "b
 
 // normalize tasks: รับทั้ง string[] (เดิม) และ {name, model?}[] (ใหม่) → ภายในเป็น {name, model} เสมอ
 // string element → {name, model: undefined} (backward compat); model = pass-through string ไม่ map/ไม่ hardcode
-export function normalizeTasks(rawTasks) {
+// ★ ห้าม `export function` — Workflow runtime wrap body เป็น async fn ยอมรับเฉพาะ `export const meta`
+//   (export อื่น → SyntaxError); unit test สกัดด้วย extractFn ใน build-wave.test.mjs (ดู installer/rule.md §build orchestration)
+function normalizeTasks(rawTasks) {
   return (rawTasks || []).map((t) =>
     typeof t === 'string' ? { name: t, model: undefined } : { name: t.name, model: t.model })
 }
 
 // สร้าง opts ของ agent() แบบ immutable — conditional spread: key หายเมื่อไม่มีค่า (ไม่ใช่ undefined)
 // แนวเดียวกับ baseRef เดิม (optional arg, conditional เฉพาะเมื่อมีค่า)
-export function buildOpts(task, isolate) {
+function buildOpts(task, isolate) {
   return {
     label: `build:${task.name}`,
     schema: RESULT_SCHEMA,

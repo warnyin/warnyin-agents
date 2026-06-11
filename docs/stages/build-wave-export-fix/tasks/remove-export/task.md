@@ -8,7 +8,7 @@
 | **Slice อ้างอิง** | `design.md` slice #1 |
 | **Component** | `installer` (`build-wave.mjs`) |
 | **Model tier** | `cheap` _(ลบ keyword 2 จุด + CHANGELOG — mechanical, exact change ระบุใน design §3)_ |
-| **สถานะ** | `รอ build` |
+| **สถานะ** | `เสร็จ` |
 
 ## 1. เป้าหมายของ task (vertical slice)
 build-wave.mjs launch ผ่าน Workflow tool ได้ (ไม่เจอ `SyntaxError: Unexpected keyword 'export'`) โดย unit test ยังเขียว — end-to-end: ลบ export → Workflow parse ได้ → fan-out ทำงาน

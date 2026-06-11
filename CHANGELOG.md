@@ -23,6 +23,9 @@
 
 ## [Unreleased]
 
+### Fixed
+- **`build-wave.mjs` launch ผ่าน Workflow tool ได้** — ลบ top-level `export function normalizeTasks`/`buildOpts` (คง `export const meta`) ที่ทำให้ Workflow loader พังด้วย `SyntaxError: Unexpected keyword 'export'` (runtime wrap body เป็น async fn) → BUILD fan-out wave ทำงานผ่าน Workflow script ได้โดยไม่ต้อง fallback. **behavior identical** (function ใช้ภายใน script, unit test สกัดด้วย extraction ไม่ต้องแก้). ปิดบั๊กที่ documented ค้างไว้ (`installer/rule.md` §build orchestration · troubleshooting #16/#20).
+
 ### Changed
 - **DESIGN stage — parallelize การสร้างเอกสาร (ลด wall-clock ไม่ลด correctness)** — เพิ่มหลักการแกน "Parallelize gathering, serialize judgment/narrative" ใน playbook `design.md` §3 + 3 จุด: (1) **parallel grounding** — fan-out อ่าน input หลายโดเมนขนาน (§4 step 2), (2) **task-file fan-out เป็น default สำหรับ standard/large** — หนึ่ง read-only agent ต่อหนึ่ง task ขนาน หลังผ่าน Gate §8 (§4 step 9; fast tier = 1 task เขียนเอง), (3) **design narrative = single-writer guardrail** — research เก็บ fact ขนานได้ แต่เขียน narrative โดย main loop คนเดียว (§4 step 5). ปรับ adapter `src/.claude/commands/warnyin/design.md` §5 สะท้อน fan-out default. **backward-compatible:** ทุกจุดมี fallback (เครื่องที่ fan-out ไม่ได้ทำตามลำดับเหมือนเดิม — tool-agnostic).
 
