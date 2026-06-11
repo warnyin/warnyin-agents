@@ -7,9 +7,9 @@
  *   2. append pointer "อ่าน CONTRIBUTING.md" ต่อท้าย root CLAUDE.md แบบ idempotent
  *
  * วิธีติดตั้ง:
- *   - ลอง `npx --yes @warnyin/agents@latest` ก่อน (เร็ว, ทางหลัก)
+ *   - ลอง `npx --yes @warnyin/agents@latest --update` ก่อน (เร็ว, ทางหลัก)
  *   - ★ บาง dev env (Windows) bin-shim ของ npx ไม่ถูก resolve → ENOENT/`is not recognized`
- *     → fallback: `npm pack` → extract tarball → `node <pkg>/bin/cli.mjs` (cwd = repoRoot)
+ *     → fallback: `npm pack` → extract tarball → `node <pkg>/bin/cli.mjs --update` (cwd = repoRoot)
  *     (ดู docs/troubleshooting — npx-Windows bin-shim)
  *
  * dev-only: อยู่ใน src/scripts/ (ไม่อยู่ใน package.json files → ไม่ publish)
@@ -28,12 +28,27 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'
 const PKG = '@warnyin/agents@latest'
 const isWin = process.platform === 'win32'
 
-/** ติดตั้ง dogfood ลง root ด้วย npx — คืน true ถ้าสำเร็จ (exit 0 + ไม่มีสัญญาณ shim-not-found) */
+/**
+ * ตรวจว่า root มี CORE markers ครบ (install สำเร็จต้องมีแน่)
+ * คืน true เมื่อ root มีทั้ง:
+ *   - .warnyin/workflow/stages/discovery.md
+ *   - .claude/commands/warnyin (dir)
+ * @param {string} root — path ไปยัง repo root (รับ param กัน hardcode — ให้ unit test ส่ง temp dir ได้)
+ * @returns {boolean}
+ */
+export function verifyInstalled(root) {
+  return (
+    fs.existsSync(path.join(root, '.warnyin', 'workflow', 'stages', 'discovery.md')) &&
+    fs.existsSync(path.join(root, '.claude', 'commands', 'warnyin'))
+  )
+}
+
+/** ติดตั้ง dogfood ลง root ด้วย npx — คืน true ถ้าสำเร็จ (exit 0 + ไม่มีสัญญาณ shim-not-found + verifyInstalled) */
 function installViaNpx() {
-  console.log(`+ ติดตั้ง dogfood จาก release: npx --yes ${PKG}`)
+  console.log(`+ ติดตั้ง dogfood จาก release: npx --yes ${PKG} --update`)
   // npx บน Windows เป็น .cmd → spawn array args จะ ENOENT ถ้าไม่ shell
   // shell:true เฉพาะ win32 = "หนีไม่พ้น shell" สำหรับ npx เท่านั้น (ไม่มี user input → ปลอดภัย)
-  const r = spawnSync('npx', ['--yes', PKG], {
+  const r = spawnSync('npx', ['--yes', PKG, '--update'], {
     cwd: repoRoot,
     stdio: ['inherit', 'inherit', 'pipe'],
     shell: isWin,
@@ -45,14 +60,14 @@ function installViaNpx() {
     r.error?.code === 'ENOENT' ||
     /is not recognized as an internal or external command/i.test(stderr) ||
     /command not found/i.test(stderr)
-  if (r.status === 0 && !shimMissing) return true
+  if (r.status === 0 && !shimMissing && verifyInstalled(repoRoot)) return true
   if (shimMissing) {
     console.warn('⚠ npx resolve bin-shim ของ @warnyin/agents ไม่สำเร็จ — ลอง fallback (npm pack + node)')
   }
   return false
 }
 
-/** fallback: npm pack tarball → extract → node <pkg>/bin/cli.mjs (cwd = repoRoot) — คืน true ถ้าสำเร็จ */
+/** fallback: npm pack tarball → extract → node <pkg>/bin/cli.mjs --update (cwd = repoRoot) — คืน true ถ้าสำเร็จ */
 function installViaPack() {
   const work = fs.mkdtempSync(path.join(os.tmpdir(), 'wy-dogfood-'))
   try {
@@ -106,9 +121,9 @@ function installViaPack() {
       console.error('✖ ไม่พบ cli ใน tarball ที่ extract (ลอง bin จาก package.json + src/bin/cli.mjs + bin/cli.mjs)')
       return false
     }
-    console.log(`+ ติดตั้ง dogfood: node ${cli} (cwd = repoRoot)`)
-    const run = spawnSync(process.execPath, [cli], { cwd: repoRoot, stdio: 'inherit' })
-    return run.status === 0
+    console.log(`+ ติดตั้ง dogfood: node ${cli} --update (cwd = repoRoot)`)
+    const run = spawnSync(process.execPath, [cli, '--update'], { cwd: repoRoot, stdio: 'inherit' })
+    return run.status === 0 && verifyInstalled(repoRoot)
   } finally {
     try {
       fs.rmSync(work, { recursive: true, force: true })
@@ -138,17 +153,25 @@ function appendContributingPointer() {
   console.log('± root CLAUDE.md (ต่อท้าย pointer → CONTRIBUTING.md)')
 }
 
-console.log(`Warnyin dogfood setup → ${repoRoot}\n`)
+function main() {
+  console.log(`Warnyin dogfood setup → ${repoRoot}\n`)
 
-const ok = installViaNpx() || installViaPack()
-if (!ok) {
-  console.error(
-    '\n✖ ติดตั้ง dogfood ไม่สำเร็จ (ทั้ง npx และ fallback npm pack) — dogfood env ที่ root ยังไม่ครบ\n' +
-      '  ลองตรวจ network/npm registry หรือรัน manual: npm pack @warnyin/agents@latest → extract → node <pkg>/src/bin/cli.mjs',
-  )
-  process.exit(1)
+  const ok = installViaNpx() || installViaPack()
+  if (!ok) {
+    console.error(
+      '\n✖ ติดตั้ง dogfood ไม่สำเร็จ (ทั้ง npx และ fallback npm pack) — dogfood env ที่ root ยังไม่ครบ\n' +
+        '  ลองตรวจ network/npm registry หรือรัน manual: npm pack @warnyin/agents@latest → extract → node <pkg>/src/bin/cli.mjs',
+    )
+    process.exit(1)
+  }
+
+  appendContributingPointer()
+  console.log('\nเสร็จ — dogfood env ที่ root พร้อมใช้งาน (gitignored)')
+  console.log('★ review diff ของ root .warnyin/.claude/CLAUDE.md ก่อนเปิด session (payload ถูก agent execute ต่อ)')
 }
 
-appendContributingPointer()
-console.log('\nเสร็จ — dogfood env ที่ root พร้อมใช้งาน (gitignored)')
-console.log('★ review diff ของ root .warnyin/.claude/CLAUDE.md ก่อนเปิด session (payload ถูก agent execute ต่อ)')
+// main-guard: รันเฉพาะเมื่อ execute ตรง (ไม่ใช่ตอน import จาก unit test) — กัน import trigger install
+// ใช้ argv[1] comparison (ไม่ใช่ import.meta.main ที่ undefined บน node 20)
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+  main()
+}

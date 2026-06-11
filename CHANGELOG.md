@@ -24,6 +24,7 @@
 ## [Unreleased]
 
 ### Fixed
+- **`setup:dogfood` refresh root dogfood CORE ได้จริงทุก release** — แก้ 2 root cause: (1) เพิ่ม `--update` flag ใน `installViaNpx`/`installViaPack` → cli `copyTree({overwrite:true})` เขียนทับ CORE เดิม; (2) เปลี่ยน success-detection จาก "เชื่อ exit 0" เป็น `verifyInstalled(repoRoot)` — ตรวจ side-effect จริง (`.warnyin/workflow/stages/discovery.md` + `.claude/commands/warnyin`) กัน false-green (npx exit 0 โดยไม่ install จริง). เพิ่ม `export function verifyInstalled(root)` + main-guard (import ไม่ trigger install) + unit test 3 เคส พิสูจน์ false-green guard.
 - **`build-wave.mjs` launch ผ่าน Workflow tool ได้** — ลบ top-level `export function normalizeTasks`/`buildOpts` (คง `export const meta`) ที่ทำให้ Workflow loader พังด้วย `SyntaxError: Unexpected keyword 'export'` (runtime wrap body เป็น async fn) → BUILD fan-out wave ทำงานผ่าน Workflow script ได้โดยไม่ต้อง fallback. **behavior identical** (function ใช้ภายใน script, unit test สกัดด้วย extraction ไม่ต้องแก้). ปิดบั๊กที่ documented ค้างไว้ (`installer/rule.md` §build orchestration · troubleshooting #16/#20).
 
 ### Changed
