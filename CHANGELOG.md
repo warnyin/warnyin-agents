@@ -23,6 +23,11 @@
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-06-11
+
+### Added
+- **Global install mode — ติดตั้งครั้งเดียวใช้ได้ทุกโปรเจกต์ (opt-in)** (feature `global-install`) — `npx @warnyin/agents --global` ติดตั้ง adapter → `~/.claude/{commands/warnyin,agents,skills}` + playbook → `~/.warnyin/{workflow,template}` **ครั้งเดียว** → `/warnyin:*` ใช้ได้ทุกโปรเจกต์ (Claude Code โหลด user-level `~/.claude/`). **Hybrid:** workspace (`docs/`) ยัง per-project; โปรเจกต์ที่มี `./.warnyin/` local → ใช้ local ก่อน (override → คง reproducibility); **per-project ยังเป็น default**. **mode resolution** `resolveMode()` (pure-fn): flag `--global`/`--project`; ไม่ระบุ+TTY → prompt; **non-TTY → project (CI-safe ไม่ค้าง)**; `--global --project` → error. **ปลอดภัยต่อ homedir:** first-install `overwrite:false` (ไม่ทับไฟล์ user ใน `~/.claude/{agents,skills}`), `installGlobalNote()` เขียน `~/.claude/CLAUDE.md` แบบ **append-with-marker** (ไม่แตะ personal global memory), homedir guard (falsy/root → error), echo target paths. **resolve playbook local-first → global** ผ่าน convention canonical ใน `CLAUDE.md`/`AGENTS.md`/`CLAUDE.global.md` (ไม่ duplicate ลงทุก adapter). `/warnyin:init` รับ workspace bootstrap (scaffold + seed `docs/`, อ่าน template local→global). **backward compatible** (project mode = default ไม่เปลี่ยน; `--global` opt-in). **limitation:** Codex/Antigravity global root doc รอบนี้ยังไม่รองรับ (per-project ใช้ได้เต็ม). zero-dep + cross-platform (`os.homedir()`, HOME/USERPROFILE); payload ติดมากับ `--update` รอบถัดไป
+
 ## [0.12.0] - 2026-06-11
 
 ### Added
