@@ -8,7 +8,7 @@
 | **Slice อ้างอิง** | `design.md` slice #1 |
 | **Component** | `installer` (`cli.mjs` + test) |
 | **Model tier** | `deepest` (async refactor + data-loss-sensitive global write + cross-platform homedir + harness env + test ครบ) |
-| **สถานะ** | `รอ build` |
+| **สถานะ** | `เสร็จ` |
 
 ## 1. เป้าหมายของ task (vertical slice)
 เพิ่ม **global mode** ใน `src/bin/cli.mjs`: flag `--global`/`--project` + `resolveMode()` (pure-fn) + TTY prompt + branch target → `os.homedir()` (skip scaffold/seed) + `installGlobalNote()` (note-only, marker) + echo paths + homedir guard — พร้อม **ขยาย test harness** + เคส global/regression ใน `installer.test.mjs`
