@@ -9,7 +9,7 @@
 | **Slice อ้างอิง** | `design.md` slice #2 — "ค้นพบได้ + สอดคล้อง" |
 | **Component** | `installer` |
 | **Model tier** | `cheap` _(mechanical doc edit — เติมบรรทัดใน registry ตาม contract ที่ล็อกแล้ว ไม่มีการตัดสินใจ design)_ |
-| **สถานะ** | `รอ build` |
+| **สถานะ** | `build เสร็จ ✅` |
 
 ## 1. เป้าหมายของ task (vertical slice)
 > task นี้ส่งมอบคุณค่า end-to-end อะไร
@@ -25,9 +25,9 @@
 ## 3. Sub-tasks (แตกย่อยถ้าซับซ้อน)
 > หนึ่ง sub-task = หนึ่งไฟล์ registry ที่แก้ — independent แก้คนละไฟล์ ไม่มีลำดับบังคับ
 
-- [ ] 1. **`src/.warnyin/workflow/README.md`** — เพิ่ม 1 บรรทัดใน utility list block (ราวบรรทัด 38–46 ต่อจาก `api-doc.md`): `` feedback.md         #   capability: FEEDBACK — เปิด GitHub issue แจ้ง feedback (gh + fallback URL) `` — _ผลลัพธ์:_ payload registry มี FEEDBACK capability, alignment คอลัมน์คอมเมนต์ตรงบรรทัดอื่น
-- [ ] 2. **`CLAUDE.md`** (root) — เพิ่ม 1 บรรทัดใน section "## Slash commands (namespace `warnyin:`)" (บรรทัด 12–22): `` - `/warnyin:feedback:issue` → เปิด GitHub issue แจ้ง feedback ที่ warnyin/warnyin-agents (`.warnyin/workflow/feedback.md`) `` (wording ตรง Contract §1.1 แถว "บรรทัด registry") — _ผลลัพธ์:_ command โผล่ใน dogfood registry
-- [ ] 3. **`CHANGELOG.md`** (root) — เพิ่ม entry ใต้ `## [Unreleased]` หมวด `### Added`: ระบุเพิ่ม command `/warnyin:feedback:issue` เปิด GitHub issue ที่ `warnyin/warnyin-agents` (gh + fallback URL) — _ผลลัพธ์:_ ผู้ใช้ npm migrate เองได้ตาม Keep a Changelog
+- [x] 1. **`src/.warnyin/workflow/README.md`** — เพิ่ม 1 บรรทัดใน utility list block (ราวบรรทัด 38–46 ต่อจาก `api-doc.md`): `` feedback.md         #   capability: FEEDBACK — เปิด GitHub issue แจ้ง feedback (gh + fallback URL) `` — _ผลลัพธ์:_ payload registry มี FEEDBACK capability, alignment คอลัมน์คอมเมนต์ตรงบรรทัดอื่น
+- [x] 2. **`CLAUDE.md`** (root) — เพิ่ม 1 บรรทัดใน section "## Slash commands (namespace `warnyin:`)" (บรรทัด 12–22): `` - `/warnyin:feedback:issue` → เปิด GitHub issue แจ้ง feedback ที่ warnyin/warnyin-agents (`.warnyin/workflow/feedback.md`) `` (wording ตรง Contract §1.1 แถว "บรรทัด registry") — _ผลลัพธ์:_ command โผล่ใน dogfood registry
+- [x] 3. **`CHANGELOG.md`** (root) — เพิ่ม entry ใต้ `## [Unreleased]` หมวด `### Added`: ระบุเพิ่ม command `/warnyin:feedback:issue` เปิด GitHub issue ที่ `warnyin/warnyin-agents` (gh + fallback URL) — _ผลลัพธ์:_ ผู้ใช้ npm migrate เองได้ตาม Keep a Changelog
 
 ## 4. ขอบเขตไฟล์/โค้ดที่จะแตะ
 - `src/.warnyin/workflow/README.md` — เติม 1 บรรทัดใน utility list block (minimal-diff)
@@ -36,11 +36,11 @@
 - **ไม่แตะ:** ไฟล์ใหม่ของ playbook/adapter (เป็นของ task `feedback-playbook-command`), `cli.mjs`/packaging, `AGENTS.md`
 
 ## 5. Acceptance criteria (เกณฑ์ว่า task เสร็จ — ตรง `design.md §8 task 2`)
-- [ ] 3 registry ตรง Contract §1.1: (a) `README.md` มีบรรทัด FEEDBACK ใน utility list, (b) `CLAUDE.md` มีบรรทัด registry **wording ตรงเป๊ะ** Contract §1.1, (c) `CHANGELOG.md` มี entry ใต้ `### Added`
-- [ ] CHANGELOG entry รูปแบบถูกตาม Keep a Changelog (วางใต้ `## [Unreleased]` › `### Added`)
-- [ ] minimal-diff: เติมบรรทัดเท่านั้น ไม่จัดรูป/รื้อ format เดิมของแต่ละไฟล์; รักษา alignment ของ utility list ใน README
-- [ ] ผ่าน test ตาม `spec.md` (test-flow)
-- [ ] ทำตาม `rule.md` และ `standard.md`
+- [x] 3 registry ตรง Contract §1.1: (a) `README.md` มีบรรทัด FEEDBACK ใน utility list, (b) `CLAUDE.md` มีบรรทัด registry **wording ตรงเป๊ะ** Contract §1.1, (c) `CHANGELOG.md` มี entry ใต้ `### Added`
+- [x] CHANGELOG entry รูปแบบถูกตาม Keep a Changelog (วางใต้ `## [Unreleased]` › `### Added`)
+- [x] minimal-diff: เติมบรรทัดเท่านั้น ไม่จัดรูป/รื้อ format เดิมของแต่ละไฟล์; รักษา alignment ของ utility list ใน README
+- [x] ผ่าน test ตาม `spec.md` (test-flow)
+- [x] ทำตาม `rule.md` และ `standard.md`
 
 ## 6. อ้างอิงในโฟลเดอร์ task นี้
 - Spec: `./spec.md`
