@@ -20,8 +20,8 @@
 
 ## 3. Sub-tasks
 - [x] 1. `stages/design.md §7` "ปรับความละเอียดตามขนาด change" — reframe **2-level → 3-tier (fast/standard/large)**: ระบุ fast = ชี้ **markdown-link** ไป `[fast-track skip-list](../triage.md#fast-track-skip-list)` ; large = บังคับ Discovery — **ไม่ inline ตาราง skip-list** (pointer เท่านั้น, design §4)
-- [x] 2. `stages/verify.md` — เพิ่ม **pointer hook สั้น** (ใต้ §1): "ถ้า topic เป็น tier `fast` → verify-lite ตาม [fast-track skip-list](../triage.md#fast-track-skip-list) — functional + test เขียว, ข้าม empirical/panel ที่ไม่เกี่ยว; correctness floor (test เขียว) คงไว้"
-- [x] 3. `stages/ship.md` — เพิ่ม **pointer hook สั้น** (ใต้ §1): "tier `fast` → ship-lite ตาม [fast-track skip-list](../triage.md#fast-track-skip-list) — promote เฉพาะที่มี (อาจไม่มี learned-rule), archive ครบ"
+- [x] 2. `stages/verify.md` — เพิ่ม **pointer hook สั้น** (ใต้ §1): "ถ้า topic เป็น tier `fast` → verify-lite ตาม `[fast-track skip-list](../triage.md#fast-track-skip-list)` — functional + test เขียว, ข้าม empirical/panel ที่ไม่เกี่ยว; correctness floor (test เขียว) คงไว้"
+- [x] 3. `stages/ship.md` — เพิ่ม **pointer hook สั้น** (ใต้ §1): "tier `fast` → ship-lite ตาม `[fast-track skip-list](../triage.md#fast-track-skip-list)` — promote เฉพาะที่มี (อาจไม่มี learned-rule), archive ครบ"
 - [x] 4. `workflow/README.md` — เพิ่มบรรทัดใน tree comment (ใต้ `next.md`): `triage.md  #  capability: TRIAGE — ประเมินขนาด change → tier + route (read-only)`
 
 ## 4. ขอบเขตไฟล์ที่จะแตะ (★ disjoint)
