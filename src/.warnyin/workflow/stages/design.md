@@ -103,10 +103,15 @@
 - **persona** — ทำเพื่อใคร
 - **test-flow** — จะทดสอบ/ยืนยันความถูกต้องยังไง
 
-## 7. ปรับความละเอียดตามขนาด change
+## 7. ปรับความละเอียดตามขนาด change (3-tier)
 
-- **เล็ก** (fix bug นิดหน่อย): ข้าม `business.md`, `proposal.md`/`design.md` แบบสั้น, 1 task ก็พอ
-- **กลาง/ใหญ่**: ครบทุก artifact, แตก vertical slice หลาย task + sub-task, dependency ชัด
+ปรับ ceremony ตาม **tier** ที่ `/warnyin:triage` ประเมิน (`.warnyin/workflow/triage.md`) — fast/standard/large:
+
+- **fast** (bugfix, typo, config tweak, wording-guidance สั้น, 1-2 ไฟล์ modify ของเดิม ไม่ cross-cutting): **fast-track** — ข้าม `business.md`, proposal/design สั้น, **ไม่ panel ไม่ dry-run**, 1 task; ทำตาม [fast-track skip-list](../triage.md#fast-track-skip-list) (canonical ใน `triage.md` — ไม่ลอก rubric มาที่นี่). **คง correctness floor:** spec/acceptance ขั้นต่ำของ task ยังต้องครบ
+- **standard** (feature ปกติ, modify หลายไฟล์/หลาย component, มี logic ใหม่): flow เต็ม — ครบทุก artifact, แตก vertical slice หลาย task + sub-task, dependency ชัด, panel/dry-run ตามเหมาะ
+- **large** (greenfield/project ใหม่, cross-cutting หลาย component, mega): **บังคับ `/warnyin:discovery` ก่อน** แล้วค่อยกลับมา DESIGN → decompose เต็ม
+
+> hard-floor (auth/migration/secret/public-API/security-sensitive) บังคับ ≥ standard เสมอ — ดู [triage rubric](../triage.md#fast-track-skip-list) (`triage.md` §3B); fast-track ลดเฉพาะ ceremony ไม่ลด correctness — Gate §8 ของ standard/large คงเดิม
 
 ---
 
