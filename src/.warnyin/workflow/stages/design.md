@@ -49,6 +49,11 @@
 
 1. **เตรียมพื้นที่:** ใช้/สร้างโฟลเดอร์ `docs/stages/<slug>/` (ถ้ามาจาก Discovery ใช้อันเดิม)
 2. **Ground + เคลียร์ความไม่ชัด:** อ่าน Input; ทุกจุดกำกวมเรื่อง design → ถามทีละข้อ + recommended answer จนชัด (ถ้าใหญ่/ไม่ชัดมาก → แนะนำ Discovery ก่อน)
+1.5 **Establish tier (ก่อนจ่าย ceremony):** ประเมินขนาด change เบื้องต้นตาม rubric (`triage.md` §2 — signals + hard-floor)
+   - **มั่นใจ** → กำหนด tier + บันทึก `proposal.md` ช่อง `ขนาด`
+   - **ไม่มั่นใจ/ก้ำกึ่ง** → ถาม user (options): (ก) ประเมินด้วย `/warnyin:triage` ก่อน · (ข) user กำหนด tier เองถ้ารู้  [ก้ำกึ่ง default = ปัดขึ้น standard]
+   - **hard-floor** (auth/migration/secret/public-API/security-sensitive) → ≥ standard เสมอ
+   - tier → drive ceremony ตาม §7
 3. **business.md** *(optional — ข้ามได้ถ้า change เล็ก เช่น fix bug นิดหน่อย)*: what & why เชิงธุรกิจ — goal, คุณค่า, persona, success metric
 4. **proposal.md** (what & why): สรุป change ที่จะทำ, เหตุผล, ทางเลือกที่พิจารณา/ตัดทิ้ง, scope in/out
 5. **design.md** (how): ออกแบบเชิงเทคนิคแบบ vertical slice — slice มีอะไรบ้าง, แต่ละ slice ตัดผ่าน layer ไหน, data model, interface/contract, flow, ผลกระทบต่อระบบเดิม (ใช้ lens `.warnyin/workflow/roles/sa.md`) — **ครอบ "Spec delta" ด้วย**: เทียบพฤติกรรมที่ change นี้แตะกับ `docs/features/<name>/spec.md` ปัจจุบัน แล้วเขียน ADDED/MODIFIED/REMOVED (SHIP merge ตามนี้); change ไม่แตะพฤติกรรม feature → ระบุ "ไม่มี delta"
@@ -105,7 +110,9 @@
 
 ## 7. ปรับความละเอียดตามขนาด change (3-tier)
 
-ปรับ ceremony ตาม **tier** ที่ `/warnyin:triage` ประเมิน (`.warnyin/workflow/triage.md`) — fast/standard/large:
+**tier ถูก established ที่ §4 step 1.5** (ประเมินเอง / มั่นใจกำหนด / ไม่มั่นใจถาม options / hard-floor บังคับ ≥ standard) — ส่วน §7 นี้อธิบาย ceremony ที่ drive โดย tier ที่ established
+
+ปรับ ceremony ตาม **tier** (canonical rubric ดู `.warnyin/workflow/triage.md`) — fast/standard/large:
 
 - **fast** (bugfix, typo, config tweak, wording-guidance สั้น, 1-2 ไฟล์ modify ของเดิม ไม่ cross-cutting): **fast-track** — ข้าม `business.md`, proposal/design สั้น, **ไม่ panel ไม่ dry-run**, 1 task; ทำตาม [fast-track skip-list](../triage.md#fast-track-skip-list) (canonical ใน `triage.md` — ไม่ลอก rubric มาที่นี่). **คง correctness floor:** spec/acceptance ขั้นต่ำของ task ยังต้องครบ
 - **standard** (feature ปกติ, modify หลายไฟล์/หลาย component, มี logic ใหม่): flow เต็ม — ครบทุก artifact, แตก vertical slice หลาย task + sub-task, dependency ชัด, panel/dry-run ตามเหมาะ

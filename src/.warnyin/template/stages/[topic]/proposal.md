@@ -7,7 +7,7 @@
 |---|---|
 | **Slug** | `<kebab-case>` |
 | **ประเภท** | `feature` / `bugfix` / `refactor` / `docs` |
-| **ขนาด** | `เล็ก` / `กลาง` / `ใหญ่` |
+| **ขนาด** | `fast` / `standard` / `large` (จาก triage หรือ ประเมินใน DESIGN step 1.5) |
 | **วันที่** | `YYYY-MM-DD` |
 | **มาจาก Discovery?** | `./discovery.md` หรือ `ไม่มี` |
 
