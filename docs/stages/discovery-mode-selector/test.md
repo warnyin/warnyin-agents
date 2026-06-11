@@ -57,3 +57,13 @@ npm run setup:sandbox                                 # T3 → grep target ท�
 ```
 
 > **defer (track):** full spawn-real proof ของ debate (mode โต้วาที spawn agent จริง) = optional ตาม `design.md §8.2` — รอบนี้ verify structural (debate section ครบ + observable proxy + fallback 4 เงื่อนไข) แทน; รันจริงเมื่อ token budget พอ
+
+---
+
+## 8. Amend round 2 — mode `ไต่สวน` (เพิ่ม test cases)
+| # | สถานการณ์ | ขั้นตอน | ผลที่คาดหวัง |
+|---|---|---|---|
+| V1 | ไต่สวน section ครบ | grep §3.5.7 องค์ประกอบ | blue/red-memory + debate-round-NN + fan-out role + 5 มุม + Must/Should-Have + converge + ถาม user ก่อนรอบ + fallback degrade ครบ |
+| V2 | keyword 3-way | grep "ไต่สวน" command/README | command (keyword map) + README (capability) มี |
+| V3 | regression | grep 4 mode เดิม + no-duplicate command | 4 mode เดิมคงครบ + command ไม่มี behavior table |
+| V4 | install proof | setup:sandbox → grep target | §3.5.7 + command ไต่สวน ลง target จริง |

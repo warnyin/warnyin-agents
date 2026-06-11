@@ -52,3 +52,18 @@
 - [x] ทุกข้อที่ไม่ผ่านถูกแก้จนผ่าน — ไม่มีข้อ fail (0 รอบแก้)
 - [x] test.md + verify.md เขียนครบ
 - [x] ปัญหายากบันทึก troubleshooting.md — ไม่มีปัญหาใหม่
+
+---
+
+## 7. Amend round 2 — mode `ไต่สวน` (re-verify)
+> หลัง amend (เพิ่ม mode 5 Blue/Red iterative) → re-build wave 2 → re-verify
+
+| # | Test case | ผล | หมายเหตุ |
+|---|---|---|---|
+| V1 | ไต่สวน §3.5.7 ครบองค์ประกอบ | ✅ | blue/red-memory + debate-round-NN + fan-out role + 5 มุม (Must/Should-Have) + converge + ถาม user ก่อนรอบ + fallback degrade |
+| V2 | keyword 3-way | ✅ | command (3) + README (2) มี "ไต่สวน" |
+| V3 | regression 4 mode + no-duplicate | ✅ | 4 mode เดิมคงครบ (43 refs) + command ไม่มี behavior table (0) |
+| V4 | install proof | ✅ | sandbox: §3.5.7 (1) + command ไต่สวน (3) ลง target |
+| V5 | ship integrity | ✅ | `npm test` 66/66 · lint:md 109 · verify:pack 81 |
+
+**ผลรวม amend round 2:** ✅ ผ่านหมด **0 รอบแก้** · mode 5 ไต่สวน implement ครบ (Blue/Red iterative + memory + grill + converge + fallback) · regression 4 mode เดิมไม่พัง
