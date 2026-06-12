@@ -12,9 +12,9 @@
 - กัน false-green แบบ #3 (เช่น `node --test <dir>` เปล่า exit 0 แต่ไม่มีเคสรัน) — acceptance = เห็น **pass count ≥ 9** ไม่ใช่แค่ exit 0 (BL-2)
 - step CI ใช้ `set -o pipefail` (`shell: bash`) ให้ pipe ยัง fail ตาม node --test
 
-## เคสที่ test suite ครอบ (26 เคส รวม — bare discovery เจอครบ)
+## เคสที่ test suite ครอบ (รวม suite 85 เคส — bare discovery เจอครบ; หลักด้านล่าง)
 
-### `src/tests/installer.test.mjs` — 9 เคส (black-box, spawn `src/bin/cli.mjs`)
+### `src/tests/installer.test.mjs` — 21 เคส (black-box, spawn `src/bin/cli.mjs`; 9 ฐาน + 8 global + 4 version stamp)
 1. ติดตั้งสด — โครงครบ (`.warnyin/workflow`, `.warnyin/template`, `.claude/commands/warnyin`, `.claude/skills/update-codemaps/SKILL.md`, `docs/stages`, `docs/project.md`, `CLAUDE.md`, `AGENTS.md`)
 2. idempotent — รัน 2 ครั้ง byte-equal + ไม่ append ซ้ำ (`stdout` มี "ข้าม")
 3. `--update` ไม่ทับงานจริง — `docs/project.md`/`docs/stages/demo/` คงเดิม
@@ -24,8 +24,10 @@
 7. `seedDocs` ข้าม `[...]` (negative — ไม่มี path ใต้ `docs/` ขึ้นต้น `[`)
 8. `--dry-run` ไม่เขียนไฟล์ (temp ยังว่าง)
 9. **scaffold สร้างเปล่า ไม่ leak `docs/stages/<topic>`** — มี `context.md`+`achieved/.gitkeep` แต่ไม่มี topic ของ repo ต้นทาง
+10–17. global mode (8 เคส — ดู feature `global-install`)
+18–21. **version stamp** (a) project install → `.warnyin/.warnyin-version` = pkg version จริง + match semver · (b) `--dry-run` → ไม่เขียน stamp · (c) `--update` ซ้ำ → byte-equal (idempotent, ไม่ assert stdout "ข้าม") · (d) global → `home/.warnyin/.warnyin-version` ตรงเวอร์ชัน — **อ่าน pkg version สดจาก `package.json` ไม่ hardcode** (กัน tautology)
 
-### `src/tests/verify-pack.test.mjs` — 10 เคส (unit, import `checkFiles` ตรง — BL-4 testable denylist)
+### `src/tests/verify-pack.test.mjs` — 11 เคส (unit, import `checkFiles` ตรง — BL-4 testable denylist)
 1. payload ถูกต้อง → ไม่มี error (GOOD baseline รวม `src/.claude/skills/explore/SKILL.md`)
 2. R2 denylist: `src/tests/` หลุด → จับได้ (กัน gate ลวง)
 3. R2 denylist: `src/scripts/` หลุด → จับได้
@@ -36,6 +38,15 @@
 8. R1 assertion: ขาด `src/.claude/commands/warnyin/` → คืน error
 9. allowlist: ไฟล์นอก allow (เช่น `src/.vscode/`) → จับได้ (skills อยู่ใน allow แล้ว → ใช้ subdir อื่นที่ยังนอก allow พิสูจน์ guard)
 10. R1 assertion: ขาด `src/.claude/skills/` → คืน error (skills เป็น required payload)
+11. **stamp-deny:** `checkFiles(['.warnyin/.warnyin-version'])` (root) → คืน error (gate จับ stamp ที่หลุดขึ้น tarball — install-time artifact ไม่ควรอยู่ใน package)
+
+### `src/tests/setup-dogfood.test.mjs` — 14 เคส (unit, import ตรง — BL-4 testable; truth table + drift-guard)
+1–3. ฐาน (backward compat): `verifyInstalled(tmp)` ไม่มี expected → marker-only (เคส empty→false, ครบ→true, partial→false)
+4. **drift→false (แก่น):** stamp `0.1.0` + `verifyInstalled(root,'9.9.9')` → false + warn drift (mirror partial→false; ตัวจับ false-green รอบ 2)
+5. match: stamp=expected → true · 6. transition: stamp ขาด → true · 7. degrade: expected `null`/`''` → true
+8. **CRLF:** stamp `"<ver>\r\n"` + expected `"<ver>"` → true (Windows-safe)
+9–11. `parseNpmViewVersion`: noise `"npm warn x\n<ver>\n"`→`<ver>` · empty→null · ไม่ใช่ semver→null
+12. `readStamp` whitespace-only → null · 13–14. **wire-proof (structural):** source มี `verifyInstalled(repoRoot, expected)` ทั้ง `installViaNpx` + `installViaPack`
 
 ### `src/tests/lint-md.test.mjs` — 7 เคส (unit, import `checkLinks` ตรง — BL-4 testable)
 1. good link (exists→true) → `deepEqual([])`
@@ -112,6 +123,15 @@
 - **leak-example case ต้องเปลี่ยน ไม่ใช่ลบ** (config-protection) — เคสที่พิสูจน์ "allowlist จับ leak" ต้องเปลี่ยนตัวอย่างไปเป็นพาธที่ **ยังนอก allow จริง** (เช่น `src/.vscode/`, `src/.idea/`) — ห้ามลบเคสทิ้ง (gate จะหลวมเงียบ)
 - **เพิ่ม R1 required-assert** สำหรับ payload ใหม่ (`hasSkills` แบบ `hasWarnyin`/`hasClaude`, prefix กว้าง `src/.claude/skills/`) — กัน payload หล่นเงียบ (บทเรียน nested-dotfolder R1); **เพิ่มเคสใหม่** ไม่ rename เคสเดิม (คง coverage R1 ของ payload อื่น)
 - **ลำดับ atomic กัน intermediate red:** เติม path ใหม่ใน **GOOD baseline ก่อน** เพิ่ม `hasX` assertion (ไม่งั้นเคส `deepEqual([])` ของ GOOD แดง) → จากนั้นเปิด `ALLOWED_PREFIX` + assertion → แก้ leak-example case ทีหลัง (พิสูจน์ตอน dry-run: B1/B2/B3)
+
+## verify version-stamp / drift-aware install (L: topic `setup-dogfood-version-check`)
+> feature ที่ installer เขียน artifact (version stamp) แล้ว dev-tooling verify ด้วย artifact นั้น — verify behavioral ผ่าน cli/verifyInstalled จริง (มากกว่า unit)
+- **stamp install proof (executable):** `npm run setup:sandbox` (spawn `cli.mjs` จริง) → `<sandbox>/.warnyin/.warnyin-version` = `package.json` version จริง; global mode → `cli.mjs --global` (override **ทั้ง `HOME`+`USERPROFILE`**=temp) → `<home>/.warnyin/.warnyin-version`; `--dry-run` → ไม่มีไฟล์ stamp
+- **drift-guard behavioral (ต้องมีคู่ true/false — กัน return คงที่):** สร้าง temp root + CORE markers + stamp ปลอม → `verifyInstalled(root, expected)` ครบ truth table: stamp `<old>` + expected `<new>`→**false** + warn drift (mirror partial→false) · stamp=expected→true · stamp ขาด→true(transition) · expected falsy→true(degrade) · CRLF stamp→true. **drift-test ต้องใช้ expected ที่ต่างจาก stamp ชัด** (ห้าม derive จาก stamp เดียวกัน = tautology)
+- **external-version parse (pure fn ไม่ spawn):** `parseNpmViewVersion(stdout)` ป้อน stdout ปลอม (noise ปน/empty/ไม่ใช่ semver) — unit ตรงไม่ต้อง network; `resolveExpectedVersion` จริง (network) = smoke เสริม (`npm view` → semver)
+- **wire-proof (structural):** assert source `setup-dogfood.mjs` ส่ง `expected` เข้า `verifyInstalled` ทั้ง `installViaNpx` + `installViaPack` (กัน drift ตายเงียบบน pack/Windows)
+- **packaging:** stamp = install-time artifact → `checkFiles(['.warnyin/.warnyin-version'])` คืน error + `npm pack --dry-run --json` ยืนยัน stamp ไม่อยู่ใน file list (Windows: `verify:pack` ENOENT = KB#4 → ใช้ unit gate + `npm pack` แทน)
+- **★ transition snapshot (self-referential verify):** integration end-to-end (`setup:dogfood` จริงจับ drift) = **defer รอ publish ≥2 release ที่มี stamp**; VERIFY พิสูจน์ *logic ถูก* (drift→false ใน temp) + **บันทึก snapshot จริง** ว่า ณ ตอน verify registry `@latest` มี stamp หรือยัง — ห้ามเคลมจับ drift end-to-end ได้ก่อนถึงรอบที่ artifact มีจริงบน registry
 
 ## executable migration proof (เทสเอกสาร migration / CHANGELOG)
 > เอกสาร migration (CHANGELOG "Migration guide") เป็น **คำสั่งที่ผู้ใช้รันจริง** — ต้องเทสแบบ executable ไม่ใช่อ่านเฉยๆ (บทเรียน `troubleshooting.md` #10)

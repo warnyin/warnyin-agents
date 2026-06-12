@@ -55,6 +55,7 @@ target = global ? os.homedir()(+guard) : cwd
 guard pkgRoot===target → error  (defensive no-op: pkgRoot=src/ ไม่มีทาง===target)
  → warn legacy(≤0.2.x / 0.3–0.5.x)
  → copyTree(CORE, overwrite=--update)   .warnyin/{workflow,template} + .claude/{commands/warnyin,agents,skills}   (global first-install: overwrite=false)
+ → writeVersionStamp()   target/.warnyin/.warnyin-version = pkg version (unconditional; ทั้ง 2 mode; เคารพ DRY)   # version identity
  [project] → ensureScaffold() + seedDocs() + installRootDoc CLAUDE.md/AGENTS.md (append+marker)
  [global]  → skip scaffold/seed (ยกให้ /warnyin:init) + installGlobalNote()→~/.claude/CLAUDE.md (note-only+marker) + ข้าม AGENTS.md
 ```
@@ -63,7 +64,7 @@ guard pkgRoot===target → error  (defensive no-op: pkgRoot=src/ ไม่มี
 
 ## dev tooling (src/scripts/ — ไม่ publish)
 ```
-setup-dogfood.mjs   installViaNpx() || installViaPack(npm pack→extract→node cli) → append pointer CONTRIBUTING.md
+setup-dogfood.mjs   resolveExpectedVersion(npm view) → installViaNpx/Pack(EXPECTED, pin-exact+prefer-online) → verifyInstalled(root,expected) เทียบ stamp (drift→fail) → append pointer CONTRIBUTING.md
 setup-sandbox.mjs   mkdtempSync(os.tmpdir(),'wy-sandbox-') → node src/bin/cli.mjs ลง temp (test version skew)
 verify-pack.mjs     npm pack --json → checkFiles(files)→error[] (allowlist+denylist+tripwire; export ให้ unit)
 check-test-count.mjs  parse summary node --test → fail ถ้า fail!=0 / pass<9 / pass!=tests

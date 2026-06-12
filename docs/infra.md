@@ -5,6 +5,7 @@
 ## Service ที่ต้องรัน (local dev)
 - ไม่มี service/DB/queue — repo เป็น zero-dependency node tooling (installer + playbook docs)
 - ต้องมี **Node.js ≥20** (CI matrix: node 20/22/24) และ `npm`; fallback ของ `setup:dogfood` ต้องมี `tar` ในระบบ (Windows 10+/mac/linux มีอยู่แล้ว)
+- **`setup:dogfood` ต้องมี network ถึง npm registry** — query latest ด้วย `npm view @warnyin/agents version` (resolveExpectedVersion) เพื่อ pin exact + verify drift; offline → degrade (verify แบบ marker-only + warn loud, ไม่จับ drift) แต่ install เองก็ fail อยู่แล้ว
 
 ## วิธีรัน local
 ```bash
@@ -18,6 +19,8 @@ npm run setup:sandbox    # ติดตั้ง v-next จาก src/ ลง te
 - **runtime (per-project default):** ไม่มี env var ที่จำเป็น (zero-config)
 - **global install mode** (`--global`) พึ่ง **`HOME`** (POSIX) / **`USERPROFILE`** (Windows) ผ่าน `os.homedir()` — resolve target `~/.warnyin/`+`~/.claude/`; ถ้าหาไม่ได้/เป็น filesystem root → installer error (guard) แนะนำ `--project`
 - **เทส global mode:** ต้อง override **ทั้ง `HOME` และ `USERPROFILE`** → temp dir ตอน spawn (`runCli(cwd, args, env)` ส่ง `{...process.env, HOME: tmp, USERPROFILE: tmp}`) — กัน side-effect เขียน homedir จริงของ dev/CI; assert side-effect อยู่ใน temp (กัน false-pass ถ้า override ไม่ติด)
+- **`npm_config_prefer_online`** (`setup:dogfood`) — ตั้ง `'true'` ตอน spawn npx เพื่อ revalidate registry metadata (เสริม pin-exact ที่เป็นตัวหลักกัน stale npx cache); ส่งผ่าน `env: {...process.env, npm_config_prefer_online:'true'}` (cross-platform — เป็น npm config env ไม่ใช่ shell var)
+- **version stamp artifact** — installer เขียน `.warnyin/.warnyin-version` (= เวอร์ชันที่ติดตั้ง) ลง target ทุก install/`--update`; **repo เอง** root `/.warnyin/` gitignored → stamp ไม่ track (dogfood); **end-user** `.warnyin/` track ได้ (เห็น diff bump); install-time artifact → ไม่ขึ้น tarball (allowlist granular)
 
 ## Environment อื่น (staging/prod)
 - **publish:** npm registry (`@warnyin/agents`) — CI gate `.github/workflows/ci.yml` (test matrix + pack-verify) ก่อน publish

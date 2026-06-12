@@ -6,14 +6,14 @@
 ## ไฟล์ (SOURCE layer — `src/`)
 ```
 src/bin/cli.mjs                   installer หลัก (zero-dep, ~190 บรรทัด); npm bin → ที่นี่
-src/tests/installer.test.mjs      black-box integration test ของ installer (9 เคส)
-src/tests/verify-pack.test.mjs    unit test ของ checkFiles (10 เคส, BL-4 testable denylist)
+src/tests/installer.test.mjs      black-box integration test ของ installer (21 เคส; รวม global + version stamp a–d)
+src/tests/verify-pack.test.mjs    unit test ของ checkFiles (11 เคส, BL-4 testable denylist; รวม stamp-deny)
 src/scripts/verify-pack.mjs       pack-verify gate (allowlist + denylist; export checkFiles)
 src/scripts/check-test-count.mjs  pass-count gate (anti-false-green; MIN_PASS=9)
 src/scripts/lint-md.mjs           dead-link gate (zero-dep; export checkLinks; strip-code alternation)
 src/tests/lint-md.test.mjs        unit test ของ checkLinks (7 เคส, BL-4 testable)
-src/tests/setup-dogfood.test.mjs  unit test ของ verifyInstalled (3 เคส, BL-4 testable; false-green guard partial→false)
-src/scripts/setup-dogfood.mjs     dev: ติดตั้ง release ลง root (--update + verifyInstalled side-effect; export + main-guard)
+src/tests/setup-dogfood.test.mjs  unit test ของ verifyInstalled/parse/readStamp (14 เคส, BL-4; truth table + drift-guard + wire-proof)
+src/scripts/setup-dogfood.mjs     dev: ติดตั้ง release ลง root (--update + version-aware verifyInstalled; pin-exact + prefer-online; export + main-guard)
 src/scripts/setup-sandbox.mjs     dev: ติดตั้ง v-next จาก src/ ลง temp (sandbox)
 src/.warnyin/{workflow,template}  playbook กลาง (stages/ roles/ contexts/ scripts/) + template (payload)
 src/.warnyin/installer/templates/CLAUDE.md   template CLAUDE.md ของ target (per-project root doc + resolution note)
@@ -42,6 +42,7 @@ guard pkgRoot === target → error                   // defensive no-op (pkgRoot
 warn legacy ≤0.2.x / 0.3–0.5.x
 ─────
 for CORE      → copyTree(dir, {overwrite: UPDATE})   // global: first-install overwrite=false (ไม่ทับไฟล์ user)
+writeVersionStamp()   → target/.warnyin/.warnyin-version (= pkg version, unconditional; เคารพ DRY)  // ทั้ง 2 mode หลัง CORE
 [project] ensureScaffold() + seedDocs() + installRootDoc(CLAUDE.md) + installRootDoc(AGENTS.md)
 [global]  skip scaffold/seed (ยกให้ /warnyin:init) + installGlobalNote() → ~/.claude/CLAUDE.md + ข้าม AGENTS.md global
 print สรุป created/updated/skipped
@@ -57,13 +58,18 @@ ensureScaffold()                 generate SCAFFOLD_FILES เปล่า; skip �
 seedDocs(relDir=TEMPLATE_DOCS)   copy template docs→docs/; ข้าม entry ขึ้นต้น '['; ไม่ทับ  (project mode)
 installRootDoc(name, srcPath)    ไม่มี→สร้าง; มีแต่ไม่มี marker→append section; มี marker→skip  (เขียนทั้งไฟล์ — per-project)
 installGlobalNote()              อ่าน templates/CLAUDE.global.md → ~/.claude/CLAUDE.md append-with-marker `<!-- warnyin:global-note -->`; defensive-skip ถ้า template ไม่มี; เคารพ DRY  (global mode — note-only ไม่ทับ personal memory)
+readPkgVersion() → string        อ่าน pkgRoot/../package.json → version (ทั้ง dev + tarball layout)
+writeVersionStamp()              เขียน target/.warnyin/.warnyin-version = pkgVersion+'\n' (unconditional writeFileSync ไม่ skip-if-equal; เคารพ DRY; stats/log +/↻) — version identity ของ payload
 ```
 
 ## helper dev tooling (`src/scripts/` — ไม่ publish)
 ```
 checkFiles(files[]) → error[]    pure function (verify-pack.mjs); export ให้ unit test เรียกได้ (ไม่ trigger npm pack)
-setup-dogfood.mjs                installViaNpx() || installViaPack() (ทั้งคู่ส่ง `--update` + `verifyInstalled(repoRoot)` ก่อน return true — ไม่เชื่อ exit 0) → appendContributingPointer() (idempotent marker 'CONTRIBUTING.md'); export verifyInstalled + main-guard
-verifyInstalled(root) → boolean        เช็ค root CORE markers (.warnyin/workflow/stages/discovery.md + .claude/commands/warnyin); export ให้ unit test (main-guard กัน trigger install)
+setup-dogfood.mjs                resolveExpectedVersion() → installViaNpx(EXPECTED) || installViaPack(EXPECTED) (ทั้งคู่ส่ง `--update` + pin-exact spec + `verifyInstalled(repoRoot, expected)`) → appendContributingPointer(); export verifyInstalled/readStamp/parseNpmViewVersion + main-guard
+verifyInstalled(root, expected?) → boolean  CORE markers + (optional) เทียบ stamp กับ expected ตาม truth table transition-safe (falsy expected→degrade marker-only · stamp ขาด→transition true · stamp≠expected→false drift · normalize trim สองฝั่ง); export ให้ unit test
+readStamp(root) → string|null          อ่าน root/.warnyin/.warnyin-version (trim; empty/ไม่มี→null); export
+parseNpmViewVersion(stdout) → string|null  pure: ดึงบรรทัด semver จริงจาก stdout (ทน notice/warning ปน); export ให้ unit ไม่ต้อง spawn
+resolveExpectedVersion() → string|null  spawn `npm view @warnyin/agents version` (timeout 15s) → parseNpmViewVersion; fail→null+warn loud (degrade)
 setup-sandbox.mjs                mkdtempSync(os.tmpdir(),'wy-sandbox-') → spawn node src/bin/cli.mjs ลง temp
 check-test-count.mjs             อ่าน summary node --test จาก stdin → fail ถ้า fail!=0 / pass<MIN_PASS / pass!=tests
 checkLinks(docs,exists) → error[] pure function (lint-md.mjs); export ให้ unit; dead-link gate ของ .md (src/+docs/, exclude template+achieved)

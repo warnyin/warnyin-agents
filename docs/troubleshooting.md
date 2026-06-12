@@ -31,6 +31,7 @@
 - **อาการ:** `node scripts/verify-pack.mjs` บน Windows → `execFileSync ENOENT spawn npm` (บน CI ubuntu ปกติ)
 - **Root cause:** `execFileSync('npm', ...)` ไม่ผ่าน shell — บน Windows executable จริงคือ `npm.cmd`; `execFile` ไม่ทำ PATHEXT resolution
 - **วิธีแก้:** ยอมรับเป็น dev-only (CI หลักเป็น ubuntu); ถ้าต้องรันบน Windows dev → เลือก binary ตาม `process.platform` (`npm.cmd` vs `npm`) หรือ `shell:true`; ยืนยัน logic บน Windows ได้ด้วยรัน `npm pack --dry-run --json` แล้ว apply allowlist เอง
+- **gate ของ logic ที่เชื่อถือได้ (ไม่พึ่ง npm process):** `verify-pack.test.mjs` (unit `checkFiles` ป้อน file list ปลอม — รวมเคส `.warnyin/.warnyin-version` stamp-deny) รันผ่าน `npm test` ปกติทุก platform; acceptance ที่ระบุ "verify:pack ผ่าน" บน Windows dev → ใช้ unit gate + `npm pack --dry-run` แทน (เจอซ้ำ topic `setup-dogfood-version-check` 2026-06-12)
 
 ## workflow tooling
 
