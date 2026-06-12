@@ -31,8 +31,10 @@ single library (zero-dependency, ESM, Node ≥20) เผยแพร่ผ่า
 - `src/.warnyin/workflow/api-doc.md` — capability เสริม conditional (stage เรียกเองเมื่อ auto-detect topic แตะ REST API): ผลิต/verify/promote OpenAPI 3.1 contract — ดู `docs/features/api-doc/`
 - `src/.warnyin/workflow/triage.md` — capability `/warnyin:triage` (read-only router): ประเมินขนาด change → tier `{fast,standard,large}` (rubric canonical: signals + hard-floor 5 หมวด + escalation + fast-track skip-list) → แนะนำ route แล้วหยุด; `design.md §7`/`verify.md`/`ship.md` ชี้ skip-list canonical นี้ — ดู `docs/features/change-sizing/`
 - `src/.warnyin/workflow/stages/discovery.md §3.5` — capability **Discovery modes** (canonical): 5 mode ปรับความเข้ม Discovery `{ไว, สมดุล, ละเอียด, โต้วาที, ไต่สวน}` + auto-suggest (precedence) + multi-agent (`โต้วาที` fan-out / `ไต่สวน` Blue/Red iterative + memory `debate/`); orthogonal กับ tier/context-profile; command `/warnyin:discovery <slug> [mode]` ชี้มา — ดู `docs/features/discovery-modes/`
+- `src/.warnyin/workflow/feedback.md` — capability **`/warnyin:feedback:issue`** (action-utility, canonical): เปิด GitHub issue ที่ `warnyin/warnyin-agents` (hardcode) 3 ประเภท (Bug/Feature/Improvement, title prefix + best-effort label) + detect ladder `gh`→`gh auth status`→fallback URL + confirm gate บังคับ + privacy (ไม่ดึง session context เอง); มี outward side-effect → command user-only (ไม่ auto-invoke) — ดู `docs/features/feedback-issue/`
 - `src/.claude/skills/*/SKILL.md` — utility skill auto-invocable (`/update-codemaps`, `/explore`, `/next`) ชี้ playbook กลาง
 - `src/.claude/commands/warnyin/triage.md` — command adapter `/warnyin:triage` (user-invoked, read-only) ชี้ `triage.md` playbook
+- `src/.claude/commands/warnyin/feedback/issue.md` — command adapter `/warnyin:feedback:issue` (**nested namespace แรก** `warnyin/feedback/`) ชี้ `feedback.md` playbook
 
 ## Dev tooling (`src/scripts/` — ไม่ publish)
 - `verify-pack.mjs` (pack-verify gate, export `checkFiles`) · `check-test-count.mjs` (pass-count gate) · `lint-md.mjs` (dead-link gate, export `checkLinks`)

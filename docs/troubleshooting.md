@@ -151,3 +151,10 @@
 - **วิธีแก้:** (1) ส่ง `--update` ทั้ง npx (`['--yes', PKG, '--update']`) + node path (`[cli, '--update']`); (2) เพิ่ม `verifyInstalled(root)` เช็ค side-effect (root CORE markers `.warnyin/workflow/stages/discovery.md` + `.claude/commands/warnyin` exists) → `status===0 && !shimMissing && verifyInstalled(repoRoot)`; false → fallback/exit. workaround ชั่วคราว = mirror CORE จาก verified tarball → root (`cp -r package/src/.warnyin → .warnyin`)
 - **ป้องกันซ้ำ:** dev-tooling ที่ spawn external install (npx/npm) **ต้อง verify side-effect ไม่เชื่อ exit 0** + ส่ง flag ตรงเจตนา (`--update`); unit test มีเคส partial→false พิสูจน์ guard — กฎใน `docs/techstack/installer/rule.md` §dev tooling
 - **✅ FIXED (topic `fix-setup-dogfood` · 2026-06-11):** `setup-dogfood.mjs` ส่ง `--update` + `verifyInstalled` side-effect ทั้ง 2 paths + main-guard export + unit 3 เคส (verify V1-V6 ผ่าน, test 69/69)
+
+### 22. registry แก้ root `CLAUDE.md`/`AGENTS.md` → ไม่ติด commit (gitignored dogfood — canonical = installer template)
+- **อาการ:** registration task แก้ `CLAUDE.md` ที่ root (เพิ่ม slash-command list) → build-wave รายงาน `filesChanged` มี CLAUDE.md แต่ commit/branch ไม่ติด → publish ไม่มี change (ผู้ใช้ปลายทางไม่เห็น command ใน list)
+- **Root cause:** `CLAUDE.md`/`AGENTS.md` ที่ root = dogfood install (gitignored, not tracked — specialization ของ #18); canonical ที่ ship จริง = `src/.warnyin/installer/templates/CLAUDE.md` (ใน `package.json files`, installer copy ไปปลายทาง) — design ระบุ target "CLAUDE.md (root)" คลาดเคลื่อน
+- **วิธีแก้:** แก้ที่ `src/.warnyin/installer/templates/CLAUDE.md` (canonical) — ยืนยัน target ด้วย `git check-ignore CLAUDE.md` + `git ls-files --error-unmatch CLAUDE.md` ก่อนเลือก (investigate-before-edit ไม่เดา)
+- **ป้องกันซ้ำ:** ก่อนแก้ registry/list file ที่ root → `git check-ignore <file>` ก่อนเสมอ; ignored = dogfood → หา canonical ใน `src/.warnyin/installer/templates/` — กฎใน `docs/techstack/installer/rule.md` §packaging
+- **✅ FIXED (topic `feedback-issue-command` · 2026-06-12):** orchestrator แก้ template canonical ตอน BUILD integrate (verify T4 install proof ยืนยัน slash-command list ลง target sandbox ถูกต้อง)

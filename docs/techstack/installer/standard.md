@@ -44,5 +44,8 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) main(
 - **`setup-sandbox.mjs`** — `mkdtempSync(os.tmpdir(),'wy-sandbox-')` → `spawnSync(process.execPath, [src/bin/cli.mjs], {cwd:sandbox})` (array args ไม่ shell) → print path
 - **`check-test-count.mjs`** — อ่าน summary `node --test` จาก stdin → fail ถ้า `fail!=0` / `pass<MIN_PASS(9)` / `pass!=tests` (anti-false-green)
 
+## command namespace (`.claude/commands/warnyin/`)
+- **nested namespace = subfolder** — `/warnyin:<group>:<action>` map กับไฟล์ `.claude/commands/warnyin/<group>/<action>.md` (เช่น `/warnyin:feedback:issue` ← `feedback/issue.md`); `cli.mjs copyTree` **recursive** อยู่แล้ว (`readdirSync withFileTypes` + เรียกตัวเอง + `mkdirSync recursive`) → copy nested folder อัตโนมัติ **ไม่ต้องแก้ packaging**; `verify-pack` เช็ค prefix `src/.claude/commands/warnyin/` → ครอบ nested เอง; **mkdir directory ก่อน Write** ไฟล์ใน nested path ใหม่ (โฟลเดอร์ยังไม่มี → Write fail) — evidence: topic `feedback-issue-command` (nested namespace แรก, verify-pack 83 ไฟล์ + sandbox install proof)
+
 ## CHANGELOG
 - Keep a Changelog — กลุ่ม Added/Changed/Removed/Fixed + version + วันที่

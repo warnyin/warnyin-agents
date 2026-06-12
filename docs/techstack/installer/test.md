@@ -162,3 +162,13 @@
 - **structural:** grep `--update` ส่งทั้ง npx + node paths · `verifyInstalled(repoRoot)` wire success-detection ทั้ง 2 path (`status===0 && !shimMissing && verifyInstalled`) · main-guard มีจริง
 - **regression:** `npm test` ทั้ง suite เขียว (`check-test-count`: `pass===tests`, `pass≥9` — เพิ่มเคสใหม่ไม่ลด count); `lint:md` (CHANGELOG)
 - **executable integration = defer:** รัน `npm run setup:dogfood` จริง → root CORE = release version (spawn npx/npm + network) — manual proof ตอน release ถัดไป; unit + structural ครอบ logic แล้ว
+
+## verify action-utility command (outward side-effect) (L: topic `feedback-issue-command`)
+> command ที่มี **side-effect ออกนอกเครื่อง** (เปิด GitHub issue ฯลฯ) — payload `.md` + nested adapter — verify เชิงโครงสร้าง + install proof + observable behavior **โดยไม่ trigger side-effect จริง** (ไม่ยิง issue ขึ้น public; เลี่ยง irreversible)
+- **install proof:** `npm run setup:sandbox` → target มี nested command (`.claude/commands/warnyin/<group>/<action>.md`) + playbook (`.warnyin/workflow/<x>.md`) + registry (slash-command list ใน CLAUDE.md จาก **installer template** + README capability); root dogfood ไม่โดนแตะ
+- **frontmatter + pointer:** adapter มี `description`+`argument-hint` + ใช้ `$ARGUMENTS` + ชี้ playbook กลาง (บางไม่ duplicate) + confirm-gate note ใน body
+- **observable behavior (playbook flow — grep keyword):** flow ครอบครบ — branch ของ flow (เช่น 3 ประเภท + title prefix), detect ladder (gh exist→`gh auth status`→fallback URL), confirm gate, privacy (no-session-pull), best-effort label retry — pattern observable-proxy เดียวกับ Discovery modes
+- **command-only intent:** `ls src/.claude/skills/ | grep <name>` = ว่าง (action-utility = command user-only ไม่ auto-invoke — เหมือน "เจตนา command-only" ของ stage command)
+- **consistency:** contract (command id/path/description/prefix) ตรง adapter ↔ registry (CLAUDE template/README/CHANGELOG) คำต่อคำ
+- **regression additive:** command/utility เดิมใน list ครบ (ไม่ถูกลบ)
+- **no real side-effect proof:** ตรวจ gh command/fallback URL ประกอบถูกเชิงโครงสร้าง (urlencode) — ไม่รันยิงจริง (confirm gate กันตอนใช้จริง)
