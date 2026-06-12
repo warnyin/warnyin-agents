@@ -9,6 +9,11 @@ import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+// อ่าน version ของ repo สดจาก package.json (ไม่ hardcode)
+const pkgVersion = JSON.parse(
+  readFileSync(fileURLToPath(new URL('../../package.json', import.meta.url)), 'utf8'),
+).version
+
 // ★ B1: ใช้ fileURLToPath ตรง ๆ — ห้าม `.pathname` (บน Windows คืน `/D:/...` → spawn MODULE_NOT_FOUND)
 const cliPath = fileURLToPath(new URL('../bin/cli.mjs', import.meta.url))
 
@@ -348,4 +353,57 @@ test('17. homedir guard — root → error exit 1', (t) => {
   const r = runCli(cwd, ['--global'], globalEnv(root))
   assert.notEqual(r.code, 0, 'homedir=root ต้อง exit != 0')
   assert.ok(/home directory/.test(r.stderr), `stderr ต้องระบุหา home ไม่ได้\nSTDERR:\n${r.stderr}`)
+})
+
+// ───────────────────────────────────────────────────────────────────────────
+// เคสใหม่ — version stamp (task installer-version-stamp)
+// ───────────────────────────────────────────────────────────────────────────
+
+// (a) project install → stamp ถูกต้อง
+test('(a) project install → .warnyin/.warnyin-version มี + ตรงเวอร์ชัน', (t) => {
+  const tmp = makeTempProject(t)
+  const r = runCli(tmp, ['--project'])
+  ok(r, 'project install')
+
+  const stampPath = path.join(tmp, '.warnyin', '.warnyin-version')
+  assert.ok(existsSync(stampPath), 'ต้องมีไฟล์ .warnyin/.warnyin-version')
+  const content = readFileSync(stampPath, 'utf8').trim()
+  assert.equal(content, pkgVersion, `เนื้อหา stamp ต้อง === package.json version (${pkgVersion})`)
+  assert.match(content, /^\d+\.\d+\.\d+/, 'stamp ต้อง match semver pattern (กัน false-green "undefined")')
+})
+
+// (b) --dry-run → ไม่เขียน stamp
+test('(b) --dry-run → ไม่เขียน .warnyin/.warnyin-version จริง', (t) => {
+  const tmp = makeTempProject(t)
+  const r = runCli(tmp, ['--project', '--dry-run'])
+  ok(r, 'dry-run')
+
+  const stampPath = path.join(tmp, '.warnyin', '.warnyin-version')
+  assert.ok(!existsSync(stampPath), 'dry-run ต้องไม่เขียน stamp จริง (existsSync false)')
+})
+
+// (c) --update ซ้ำ → byte-equal (idempotent by overwrite)
+test('(c) --update ซ้ำ → stamp byte-equal (idempotent by overwrite)', (t) => {
+  const tmp = makeTempProject(t)
+  ok(runCli(tmp, ['--project', '--update']), '--update รอบ 1')
+  const stampPath = path.join(tmp, '.warnyin', '.warnyin-version')
+  const content1 = readFileSync(stampPath)
+
+  ok(runCli(tmp, ['--project', '--update']), '--update รอบ 2')
+  const content2 = readFileSync(stampPath)
+
+  assert.ok(content1.equals(content2), 'stamp ต้อง byte-equal หลัง --update ซ้ำ (idempotent by overwrite)')
+})
+
+// (d) global mode → stamp ลง home
+test('(d) --global → home/.warnyin/.warnyin-version ตรงเวอร์ชัน', (t) => {
+  const cwd = makeTempProject(t)
+  const home = makeTempHome(t)
+  const r = runCli(cwd, ['--global'], globalEnv(home))
+  ok(r, 'global install')
+
+  const stampPath = path.join(home, '.warnyin', '.warnyin-version')
+  assert.ok(existsSync(stampPath), 'global ต้องมี home/.warnyin/.warnyin-version')
+  const content = readFileSync(stampPath, 'utf8').trim()
+  assert.equal(content, pkgVersion, `global stamp ต้อง === package.json version (${pkgVersion})`)
 })

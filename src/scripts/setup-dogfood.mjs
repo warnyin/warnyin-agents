@@ -3,11 +3,14 @@
  * setup:dogfood — คืน dogfood env ที่ root จาก release เสถียร
  *
  * ทำอะไร:
- *   1. ติดตั้ง release `@warnyin/agents@latest` ลง repo root (gitignored: .warnyin/ .claude/ CLAUDE.md AGENTS.md)
- *   2. append pointer "อ่าน CONTRIBUTING.md" ต่อท้าย root CLAUDE.md แบบ idempotent
+ *   1. query latest version จาก registry (npm view) → pin exact version
+ *   2. ติดตั้ง release `@warnyin/agents@<EXPECTED>` ลง repo root (gitignored: .warnyin/ .claude/ CLAUDE.md AGENTS.md)
+ *   3. verifyInstalled(root, expected) เทียบ stamp กับ expected (transition-safe)
+ *   4. append pointer "อ่าน CONTRIBUTING.md" ต่อท้าย root CLAUDE.md แบบ idempotent
  *
  * วิธีติดตั้ง:
- *   - ลอง `npx --yes @warnyin/agents@latest --update` ก่อน (เร็ว, ทางหลัก)
+ *   - ลอง `npx --yes @warnyin/agents@<EXPECTED> --update` ก่อน (เร็ว, ทางหลัก)
+ *     (env: npm_config_prefer_online=true กัน stale npx cache — เสริม pin-exact)
  *   - ★ บาง dev env (Windows) bin-shim ของ npx ไม่ถูก resolve → ENOENT/`is not recognized`
  *     → fallback: `npm pack` → extract tarball → `node <pkg>/bin/cli.mjs --update` (cwd = repoRoot)
  *     (ดู docs/troubleshooting — npx-Windows bin-shim)
@@ -25,34 +28,109 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..')
-const PKG = '@warnyin/agents@latest'
+const PKG_NAME = '@warnyin/agents'
 const isWin = process.platform === 'win32'
 
 /**
- * ตรวจว่า root มี CORE markers ครบ (install สำเร็จต้องมีแน่)
- * คืน true เมื่อ root มีทั้ง:
- *   - .warnyin/workflow/stages/discovery.md
- *   - .claude/commands/warnyin (dir)
+ * parse stdout จาก `npm view <pkg> version` → semver string หรือ null
+ * แยกเป็น pure fn เพื่อ testability — unit ไม่ต้อง spawn จริง
+ * กรณี npm บาง config print warning/notice ปนใน stdout → ดึงบรรทัดสุดท้ายที่เป็น semver
+ * @param {string} stdout
+ * @returns {string|null}
+ */
+export function parseNpmViewVersion(stdout) {
+  const last = (stdout || '').trim().split(/\r?\n/).pop()?.trim()
+  return last && /^\d+\.\d+\.\d+/.test(last) ? last : null
+}
+
+/**
+ * query registry หา latest version — คืน semver string หรือ null (degrade)
+ * timeout 15s กัน registry ค้าง hang
+ * @returns {string|null}
+ */
+function resolveExpectedVersion() {
+  const npm = isWin ? 'npm.cmd' : 'npm'
+  const r = spawnSync(npm, ['view', PKG_NAME, 'version'], {
+    timeout: 15000,
+    encoding: 'utf8',
+  })
+  const ver = parseNpmViewVersion(r.status === 0 ? r.stdout : '')
+  if (!ver) {
+    console.warn(`⚠ npm view ล้มเหลว → ข้าม version check รอบนี้ (degrade: ใช้ @latest)`)
+  }
+  return ver
+}
+
+/**
+ * อ่าน version stamp จาก root/.warnyin/.warnyin-version
+ * คืน semver string (หลัง trim) หรือ null เมื่อไฟล์ไม่มี/อ่านไม่ได้/empty
+ * @param {string} root
+ * @returns {string|null}
+ */
+export function readStamp(root) {
+  try {
+    const s = fs.readFileSync(path.join(root, '.warnyin', '.warnyin-version'), 'utf8').trim()
+    return s || null // empty/whitespace → null (ตกแถว transition)
+  } catch {
+    return null
+  }
+}
+
+/**
+ * ตรวจว่า root มี CORE markers ครบ + (optional) เทียบ version stamp กับ expected
+ * truth table (design.md §4B):
+ *   - CORE markers ไม่ครบ → false
+ *   - markers ครบ · expected falsy (undefined/null/'') → true (degrade + warn)
+ *   - markers ครบ · expected set · stamp ขาด → true (transition + warn)
+ *   - markers ครบ · expected set · stamp = expected (หลัง trim สองฝั่ง) → true
+ *   - markers ครบ · expected set · stamp ≠ expected → false (warn: drift)
  * @param {string} root — path ไปยัง repo root (รับ param กัน hardcode — ให้ unit test ส่ง temp dir ได้)
+ * @param {string|null|undefined} [expected] — version ที่คาดว่าติดตั้ง (optional, ไม่ส่ง = marker-only เหมือนเดิม)
  * @returns {boolean}
  */
-export function verifyInstalled(root) {
-  return (
+export function verifyInstalled(root, expected) {
+  // ตรวจ CORE markers ก่อน (เดิม)
+  const markersOk =
     fs.existsSync(path.join(root, '.warnyin', 'workflow', 'stages', 'discovery.md')) &&
     fs.existsSync(path.join(root, '.claude', 'commands', 'warnyin'))
-  )
+  if (!markersOk) return false
+
+  // markers ครบ: เช็ค expected
+  if (!expected) {
+    // falsy (undefined/null/'') = degrade → marker-only (backward compat)
+    console.warn('⚠ ข้าม version check (npm view ไม่ได้ผล) — verify แบบ marker-only')
+    return true
+  }
+
+  const stamp = readStamp(root)
+  if (stamp === null) {
+    // stamp ขาด = transition (payload ก่อน feature stamp writer)
+    console.warn('⚠ payload ไม่มี version stamp (เวอร์ชันก่อน feature) — ข้าม version check')
+    return true
+  }
+
+  // เทียบ exact-equality หลัง trim สองฝั่ง (normalize CRLF/whitespace)
+  if (stamp.trim() !== expected.trim()) {
+    console.warn(`⚠ version drift: ติดตั้ง ${stamp} แต่คาด ${expected} (stale cache?) → fallback`)
+    return false
+  }
+
+  return true
 }
 
 /** ติดตั้ง dogfood ลง root ด้วย npx — คืน true ถ้าสำเร็จ (exit 0 + ไม่มีสัญญาณ shim-not-found + verifyInstalled) */
-function installViaNpx() {
-  console.log(`+ ติดตั้ง dogfood จาก release: npx --yes ${PKG} --update`)
+function installViaNpx(expected) {
+  // pin exact version (ตัวหลัก defeat cache); prefer-online = เสริม revalidate metadata
+  const spec = expected ? `${PKG_NAME}@${expected}` : `${PKG_NAME}@latest`
+  console.log(`+ ติดตั้ง dogfood จาก release: npx --yes ${spec} --update`)
   // npx บน Windows เป็น .cmd → spawn array args จะ ENOENT ถ้าไม่ shell
   // shell:true เฉพาะ win32 = "หนีไม่พ้น shell" สำหรับ npx เท่านั้น (ไม่มี user input → ปลอดภัย)
-  const r = spawnSync('npx', ['--yes', PKG, '--update'], {
+  const r = spawnSync('npx', ['--yes', spec, '--update'], {
     cwd: repoRoot,
     stdio: ['inherit', 'inherit', 'pipe'],
     shell: isWin,
     encoding: 'utf8',
+    env: { ...process.env, npm_config_prefer_online: 'true' },
   })
   const stderr = r.stderr || ''
   if (stderr) process.stderr.write(stderr)
@@ -60,7 +138,7 @@ function installViaNpx() {
     r.error?.code === 'ENOENT' ||
     /is not recognized as an internal or external command/i.test(stderr) ||
     /command not found/i.test(stderr)
-  if (r.status === 0 && !shimMissing && verifyInstalled(repoRoot)) return true
+  if (r.status === 0 && !shimMissing && verifyInstalled(repoRoot, expected)) return true
   if (shimMissing) {
     console.warn('⚠ npx resolve bin-shim ของ @warnyin/agents ไม่สำเร็จ — ลอง fallback (npm pack + node)')
   }
@@ -68,18 +146,19 @@ function installViaNpx() {
 }
 
 /** fallback: npm pack tarball → extract → node <pkg>/bin/cli.mjs --update (cwd = repoRoot) — คืน true ถ้าสำเร็จ */
-function installViaPack() {
+function installViaPack(expected) {
+  const spec = expected ? `${PKG_NAME}@${expected}` : `${PKG_NAME}@latest`
   const work = fs.mkdtempSync(path.join(os.tmpdir(), 'wy-dogfood-'))
   try {
-    console.log(`+ fallback: npm pack ${PKG} → ${work}`)
+    console.log(`+ fallback: npm pack ${spec} → ${work}`)
     const npm = isWin ? 'npm.cmd' : 'npm'
-    const packed = spawnSync(npm, ['pack', PKG, '--pack-destination', work], {
+    const packed = spawnSync(npm, ['pack', spec, '--pack-destination', work], {
       cwd: work,
       stdio: ['inherit', 'pipe', 'inherit'],
       encoding: 'utf8',
     })
     if (packed.status !== 0) {
-      console.error(`✖ npm pack ${PKG} ล้มเหลว (exit ${packed.status ?? '?'})`)
+      console.error(`✖ npm pack ${spec} ล้มเหลว (exit ${packed.status ?? '?'})`)
       return false
     }
     // npm pack print ชื่อ tarball บรรทัดสุดท้ายของ stdout
@@ -123,7 +202,7 @@ function installViaPack() {
     }
     console.log(`+ ติดตั้ง dogfood: node ${cli} --update (cwd = repoRoot)`)
     const run = spawnSync(process.execPath, [cli, '--update'], { cwd: repoRoot, stdio: 'inherit' })
-    return run.status === 0 && verifyInstalled(repoRoot)
+    return run.status === 0 && verifyInstalled(repoRoot, expected)
   } finally {
     try {
       fs.rmSync(work, { recursive: true, force: true })
@@ -156,7 +235,10 @@ function appendContributingPointer() {
 function main() {
   console.log(`Warnyin dogfood setup → ${repoRoot}\n`)
 
-  const ok = installViaNpx() || installViaPack()
+  // query registry → pin exact version (กัน stale cache); null = degrade (ใช้ @latest)
+  const EXPECTED = resolveExpectedVersion()
+
+  const ok = installViaNpx(EXPECTED) || installViaPack(EXPECTED)
   if (!ok) {
     console.error(
       '\n✖ ติดตั้ง dogfood ไม่สำเร็จ (ทั้ง npx และ fallback npm pack) — dogfood env ที่ root ยังไม่ครบ\n' +

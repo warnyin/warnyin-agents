@@ -198,6 +198,27 @@ function installRootDoc(name, srcPath) {
   console.log(`  ± ${name} (ต่อท้าย section Warnyin Standard Workflow)`)
 }
 
+/** อ่าน version ของ package ที่กำลังติดตั้ง — ผลลัพธ์: version string (เช่น "0.16.0") */
+function readPkgVersion() {
+  return JSON.parse(fs.readFileSync(path.join(pkgRoot, '..', 'package.json'), 'utf8')).version
+}
+
+/** เขียน version stamp ลง <target>/.warnyin/.warnyin-version — unconditional overwrite (ไม่ skip-if-equal)
+ *  เคารพ DRY (ไม่เขียนจริงตอน dry-run แต่ log + นับ stats)
+ */
+function writeVersionStamp() {
+  const ver = readPkgVersion()
+  const rel = path.join('.warnyin', '.warnyin-version')
+  const dest = path.join(target, rel)
+  const exists = fs.existsSync(dest)
+  if (!DRY) {
+    fs.mkdirSync(path.dirname(dest), { recursive: true })
+    fs.writeFileSync(dest, ver + '\n') // ★ unconditional — ไม่ byte-equal skip แบบ copyTree
+  }
+  stats[exists ? 'updated' : 'created']++
+  console.log(`  ${exists ? '↻' : '+'} ${rel}`)
+}
+
 const GLOBAL_NOTE_MARKER = '<!-- warnyin:global-note -->'
 
 /**
@@ -272,12 +293,14 @@ async function main() {
     console.log(`  จะเขียนนอกโปรเจกต์ที่: ${path.join(target, '.warnyin')}, ${path.join(target, '.claude', 'commands', 'warnyin')}, ${path.join(target, '.claude', 'CLAUDE.md')}\n`)
     // first-install overwrite:false (skip ของเดิมใน ~/.claude/{agents,skills}) — ทับเฉพาะ --global --update
     for (const dir of CORE) copyTree(dir, { overwrite: UPDATE })
+    writeVersionStamp()
     // ข้าม scaffold/seedDocs (ยกให้ /warnyin:init) + ข้าม AGENTS.md global (DQ3 limitation)
     installGlobalNote()
   } else {
     target = cwd
     console.log(`Warnyin Standard Workflow → ${target}${DRY ? '  (dry-run)' : ''}\n`)
     for (const dir of CORE) copyTree(dir, { overwrite: UPDATE })
+    writeVersionStamp()
     ensureScaffold()
     seedDocs()
     installRootDoc('CLAUDE.md', path.join(pkgRoot, '.warnyin', 'installer', 'templates', 'CLAUDE.md'))

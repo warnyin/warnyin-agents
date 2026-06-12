@@ -78,3 +78,13 @@ test('R1 assertion: ขาด src/.claude/skills/ → คืน error', () => {
   const errors = checkFiles(noSkills)
   assert.ok(errors.some((e) => e.includes('src/.claude/skills/')), `hasSkills assertion ต้องทำงาน: ${errors.join(' | ')}`)
 })
+
+// stamp deny: .warnyin/.warnyin-version (root-level) ต้องถูกจับ — พิสูจน์ gate จับได้ถ้า stamp หลุดขึ้น tarball
+test('stamp deny: .warnyin/.warnyin-version (root) หลุดขึ้น tarball → gate จับได้', () => {
+  const errors = checkFiles([...GOOD, '.warnyin/.warnyin-version'])
+  assert.ok(errors.length > 0, 'gate ต้องจับ .warnyin/.warnyin-version ที่ root')
+  assert.ok(
+    errors.some((e) => e.includes('.warnyin/.warnyin-version')),
+    `error ต้องอ้าง .warnyin/.warnyin-version: ${errors.join(' | ')}`,
+  )
+})

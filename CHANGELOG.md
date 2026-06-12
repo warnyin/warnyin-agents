@@ -23,6 +23,12 @@
 
 ## [Unreleased]
 
+### Added
+- **installer version stamp** — installer เขียน `.warnyin/.warnyin-version` (= เวอร์ชันของ package ที่ติดตั้ง) ลง target ทุกครั้งที่ install/`--update` ทั้ง mode project + global → payload มี version identity ตรวจ drift ได้. ไฟล์ stamp: plain text บรรทัดเดียว = exact semver + trailing `\n` (เช่น `0.16.0\n`). เคารพ `--dry-run` (log แต่ไม่เขียนจริง).
+
+### Fixed
+- **`setup:dogfood` จับ version drift ได้ (false-green รอบ 2 / issue #3)** — แก้ root cause ที่ `verifyInstalled` ตรวจแค่ marker-existence (false-green เมื่อ npx cache ส่ง payload เก่า): (1) `resolveExpectedVersion()` query `npm view @warnyin/agents version` → pin exact version + `--prefer-online` (กัน stale npx cache); (2) `verifyInstalled(root, expected)` เทียบ `.warnyin/.warnyin-version` stamp กับ expected ตาม truth table (transition-safe: stamp ขาด → true, stamp ≠ expected → false, expected falsy → degrade); (3) normalize CRLF สองฝั่ง (กัน Windows false-drift). wire ทั้ง `installViaNpx` และ `installViaPack` ส่ง `expected` เข้า `verifyInstalled` (กัน drift ตายเงียบบน pack-path/Windows).
+
 ## [0.16.0] - 2026-06-12
 
 ### Added
