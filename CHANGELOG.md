@@ -23,6 +23,8 @@
 
 ## [Unreleased]
 
+## [0.16.0] - 2026-06-12
+
 ### Added
 - **Command `/warnyin:feedback:issue`** — เปิด GitHub issue ที่ `warnyin/warnyin-agents` เพื่อแจ้งปรับปรุง/ปัญหา/feature ใหม่ (gh + fallback URL)
 
