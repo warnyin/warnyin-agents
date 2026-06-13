@@ -1,4 +1,4 @@
-<!-- Generated: 2026-06-12 (rescan หลัง setup-dogfood-version-check: version stamp + drift-aware verify; ต่อจาก fix-setup-dogfood) | Files scanned: ~88 src | Token estimate: ~660 -->
+<!-- Generated: 2026-06-13 (rescan หลัง fix-setup-dogfood-stale-payload: cli.mjs isEntrypoint realpath main-guard + setup-dogfood semverGte/checkTarballVersion; ต่อจาก setup-dogfood-version-check) | Files scanned: ~88 src | Token estimate: ~670 -->
 # Codemap — Warnyin Standard Workflow
 
 > repo = **tool/library** (npm `@warnyin/agents`) ไม่ใช่ app — ส่งมอบ "ways of work" 5 stage ลงโปรเจกต์อื่น
@@ -22,7 +22,7 @@ single library (zero-dependency, ESM, Node ≥20) เผยแพร่ผ่า
 | **adapters** | `src/.claude/` (`commands/warnyin` user-invoked · `skills` auto-invocable utility · `agents`) + `src/AGENTS.md` | thin adapter ชี้กลับ playbook กลาง (Claude Code / Codex) | `architecture.md` · `docs/features/utility-skills/` |
 
 ## Entry points
-- `src/bin/cli.mjs` — installer (npx; bin → ที่นี่)
+- `src/bin/cli.mjs` — installer (npx; bin → ที่นี่); main-guard ใช้ `isEntrypoint` realpath argv[1] (ทน symlink npx/.bin/dogfood-tmpdir); export `resolveMode` + `isEntrypoint`
 - `src/.warnyin/workflow/scripts/build-wave.mjs` — Workflow fan-out ของ BUILD stage (รับ `baseRef` → agent sync build branch เข้า worktree ก่อนทำงาน; `tasks: string[] | {name, model?}[]` — `normalizeTasks`/`buildOpts` ส่ง `model` per task เข้า `agent()` แบบ pass-through generic)
 - `src/.warnyin/workflow/scripts/validate-topic.mjs` — structural validator + status (zero-dep; เรียกจาก next/DESIGN gate/SHIP — ดู `docs/features/topic-validator/`)
 - `src/.warnyin/workflow/stages/*.md` — playbook ต้นทางของแต่ละ stage (single source of truth)
@@ -40,7 +40,7 @@ single library (zero-dependency, ESM, Node ≥20) เผยแพร่ผ่า
 
 ## Dev tooling (`src/scripts/` — ไม่ publish)
 - `verify-pack.mjs` (pack-verify gate, export `checkFiles`) · `check-test-count.mjs` (pass-count gate) · `lint-md.mjs` (dead-link gate, export `checkLinks`)
-- `setup-dogfood.mjs` (install release → root; `--update` + **version-aware** `verifyInstalled(root,expected)` เทียบ stamp ไม่ใช่แค่ marker; pin-exact+prefer-online กัน stale; resolveExpectedVersion/parseNpmViewVersion/readStamp export) · `setup-sandbox.mjs` (install v-next จาก src/ → temp)
+- `setup-dogfood.mjs` (install release → root; `--update` + **version-aware** `verifyInstalled(root,expected)` เทียบ stamp ไม่ใช่แค่ marker, **active เมื่อ expected≥0.17.0**; pin-exact+prefer-online สมมาตร npx/pack + `checkTarballVersion` ที่ source; npx explicit bin; export resolveExpectedVersion/parseNpmViewVersion/readStamp/semverGte/checkTarballVersion) · `setup-sandbox.mjs` (install v-next จาก src/ → temp)
 
 ## ไฟล์ codemap
 - `architecture.md` — โครงระดับสูง + 2-layer + flow installer + การไหลของ 5 stage

@@ -5,15 +5,15 @@
 
 ## ไฟล์ (SOURCE layer — `src/`)
 ```
-src/bin/cli.mjs                   installer หลัก (zero-dep, ~190 บรรทัด); npm bin → ที่นี่
-src/tests/installer.test.mjs      black-box integration test ของ installer (21 เคส; รวม global + version stamp a–d)
+src/bin/cli.mjs                   installer หลัก (zero-dep); npm bin → ที่นี่ (export resolveMode + isEntrypoint)
+src/tests/installer.test.mjs      black-box integration test ของ installer (27 เคส; รวม global + version stamp a–d + isEntrypoint truth table + black-box symlink)
 src/tests/verify-pack.test.mjs    unit test ของ checkFiles (11 เคส, BL-4 testable denylist; รวม stamp-deny)
 src/scripts/verify-pack.mjs       pack-verify gate (allowlist + denylist; export checkFiles)
 src/scripts/check-test-count.mjs  pass-count gate (anti-false-green; MIN_PASS=9)
 src/scripts/lint-md.mjs           dead-link gate (zero-dep; export checkLinks; strip-code alternation)
 src/tests/lint-md.test.mjs        unit test ของ checkLinks (7 เคส, BL-4 testable)
-src/tests/setup-dogfood.test.mjs  unit test ของ verifyInstalled/parse/readStamp (14 เคส, BL-4; truth table + drift-guard + wire-proof)
-src/scripts/setup-dogfood.mjs     dev: ติดตั้ง release ลง root (--update + version-aware verifyInstalled; pin-exact + prefer-online; export + main-guard)
+src/tests/setup-dogfood.test.mjs  unit test ของ verifyInstalled/semverGte/checkTarballVersion/parse/readStamp (32 เคส, BL-4; truth table active≥0.17.0 + drift-guard + wire-proof)
+src/scripts/setup-dogfood.mjs     dev: ติดตั้ง release ลง root (--update + version-aware verifyInstalled; pin-exact + prefer-online สมมาตร npx/pack; checkTarballVersion ที่ source; npx explicit bin; export + main-guard)
 src/scripts/setup-sandbox.mjs     dev: ติดตั้ง v-next จาก src/ ลง temp (sandbox)
 src/.warnyin/{workflow,template}  playbook กลาง (stages/ roles/ contexts/ scripts/) + template (payload)
 src/.warnyin/installer/templates/CLAUDE.md   template CLAUDE.md ของ target (per-project root doc + resolution note)
@@ -46,13 +46,17 @@ writeVersionStamp()   → target/.warnyin/.warnyin-version (= pkg version, uncon
 [project] ensureScaffold() + seedDocs() + installRootDoc(CLAUDE.md) + installRootDoc(AGENTS.md)
 [global]  skip scaffold/seed (ยกให้ /warnyin:init) + installGlobalNote() → ~/.claude/CLAUDE.md + ข้าม AGENTS.md global
 print สรุป created/updated/skipped
+─────
+main-guard: if (isEntrypoint(process.argv[1], import.meta.url)) await main()   // realpath argv[1] กัน symlink พังเงียบ
 ```
 > guard `pkgRoot===target` = **defensive no-op โดยตั้งใจ** — pkgRoot=`src/` ไม่มีทาง===homedir/cwd/temp; zero-cost
 > main flow ห่อ **async เฉพาะ path TTY** (readline prompt); non-TTY/flag-explicit ไม่แตะ readline (ไม่ค้าง)
+> **main-guard ใช้ `isEntrypoint` realpath ทั้งสองฝั่ง** — npx รัน bin ผ่าน `.bin` symlink + dogfood extract ลง symlinked tmpdir → `path.resolve(argv[1])` เดิม mismatch realpath → main() เงียบ (ดู rule §cli.mjs + troubleshooting #13)
 
 ## helper signatures
 ```
 resolveMode({globalFlag,projectFlag,isTTY,answer}) → 'project'|'global'   // pure-fn (export, main-guard กัน trigger); unit-testable ไม่ต้อง spawn TTY
+isEntrypoint(argv1, metaUrl, realpath=fs.realpathSync) → boolean   // pure-fn (export); realpath(argv1)===fileURLToPath(metaUrl) + fallback path.resolve เมื่อ realpath throw — entrypoint detection ทน symlink (npx/.bin, dogfood tmpdir)
 copyTree(relDir, {overwrite})    recursive copy pkgRoot→target; skip ถ้ามีอยู่+!overwrite หรือ byte-equal
 ensureScaffold()                 generate SCAFFOLD_FILES เปล่า; skip ถ้ามี; เคารพ DRY  (project mode)
 seedDocs(relDir=TEMPLATE_DOCS)   copy template docs→docs/; ข้าม entry ขึ้นต้น '['; ไม่ทับ  (project mode)
@@ -65,8 +69,10 @@ writeVersionStamp()              เขียน target/.warnyin/.warnyin-versio
 ## helper dev tooling (`src/scripts/` — ไม่ publish)
 ```
 checkFiles(files[]) → error[]    pure function (verify-pack.mjs); export ให้ unit test เรียกได้ (ไม่ trigger npm pack)
-setup-dogfood.mjs                resolveExpectedVersion() → installViaNpx(EXPECTED) || installViaPack(EXPECTED) (ทั้งคู่ส่ง `--update` + pin-exact spec + `verifyInstalled(repoRoot, expected)`) → appendContributingPointer(); export verifyInstalled/readStamp/parseNpmViewVersion + main-guard
-verifyInstalled(root, expected?) → boolean  CORE markers + (optional) เทียบ stamp กับ expected ตาม truth table transition-safe (falsy expected→degrade marker-only · stamp ขาด→transition true · stamp≠expected→false drift · normalize trim สองฝั่ง); export ให้ unit test
+setup-dogfood.mjs                resolveExpectedVersion() → installViaNpx(EXPECTED) || installViaPack(EXPECTED) (ทั้งคู่ส่ง `--update` + pin-exact spec + prefer-online สมมาตร + `verifyInstalled(repoRoot, expected)`; npx explicit bin `warnyin-agents`; pack เรียก `checkTarballVersion` ก่อน --update) → appendContributingPointer(); export verifyInstalled/readStamp/parseNpmViewVersion/semverGte/checkTarballVersion + main-guard
+verifyInstalled(root, expected?) → boolean  CORE markers + (optional) เทียบ stamp กับ expected ตาม truth table transition-safe (falsy expected→degrade marker-only · stamp ขาด + expected≥0.17.0→**false** active · stamp ขาด + <0.17.0/non-semver→true transition · stamp≠expected→false drift · normalize trim สองฝั่ง); export ให้ unit test
+semverGte(a,b) → boolean         pure; numeric tuple compare (split '.' → parseInt||0 NaN-safe); export
+checkTarballVersion(extractDir, expected) → boolean   pure; อ่าน package.json ของ tarball เทียบ version กับ expected exact-equality (trim สองฝั่ง); expected falsy/อ่านไม่ได้→true degrade; export (testable temp dir)
 readStamp(root) → string|null          อ่าน root/.warnyin/.warnyin-version (trim; empty/ไม่มี→null); export
 parseNpmViewVersion(stdout) → string|null  pure: ดึงบรรทัด semver จริงจาก stdout (ทน notice/warning ปน); export ให้ unit ไม่ต้อง spawn
 resolveExpectedVersion() → string|null  spawn `npm view @warnyin/agents version` (timeout 15s) → parseNpmViewVersion; fail→null+warn loud (degrade)

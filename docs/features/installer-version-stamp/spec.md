@@ -47,10 +47,15 @@ installer วาง version stamp ที่ `.warnyin/.warnyin-version` (= เ�
 - WHEN `verifyInstalled(root, '<new>')` (เช่น `9.9.9`)
 - THEN คืน false + warn ระบุ `version drift: ติดตั้ง <old> แต่คาด <new>` → trigger fallback/exit ≠ 0
 
-### Scenario: stamp ขาด → transition (ไม่ false-fail)
-- GIVEN root มี CORE markers แต่ไม่มีไฟล์ stamp (payload รุ่นก่อน stamp writer)
-- WHEN `verifyInstalled(root, '<expected>')`
-- THEN คืน true + warn `payload ไม่มี version stamp — ข้าม version check` (transition-safe)
+### Scenario: stamp ขาด + expected ≥ first-stamp-version (0.17.0) → ไม่ผ่าน (active)
+- GIVEN root มี CORE markers แต่ไม่มีไฟล์ stamp · `expected` ≥ `0.17.0` (release ที่มี stamp writer)
+- WHEN `verifyInstalled(root, '<expected≥0.17.0>')`
+- THEN คืน **false** + warn ระบุ payload ไม่มี stamp ทั้งที่ควรมี (install ผิด/payload เก่า) → trigger fallback/exit ≠ 0
+
+### Scenario: stamp ขาด + expected < first-stamp-version (0.17.0) → ผ่าน (transition คงไว้)
+- GIVEN root มี CORE markers แต่ไม่มีไฟล์ stamp · `expected` < `0.17.0` (รุ่นก่อน stamp writer) หรือ expected ไม่ใช่ semver
+- WHEN `verifyInstalled(root, '<expected<0.17.0>')`
+- THEN คืน true + warn transition-safe (bootstrapping window สำหรับ pre-0.17.0 — degrade-safe ไม่ block)
 
 ### Scenario: query latest ล้มเหลว → degrade marker-only
 - GIVEN `npm view` คืน fail/empty/timeout (expected falsy)
@@ -66,3 +71,31 @@ installer วาง version stamp ที่ `.warnyin/.warnyin-version` (= เ�
 - GIVEN `installViaNpx` และ `installViaPack`
 - WHEN เรียก `verifyInstalled`
 - THEN ทั้งสอง path ส่ง `expected` เข้า `verifyInstalled(repoRoot, expected)` (drift-guard ไม่ตายเงียบบน pack-path/Windows)
+
+## Requirement: setup:dogfood ดึง payload ใหม่ทน stale-cache + npx bin resolution
+
+`setup:dogfood` ติดตั้ง release ลง root ด้วย 2 path — `installViaNpx` (ทางหลัก) → fallback `installViaPack` (npm pack → extract → cli.mjs `--update`) — ทั้งสอง path ต้องทน stale npm cache และ verify version identity ที่ source
+
+### Scenario: npx path ใช้ explicit bin name (กัน scope-strip mismatch)
+- GIVEN `installViaNpx` ติดตั้งผ่าน npx
+- WHEN spawn npx
+- THEN ใช้ `npx --yes -p <pkg>@<v> warnyin-agents --update` (ระบุ `-p` + bin `warnyin-agents` — เพราะ bin name ≠ scope-stripped `agents`)
+
+### Scenario: fallback pack ดึง payload ใหม่ + verify version ที่ source
+- GIVEN `installViaPack` ทำงาน
+- WHEN `npm pack`
+- THEN ตั้ง `npm_config_prefer_online` (symmetric กับ npx path) + เทียบ `package.json` version ของ tarball ที่ extract กับ expected แบบ exact-equality ก่อนรัน `--update`; ไม่ตรง → ไม่รายงานสำเร็จ (return false)
+
+## Requirement: installer entrypoint resolve ถูกแม้ถูกเรียกผ่าน symlink
+
+`cli.mjs` ตรวจว่าถูก execute ตรง (entrypoint) ด้วยการเทียบ `process.argv[1]` กับ path ของ module — ต้อง **realpath ทั้งสองฝั่ง** เพราะ ESM `import.meta.url` เป็น realpath เสมอ แต่ `argv[1]` เป็น path ตามที่ผู้เรียกระบุ (ไม่ resolve symlink)
+
+### Scenario: cli ถูกเรียกผ่าน symlink path → main() ทำงาน (ติดตั้ง + เขียน stamp)
+- GIVEN `cli.mjs` ถูก execute โดย `process.argv[1]` เป็น symlink path (npx รัน bin ผ่าน `node_modules/.bin/<name>` symlink; tarball extract ลง `os.tmpdir()` ที่เป็น symlink บน macOS) ซึ่ง realpath ชี้กลับมาที่ module เอง
+- WHEN รัน `node <symlink-to-cli.mjs> --update`
+- THEN main-guard เทียบด้วย realpath ทั้งสองฝั่ง → match → `main()` ถูกเรียก → ติดตั้ง CORE + เขียน `.warnyin/.warnyin-version` (ไม่เงียบ exit 0 ไม่ทำอะไร)
+
+### Scenario: cli ถูก import (ไม่ใช่ execute) → main() ไม่ทำงาน
+- GIVEN unit test `import { resolveMode, isEntrypoint } from cli.mjs` — `argv[1]` เป็น test runner ไม่ใช่ cli.mjs
+- WHEN module ถูก import
+- THEN `isEntrypoint` คืน false → ไม่ trigger `main()` (กัน side-effect ตอน import)

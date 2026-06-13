@@ -58,13 +58,15 @@ guard pkgRoot===target → error  (defensive no-op: pkgRoot=src/ ไม่มี
  → writeVersionStamp()   target/.warnyin/.warnyin-version = pkg version (unconditional; ทั้ง 2 mode; เคารพ DRY)   # version identity
  [project] → ensureScaffold() + seedDocs() + installRootDoc CLAUDE.md/AGENTS.md (append+marker)
  [global]  → skip scaffold/seed (ยกให้ /warnyin:init) + installGlobalNote()→~/.claude/CLAUDE.md (note-only+marker) + ข้าม AGENTS.md
+─────
+main-guard: isEntrypoint(argv[1], import.meta.url)  # realpath ทั้งสองฝั่ง — ทน symlink (npx .bin / dogfood tmpdir); path.resolve เดิม mismatch → main() เงียบ
 ```
 - **global mode (feature `global-install`):** ติดตั้ง adapter+playbook ลง `~/` ใช้ทุกโปรเจกต์ (opt-in); resolve playbook **local-first (`./.warnyin/`) → global (`~/.warnyin/`)** ผ่าน convention ใน CLAUDE.md/AGENTS.md/CLAUDE.global.md; per-project = default — ดู `docs/features/global-install/`
 รายละเอียด helper/ค่าคงที่: `docs/techstack/installer/structure.md`
 
 ## dev tooling (src/scripts/ — ไม่ publish)
 ```
-setup-dogfood.mjs   resolveExpectedVersion(npm view) → installViaNpx/Pack(EXPECTED, pin-exact+prefer-online) → verifyInstalled(root,expected) เทียบ stamp (drift→fail) → append pointer CONTRIBUTING.md
+setup-dogfood.mjs   resolveExpectedVersion(npm view) → installViaNpx(explicit bin)/Pack(EXPECTED, pin-exact+prefer-online สมมาตร; pack: checkTarballVersion ที่ source) → verifyInstalled(root,expected) เทียบ stamp (drift/stamp-ขาด≥0.17.0→fail-loud) → append pointer CONTRIBUTING.md
 setup-sandbox.mjs   mkdtempSync(os.tmpdir(),'wy-sandbox-') → node src/bin/cli.mjs ลง temp (test version skew)
 verify-pack.mjs     npm pack --json → checkFiles(files)→error[] (allowlist+denylist+tripwire; export ให้ unit)
 check-test-count.mjs  parse summary node --test → fail ถ้า fail!=0 / pass<9 / pass!=tests

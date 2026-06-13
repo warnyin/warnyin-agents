@@ -62,6 +62,7 @@ ok=false → exit 1 (loud, ไม่ false-success)
 ```
 
 ## 6. ผลกระทบต่อระบบเดิม
+- **★ `cli.mjs` main-guard (เพิ่มใน VERIFY):** DESIGN เดิมสมมติ "cli.mjs ทำงานถูก / ห้ามแตะ" — **VERIFY พิสูจน์ว่าผิด** (main-guard พังกับ symlink → npx end-user + dogfood install เงียบ). แก้เป็น `isEntrypoint()` (realpath ทั้งสองฝั่ง + fallback) — backward-compat: `resolveMode` export เดิมยังใช้ได้, import-guard เดิม (ไม่ trigger main ตอน import) ยังคง; เคส install เดิมใน `installer.test.mjs` (spawn ผ่าน real repo path) ยังผ่าน (realpath ของ real path = ตัวเอง)
 - `verifyInstalled` pure fn — **ยืนยันจาก test เดิม (panel SA S1/TL/QA S3): ไม่มี unit เดิมตัวใดต้อง flip** — เคส transition เดิม (`setup-dogfood.test.mjs` L87-96) ใช้ expected `'0.16.0'` (<0.17.0) → ยัง true; ไม่มีเคสเดิม expected≥0.17.0+stamp ขาด → การเปลี่ยนเป็น **ADD ล้วน** (เพิ่มเคส active ใหม่) ไม่ใช่ modify เคสเดิม
 - **regression baseline:** spec `installer-version-stamp` scenario "stamp ขาด → transition" = MODIFIED (ดู §9); scenario drift/degrade/CRLF คงเดิม
 - backward-compat: transition window (<0.17.0) ยังรองรับ — แต่ practically latest ≥0.18.0 เสมอ → active path ทำงาน
@@ -117,6 +118,19 @@ fix-dogfood-stale-detection (1 task — ไม่มี dependency)
   GIVEN `installViaPack` ทำงาน
   WHEN `npm pack`
   THEN ตั้ง `npm_config_prefer_online` (symmetric กับ npx path) + เทียบ `package.json` version ของ tarball ที่ extract กับ expected ก่อนรัน `--update`; ไม่ตรง → ไม่รายงานสำเร็จ
+
+#### Requirement: installer entrypoint resolve ถูกแม้ถูกเรียกผ่าน symlink (→ feature: installer-version-stamp)
+> ★ เพิ่มใน VERIFY (root cause ชั้น 0) — ก่อนแก้ installer เงียบ exit 0 ไม่ติดตั้งเมื่อรันผ่าน symlink
+
+- **Scenario: cli ถูกเรียกผ่าน symlink path → main() ทำงาน (ติดตั้ง + เขียน stamp)**
+  GIVEN `cli.mjs` ถูก execute โดยที่ `process.argv[1]` เป็น **symlink path** (npx รัน bin ผ่าน `node_modules/.bin/<name>` symlink; หรือ tarball extract ลง `os.tmpdir()` ที่เป็น symlink บน macOS) ซึ่ง realpath ชี้กลับมาที่ตัว module เอง
+  WHEN รัน `node <symlink-to-cli.mjs> --update`
+  THEN main-guard เทียบด้วย **realpath ทั้งสองฝั่ง** → match → `main()` ถูกเรียก → ติดตั้ง CORE + เขียน `.warnyin/.warnyin-version` (ไม่เงียบ exit 0 ไม่ทำอะไร)
+
+- **Scenario: cli ถูก import (ไม่ใช่ execute) → main() ไม่ทำงาน (คงเดิม)**
+  GIVEN unit test `import { resolveMode, isEntrypoint } from cli.mjs` — `argv[1]` เป็น test runner ไม่ใช่ cli.mjs
+  WHEN module ถูก import
+  THEN `isEntrypoint` คืน false → ไม่ trigger `main()` (กัน side-effect ตอน import — คง backward compat)
 
 ---
 

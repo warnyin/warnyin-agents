@@ -67,6 +67,12 @@
 - **วิธีแก้:** wave แรก (ย้าย source) ใช้ worktree → merge → **restore root dogfood จาก release** → wave หลัง **shared-tree** (อ่าน tooling จาก root dogfood, main loop commit ให้); acceptance ที่เป็น live external-exec → ออกแบบให้ deterministic/simulated ส่วนใหญ่ เหลือ live e2e ไป **VERIFY** (user authorize)
 - **ป้องกันซ้ำ:** self-hosting topic — แยก phase ที่กระทบ tooling ตัวเอง + เลื่อน live external-exec ไป VERIFY ตั้งแต่ออกแบบ acceptance
 
+### 13. ESM main-guard พังเมื่อรันผ่าน symlink (argv[1] ≠ realpath) — installer เงียบ exit 0
+- **อาการ:** `npx @warnyin/agents@<v> --update` (sandbox สะอาด) → exit 0, **0 bytes output, ไม่สร้างไฟล์เลย**; `setup:dogfood` ทั้ง npx + pack path เงียบ → `verifyInstalled` (ชั้น detection) คืน false → fail-loud. "root ค้าง 0.17.0" จริง ๆ คือ setup:dogfood **ไม่เคยติดตั้งสำเร็จเลย** ไม่ใช่แค่ดึง payload เก่า
+- **Root cause:** main-guard `if (path.resolve(process.argv[1]) === fileURLToPath(import.meta.url))` — `argv[1]` = path ตามผู้เรียก (symlink, ไม่ resolve), แต่ ESM `import.meta.url` = **realpath เสมอ** → เทียบไม่ตรง → `main()` ไม่ถูกเรียก. Trigger: npx รัน bin ผ่าน `node_modules/.bin/<name>` symlink; `setup:dogfood` extract tarball ลง `os.tmpdir()` ที่บน macOS เป็น symlink (`/var/folders/.../T` → `/private/var/...`). **black-box test เดิมไม่จับ** เพราะ spawn cli ผ่าน real repo path → match เสมอ (false-green)
+- **วิธีแก้:** แยก `export function isEntrypoint(argv1, metaUrl, realpath = fs.realpathSync)` → `realpath(argv1) === fileURLToPath(metaUrl)` (realpath ทั้งสองฝั่ง) + try/catch fallback `path.resolve` เมื่อ realpath throw; main-guard เรียก `isEntrypoint(process.argv[1], import.meta.url)`. แยก pure-fn (inject realpath) → unit cross-platform + black-box spawn ผ่าน symlink (CI ubuntu) ครอบ end-to-end
+- **ป้องกันซ้ำ:** **ESM main-guard ต้อง realpath `argv[1]`** ก่อนเทียบ `import.meta.url` (ไม่ใช่แค่ `path.resolve`) — npx/.bin รัน bin ผ่าน symlink เสมอ; **black-box test ต้องมีเคสรันผ่าน symlink** (spawn ผ่าน real path อย่างเดียว = false-green). ดู `docs/techstack/installer/{rule,test}.md`
+
 ## migration / upgrade (ผู้ใช้รุ่นเก่า)
 
 ### 10. เอกสาร migration `git mv warnyin/stages docs/stages` ทำงานจริงซ้อน `docs/stages/stages/`
