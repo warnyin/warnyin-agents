@@ -9,7 +9,7 @@
 | **Slice อ้างอิง** | `design.md` slice #1 (§2) |
 | **Component** | `installer` (payload markdown — ไม่มี runtime) |
 | **Model tier** | `balanced` |
-| **สถานะ** | `รอ build` |
+| **สถานะ** | `built` |
 
 ## 1. เป้าหมายของ task (vertical slice)
 > task นี้ส่งมอบคุณค่า end-to-end อะไร
@@ -28,9 +28,9 @@
 ## 3. Sub-tasks (แตกย่อยถ้าซับซ้อน)
 > sub-task ต้องเชื่อมต่อกัน — ระบุลำดับ/สิ่งที่ส่งต่อกัน
 
-- [ ] 1. สร้าง `src/.warnyin/workflow/roles/ux.md` — role card 4 section (Mission/Lens/Checklist/Output) + Skill เสริม + 2 guard (prompt-injection + privacy) — _ผลลัพธ์:_ canonical lens ที่ fallback path ใช้ร่วมได้
-- [ ] 2. สร้าง `src/.claude/agents/warnyin-ux.md` — agent adapter, frontmatter `tools: Read, Grep, Glob`, body = generator อ่าน role card §1 ก่อน — _ขึ้นกับ 1:_ body ชี้กลับ `roles/ux.md`
-- [ ] 3. แก้ `src/.warnyin/workflow/roles/README.md` — เพิ่มแถว UX ในตาราง role ↔ stage (รูปแบบ = `generator` ค่าใหม่) + note อธิบาย generator≠reviewer ใต้ตาราง — _ขึ้นกับ 1:_ ชี้ไฟล์ `ux.md` ที่สร้างแล้ว
+- [x] 1. สร้าง `src/.warnyin/workflow/roles/ux.md` — role card 4 section (Mission/Lens/Checklist/Output) + Skill เสริม + 2 guard (prompt-injection + privacy) — _ผลลัพธ์:_ canonical lens ที่ fallback path ใช้ร่วมได้
+- [x] 2. สร้าง `src/.claude/agents/warnyin-ux.md` — agent adapter, frontmatter `tools: Read, Grep, Glob`, body = generator อ่าน role card §1 ก่อน — _ขึ้นกับ 1:_ body ชี้กลับ `roles/ux.md`
+- [x] 3. แก้ `src/.warnyin/workflow/roles/README.md` — เพิ่มแถว UX ในตาราง role ↔ stage (รูปแบบ = `generator` ค่าใหม่) + note อธิบาย generator≠reviewer ใต้ตาราง — _ขึ้นกับ 1:_ ชี้ไฟล์ `ux.md` ที่สร้างแล้ว
 
 ## 4. ขอบเขตไฟล์/โค้ดที่จะแตะ
 - `src/.warnyin/workflow/roles/ux.md` (สร้างใหม่)
@@ -38,15 +38,15 @@
 - `src/.warnyin/workflow/roles/README.md` (แก้: เพิ่มแถว + note)
 
 ## 5. Acceptance criteria (เกณฑ์ว่า task เสร็จ)
-- [ ] `roles/ux.md` มี 4 section ครบ (Mission/Lens/Checklist/Output) + Skill เสริม section (Figma MCP / HTML mockup = optional reference ไม่ vendor)
-- [ ] `roles/ux.md` มี **2 guard** ใน Checklist หรือ Output: prompt-injection guard + privacy guard (wording ตาม design §10F)
-- [ ] Lens ของ UX ครอบ: user flow · information hierarchy · screen states (empty/loading/error/success) · accessibility · responsive
-- [ ] `warnyin-ux.md` frontmatter `tools: Read, Grep, Glob` — **ไม่มี `Write`/`Edit`/`NotebookEdit`** (grep assert)
-- [ ] `warnyin-ux.md` `description` สื่อชัดว่าเป็น **generator วาด wireframe** (ไม่ใช่ "reviewer")
-- [ ] `warnyin-ux.md` body = generator (อ่าน `roles/ux.md` ก่อน → คืน ASCII wireframe + user flow + screen states เป็น text ให้ main loop persist) — ต่างจาก `warnyin-sa.md` ที่ body เป็น reviewer (blocker/suggestion)
-- [ ] `roles/README.md` ตารางมีแถว UX (รูปแบบ = `generator`) + note ใต้ตารางอธิบาย generator = ผลิต artifact ต่างจาก reviewer
-- [ ] ผ่าน test ตาม `spec.md` (test-flow)
-- [ ] ทำตาม `rule.md` และ `standard.md`
+- [x] `roles/ux.md` มี 4 section ครบ (Mission/Lens/Checklist/Output) + Skill เสริม section (Figma MCP / HTML mockup = optional reference ไม่ vendor)
+- [x] `roles/ux.md` มี **2 guard** ใน Checklist หรือ Output: prompt-injection guard + privacy guard (wording ตาม design §10F)
+- [x] Lens ของ UX ครอบ: user flow · information hierarchy · screen states (empty/loading/error/success) · accessibility · responsive
+- [x] `warnyin-ux.md` frontmatter `tools: Read, Grep, Glob` — **ไม่มี `Write`/`Edit`/`NotebookEdit`** (grep assert)
+- [x] `warnyin-ux.md` `description` สื่อชัดว่าเป็น **generator วาด wireframe** (ไม่ใช่ "reviewer")
+- [x] `warnyin-ux.md` body = generator (อ่าน `roles/ux.md` ก่อน → คืน ASCII wireframe + user flow + screen states เป็น text ให้ main loop persist) — ต่างจาก `warnyin-sa.md` ที่ body เป็น reviewer (blocker/suggestion)
+- [x] `roles/README.md` ตารางมีแถว UX (รูปแบบ = `generator`) + note ใต้ตารางอธิบาย generator = ผลิต artifact ต่างจาก reviewer
+- [x] ผ่าน test ตาม `spec.md` (test-flow)
+- [x] ทำตาม `rule.md` และ `standard.md`
 
 ## 6. อ้างอิงในโฟลเดอร์ task นี้
 - Spec: `./spec.md`
