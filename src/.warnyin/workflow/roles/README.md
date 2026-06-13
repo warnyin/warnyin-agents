@@ -17,10 +17,13 @@
 | PO (Product Owner) | `po.md` | Discovery | lens ตอนจัด priority/ตัด scope |
 | SA (Solution Architect) | `sa.md` | DESIGN | lens ตอนออกแบบ + reviewer ใน panel |
 | Tech Lead | `tech-lead.md` | DESIGN | lens ตอนแตก task + reviewer ใน panel |
+| UX/UI Designer | `ux.md` | DESIGN (step 4.5 — เฉพาะ change มี UI surface) | generator |
 | Developer | `developer.md` | BUILD | system prompt ของ build agent ทุกตัว |
 | QA | `qa.md` | VERIFY + DESIGN panel | lens ของ strategy tester + reviewer |
 | Security (DevSecOps) | `security.md` | DESIGN panel | reviewer |
 | Infra | `infra.md` | DESIGN panel | reviewer |
+
+> **generator vs reviewer:** `generator` = ผลิต artifact (เช่น ASCII wireframe + user flow + screen states) และคืนเป็น text ให้ main loop persist — ต่างจาก `reviewer` ที่อ่าน artifact แล้วให้ความเห็น blocker/suggestion. UX/UI Designer (`warnyin-ux`) เป็น generator ไม่ใช่ reviewer ของ panel — อย่า fan-out เป็น reviewer ตัวที่ 6
 
 ## โครงของ role card ทุกใบ
 
