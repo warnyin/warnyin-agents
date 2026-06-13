@@ -1,4 +1,4 @@
-// Unit test ของ verifyInstalled() + readStamp() + parseNpmViewVersion() จาก setup-dogfood.mjs
+// Unit test ของ verifyInstalled() + readStamp() + parseNpmViewVersion() + semverGte() + checkTarballVersion() จาก setup-dogfood.mjs
 // import ตรง — main-guard ใน setup-dogfood.mjs กัน side-effect (install ไม่ถูก spawn)
 // zero-dependency: ใช้เฉพาะ built-in node:*
 import { test } from 'node:test'
@@ -8,7 +8,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { verifyInstalled, readStamp, parseNpmViewVersion } from '../scripts/setup-dogfood.mjs'
+import { verifyInstalled, readStamp, parseNpmViewVersion, semverGte, checkTarballVersion } from '../scripts/setup-dogfood.mjs'
 
 function makeTempProject(t) {
   const dir = mkdtempSync(path.join(os.tmpdir(), 'wy-dogfood-test-'))
@@ -168,5 +168,162 @@ test('wire-proof: installViaNpx และ installViaPack เรียก verifyI
   assert.ok(
     matches.length >= 2,
     `ต้องมี verifyInstalled(repoRoot, expected) อย่างน้อย 2 call site (npx + pack) — พบ ${matches.length}`,
+  )
+})
+
+// ─────────────────────────────────────────────────────────────
+// เคสใหม่ตาม design §8 — LR2 active (verifyInstalled stamp ขาด + expected ≥ 0.17.0)
+// ─────────────────────────────────────────────────────────────
+
+// active (เคสหลักของ bug): stamp ขาด + expected ≥ 0.17.0 → false
+test('verifyInstalled — active: stamp ขาด + expected 0.18.0 (≥0.17.0) → false', (t) => {
+  const tmp = makeTempProject(t)
+  makeCore(tmp)
+  // ไม่เขียน stamp file
+  assert.equal(
+    verifyInstalled(tmp, '0.18.0'),
+    false,
+    'stamp ขาด + expected ≥ 0.17.0 → active → ต้อง return false (เคสหลักของ bug)',
+  )
+})
+
+// boundary (≥ ไม่ใช่ >): stamp ขาด + expected 0.17.0 พอดี → false
+test('verifyInstalled — boundary: stamp ขาด + expected 0.17.0 (boundary >=) → false', (t) => {
+  const tmp = makeTempProject(t)
+  makeCore(tmp)
+  // ไม่เขียน stamp file
+  assert.equal(
+    verifyInstalled(tmp, '0.17.0'),
+    false,
+    'stamp ขาด + expected 0.17.0 พอดี → ต้อง return false (พิสูจน์ >= ไม่ใช่ >)',
+  )
+})
+
+// transition (<0.17.0): stamp ขาด + expected 0.16.0 → true (คงเดิม)
+test('verifyInstalled — transition: stamp ขาด + expected 0.16.0 (<0.17.0) → true', (t) => {
+  const tmp = makeTempProject(t)
+  makeCore(tmp)
+  // ไม่เขียน stamp file
+  assert.equal(
+    verifyInstalled(tmp, '0.16.0'),
+    true,
+    'stamp ขาด + expected < 0.17.0 → transition → ต้อง return true (bootstrapping window)',
+  )
+})
+
+// degrade-safe (non-semver-but-truthy): stamp ขาด + expected 'latest' → true
+test("verifyInstalled — degrade-safe: stamp ขาด + expected 'latest' (non-semver-but-truthy) → true", (t) => {
+  const tmp = makeTempProject(t)
+  makeCore(tmp)
+  // ไม่เขียน stamp file
+  assert.equal(
+    verifyInstalled(tmp, 'latest'),
+    true,
+    "stamp ขาด + expected 'latest' (non-semver) → degrade-safe → ต้อง return true (ไม่ block)",
+  )
+})
+
+// ─────────────────────────────────────────────────────────────
+// semverGte (pure fn)
+// ─────────────────────────────────────────────────────────────
+
+test("semverGte — '0.18.0' >= '0.17.0' → true", () => {
+  assert.equal(semverGte('0.18.0', '0.17.0'), true)
+})
+
+test("semverGte — boundary: '0.17.0' >= '0.17.0' → true", () => {
+  assert.equal(semverGte('0.17.0', '0.17.0'), true, 'boundary gte: เท่ากัน ต้อง return true')
+})
+
+test("semverGte — '0.16.9' >= '0.17.0' → false", () => {
+  assert.equal(semverGte('0.16.9', '0.17.0'), false)
+})
+
+test("semverGte — '1.0.0' >= '0.17.0' → true (major สูงกว่า)", () => {
+  assert.equal(semverGte('1.0.0', '0.17.0'), true)
+})
+
+test("semverGte — field-wise: '0.17.0' >= '0.9.0' → true (minor 17 > 9)", () => {
+  assert.equal(semverGte('0.17.0', '0.9.0'), true, 'field-wise numeric: 17 > 9 ต้อง return true')
+})
+
+// edge defensive
+test("semverGte — edge: '0.17' (field สั้น) >= '0.17.0' → true (missing field = 0)", () => {
+  assert.equal(semverGte('0.17', '0.17.0'), true, 'field สั้น 2 fields → patch missing = 0 → เท่ากัน = true')
+})
+
+test("semverGte — edge: 'garbage' >= '0.17.0' → false (NaN→0)", () => {
+  assert.equal(semverGte('garbage', '0.17.0'), false, 'NaN→0 → 0 < 17 → ต้อง return false')
+})
+
+test("semverGte — edge: '0.17.0-rc.1' >= '0.17.0' → true (prerelease parseInt ตัด suffix)", () => {
+  assert.equal(semverGte('0.17.0-rc.1', '0.17.0'), true, 'parseInt ตัด -rc.1 → 0.17.0 = boundary → true')
+})
+
+// ─────────────────────────────────────────────────────────────
+// checkTarballVersion (pure fn — temp dir + fake package.json)
+// ─────────────────────────────────────────────────────────────
+
+test('checkTarballVersion — match exact: version 0.18.0 + expected 0.18.0 → true', (t) => {
+  const dir = mkdtempSync(path.join(os.tmpdir(), 'wy-tarball-test-'))
+  t.after(() => rmSync(dir, { recursive: true, force: true }))
+  writeFileSync(path.join(dir, 'package.json'), JSON.stringify({ version: '0.18.0' }))
+  assert.equal(checkTarballVersion(dir, '0.18.0'), true, 'version ตรง expected → ต้อง return true')
+})
+
+test('checkTarballVersion — mismatch: version 0.16.0 + expected 0.18.0 → false (detect payload เก่า)', (t) => {
+  const dir = mkdtempSync(path.join(os.tmpdir(), 'wy-tarball-test-'))
+  t.after(() => rmSync(dir, { recursive: true, force: true }))
+  writeFileSync(path.join(dir, 'package.json'), JSON.stringify({ version: '0.16.0' }))
+  assert.equal(checkTarballVersion(dir, '0.18.0'), false, 'version ≠ expected → detect payload เก่า → ต้อง return false')
+})
+
+test('checkTarballVersion — expected falsy → true (degrade offline)', (t) => {
+  const dir = mkdtempSync(path.join(os.tmpdir(), 'wy-tarball-test-'))
+  t.after(() => rmSync(dir, { recursive: true, force: true }))
+  writeFileSync(path.join(dir, 'package.json'), JSON.stringify({ version: '0.16.0' }))
+  assert.equal(checkTarballVersion(dir, null), true, 'expected null → ข้าม version-check → ต้อง return true')
+  assert.equal(checkTarballVersion(dir, ''), true, "expected '' → ข้าม version-check → ต้อง return true")
+})
+
+test('checkTarballVersion — version มี CRLF/whitespace → normalize trim → match', (t) => {
+  const dir = mkdtempSync(path.join(os.tmpdir(), 'wy-tarball-test-'))
+  t.after(() => rmSync(dir, { recursive: true, force: true }))
+  // เขียน package.json แบบ raw ให้ version มี whitespace
+  writeFileSync(path.join(dir, 'package.json'), '{"version":"  0.18.0\\r\\n"}')
+  assert.equal(checkTarballVersion(dir, '0.18.0'), true, 'version มี whitespace/CRLF → trim สองฝั่ง → match → true')
+})
+
+// ─────────────────────────────────────────────────────────────
+// wire-proof ใหม่ — installViaNpx args + installViaPack prefer-online
+// ─────────────────────────────────────────────────────────────
+
+test("wire-proof: installViaNpx spawn args = ['--yes','-p',spec,'warnyin-agents','--update']", () => {
+  const scriptPath = path.join(
+    path.dirname(fileURLToPath(import.meta.url)),
+    '..',
+    'scripts',
+    'setup-dogfood.mjs',
+  )
+  const src = readFileSync(scriptPath, 'utf8')
+  // ตรวจ array args ใน installViaNpx: '--yes', '-p', spec, 'warnyin-agents', '--update'
+  assert.ok(
+    /\[\s*'--yes'\s*,\s*'-p'\s*,\s*spec\s*,\s*'warnyin-agents'\s*,\s*'--update'\s*\]/.test(src),
+    "installViaNpx ต้องมี spawn args ['--yes','-p',spec,'warnyin-agents','--update'] (explicit bin กัน scope-strip mismatch)",
+  )
+})
+
+test('wire-proof: installViaPack npm pack spawnSync options มี npm_config_prefer_online', () => {
+  const scriptPath = path.join(
+    path.dirname(fileURLToPath(import.meta.url)),
+    '..',
+    'scripts',
+    'setup-dogfood.mjs',
+  )
+  const src = readFileSync(scriptPath, 'utf8')
+  // ตรวจว่า npm pack (ใน installViaPack) มี npm_config_prefer_online ใน options
+  assert.ok(
+    /npm_config_prefer_online/.test(src),
+    'installViaPack ต้องมี npm_config_prefer_online ใน npm pack spawnSync options (cache-bust symmetric)',
   )
 })

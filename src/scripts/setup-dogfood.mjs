@@ -32,6 +32,13 @@ const PKG_NAME = '@warnyin/agents'
 const isWin = process.platform === 'win32'
 
 /**
+ * release แรกที่มี stamp writer (feature: installer-version-stamp, v0.17.0)
+ * expected ≥ STAMP_MIN_VERSION → active guard (stamp ขาด = install ผิด/payload เก่า)
+ * expected < STAMP_MIN_VERSION → transition-safe (bootstrapping window)
+ */
+const STAMP_MIN_VERSION = '0.17.0'
+
+/**
  * parse stdout จาก `npm view <pkg> version` → semver string หรือ null
  * แยกเป็น pure fn เพื่อ testability — unit ไม่ต้อง spawn จริง
  * กรณี npm บาง config print warning/notice ปนใน stdout → ดึงบรรทัดสุดท้ายที่เป็น semver
@@ -77,11 +84,53 @@ export function readStamp(root) {
 }
 
 /**
+ * เปรียบเทียบ semver แบบ numeric tuple — a ≥ b คืน true (pure, zero-dep)
+ * แต่ละ field: parseInt(x,10) — NaN fallback เป็น 0 (input ไม่ใช่ semver จริง → 0)
+ * input ที่มี prerelease suffix เช่น '0.17.0-rc.1' → parseInt ตัด suffix อัตโนมัติ
+ * @param {string} a — version ซ้าย
+ * @param {string} b — version ขวา
+ * @returns {boolean}
+ */
+export function semverGte(a, b) {
+  const parse = (v) => String(v).split('.').map((x) => parseInt(x, 10) || 0)
+  const pa = parse(a)
+  const pb = parse(b)
+  const len = Math.max(pa.length, pb.length)
+  for (let i = 0; i < len; i++) {
+    const va = pa[i] ?? 0
+    const vb = pb[i] ?? 0
+    if (va > vb) return true
+    if (va < vb) return false
+  }
+  return true // เท่ากัน = true (gte boundary)
+}
+
+/**
+ * ตรวจว่า tarball ที่ extract มี version ตรงกับ expected (pin-exact — ชั้น A primary guard ของ pack path)
+ * อ่าน package.json ของ tarball แล้วเทียบ pj.version กับ expected แบบ exact-equality (trim สองฝั่ง)
+ * expected falsy → คืน true (ข้าม version-check, degrade offline — ไม่งั้น false-fail ทุกครั้งที่ offline)
+ * @param {string} extractDir — path ไปยัง dir ที่ extract tarball แล้ว (รับ param → testable ด้วย temp dir + fake package.json)
+ * @param {string|null|undefined} expected — version ที่คาดไว้ (ค่า exact, ไม่ใช่ range)
+ * @returns {boolean}
+ */
+export function checkTarballVersion(extractDir, expected) {
+  if (!expected) return true // degrade offline (ไม่งั้น 'x' !== null false-fail)
+  try {
+    const pj = JSON.parse(fs.readFileSync(path.join(extractDir, 'package.json'), 'utf8'))
+    return String(pj.version).trim() === String(expected).trim()
+  } catch {
+    // อ่าน package.json ไม่ได้ → degrade (ข้าม version-check ที่ source)
+    return true
+  }
+}
+
+/**
  * ตรวจว่า root มี CORE markers ครบ + (optional) เทียบ version stamp กับ expected
- * truth table (design.md §4B):
+ * truth table (design.md §4B — LR2 active ตั้งแต่ release ที่ 2):
  *   - CORE markers ไม่ครบ → false
  *   - markers ครบ · expected falsy (undefined/null/'') → true (degrade + warn)
- *   - markers ครบ · expected set · stamp ขาด → true (transition + warn)
+ *   - markers ครบ · expected set · stamp ขาด · expected ≥ STAMP_MIN_VERSION → false (active — install ผิด/payload เก่า)
+ *   - markers ครบ · expected set · stamp ขาด · expected < STAMP_MIN_VERSION (หรือ non-semver) → true (transition/degrade-safe)
  *   - markers ครบ · expected set · stamp = expected (หลัง trim สองฝั่ง) → true
  *   - markers ครบ · expected set · stamp ≠ expected → false (warn: drift)
  * @param {string} root — path ไปยัง repo root (รับ param กัน hardcode — ให้ unit test ส่ง temp dir ได้)
@@ -104,8 +153,16 @@ export function verifyInstalled(root, expected) {
 
   const stamp = readStamp(root)
   if (stamp === null) {
-    // stamp ขาด = transition (payload ก่อน feature stamp writer)
-    console.warn('⚠ payload ไม่มี version stamp (เวอร์ชันก่อน feature) — ข้าม version check')
+    // stamp ขาด: ตรวจ active vs transition ตาม LR2
+    if (semverGte(expected, STAMP_MIN_VERSION)) {
+      // expected ≥ 0.17.0 (release ที่มี stamp writer) แต่ stamp ขาด → install ผิด/payload เก่า (active)
+      console.warn(
+        `⚠ payload @${expected} ไม่มี version stamp ทั้งที่ ≥${STAMP_MIN_VERSION} — npm cache เก่า? \`npm cache clean --force\` แล้วลอง setup:dogfood ใหม่`,
+      )
+      return false
+    }
+    // expected < 0.17.0 หรือ non-semver → transition/degrade-safe (bootstrapping window)
+    console.warn('⚠ payload ไม่มี version stamp (เวอร์ชันก่อน feature stamp writer) — ข้าม version check (transition)')
     return true
   }
 
@@ -122,10 +179,11 @@ export function verifyInstalled(root, expected) {
 function installViaNpx(expected) {
   // pin exact version (ตัวหลัก defeat cache); prefer-online = เสริม revalidate metadata
   const spec = expected ? `${PKG_NAME}@${expected}` : `${PKG_NAME}@latest`
-  console.log(`+ ติดตั้ง dogfood จาก release: npx --yes ${spec} --update`)
+  console.log(`+ ติดตั้ง dogfood จาก release: npx --yes -p ${spec} warnyin-agents --update`)
   // npx บน Windows เป็น .cmd → spawn array args จะ ENOENT ถ้าไม่ shell
   // shell:true เฉพาะ win32 = "หนีไม่พ้น shell" สำหรับ npx เท่านั้น (ไม่มี user input → ปลอดภัย)
-  const r = spawnSync('npx', ['--yes', spec, '--update'], {
+  // ระบุ -p + bin name ชัด (กัน scope-strip mismatch: @warnyin/agents bin=warnyin-agents ≠ agents)
+  const r = spawnSync('npx', ['--yes', '-p', spec, 'warnyin-agents', '--update'], {
     cwd: repoRoot,
     stdio: ['inherit', 'inherit', 'pipe'],
     shell: isWin,
@@ -156,6 +214,7 @@ function installViaPack(expected) {
       cwd: work,
       stdio: ['inherit', 'pipe', 'inherit'],
       encoding: 'utf8',
+      env: { ...process.env, npm_config_prefer_online: 'true' }, // symmetric กับ npx path — cache-bust ชั้น A (LR1)
     })
     if (packed.status !== 0) {
       console.error(`✖ npm pack ${spec} ล้มเหลว (exit ${packed.status ?? '?'})`)
@@ -191,6 +250,13 @@ function installViaPack(expected) {
       binRel = typeof pj.bin === 'string' ? pj.bin : pj.bin && (pj.bin['warnyin-agents'] || Object.values(pj.bin)[0])
     } catch {
       /* package.json อ่านไม่ได้ → ใช้ candidate ด้านล่าง */
+    }
+    // ★ ชั้น A version-check: ตรวจ package.json version ของ tarball ก่อนรัน --update (pin-exact กัน payload เก่า)
+    if (!checkTarballVersion(extractDir, expected)) {
+      console.error(
+        `✖ tarball version ไม่ตรง expected (${expected}) — payload เก่า? ลอง \`npm cache clean --force\` แล้วรัน setup:dogfood ใหม่`,
+      )
+      return false
     }
     const cli = [binRel, 'src/bin/cli.mjs', 'bin/cli.mjs']
       .filter(Boolean)
