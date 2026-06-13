@@ -23,6 +23,12 @@
 
 ## [Unreleased]
 
+## [0.18.1] - 2026-06-13
+
+### Fixed
+- **installer เงียบ exit 0 ไม่ติดตั้งเมื่อรันผ่าน symlink** (critical — กระทบ `npx @warnyin/agents` ของผู้ใช้ปลายทาง + `setup:dogfood`) — main-guard ของ `cli.mjs` เทียบ `path.resolve(process.argv[1])` กับ `fileURLToPath(import.meta.url)` แต่ ESM `import.meta.url` เป็น realpath เสมอ ส่วน `argv[1]` เป็น symlink path (npx รัน bin ผ่าน `node_modules/.bin/` symlink; `setup:dogfood` extract tarball ลง `os.tmpdir()` ที่เป็น symlink บน macOS) → เทียบไม่ตรง → `main()` ไม่ถูกเรียก → ไม่ติดตั้งอะไร. แก้ด้วย `isEntrypoint()` ที่ realpath ทั้งสองฝั่ง (+ fallback `path.resolve`)
+- **setup:dogfood ดึง payload เก่า + รายงานสำเร็จลวง (false-success)** — fix 3 ชั้น: `verifyInstalled` active เมื่อ stamp ขาด + version ≥ 0.17.0 (LR2), `installViaPack` เพิ่ม `prefer-online` สมมาตรกับ npx + `checkTarballVersion` เทียบ version ที่ source, `installViaNpx` ระบุ explicit bin `warnyin-agents`
+
 ## [0.18.0] - 2026-06-13
 
 ### Added
