@@ -133,6 +133,14 @@
 - **packaging:** stamp = install-time artifact → `checkFiles(['.warnyin/.warnyin-version'])` คืน error + `npm pack --dry-run --json` ยืนยัน stamp ไม่อยู่ใน file list (Windows: `verify:pack` ENOENT = KB#4 → ใช้ unit gate + `npm pack` แทน)
 - **★ transition snapshot (self-referential verify):** integration end-to-end (`setup:dogfood` จริงจับ drift) = **defer รอ publish ≥2 release ที่มี stamp**; VERIFY พิสูจน์ *logic ถูก* (drift→false ใน temp) + **บันทึก snapshot จริง** ว่า ณ ตอน verify registry `@latest` มี stamp หรือยัง — ห้ามเคลมจับ drift end-to-end ได้ก่อนถึงรอบที่ artifact มีจริงบน registry
 
+## verify stage-invoked capability + generator agent — payload `.md` (L: topic `uxui-designer-stage`)
+> capability ที่ DESIGN เรียกเอง (UX wireframe) + **generator agent** (`warnyin-ux`) + template + playbook wiring — payload `.md` ล้วน (ไม่มี runtime/FE) → verify เชิงโครงสร้าง + behavioral + canonical-consistency **โดย agent อิสระจากผู้เขียน** (rule §5 ข้อ 4 — self-check ของ build agent ไม่พอ)
+- **structural (grep):** role card 4 section + 2 guard (prompt-injection/privacy) + Lens ครบ; agent frontmatter `tools:` read-only set (ไม่มี `Write`/`Edit`/`NotebookEdit`) + `description` สื่อ generator ไม่มี `reviewer` (กัน panel หยิบเป็น reviewer); template 4 section ชื่อตรง contract + ASCII fence ปิดครบคู่ + ≥2 repeatable block
+- **playbook wiring (grep line-number เทียบ section boundary):** step ใหม่อยู่**ตำแหน่งถูก**ใน numbered list (เช่น step 4.5 ระหว่าง step 4–5 — verify ด้วย grep line เทียบ `^## `/`^N. ` ไม่ใช่อ่านผ่าน); detect block มี "ไม่เข้าเงื่อนไข → ข้าม"; gate item conditional N/A
+- **behavioral (เดิน scenario ใน Spec delta — observable):** playbook มี instruction ครบทุก scenario (detect ใช่→เสนอ / ไม่ใช่→ข้าม+N/A / ก้ำกึ่ง→ถาม / generator→text+persist / approve gate / fallback lens) — 2 ขั้ว positive/negative (FE require / backend N/A)
+- **canonical-consistency (verify-method สำคัญสุด):** `lint-md.mjs` จับเฉพาะ **markdown-link `[](path)`** — ข้าม `#anchor`/backtick-inline/prose + EXCLUDE `template/`; ดังนั้น **anchor/canonical wording → ตรวจ structural + อิสระ** (wording ที่ canonical-copy ไป playbook = คำต่อคำ diff ว่าง, ใช้ `grep -F`) ไม่พึ่ง lint-md
+- **regression:** ไม่มี feature spec เดิมอ้าง literal เลข step ที่ถูกแก้ (clarity fix ปลอดภัย); step ที่แทรกแบบ flat `.5` ไม่ดัน step อื่นที่ feature อื่นอ้าง; full-gate (`node --test | check-test-count` + verify-pack + lint-md) เขียว
+
 ## executable migration proof (เทสเอกสาร migration / CHANGELOG)
 > เอกสาร migration (CHANGELOG "Migration guide") เป็น **คำสั่งที่ผู้ใช้รันจริง** — ต้องเทสแบบ executable ไม่ใช่อ่านเฉยๆ (บทเรียน `troubleshooting.md` #10)
 - **วิธี:** ใน git repo จำลอง (temp) → สร้าง legacy layout (เช่น `warnyin/{workflow,template,installer,stages/<topic>}`) → **รันคำสั่งในเอกสารตามตัวอักษร** → assert: งานจริงอยู่ที่ `docs/stages/<topic>/` (ไม่หาย/ไม่ซ้อน `docs/stages/stages/`), ได้ `.warnyin/workflow`, รัน installer ซ้ำแล้ว **ไม่ warn legacy อีก**

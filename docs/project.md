@@ -16,7 +16,7 @@ repo นี้ใช้สถาปัตยกรรม **bootstrap / self-host
 - **contributor / maintainer:** ผู้พัฒนา v-next ของ workflow เองใน `src/` (ดู `CONTRIBUTING.md`)
 
 ## ขอบเขต
-- **in:** installer (`src/bin/cli.mjs`), playbook 5 stage (`src/.warnyin/workflow/`), template, slash command + utility skill (auto-invocable) + reviewer agent, dev tooling (test/verify-pack/setup scripts)
+- **in:** installer (`src/bin/cli.mjs`), playbook 5 stage (`src/.warnyin/workflow/`), template, slash command + utility skill (auto-invocable) + reviewer agent + generator agent (UX wireframe), dev tooling (test/verify-pack/setup scripts)
 - **out (จงใจไม่ทำ):** runtime ของ workflow เอง (เป็นเอกสาร/playbook ที่ AI agent อ่าน ไม่ใช่โปรแกรมที่รัน), dependency ภายนอก (zero-dep)
 
 ## ข้อจำกัด / บริบทสำคัญ

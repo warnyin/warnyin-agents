@@ -159,3 +159,17 @@
 - **วิธีแก้:** แก้ที่ `src/.warnyin/installer/templates/CLAUDE.md` (canonical) — ยืนยัน target ด้วย `git check-ignore CLAUDE.md` + `git ls-files --error-unmatch CLAUDE.md` ก่อนเลือก (investigate-before-edit ไม่เดา)
 - **ป้องกันซ้ำ:** ก่อนแก้ registry/list file ที่ root → `git check-ignore <file>` ก่อนเสมอ; ignored = dogfood → หา canonical ใน `src/.warnyin/installer/templates/` — กฎใน `docs/techstack/installer/rule.md` §packaging
 - **✅ FIXED (topic `feedback-issue-command` · 2026-06-12):** orchestrator แก้ template canonical ตอน BUILD integrate (verify T4 install proof ยืนยัน slash-command list ลง target sandbox ถูกต้อง)
+
+### 23. negative grep-assert ของ field (description/text) ล้มเพราะ negation phrase
+- **อาการ:** test-flow มี assert "บรรทัด `description:` ของ agent ต้องไม่มีคำว่า `reviewer`" แต่ผู้เขียนใส่ description ว่า agent "ไม่ใช่ reviewer" → grep เจอ `reviewer` เป็น substring → assert FAIL ทั้งที่ intent ถูก
+- **Root cause:** negative grep-assert match **substring** ไม่เข้าใจ semantic — "ไม่ใช่ X" ยังมี `X` เป็น substring (specialization ของ rule §5 "negative fixture ต้องเลี่ยง trigger phrase" — ขยายจาก test fixture เป็น production artifact ที่ test grep)
+- **วิธีแก้:** rephrase เป็น positive phrasing ที่สื่อ intent เดิมโดยไม่ใช้คำต้องห้าม — เช่น `"ผลิต artifact ไม่ใช่ให้ความเห็น"` (สื่อ generator≠reviewer โดยเลี่ยงคำ `reviewer`)
+- **ป้องกันซ้ำ:** เขียน field ที่ต้องผ่าน negative grep-assert → เลี่ยงคำต้องห้ามแม้อยู่ใน negation context; ใช้ synonym/positive phrasing แทน
+- **✅ FIXED (topic `uxui-designer-stage` · 2026-06-13):** BUILD T1 rephrase `warnyin-ux` description (verify T-FUNC-2 ผ่าน — description มี generator ไม่มี reviewer)
+
+### 24. แทรก flat-numbered step (.5) ผิดตำแหน่งใน numbered list ที่ item มี sub-bullet
+- **อาการ:** แทรก `step 4.5` ที่ควรอยู่ **ระหว่าง** step 4 (proposal) กับ step 5 (design.md) แต่ครั้งแรกตกไปอยู่ **หลัง step 5**
+- **Root cause:** step 5 มี sub-bullet หลายบรรทัดคั่นกลาง → anchor ที่ใช้ Edit (ข้อความกลาง item) ตกอยู่ใต้ step 5 ไม่ใช่ก่อนหน้า
+- **วิธีแก้:** Edit สองครั้ง — ลบ block จากตำแหน่งผิด แล้ว insert ด้วย **anchor คู่** = "บรรทัดสุดท้ายของ item ก่อนหน้า" + "บรรทัดแรกของ item ถัดไป" ที่ติดกันจริง; verify ด้วย `grep -n` เทียบ section boundaries
+- **ป้องกันซ้ำ:** ก่อนแทรก inline-numbered step ใน numbered list ที่ item มี sub-bullet หลายบรรทัด → เลือก anchor เป็น **ขอบของ item** (บรรทัดสุดท้าย item ก่อน + บรรทัดแรก item ถัดไป) ไม่ใช่ข้อความกลาง item แล้ว verify ตำแหน่งด้วย grep line-number เทียบ section header
+- **✅ FIXED (topic `uxui-designer-stage` · 2026-06-13):** BUILD T3 ย้าย step 4.5 ให้ถูก (verify T-FUNC-4 ผ่าน — step 4.5 อยู่ระหว่าง step 4–5)

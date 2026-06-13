@@ -94,3 +94,4 @@ README.md  CHANGELOG.md  LICENSE
 - **dotfolder nested ต้องระบุชัด** (`src/.warnyin`, `src/.claude/commands`, `src/.claude/agents`, `src/.claude/skills`) — npm ไม่รวม nested dotfolder อัตโนมัติ (บทเรียน 0.6.0 ขยายผล)
 - **ไม่อยู่ใน list:** `src/tests`, `src/scripts` (dev-only), root `CLAUDE.md`/`AGENTS.md` (dogfood gitignored — payload AGENTS.md อยู่ `src/AGENTS.md`)
 - `package.json` รวมเองโดย npm เสมอ; `verify-pack` เป็นตัวพิสูจน์ allowlist (ดู `test.md`)
+- **`src/.claude/agents/`** = `warnyin-{sa,tech-lead,qa,security,infra}` (reviewer read-only, DESIGN panel) + **`warnyin-ux`** (generator read-only — วาด wireframe, DESIGN step 4.5; ดู `docs/features/uxui-wireframe/`); ทุกตัว frontmatter `tools: Read, Grep, Glob`
