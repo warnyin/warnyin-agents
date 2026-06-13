@@ -32,4 +32,5 @@
 
 ## Skill เสริม (optional — ใช้ถ้าติดตั้งไว้)
 - `browser-test` — ติดตั้ง: `npx skills add ruvnet/ruflo@browser-test -g`
+- **`@playwright/cli`** (Microsoft official) — e2e web test: record/codegen/inspect selector/screenshot; ใช้ทำ **FE e2e smoke** ตอน VERIFY (`verify.md` §4). ติดตั้ง: `npm i -g @playwright/cli@latest` → `playwright-cli install --skills` (ลง skills ให้ Claude Code) · สำรอง `npx playwright-cli`
 - Claude Code built-in: skill `verify` / `run` ช่วย launch app เพื่อเทสจริง

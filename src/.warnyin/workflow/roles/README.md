@@ -44,6 +44,7 @@
 | PO | `product-management` | `npx skills add vasilyu1983/ai-agents-public@product-management -g` |
 | Developer | `tdd-orchestrator` | `npx skills add sickn33/antigravity-awesome-skills@tdd-orchestrator -g` |
 | QA | `browser-test` | `npx skills add ruvnet/ruflo@browser-test -g` |
+| QA | `@playwright/cli` | Microsoft official (e2e web test — record/codegen/inspect selector/screenshot; ใช้คู่ FE e2e smoke ใน `verify.md`): `npm i -g @playwright/cli@latest` → `playwright-cli install --skills` (ติดตั้ง skills ให้ Claude Code) · `npx playwright-cli` ถ้าไม่ติด global |
 | Tech Lead | `/code-review` | Claude Code built-in |
 | Security | `/security-review` | Claude Code built-in |
 | UX | `ui-ux-pro-max` | Claude plugin (MIT, hi-fi design intelligence — styles/palettes/stacks; ต่อยอด hi-fi จาก low-fi wireframe): `/plugin marketplace add nextlevelbuilder/ui-ux-pro-max-skill` → `/plugin install ui-ux-pro-max@ui-ux-pro-max-skill` (หรือ `uipro-cli`) · ⚠ third-party: ตรวจ `SKILL.md`/`scripts/*.cjs` ก่อนติดตั้ง + pin version/commit (prompt-injection surface — `docs/rule.md` §3.2) |

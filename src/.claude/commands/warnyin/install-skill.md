@@ -13,6 +13,7 @@ argument-hint: "[ชื่อ role เช่น sa, qa — เว้นว่า
    - `owner/repo@skill` (skills.sh) → `npx skills add <owner/repo@skill> -g -y` (global)
    - **Claude plugin** (ที่มาเขียน `/plugin marketplace add ...`) → รัน `/plugin marketplace add <repo>` แล้ว `/plugin install <plugin@marketplace>` ตามที่ระบุ (หรือ CLI สำรองถ้ามี เช่น `uipro-cli`)
    - **repo path / template library** (เช่น `wshobson/agents → plugins/.../`) → ติดตั้ง/clone ตาม path ที่ระบุ (manual; pin commit/tag)
+   - **npm CLI tool** (ที่มาเขียน `npm i -g <pkg>` เช่น `@playwright/cli`) → รัน `npm i -g <pkg>@latest` แล้ว **รัน post-install command ที่ระบุต่อ** (เช่น `playwright-cli install --skills` ลง skills ให้ Claude Code); ถ้าติด global ไม่ได้ → fallback `npx <pkg>`
    - ทุกแบบ = **global / reference ไม่ vendor เข้า repo** → รายงานผลรวม สำเร็จ/ล้มเหลว พร้อมวิธีแก้ถ้าล้ม
 6. รายการที่เป็น **Claude Code built-in** (`/code-review`, `/security-review`) ไม่ต้องติดตั้ง — แจ้งว่าพร้อมใช้อยู่แล้ว
 7. ปิดท้าย: แนะนำว่า role ไหนใน workflow จะหยิบ skill เหล่านี้ใช้ตอนไหน (ตาม section "Skill เสริม" ใน role card)
