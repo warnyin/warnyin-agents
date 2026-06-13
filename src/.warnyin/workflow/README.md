@@ -66,7 +66,7 @@ Discovery (optional) ──▶ DESIGN ──▶ BUILD ──▶ VERIFY ──▶
 
 .claude/               # adapter Claude Code (ชี้กลับ playbook กลาง)
   commands/warnyin/    #   slash command /warnyin:*
-  agents/              #   reviewer subagent warnyin-{sa,tech-lead,qa,security,infra}
+  agents/              #   reviewer subagent warnyin-{sa,tech-lead,qa,security,infra} + warnyin-ux (generator — วาด wireframe ที่ step 4.5; แยกจาก reviewer 5 ตัว ไม่ใช่ reviewer ที่ 6)
 CLAUDE.md  AGENTS.md   # adapter + pointer ของ Claude / Codex·Antigravity
 
 docs/                  # ความรู้ถาวรระดับโปรเจกต์ + งานจริง — ของจริงล้วน (seed จาก template/docs)

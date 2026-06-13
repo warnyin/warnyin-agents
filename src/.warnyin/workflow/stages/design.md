@@ -43,9 +43,10 @@
 3. **task = หน่วยที่โยนให้ sub-agent ได้** — แต่ละ task self-contained (มี spec + standard + rule ของตัวเอง) **กระชับพอ agent ทำจบ ไม่ฟุ่มเฟือย** (brief ยาวผิดปกติ → recheck dependency/re-slice) แต่ **เชื่อมต่อกัน** ผ่าน dependency/ลำดับที่ระบุชัด — เมื่อแตก task ต้อง **วาด DAG แล้ววัด critical-path depth (longest chain) + max wave width**: ถ้า DAG เป็น chain เส้นตรง (ทุก wave มี 1 task) ต้องมี **เหตุผล explicit** ว่าทำไม decouple ด้วย toolkit ข้อ 2 (3 เทคนิค) ไม่ได้ (กัน chain เผลอ)
 4. **สอดคล้องมาตรฐานเสมอ** — อิง rule + standard ของ techstack; ถ้าจะเพิ่ม rule/standard ใหม่ ให้ **note ไว้ก่อน** (ยังไม่แก้ไฟล์กลาง — รอ SHIP)
 5. **Gate ก่อนเขียนไฟล์ task จริง** — ต้องผ่านเกณฑ์ข้อ 8 ก่อนจะ generate ไฟล์ task และก่อนโยนให้ sub-agent
-6. **ใช้ role lens** — ออกแบบ (design.md) ด้วยมุม **SA** (`.warnyin/workflow/roles/sa.md`) และแตก/ตรวจ task ด้วยมุม **Tech Lead** (`.warnyin/workflow/roles/tech-lead.md`)
-7. **Review panel ก่อนแตก task (optional — ถาม user ก่อนเสมอ)** — ให้หลาย role (SA / Tech Lead / QA / Security / Infra ตาม `.warnyin/workflow/roles/`) รีวิว design ขนานแบบอิสระ (read-only) แล้วแก้ blocker ให้ครบก่อนแตก task (ดูขั้นตอนข้อ 4.6)
-8. **Dry-run ก่อนเข้า BUILD (optional — ถาม user ก่อนเสมอ)** — หลังเขียนไฟล์ task ครบ เสนอ user ว่าจะ dry-run ทั้งหมดเพื่อหาจุดบกพร่องไหม ถ้า ok → สแกนทุก task แบบขนาน (read-only) หา **defer/blocker** แล้วแก้ DESIGN จนไม่มี blocker ค้าง (ดูขั้นตอนข้อ 4.10) — การแก้ **ห้ามเดา ห้ามคิดขึ้นเอง**
+6. **ใช้ role lens** — ออกแบบ (design.md) ด้วยมุม **SA** (`.warnyin/workflow/roles/sa.md`) และแตก/ตรวจ task ด้วยมุม **Tech Lead** (`.warnyin/workflow/roles/tech-lead.md`); วาด wireframe ด้วยมุม **UX/UI** (`.warnyin/workflow/roles/ux.md`) เมื่อ change มี UI surface (step 4.5)
+7. **Review panel ก่อนแตก task (optional — ถาม user ก่อนเสมอ)** — ให้หลาย role (SA / Tech Lead / QA / Security / Infra ตาม `.warnyin/workflow/roles/`) รีวิว design ขนานแบบอิสระ (read-only) แล้วแก้ blocker ให้ครบก่อนแตก task (ดู §4 step 6)
+   > หมายเหตุ: UX/UI (`warnyin-ux`) เป็น **generator** (วาด wireframe ที่ step 4.5) **ไม่ใช่ reviewer** ของ panel — อย่า fan-out เป็น reviewer ตัวที่ 6
+8. **Dry-run ก่อนเข้า BUILD (optional — ถาม user ก่อนเสมอ)** — หลังเขียนไฟล์ task ครบ เสนอ user ว่าจะ dry-run ทั้งหมดเพื่อหาจุดบกพร่องไหม ถ้า ok → สแกนทุก task แบบขนาน (read-only) หา **defer/blocker** แล้วแก้ DESIGN จนไม่มี blocker ค้าง (ดู §4 step 10) — การแก้ **ห้ามเดา ห้ามคิดขึ้นเอง**
 
 ---
 
@@ -63,11 +64,29 @@
    - tier → drive ceremony ตาม §7
 3. **business.md** *(optional — ข้ามได้ถ้า change เล็ก เช่น fix bug นิดหน่อย)*: what & why เชิงธุรกิจ — goal, คุณค่า, persona, success metric
 4. **proposal.md** (what & why): สรุป change ที่จะทำ, เหตุผล, ทางเลือกที่พิจารณา/ตัดทิ้ง, scope in/out
+4.5 **UX wireframe (optional — ถาม user ก่อน; เฉพาะ change มี UI surface):**
+   - รัน detect (§ "UX wireframe — detect"); ไม่เข้าเงื่อนไข → **ข้าม step นี้ทั้งหมด**
+   - เข้าเงื่อนไข → เสนอ user ว่าจะวาด wireframe ก่อนเขียน technical design ไหม (ให้เห็นภาพหน้าจอ+ยืนยันก่อนแตก task) — user ปฏิเสธ → บันทึกว่าข้าม แล้วไปต่อ
+   - ตกลง → fan-out sub-agent `warnyin-ux` **ขนาน read-only** (หนึ่งตัวต่อหนึ่งกลุ่มหน้าจอถ้าหลายจอ) ตาม role card `roles/ux.md` → คืน **ASCII wireframe + user flow + screen states** เป็น text
+   - **main loop เขียนลง `docs/stages/<slug>/wireframe.md`** (single-writer) → เสนอ user
+   - **★ approve gate:** user ยืนยัน/ปรับ wireframe ก่อนไปต่อ (วน rerun/แก้จนพอใจ) — ห้ามเดา ปรับตาม feedback user
+   - design.md §5 (UI layer ของ vertical slice) **อ้าง wireframe ที่ approve**
+   - **fallback** (fan-out ไม่ได้): AI หลักสวม lens `roles/ux.md` วาด wireframe เองตามลำดับ
+
+   ### UX wireframe — detect ว่า change มี UI surface ไหม?
+   ดูสัญญาณ (เจอ **อย่างน้อยหนึ่ง** ที่ชัด = ใช่):
+   1. **techstack** — `docs/techstack/<component>/about.md` ระบุว่าเป็น frontend/web/mobile/desktop (มีหน้าจอที่ user เห็น)
+   2. **change แตะหน้าจอ** — เพิ่ม/แก้ page · route · screen · view · component ที่ผู้ใช้มองเห็น/โต้ตอบ
+   3. **flow ใหม่** — user flow / navigation / form / interaction ที่ออกแบบได้
+
+   > สัญญาณคลุมเครือ (backend/REST API · CLI · library · migration · docs/tooling ล้วน — ไม่มีหน้าจอ) → **ไม่ใช่** → ข้าม UX step ทั้งหมด
+   > ไม่แน่ใจจริง → ถาม user ทีละข้อ + เสนอคำตอบที่แนะนำ (หลัก "ห้ามเดา")
 5. **design.md** (how): ออกแบบเชิงเทคนิคแบบ vertical slice — slice มีอะไรบ้าง, แต่ละ slice ตัดผ่าน layer ไหน, data model, interface/contract, flow, ผลกระทบต่อระบบเดิม (ใช้ lens `.warnyin/workflow/roles/sa.md`) — **ครอบ "Spec delta" ด้วย**: เทียบพฤติกรรมที่ change นี้แตะกับ `docs/features/<name>/spec.md` ปัจจุบัน แล้วเขียน ADDED/MODIFIED/REMOVED (SHIP merge ตามนี้); change ไม่แตะพฤติกรรม feature → ระบุ "ไม่มี delta"
    - **เก็บ fact ก่อนเขียนทำขนานได้ (gathering — §3 หลักการแกน)** — ถ้าต้องรวบรวมข้อเท็จจริงจากหลายจุด (โค้ด/contract/impact analysis) ก่อนเขียน → fan-out **research** sub-agent ขนาน (read-only) คืน fact + path/บรรทัด
    - **single-writer guardrail (narrative = serialize):** การเขียน narrative ของ `design.md` ทำโดย main loop คนเดียว — **ห้ามแตก narrative ให้หลาย agent เขียนคนละ section** (coherence cost: เอกสารต่อกันไม่เนียน → review+rewrite แพงกว่าเขียนรอบเดียว)
    - **fallback:** เครื่องที่ fan-out ขนานไม่ได้ → main loop อ่าน + เขียนเองตามลำดับเหมือนเดิม
 6. **Review panel (optional — ถาม user ก่อน):** เสนอ user ว่าจะให้ panel หลาย role รีวิว design ก่อนแตก task ไหม — ถ้า ok:
+   > หมายเหตุ: UX/UI (`warnyin-ux`) เป็น **generator** (วาด wireframe ที่ step 4.5) **ไม่ใช่ reviewer** ของ panel — อย่า fan-out เป็น reviewer ตัวที่ 6
    1. fan-out sub-agent reviewer **ขนาน (read-only)** ตาม role card: **SA** (architecture/data model/contract), **Tech Lead** (feasibility/ขนาด task/dependency), **QA** (testability/acceptance), **Security** (ช่องโหว่/ข้อมูลอ่อนไหว), **Infra** (env/config/migration) — แต่ละตัวอ่าน `proposal.md` + `design.md` + โค้ดจริงที่เกี่ยว แล้วให้ความเห็นตาม checklist ใน `.warnyin/workflow/roles/<role>.md` แบ่งเป็น **blocker / suggestion**
    2. รวมความเห็นทุก role → สรุปให้ user เห็นภาพ
    3. **blocker → แก้ design ให้ครบ** โดยห้ามเดา — ติดจริงถาม user ทีละข้อ + เสนอคำตอบแนะนำ; suggestion → พิจารณา/บันทึกเหตุผลถ้าไม่ทำ
@@ -145,6 +164,7 @@
 - [ ] design เป็น vertical slice ชัด — แต่ละ task/slice ส่งมอบคุณค่า end-to-end ได้
 - [ ] **Spec delta ครบ** — เทียบ `docs/features/<name>/spec.md` ของ feature ที่แตะ (ADDED/MODIFIED/REMOVED) หรือระบุ "ไม่มี delta"
 - [ ] **API contract (ถ้าแตะ REST API)** — topic ที่ auto-detect ว่าแตะ backend/REST API มี `openapi.yaml` (OpenAPI 3.1) ครบ + `spec.md` ของ API task ชี้มาที่ contract (ตาม `.warnyin/workflow/api-doc.md`); ไม่ใช่ REST API → ข้อนี้ N/A
+- [ ] **UX wireframe (ถ้า change มี UI surface)** — `wireframe.md` ครบ (user flow + ASCII screen + states) **และ user ยืนยันแล้ว**; design.md UI layer อ้าง wireframe ที่ approve — ไม่มี UI surface → ข้อนี้ N/A
 - [ ] ทุก task มี `spec.md` + `standard.md` + `rule.md` + `task.md` ครบ (ถ้ารัน node ได้: `node .warnyin/workflow/scripts/validate-topic.mjs <slug>` ควรไม่มี ✖ — เช็คโครง ไม่แทนการอ่าน semantic)
 - [ ] dependency / ลำดับระหว่าง task และ sub-task ชัดเจน เชื่อมต่อกัน — **critical-path gate (judgment, ไม่ใช่ mechanical check):** ระบุ critical-path depth + max wave width; ถ้า DAG เป็น chain เส้นตรง (ทุก wave มี 1 task) → ต้องมี **เหตุผล explicit** ว่าทำไม decouple ด้วย DAG-width toolkit (§3 ข้อ 2) ไม่ได้ (กัน chain เผลอ)
 - [ ] rule ที่ต้อง follow ถูกระบุครบ; rule/standard ใหม่ที่อยากเพิ่มถูก note ไว้ (รอ SHIP)
