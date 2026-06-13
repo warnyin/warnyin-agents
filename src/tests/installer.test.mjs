@@ -4,7 +4,8 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { mkdtempSync, rmSync, readFileSync, writeFileSync, mkdirSync, existsSync, statSync, readdirSync } from 'node:fs'
+import { mkdtempSync, rmSync, readFileSync, writeFileSync, mkdirSync, existsSync, statSync, readdirSync, symlinkSync } from 'node:fs'
+import { pathToFileURL } from 'node:url'
 import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -19,7 +20,7 @@ const cliPath = fileURLToPath(new URL('../bin/cli.mjs', import.meta.url))
 
 // resolveMode = pure-fn ที่ตั้งใจ export ให้ unit-test (ข้อยกเว้นเดียวจากกฎ "ห้าม import logic")
 // — main-guard ใน cli.mjs กัน side-effect ตอน import (รันเฉพาะตอน execute ตรง)
-import { resolveMode } from '../bin/cli.mjs'
+import { resolveMode, isEntrypoint } from '../bin/cli.mjs'
 
 function makeTempProject(t) {
   const dir = mkdtempSync(path.join(os.tmpdir(), 'wy-test-'))
@@ -406,4 +407,67 @@ test('(d) --global → home/.warnyin/.warnyin-version ตรงเวอร์�
   assert.ok(existsSync(stampPath), 'global ต้องมี home/.warnyin/.warnyin-version')
   const content = readFileSync(stampPath, 'utf8').trim()
   assert.equal(content, pkgVersion, `global stamp ต้อง === package.json version (${pkgVersion})`)
+})
+
+// ─────────────────────────────────────────────────────────────
+// isEntrypoint — main-guard detection (regression รันผ่าน symlink)
+// bug critical: npx รัน bin ผ่าน `.bin/<name>` symlink + setup:dogfood extract ลง symlinked
+// `os.tmpdir()` (macOS) → argv[1] เป็น symlink path, import.meta.url เป็น realpath →
+// `path.resolve(argv[1])` mismatch realpath → main() เงียบ exit 0 ไม่ติดตั้ง (กระทบ end-user + dogfood)
+// ─────────────────────────────────────────────────────────────
+
+const ENTRY_REAL = path.join('/real', 'pkg', 'src', 'bin', 'cli.mjs')
+const ENTRY_META = pathToFileURL(ENTRY_REAL).href
+
+test('isEntrypoint — argv1 = realpath ตรง module → true (direct run ปกติ)', () => {
+  assert.equal(isEntrypoint(ENTRY_REAL, ENTRY_META, (p) => p), true)
+})
+
+test('isEntrypoint — argv1 = symlink path, realpath → module → true (เคสหลัก: npx .bin / symlinked tmpdir)', () => {
+  // argv1 เป็น symlink path ที่ต่างจาก module path แต่ realpath resolve → module เดียวกัน
+  assert.equal(
+    isEntrypoint(path.join('/var', 'folders', 'x', 'T', 'link', 'cli.mjs'), ENTRY_META, () => ENTRY_REAL),
+    true,
+    'realpath(argv1) === self → ต้อง true แม้ argv1 เป็น symlink path (กัน main() เงียบ exit 0)',
+  )
+})
+
+test('isEntrypoint — argv1 = คนละไฟล์ (ถูก import จาก test) → false', () => {
+  assert.equal(isEntrypoint(path.join('/some', 'other-importer.mjs'), ENTRY_META, (p) => p), false)
+})
+
+test('isEntrypoint — argv1 undefined → false', () => {
+  assert.equal(isEntrypoint(undefined, ENTRY_META, (p) => p), false)
+})
+
+test('isEntrypoint — realpath throw (argv1 ไม่อยู่จริง) → fallback path.resolve', () => {
+  const boom = () => {
+    throw new Error('ENOENT')
+  }
+  assert.equal(isEntrypoint(ENTRY_REAL, ENTRY_META, boom), true, 'fallback: path เท่ากัน → true')
+  assert.equal(
+    isEntrypoint(path.join('/elsewhere', 'cli.mjs'), ENTRY_META, boom),
+    false,
+    'fallback: path ต่าง → false',
+  )
+})
+
+// black-box: spawn cli.mjs ผ่าน symlink จริง → main() ต้องทำงาน (behavioral end-to-end, CI ubuntu)
+test('black-box: รัน cli.mjs ผ่าน symlink → main() ทำงาน + เขียน stamp (regression npx/dogfood)', (t) => {
+  const tmp = makeTempProject(t)
+  const linkHome = makeTempProject(t)
+  const link = path.join(linkHome, 'warnyin-agents') // จำลอง node_modules/.bin/<name>
+  try {
+    symlinkSync(cliPath, link)
+  } catch (e) {
+    // Windows ที่ไม่มีสิทธิ์สร้าง file-symlink — bug เป็น symlink-path; CI (ubuntu) ครอบเคสนี้เต็ม
+    // ไม่ skip (count gate ห้าม pass!=tests) — log ให้เห็นชัดว่า platform นี้ไม่ได้เทส symlink จริง
+    console.error(`  ⚠ ข้ามสร้าง symlink (${e.code || e.message}) — platform ไม่รองรับ; CI ubuntu ครอบ`)
+    return
+  }
+  const r = spawnSync(process.execPath, [link, '--project', '--update'], { cwd: tmp, encoding: 'utf8' })
+  assert.equal(r.status, 0, `รันผ่าน symlink exit!=0\nSTDERR:\n${r.stderr}\nSTDOUT:\n${r.stdout}`)
+  const stampPath = path.join(tmp, '.warnyin', '.warnyin-version')
+  assert.ok(existsSync(stampPath), 'รันผ่าน symlink → main() ต้องทำงาน + เขียน stamp (ไม่เงียบ exit 0)')
+  assert.equal(readFileSync(stampPath, 'utf8').trim(), pkgVersion, 'stamp ผ่าน symlink ต้องตรง version')
 })

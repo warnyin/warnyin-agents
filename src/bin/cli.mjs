@@ -327,7 +327,31 @@ async function main() {
   }
 }
 
-// main-guard: รันเฉพาะตอน execute ตรง ๆ (ไม่ trigger ตอน import เพื่อ unit-test resolveMode)
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+/**
+ * ตรวจว่า module ถูก execute ตรง ๆ (entrypoint) ไม่ใช่ถูก import — เทียบ argv[1] กับ path ของ module เอง
+ * ★ ต้อง realpath argv[1] ด้วย: ESM `import.meta.url` เป็น realpath (resolve symlink) เสมอ แต่ argv[1]
+ *   เป็น path ตามที่ผู้เรียกระบุ (ไม่ resolve symlink). เมื่อรันผ่าน symlink — npx รัน bin ผ่าน
+ *   `.bin/<name>` symlink, setup:dogfood extract tarball ลง `os.tmpdir()` ที่เป็น symlink บน macOS
+ *   (`/var/folders/.../T` → `/private/var/...`) — `path.resolve(argv[1])` จะคืน symlink path ≠ realpath
+ *   ของ module → mismatch → main() ไม่ถูกเรียก → installer เงียบ exit 0 ไม่ทำอะไร (bug critical:
+ *   กระทบทั้ง npx ของผู้ใช้ปลายทาง + setup:dogfood). realpath ทั้งสองฝั่งจึง match ถูกต้อง.
+ * @param {string|undefined} argv1 — process.argv[1] (path ของ script ที่ node รัน)
+ * @param {string} metaUrl — import.meta.url ของ module (เป็น realpath เสมอใน ESM)
+ * @param {(p: string) => string} [realpath] — injectable เพื่อ unit-test (default fs.realpathSync)
+ * @returns {boolean}
+ */
+export function isEntrypoint(argv1, metaUrl, realpath = fs.realpathSync) {
+  if (!argv1) return false
+  const self = fileURLToPath(metaUrl)
+  try {
+    return realpath(argv1) === self
+  } catch {
+    // argv1 resolve เป็น realpath ไม่ได้ (ไฟล์ไม่อยู่จริง ฯลฯ) → fallback เทียบ path ปกติ
+    return path.resolve(argv1) === self
+  }
+}
+
+// main-guard: รันเฉพาะตอน execute ตรง ๆ (ไม่ trigger ตอน import เพื่อ unit-test resolveMode/isEntrypoint)
+if (isEntrypoint(process.argv[1], import.meta.url)) {
   await main()
 }
