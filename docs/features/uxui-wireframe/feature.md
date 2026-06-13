@@ -16,7 +16,7 @@
 - **artifact:** ASCII low-fidelity ใน `wireframe.md` (4 section: User flow · Wireframe ต่อ screen · Screen states · Design-honor note) — commit ลง repo, เห็นใน terminal/PR, tool-agnostic
 
 ## ขอบเขต / การตัดสินใจเชิงสถาปัตยกรรม
-- **ASCII in-repo ไม่ vendor tool** — tool-agnostic (ทุก harness วาดได้) + token-lean; Figma MCP / HTML mockup เป็น **optional skill เสริม** (reference ไม่ vendor) ใน `roles/ux.md`
+- **ASCII in-repo ไม่ vendor tool** — tool-agnostic (ทุก harness วาดได้) + token-lean; `ui-ux-pro-max` (Claude plugin hi-fi design intelligence) / Figma MCP / HTML mockup เป็น **optional skill เสริม** (reference ไม่ vendor) ใน `roles/ux.md` — ต่อยอด hi-fi จาก low-fi wireframe ที่ user approve
 - **read-only generator + single-writer** — agent คืน text, main loop persist artifact ที่ user ต้องยืนยัน (ปลอด write, สอด "serialize narrative/artifact")
 - **gate ทุกข้อ conditional (N/A เมื่อไม่มี UI surface)** — backward compatible
 - **generator ≠ reviewer** — UX เป็น generator (ผลิต wireframe) แยกจาก review panel 5 role (reviewer read-only); `roles/README.md` ระบุรูปแบบ `generator`

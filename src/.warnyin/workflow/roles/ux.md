@@ -69,5 +69,8 @@
 
 ## Skill เสริม (optional — reference ไม่ vendor)
 
+- **`ui-ux-pro-max`** (Claude plugin, MIT) — design intelligence **hi-fi**: 67 styles · 161 palettes · font pairings · charts · stacks (React/Next/Vue/Svelte/Astro/SwiftUI/RN/Flutter/Tailwind/shadcn); actions plan/build/design/review/fix UI/UX. ใช้**ต่อยอด hi-fi** จาก low-fi ASCII wireframe ของ generator นี้ (wireframe = โครง+flow ที่ user approve → skill นี้ลงรายละเอียด production)
+  - ติดตั้ง: `/plugin marketplace add nextlevelbuilder/ui-ux-pro-max-skill` → `/plugin install ui-ux-pro-max@ui-ux-pro-max-skill` (หรือ `npm i -g uipro-cli` → `uipro init --ai claude --global`)
+  - ⚠ third-party: ตรวจ `SKILL.md` + `scripts/*.cjs` (มี code execute) ก่อนติดตั้ง + pin ที่ version/commit (ตรวจ ณ v2.5.0 / `b7e3af8`) — prompt-injection surface (`docs/rule.md` §3.2)
 - **Figma MCP** — โปรเจกต์ที่ใช้ Figma ออกแบบ high-fidelity: ติดตั้งแยก (ไม่ bundled)
 - **HTML mockup** — สร้าง static HTML ต่อจาก ASCII wireframe เพื่อ prototype click-through: ทำได้ใน BUILD task (อยู่นอก scope ของ generator นี้)
