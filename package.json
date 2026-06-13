@@ -1,6 +1,6 @@
 {
   "name": "@warnyin/agents",
-  "version": "0.17.0",
+  "version": "0.18.0",
   "description": "Warnyin Standard Workflow installer — 5-stage ways of work (Discovery/DESIGN/BUILD/VERIFY/SHIP) สำหรับทุกโปรเจกต์",
   "type": "module",
   "license": "MIT",

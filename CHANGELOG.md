@@ -23,6 +23,15 @@
 
 ## [Unreleased]
 
+## [0.18.0] - 2026-06-13
+
+### Added
+- **UX wireframe capability ใน DESIGN** (feature `uxui-wireframe`) — DESIGN auto-detect ว่า change มี UI surface ไหม → ถ้าใช่ generator agent `warnyin-ux` (read-only) วาด **ASCII low-fidelity wireframe** (user flow + screen + states) ให้ user **ยืนยันก่อนแตก task** (step 4.5 + approve gate + gate item conditional); ถ้าไม่มี UI surface → ข้ามเงียบ (backward compatible). เป็น stage-invoked capability **generator variant** (read-only generator + approve gate — ต่างจาก api-doc ที่เป็น doc-producer). template `wireframe.md` + role card `roles/ux.md` + 2 guard (prompt-injection/privacy).
+- **skill เสริมประจำ role** (reference ไม่ vendor ใน `roles/README.md`) — UX: `ui-ux-pro-max` (Claude plugin, hi-fi design intelligence ต่อยอดจาก low-fi wireframe); QA: `@playwright/cli` (Microsoft official, FE e2e web test — ใช้คู่ VERIFY e2e smoke)
+
+### Changed
+- **`/warnyin:install-skill` รองรับหลาย install mechanism** — เดิม `npx skills add` แบบเดียว → generalize เป็น 4 แบบ (skills.sh · Claude plugin `/plugin marketplace` · repo-path · npm CLI `npm i -g` + post-install) โดยอ่าน install method จากคอลัมน์ "ที่มา" ของตาราง (ยังคง single-source ไม่ hardcode รายการ)
+
 ## [0.17.0] - 2026-06-12
 
 ### Added
