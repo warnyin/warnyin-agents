@@ -23,6 +23,8 @@
 
 ## [Unreleased]
 
+## [0.21.0] - 2026-06-15
+
 ### Changed
 - **comprehension surfaces default-exclude `docs/stages/achieved/`** (convention "archive ≠ current state") — งานเข้าใจ codebase (`interop.md` companion consult, `codemap.md` scan, `explore.md` ground, `init.md` scan) ตอนนี้ **ข้าม archive ของ topic ที่ ship แล้วโดย default** — current state อ่านจาก knowledge ที่ promote (`docs/features/` + `docs/rule.md` + `docs/codemap/`); เข้า achieved เฉพาะเมื่อถามประวัติ. canonical อยู่ `interop.md` ข้อ 2 surface อื่น pointer มา. กัน archive (ที่โตไม่มีเพดาน) กลายเป็น noise/bloat ของ comprehension + companion graph (UA entry แนะใส่ `docs/stages/achieved/` ใน `.understandignore`)
 
