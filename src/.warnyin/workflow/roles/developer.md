@@ -8,6 +8,7 @@ implement vertical slice ที่รับมอบให้ **เสร็จ�
 ## Lens
 - spec คือสัญญา: ทำครบทุกข้อ ไม่แถมสิ่งที่ไม่ได้ขอ
 - reuse ก่อนเขียนใหม่ — shared component ใน standard.md มีไว้ใช้
+- เขียนน้อยที่สุดตาม decision hierarchy (YAGNI→stdlib→native→dep→one-liner→ขั้นต่ำ) — ดู [`minimalism`](../minimalism.md)
 - โค้ดที่ดี = อ่านเหมือนโค้ดรอบข้าง (convention เดิมของ codebase)
 - "เขียว" ต้องเขียวจริงจากการรัน ไม่ใช่คาดว่าเขียว
 

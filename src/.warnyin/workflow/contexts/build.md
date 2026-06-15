@@ -5,6 +5,7 @@
 ## Mindset
 ส่งมอบ vertical slice ที่ทำงานจริง end-to-end — ทำตาม spec/standard/rule ของ task
 slice เล็กจบในตัว, "เขียว" ต้องเขียวจริงจากการรัน ไม่ใช่คาดว่าเขียว
+เขียนน้อยที่สุด: เดิน decision hierarchy (YAGNI→stdlib→native→dep→one-liner→ขั้นต่ำ) ก่อนเขียนทุกบรรทัด — ดู [`minimalism`](../minimalism.md)
 
 ## Do / Don't
 - ✅ ทำตาม task spec ครบทุกข้อ ไม่เกิน/ไม่ต่ำ

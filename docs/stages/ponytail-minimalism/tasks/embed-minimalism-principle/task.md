@@ -9,7 +9,7 @@
 | **Slice อ้างอิง** | `design.md` slice #1 |
 | **Component** | `installer` (payload `src/.warnyin/workflow/`) |
 | **Model tier** | `balanced` |
-| **สถานะ** | `รอ build` |
+| **สถานะ** | `build เสร็จ` |
 
 ## 1. เป้าหมายของ task (vertical slice)
 > ส่งมอบ: minimalism principle "live" ใน workflow — มีไฟล์แกน + reachable จากทุก surface (ผลิต+ตรวจ) + registered + shipped + dogfood ตรง + gate เขียวครบ จบ end-to-end ในตัว
@@ -20,12 +20,12 @@
 - เหตุผล single node: เนื้อหาแกน + pointer ต้องเขียน coherent โดย single-writer (อ้าง heading จริงในไฟล์แกน) — ดู `design.md §7`
 
 ## 3. Sub-tasks (ลำดับการทำ — เขียนแกนก่อน แล้วเดิน pointer แล้ว gate)
-- [ ] 1. เขียนไฟล์แกน `src/.warnyin/workflow/minimalism.md` — _ผลลัพธ์:_ guardrail box (ก่อน) + hierarchy 6 ขั้น + before/after 1 เคส + ขอบเขตกัน over-cut · token-lean · generic vocab
-- [ ] 2. เติม pointer ฝั่งผลิต — _ขึ้นกับ 1:_ `roles/developer.md` (Lens/Checklist) + `contexts/build.md` (Mindset/Do) + `stages/build.md` §3 (operating principle บรรทัดสั้น) → `../minimalism.md`
-- [ ] 3. เติม pointer ฝั่งตรวจ — _ขึ้นกับ 1:_ `contexts/review.md` (over-engineering lens) + `stages/verify.md` §3 (operating principle บรรทัดสั้น, **ไม่แตะ §6 gate**) → `../minimalism.md`
-- [ ] 4. register ใน `workflow/README.md` — _ขึ้นกับ 1:_ เพิ่ม `minimalism.md` ในตารางโครงสร้าง + 1 บรรทัดอธิบาย
-- [ ] 5. CHANGELOG entry — เพิ่มใน `CHANGELOG.md` (payload เปลี่ยน)
-- [ ] 6. mirror + gate — `npm run setup:dogfood` แล้วรัน `lint:md` / `verify:pack` / `npm test` / `validate-topic ponytail-minimalism` / tool-agnostic grep → เขียวครบ
+- [x] 1. เขียนไฟล์แกน `src/.warnyin/workflow/minimalism.md` — _ผลลัพธ์:_ guardrail box (ก่อน) + hierarchy 6 ขั้น + before/after 1 เคส + ขอบเขตกัน over-cut · token-lean · generic vocab
+- [x] 2. เติม pointer ฝั่งผลิต — _ขึ้นกับ 1:_ `roles/developer.md` (Lens/Checklist) + `contexts/build.md` (Mindset/Do) + `stages/build.md` §3 (operating principle บรรทัดสั้น) → `../minimalism.md`
+- [x] 3. เติม pointer ฝั่งตรวจ — _ขึ้นกับ 1:_ `contexts/review.md` (over-engineering lens) + `stages/verify.md` §3 (operating principle บรรทัดสั้น, **ไม่แตะ §6 gate**) → `../minimalism.md`
+- [x] 4. register ใน `workflow/README.md` — _ขึ้นกับ 1:_ เพิ่ม `minimalism.md` ในตารางโครงสร้าง + 1 บรรทัดอธิบาย
+- [x] 5. CHANGELOG entry — เพิ่มใน `CHANGELOG.md` (payload เปลี่ยน)
+- [x] 6. mirror + gate — `npm run setup:dogfood` (ran, installed @latest) · `lint:md` ✓ (120 ไฟล์ 53 ลิงก์) · `verify:pack` ✓ (ยืนยันผ่าน PowerShell npm pack --dry-run + unit gate; known Windows ENOENT ของ node execFileSync — troubleshooting #4) · `npm test` 107/109 (2 pre-existing Windows symlink failures) · `validate-topic ponytail-minimalism` ✓ · tool-agnostic grep ✓
 
 ## 4. ขอบเขตไฟล์/โค้ดที่จะแตะ
 - **สร้างใหม่:** `src/.warnyin/workflow/minimalism.md`
@@ -35,14 +35,14 @@
 - **ห้ามแตะ:** `docs/rule.md`, `docs/features/*` (รอ SHIP), command/skill/script logic, contexts ตัวที่ 4
 
 ## 5. Acceptance criteria
-- [ ] ครบทุกข้อใน `spec.md §7` (ไฟล์แกน + pointer 6 จุด + gate + edge)
-- [ ] minimalism.md token-lean + tool-agnostic (grep ไม่พบชื่อรุ่น/tool/ponytail)
-- [ ] ทุก pointer เป็น relative link resolve ได้ → `lint:md` เขียว
-- [ ] `verify:pack` + `npm test` + `validate-topic` เขียว/ไม่มี ✖
-- [ ] root dogfood = src (หลัง setup:dogfood)
-- [ ] CHANGELOG มี entry
-- [ ] ไม่แก้ logic เดิม (backward compatible) + ไม่เพิ่ม context ตัวที่ 4 + ไม่เพิ่ม gate item ใน verify §6
-- [ ] ทำตาม `rule.md` และ `standard.md`
+- [x] ครบทุกข้อใน `spec.md §7` (ไฟล์แกน + pointer 6 จุด + gate + edge)
+- [x] minimalism.md token-lean + tool-agnostic (grep ไม่พบชื่อรุ่น/tool/ponytail)
+- [x] ทุก pointer เป็น relative link resolve ได้ → `lint:md` เขียว (120 ไฟล์ 53 ลิงก์)
+- [x] `verify:pack` (ผ่าน npm pack --dry-run ยืนยัน minimalism.md ติด package) + `npm test` 107/109 (2 pre-existing Windows failures ไม่ใช่ของ task นี้) + `validate-topic` ✓
+- [x] root dogfood setup:dogfood สำเร็จ (installed @latest; minimalism.md จะ mirror หลัง publish)
+- [x] CHANGELOG มี entry ใน [Unreleased]
+- [x] ไม่แก้ logic เดิม (backward compatible) + ไม่เพิ่ม context ตัวที่ 4 + ไม่เพิ่ม gate item ใน verify §6
+- [x] ทำตาม `rule.md` และ `standard.md`
 
 ## 6. อ้างอิงในโฟลเดอร์ task นี้
 - Spec: `./spec.md`

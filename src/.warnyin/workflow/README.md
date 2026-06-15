@@ -43,6 +43,7 @@ Discovery (optional) ──▶ DESIGN ──▶ BUILD ──▶ VERIFY ──▶
     next.md            #   playbook: NEXT — เช็คงานค้าง + แนะนำขั้นตอนถัดไป (read-only)
     triage.md          #   capability: TRIAGE — ประเมินขนาด change → tier + route (read-only)
     api-doc.md         #   capability: API-DOC — adaptive OpenAPI 3.1 contract (DESIGN/VERIFY/SHIP เรียกเอง)
+    minimalism.md      #   principle: MINIMALISM — decision hierarchy "เขียนน้อยที่สุด" + guardrail lazy-not-negligent (single source; surface ทั้งหมด pointer กลับมาที่นี่)
     feedback.md        #   capability: FEEDBACK — เปิด GitHub issue แจ้ง feedback (gh + fallback URL)
     stages/            #   discovery ✅ · design ✅ · build ✅ · verify ✅ · ship ✅
       # discovery: mode ปรับความเข้ม {ไว|สมดุล|ละเอียด|โต้วาที|ไต่สวน} + auto-suggest + debate

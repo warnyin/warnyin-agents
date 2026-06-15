@@ -31,7 +31,7 @@
 
 ## 3. หลักการทำงาน (operating principles)
 
-1. **เข้าใจจุดประสงค์ก่อนเทส** — เทสตามเจตนาของ topic ไม่ใช่แค่ให้เขียว **และพฤติกรรมเดิมจาก feature spec** — scenario เดิมใน `docs/features/<name>/spec.md` = regression case (ต้องไม่พัง ยกเว้นที่ MODIFIED/REMOVED ระบุ), scenario ใน Spec delta = test case ใหม่
+1. **เข้าใจจุดประสงค์ก่อนเทส** — เทสตามเจตนาของ topic ไม่ใช่แค่ให้เขียว **และพฤติกรรมเดิมจาก feature spec** — scenario เดิมใน `docs/features/<name>/spec.md` = regression case (ต้องไม่พัง ยกเว้นที่ MODIFIED/REMOVED ระบุ), scenario ใน Spec delta = test case ใหม่; ใช้ over-engineering lens ตรวจว่ามีโค้ดที่ตัดได้โดยไม่เสีย acceptance ไหม — ดู [`minimalism`](../minimalism.md)
 2. **เทสในสภาพแวดล้อมจริง (local env)** — รัน service ที่เกี่ยวข้องใน local แล้วเทสตามแผน
 3. **ใช้ guideline จาก `test.md`** ของ techstack; ถ้าไม่มีให้เสนอวิธีเทสที่เหมาะแล้วเขียนแผนเอง
 4. **Frontend → verify UX/UI ด้วย** (ไม่ใช่แค่ functional — ดู layout, state, flow, ความถูกต้องของหน้าจอ)

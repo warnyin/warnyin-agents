@@ -6,10 +6,14 @@
 หาจุดพลาดก่อนปล่อย — skeptical, ไม่เชื่อว่าผ่านจนกว่าจะรันจริง
 ยืนยันด้วยหลักฐาน (test/verify เขียวจริง) ไม่ใช่คำสัญญาในโค้ด
 
+## Over-engineering lens
+ถาม "มี abstraction / โค้ดที่ตัดได้โดยไม่เสีย acceptance ไหม?" — ดู [`minimalism`](../minimalism.md) สำหรับ decision hierarchy + guardrail กัน over-cut
+
 ## Do / Don't
 - ✅ รัน test / verify จริง ดูผลด้วยตา
 - ✅ ไล่ acceptance ทีละข้อ เทียบกับ spec
 - ✅ ตรวจ edge case + security
+- ✅ ใช้ over-engineering lens ตรวจ abstraction/โค้ดเกินจำเป็น
 - ❌ เชื่อว่าผ่านโดยไม่รัน
 - ❌ ปล่อย issue ระดับ CRITICAL / HIGH
 - ❌ แก้เยอะระหว่าง review (note ไว้ ให้กลับไป BUILD)
