@@ -23,6 +23,8 @@
 
 ## [Unreleased]
 
+## [0.19.0] - 2026-06-15
+
 ### Added
 - **Minimalism principle ใน workflow** (feature `minimalism`) — ไฟล์แกน `minimalism.md` เป็น single source of truth ของ decision hierarchy "เขียนน้อยที่สุด" (YAGNI→stdlib→native→dep→one-liner→ขั้นต่ำ) + guardrail "lazy not negligent"; surface ฝั่งผลิต (`roles/developer.md`, `contexts/build.md`, `stages/build.md`) และฝั่งตรวจ (`contexts/review.md`, `stages/verify.md`) pointer กลับมาที่ไฟล์แกนเดียว (ไม่ duplicate hierarchy); `workflow/README.md` register ไฟล์; backward-compatible 100% (เพิ่ม pointer เท่านั้น ไม่ลบ/แก้ logic เดิม)
 
