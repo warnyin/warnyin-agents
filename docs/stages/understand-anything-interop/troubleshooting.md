@@ -18,7 +18,12 @@
   npm run lint:md → docs/stages/.../standard.md: ลิงก์เสีย → interop.md
   ```
 - **บริบทที่ทำให้เกิด (trigger):** เขียนตัวอย่าง markdown-link `[interop](interop.md)` ครอบด้วย **double-backtick** `` `` ... `` `` ในเอกสาร (เพื่อแสดง inline-code ที่มี backtick ข้างใน)
-- **สาเหตุที่แท้จริง (root cause):** `lint-md.mjs` `CODE_RE = /```[\s\S]*?```|`[^`\n]*`/g` strip เฉพาะ **single-backtick** และ **triple-backtick** — **ไม่ strip double-backtick** (`` `` ``) → `LINK_RE` จับ `[text](path)` ข้างในแล้วตรวจ path จริง → false dead-link
+- **สาเหตุที่แท้จริง (root cause):** `CODE_RE` ใน `lint-md.mjs` strip เฉพาะ **single-backtick** และ **triple-backtick** — **ไม่ strip double-backtick** → markdown-link ตัวอย่างที่อยู่ใน double-backtick ถูก `LINK_RE` จับแล้วตรวจ path จริง → false dead-link. รูปแบบ regex + ตัวอย่างที่ทำให้พัง (เขียนใน fenced block เพื่อให้ lint strip ได้ — ดูข้อ "ป้องกัน"):
+
+  ```
+  CODE_RE = /```[\s\S]*?```|`[^`\n]*`/g     # strip ไม่ครอบ double-backtick
+  ตัวอย่างที่หลุด: double-backtick ครอบ link [text](path) → ตรวจ path จริง
+  ```
 - **วิธีแก้ที่ได้ผล (solution):** เปลี่ยนตัวอย่างจาก double-backtick เป็น **fenced code block** (triple-backtick) ซึ่ง CODE_RE strip ได้ → lint ผ่าน
 - **วิธีสังเกต/ป้องกันไม่ให้เกิดซ้ำ:** เขียนตัวอย่าง markdown-link ในเอกสารด้วย **fenced code block** แทน double-backtick; หรือ escape วงเล็บ. (ถ้าจะแก้ที่ root: เพิ่ม double-backtick ใน CODE_RE ของ `lint-md.mjs` — แต่เป็น dev-tooling change คนละ topic)
 
