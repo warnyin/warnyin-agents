@@ -87,6 +87,7 @@
 - **dead-link สองทิศ:** scan link ในไฟล์ใหม่ + ทุก path ที่ไฟล์อื่นอ้างถึงไฟล์ใหม่ → resolve เป็นไฟล์จริงครบ (0 dead)
 - **3-way consistency:** ความรู้ชุดเดียวกระจายหลายที่ (เช่น `contexts/README.md` mapping ↔ callout ใน `stages/*` ↔ section "ใช้คู่ stage" ของ card) → ทั้งสามต้องตรงกัน (บทเรียนเดียวกับ cli↔CHANGELOG↔test ใน `cli-legacy-warning-fix`)
 - **โครง conformance:** ไฟล์ประเภทเดียวกันโครงเดียวกัน (เช่น context card ทุกใบมี 4 section คงที่) + บาง ไม่ duplicate logic ของไฟล์ที่ชี้ไป
+- **principle/cross-cutting single-source (L: topic `ponytail-minimalism`):** doc แกนที่หลาย surface pointer มา (เช่น `minimalism.md`) — verify **single-source แบบ falsifiable:** `grep -rl <full canonical block>` ใน `src/.warnyin/workflow/` ต้องเจอ **ไฟล์เดียว** (surface อื่นเป็น pointer ไม่ใช่ full block); pointer แบบ arrow-summary/teaser ที่กระจายหลายไฟล์ → grep ยืนยัน **wording เหมือนกันทุกไฟล์** (canonical-copy ไม่แต่งใหม่); + dead-link สองทิศ (pointer resolve) + install-proof (`setup:sandbox` → ไฟล์แกน + pointer wire ลง target จริง) — backward-compat: เพิ่ม pointer เท่านั้น ไม่เพิ่ม context/gate (grep section count เดิม)
 
 ## verify spec/delta payload (L: topic `feature-spec-delta`)
 > change ที่แตะ behavior spec (`docs/features/*/spec.md`), template spec, หรือกติกา Spec delta ใน playbook — ขยายจาก "payload `.md` ล้วน"
