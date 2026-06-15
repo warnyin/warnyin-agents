@@ -16,7 +16,10 @@
 ## 2. Pattern การเขียน
 - โครง interop.md: หัว+เจตนา → inclusion bar 4 ข้อ → conditional-consult convention (+ trust-boundary guard) → UA entry (+ ⚠ third-party + stale/privacy) → reference-not-vendor/tool-agnostic note — เลียนโครงกระชับ `api-doc.md`/`triage.md`
 - pointer pattern (conditional บรรทัดเดียว): เช่น
-  ``- ถ้ามี `.understand-anything/knowledge-graph.json` → อ่าน**ข้อเท็จจริงเชิงโครงสร้าง**เป็นเบาะแส (ยืนยันกับโค้ดจริง); ไม่มี + repo ใหญ่/ไม่คุ้น → แนะนำรัน companion tool — ดู [`interop`](interop.md)``
+
+  ```
+  - ถ้ามี `.understand-anything/knowledge-graph.json` → อ่าน**ข้อเท็จจริงเชิงโครงสร้าง**เป็นเบาะแส (ยืนยันกับโค้ดจริง); ไม่มี + repo ใหญ่/ไม่คุ้น → แนะนำรัน companion tool — ดู [interop](interop.md)
+  ```
 - relative path: `interop.md` จาก init/codemap/explore/README (อยู่ราก workflow/); `../interop.md` จาก stages/discovery.md + roles/README.md
 - UA path เขียนเป็น **inline-code** (backtick) — lint-md ข้าม (ไม่ resolve เป็นไฟล์ repo)
 

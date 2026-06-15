@@ -20,6 +20,7 @@
 - หา source directory ทั้งหมด (`src/`, `lib/`, `app/`, `packages/`, ...)
 - map entry points (`main.ts`, `index.ts`, `app.py`, `main.go`, ...)
 - สแกนขนานได้: fan-out sub-agent (read-only) ต่อ component/พื้นที่ — เครื่องที่ไม่มี sub-agent → ไล่ทีละส่วน
+- ถ้ามี `.understand-anything/knowledge-graph.json` → อ่าน**ข้อเท็จจริงเชิงโครงสร้าง** (file/function/layer/dependency) เป็นเบาะแสเสริมระดับสูง (ยืนยันกับโค้ดจริงเสมอ); ไม่มี + repo ใหญ่/ไม่คุ้น → แนะนำรัน companion tool — ดู [`interop`](interop.md)
 
 ### Step 2: สร้าง/อัปเดต codemap ใน `docs/codemap/`
 

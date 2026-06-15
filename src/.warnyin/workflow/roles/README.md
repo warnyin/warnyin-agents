@@ -50,3 +50,5 @@
 | UX | `ui-ux-pro-max` | Claude plugin (MIT, hi-fi design intelligence — styles/palettes/stacks; ต่อยอด hi-fi จาก low-fi wireframe): `/plugin marketplace add nextlevelbuilder/ui-ux-pro-max-skill` → `/plugin install ui-ux-pro-max@ui-ux-pro-max-skill` (หรือ `uipro-cli`) · ⚠ third-party: ตรวจ `SKILL.md`/`scripts/*.cjs` ก่อนติดตั้ง + pin version/commit (prompt-injection surface — `docs/rule.md` §3.2) |
 | SA, Developer | `openapi-spec-generation` | `wshobson/agents` → `plugins/documentation-generation/skills/openapi-spec-generation/` (template library — ใช้คู่ capability `.warnyin/workflow/api-doc.md`) · ⚠ third-party: ตรวจ `SKILL.md`/`references` ก่อนติดตั้ง + pin ที่ commit/tag (prompt-injection surface — `docs/rule.md` §3.2) |
 | BA, Infra | — | ยังไม่มี skill ภายนอกที่ผ่านเกณฑ์คุณภาพ (ใช้ role card พอ) |
+
+> **cross-cutting comprehension tool:** ถ้าโปรเจกต์มี `.understand-anything/knowledge-graph.json` → ทุก role ใช้ graph เป็นเบาะแสเสริม (ไม่ผูกกับ role ใดโดยเฉพาะ) — ดู [`../interop`](../interop.md) สำหรับ convention การ consult + trust-boundary guard

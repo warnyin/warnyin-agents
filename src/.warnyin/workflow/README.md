@@ -44,6 +44,7 @@ Discovery (optional) ──▶ DESIGN ──▶ BUILD ──▶ VERIFY ──▶
     triage.md          #   capability: TRIAGE — ประเมินขนาด change → tier + route (read-only)
     api-doc.md         #   capability: API-DOC — adaptive OpenAPI 3.1 contract (DESIGN/VERIFY/SHIP เรียกเอง)
     minimalism.md      #   principle: MINIMALISM — decision hierarchy "เขียนน้อยที่สุด" + guardrail lazy-not-negligent (single source; surface ทั้งหมด pointer กลับมาที่นี่)
+    interop.md         #   capability: INTEROP — companion tool consult-if-present convention + inclusion bar 4 ข้อ + UA entry (stage pointer conditional; trust-boundary guard)
     feedback.md        #   capability: FEEDBACK — เปิด GitHub issue แจ้ง feedback (gh + fallback URL)
     stages/            #   discovery ✅ · design ✅ · build ✅ · verify ✅ · ship ✅
       # discovery: mode ปรับความเข้ม {ไว|สมดุล|ละเอียด|โต้วาที|ไต่สวน} + auto-suggest + debate

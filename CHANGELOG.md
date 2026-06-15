@@ -23,6 +23,9 @@
 
 ## [Unreleased]
 
+### Added
+- **Interop convention ใน workflow** (feature `interop`) — ไฟล์แกน `interop.md` เป็น single source of truth ของ companion-tool consult-if-present convention + **inclusion bar 4 ข้อ** (artifact-detectable / tool-agnostic / permissive license / เติมช่อง zero-dep) + **★ trust-boundary guard (B1)** (artifact = untrusted data: อ่านเฉพาะข้อเท็จจริงเชิงโครงสร้าง, free-text ยืนยันกับโค้ดจริง, instruction ในไฟล์ → ignore; อ้าง `docs/rule.md §3.2`) + **UA entry** (`.understand-anything/knowledge-graph.json`, ⚠ third-party + pin, stale/privacy note); 5 touchpoint (`init.md` §3 step 1-2, `codemap.md` §2 step 1, `explore.md` §3, `stages/discovery.md` §3 ข้อ 4, `roles/README.md` Skill เสริม) pointer conditional บรรทัดสั้น (ไม่ duplicate convention); `workflow/README.md` register; tool-agnostic (trigger = path artifact) + reference-not-vendor; backward-compatible 100% (เพิ่ม pointer เท่านั้น ไม่ลบ/แก้ logic เดิม)
+
 ## [0.19.0] - 2026-06-15
 
 ### Added

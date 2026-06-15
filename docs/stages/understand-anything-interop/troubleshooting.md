@@ -1,34 +1,29 @@
-# Troubleshooting — <ชื่อ change>
+# Troubleshooting — Understand-Anything Interop
 
-> Log ปัญหา **ยาก/ซ้ำ** ที่เจอระหว่างทำงาน topic นี้ (ส่วนใหญ่ตอน BUILD) แล้วแก้สำเร็จ
-> ตอน **SHIP** จะยกรายการที่มีค่าขึ้นไปรวมที่ KB กลาง `docs/troubleshooting.md`
-> เจอปัญหาใหม่ → อ่าน `docs/troubleshooting.md` ก่อนเสมอ เผื่อเคยแก้แล้ว
-
----
-
-## วิธีบันทึก
-บันทึกเฉพาะปัญหาที่ **ยากจะแก้** หรือ **เจอซ้ำ** (ไม่ใช่ทุก error เล็กน้อย) — หนึ่งปัญหา = หนึ่ง entry
+> Log ปัญหา **ยาก/ซ้ำ** ที่เจอระหว่างทำงาน topic นี้ แล้วแก้สำเร็จ
+> ตอน **SHIP** จะยกรายการที่มีค่าขึ้น KB กลาง `docs/troubleshooting.md`
 
 ---
 
-### TS-1: <ชื่อปัญหาสั้นๆ>
+### TS-1: lint-md false-positive — markdown-link ใน double-backtick code
 | | |
 |---|---|
-| **วันที่** | `YYYY-MM-DD` |
-| **Component / Task** | `api-service` / `tasks/<task>` |
-| **ความถี่** | เจอครั้งเดียว (ยากมาก) / เจอซ้ำ __ ครั้ง |
-| **ยกขึ้น KB กลางตอน SHIP?** | ✅ / ❌ |
+| **วันที่** | `2026-06-15` |
+| **Component / Task** | `installer` (dev tooling `lint-md.mjs`) / `tasks/embed-interop-convention` |
+| **ความถี่** | เจอครั้งเดียว (ยาก — เข้าใจ regex ของ CODE_RE) |
+| **ยกขึ้น KB กลางตอน SHIP?** | ✅ candidate (limitation จริงของ gate) |
 
 - **อาการ / error message:**
   ```
-  <paste error>
+  npm run lint:md → docs/stages/.../standard.md: ลิงก์เสีย → interop.md
   ```
-- **บริบทที่ทำให้เกิด (trigger):**
-- **สาเหตุที่แท้จริง (root cause):**
-- **วิธีแก้ที่ได้ผล (solution):**
-- **วิธีสังเกต/ป้องกันไม่ให้เกิดซ้ำ:**
+- **บริบทที่ทำให้เกิด (trigger):** เขียนตัวอย่าง markdown-link `[interop](interop.md)` ครอบด้วย **double-backtick** `` `` ... `` `` ในเอกสาร (เพื่อแสดง inline-code ที่มี backtick ข้างใน)
+- **สาเหตุที่แท้จริง (root cause):** `lint-md.mjs` `CODE_RE = /```[\s\S]*?```|`[^`\n]*`/g` strip เฉพาะ **single-backtick** และ **triple-backtick** — **ไม่ strip double-backtick** (`` `` ``) → `LINK_RE` จับ `[text](path)` ข้างในแล้วตรวจ path จริง → false dead-link
+- **วิธีแก้ที่ได้ผล (solution):** เปลี่ยนตัวอย่างจาก double-backtick เป็น **fenced code block** (triple-backtick) ซึ่ง CODE_RE strip ได้ → lint ผ่าน
+- **วิธีสังเกต/ป้องกันไม่ให้เกิดซ้ำ:** เขียนตัวอย่าง markdown-link ในเอกสารด้วย **fenced code block** แทน double-backtick; หรือ escape วงเล็บ. (ถ้าจะแก้ที่ root: เพิ่ม double-backtick ใน CODE_RE ของ `lint-md.mjs` — แต่เป็น dev-tooling change คนละ topic)
 
 ---
 
-### TS-2: <...>
-> (คัดลอกบล็อกด้านบน)
+### หมายเหตุ (ไม่ใช่ปัญหาของ change นี้)
+- `npm test` มี 2 fail `isEntrypoint` (`installer.test.mjs`) — Windows realpath/symlink, **pre-existing** (ยืนยัน base) ไม่เกี่ยวกับ topic นี้ → ไม่บันทึกเป็น TS
+- `verify:pack` (node) ENOENT บน Windows = KB กลาง #4 (ใช้ `npm pack --dry-run` แทน) — ไม่ duplicate
