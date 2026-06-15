@@ -1,4 +1,4 @@
-<!-- Generated: 2026-06-11 (rescan หลัง global-install: cli global mode + CLAUDE.global.md) | Files scanned: ~86 src (74 .md + 12 .mjs) | Token estimate: ~880 -->
+<!-- Generated: 2026-06-15 (rescan หลัง v0.18-0.21: uxui-wireframe + minimalism + interop + archive≠current-state) | Files scanned: ~90 src (78 .md + 12 .mjs) | Token estimate: ~960 -->
 # Architecture — Warnyin Standard Workflow
 
 ## 2-layer (bootstrap / self-hosting)
@@ -78,6 +78,11 @@ lint-md.mjs         walk src/+docs/ (exclude template+archived) → checkLinks(d
 - **adapter บาง:** `src/.claude/commands/warnyin/*.md` (user-invoked) + `src/.claude/skills/*/SKILL.md` (auto-invocable, utility read-only) + `src/.claude/agents/warnyin-*.md` + `src/AGENTS.md` (Codex) — ชี้กลับ playbook กลาง ไม่ duplicate logic (skill-adapter convention: `docs/rule.md` §1)
 - role card: `src/.warnyin/workflow/roles/` (BA/PO/SA/Tech Lead/Developer/QA/Security/Infra) = **task-level lens**; reviewer subagent `src/.claude/agents/warnyin-{sa,tech-lead,qa,security,infra}.md`
 - context profile: `src/.warnyin/workflow/contexts/` (research/build/review) = **session-level posture** (คนละชั้นกับ role); playbook แต่ละ stage มี callout ชี้ context ที่เข้าคู่ (Discovery→research · DESIGN→research+build · BUILD→build · VERIFY→review · SHIP→review); แต่ละ context มี **model-tier guidance** (generic: deepest/balanced/cheap) ใน Tool preference
+- **principle / capability docs (top-level `src/.warnyin/workflow/*.md`):**
+  - `minimalism.md` — principle "เขียนน้อยที่สุด" (decision hierarchy + lazy-not-negligent guardrail); always-on, surface ผลิต/ตรวจ pointer มา — `docs/features/minimalism/`
+  - `interop.md` — stage-invoked capability "companion-tool consult-if-present" (UA knowledge graph) + trust-boundary guard (untrusted artifact) + **convention "archive ≠ current state"** (comprehension default-exclude `docs/stages/achieved/`) — `docs/features/interop/`
+  - `triage.md` (change-sizing) · `api-doc.md` (REST contract) · `feedback.md` (issue) · `discovery.md §3.5` (Discovery modes) — capability เสริม conditional/utility, stage หรือ command ชี้มา
+- generator agent: `src/.claude/agents/warnyin-ux.md` (ASCII wireframe ใน DESIGN step 4.5, read-only) — `docs/features/uxui-wireframe/`
 
 ## เผยแพร่ (packaging)
 - `package.json files` granular: `src/bin`, `src/.warnyin`, `src/.claude/commands`, `src/.claude/agents`, `src/.claude/skills`, `src/AGENTS.md`, `README/CHANGELOG/LICENSE` — **ไม่รวม** `src/tests`/`src/scripts` (dev), root dogfood (gitignored)

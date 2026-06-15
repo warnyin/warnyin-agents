@@ -1,38 +1,28 @@
-# Codemap diff report — 2026-06-07
+Codemap diff — generated 2026-06-15
+Baseline: index.md 2026-06-13 · architecture.md 2026-06-11
 
-## สรุป
-Diff < 30% → อัปเดต in place (ไม่ต้องขออนุมัติ). codemap ถูก maintain incremental
-ระหว่าง SHIP ของแต่ละ topic อยู่แล้ว — รอบนี้แค่ปิด gap ที่ตกหล่น + bump freshness.
+## Added (capability/principle docs ใหม่ตั้งแต่ baseline)
++ src/.warnyin/workflow/minimalism.md   (v0.19.0 — principle "เขียนน้อยที่สุด"; ponytail)
++ src/.warnyin/workflow/interop.md      (v0.20.0 — companion-tool consult-if-present; understand-anything)
 
-## Modified
-- docs/codemap/architecture.md
-  * packaging files list +`src/.claude/skills` (ตกหล่นตั้งแต่ topic skill-format — เพิ่ม files แล้วแต่ codemap ไม่ sync)
-  * freshness header: ~67 → ~80 src (70 .md + 10 .mjs)
-- docs/codemap/index.md
-  * freshness header: ~67 → ~80 src
+## Modified (convention v0.21.0 — "archive ≠ current state")
+~ interop.md §2 + codemap.md/explore.md/init.md  (comprehension default-exclude docs/stages/achieved/)
+~ docs/rule.md §1 (interop convention ข้อ 6) · docs/features/interop/ (feature+spec)
+~ .gitignore (+ .understand-anything/)
 
-## Added (สะสมจาก session นี้ — sync ครบแล้วก่อนหน้า)
-- src/scripts/lint-md.mjs (dead-link gate, export checkLinks) — topic repo-lint
-- src/tests/lint-md.test.mjs (7 เคส) — topic repo-lint
-- src/.claude/skills/{explore,next,update-codemaps}/SKILL.md — topic skill-format
-- docs/example-walkthrough.md (onboarding) — topic examples
-- CI job `lint-md` — topic repo-lint
-
-## Architecture changes (สะสม — sync แล้ว)
-- adapters: +skills layer (auto-invocable utility) — index/architecture tool-agnostic section
-- dev tooling: +lint-md.mjs gate — index/architecture
-- CI: test matrix + pass-count + pack-verify + lint-md (4 gate)
-- 2-layer: root dogfood = gitignored root-anchored (topic gitignore-dogfood-fix)
+## Removed
+(ไม่มี — ไม่มีไฟล์/component ถูกลบ)
 
 ## Dependency ใหม่
-- ไม่มี — zero-dependency คงอยู่ (devDeps {} , deps {})
+(ไม่มี — zero-dependency คงเดิม; devDependencies ว่าง)
+
+## Architecture changes
+- เพิ่ม layer "principle/capability docs" ใน tool-agnostic design (architecture.md)
+- ไม่มี component/entry-point/code file ใหม่ (โครง 2-layer + 5-stage เดิม)
 
 ## Staleness (90+ วัน)
-- ไม่มี — codemap generated 2026-06-07 (วันนี้); ทุกไฟล์ fresh
+(ไม่มี — ทุก codemap rescan ภายในวันนี้)
 
-## Gate
-- [x] codemap ตรงโค้ดจริง + freshness header
-- [x] index.md ลิงก์ครบ (architecture.md; ไม่มี backend/frontend/data — เป็น tool)
-- [x] token-lean (< 1000 tokens/ไฟล์: index ~560, architecture ~820)
-- [x] diff < 30% (update in place, ไม่ต้องอนุมัติ)
-- [x] report เขียนแล้ว
+## หมายเหตุ scope
+- code files คงที่ 14 .mjs (cli + 5 scripts + 2 workflow scripts + 6 tests)
+- docs โต (achieved archive) แต่ codemap สะท้อน "current structure" ไม่นับ archive (สอด convention archive≠current-state)
