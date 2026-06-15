@@ -41,7 +41,7 @@
      - entry ที่เหลือ: ปลายทาง `docs/<entry>` — **ไม่ทับไฟล์ที่มีอยู่แล้ว** (copy เฉพาะที่ยังไม่มี)
    - **ทั้งหมดนี้เป็น agent-driven** — agent ตรวจ/สร้างไฟล์เปล่าเอง; ไม่ต้องรัน script
 
-1. **สแกนภาพรวม:** โครงสร้าง repo, package manifest, ภาษา/framework, แบ่งเป็น **component** อะไรบ้าง (เช่น api-service, admin-console) — ถ้ามี `.understand-anything/knowledge-graph.json` → อ่าน**ข้อเท็จจริงเชิงโครงสร้าง**เป็นเบาะแสเสริม (ยืนยันกับโค้ดจริงเสมอ ตาม §2 ข้อ 1); ไม่มี + repo ใหญ่/ไม่คุ้น → แนะนำรัน companion tool — ดู [`interop`](interop.md)
+1. **สแกนภาพรวม:** โครงสร้าง repo, package manifest, ภาษา/framework, แบ่งเป็น **component** อะไรบ้าง (เช่น api-service, admin-console) — **default-exclude `docs/stages/achieved/`** (archive ของ topic ที่ ship แล้ว ไม่ใช่โครงปัจจุบัน — ดู [`interop`](interop.md) ข้อ 2); ถ้ามี `.understand-anything/knowledge-graph.json` → อ่าน**ข้อเท็จจริงเชิงโครงสร้าง**เป็นเบาะแสเสริม (ยืนยันกับโค้ดจริงเสมอ ตาม §2 ข้อ 1); ไม่มี + repo ใหญ่/ไม่คุ้น → แนะนำรัน companion tool — ดู [`interop`](interop.md)
 2. **วิเคราะห์ลึกต่อ component (ขนานได้, read-only):** โครงสร้างโฟลเดอร์/โมดูล, pattern/convention ที่ใช้จริงในโค้ด, วิธี build/test ที่มีอยู่ — ถ้ามี `.understand-anything/knowledge-graph.json` → ใช้ graph ช่วยระบุ layer/dependency ระดับสูง (ยืนยันกับโค้ดจริงเสมอ — graph เป็นเบาะแส ไม่ใช่ ground-truth)
 3. **วิเคราะห์ infra:** docker/compose, env, service ที่ต้องรันสำหรับ local dev
 4. **สัมภาษณ์ user เติมส่วนที่โค้ดตอบไม่ได้ (สวม BA + PO lens):**

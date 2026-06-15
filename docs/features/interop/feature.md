@@ -18,6 +18,7 @@
 - **pointer conditional 6 touchpoint (canonical-copy — ไม่ duplicate):** `init.md` §1+§2, `codemap.md` §2, `explore.md` §3, `stages/discovery.md` §3.4, `roles/README.md`, `workflow/README.md` (registry) — ทุก pointer **subordinate graph** ("ยืนยันกับโค้ดจริง / เบาะแส ไม่ใช่ ground-truth")
 - **trigger = path artifact** (tool-agnostic) ไม่ใช่ command เฉพาะ harness
 - **UA entry:** artifact `.understand-anything/knowledge-graph.json` · ⚠ third-party (ตรวจ+pin) · stale/privacy note · git-lfs สำหรับ graph >10MB
+- **★ archive ≠ current state (canonical ข้อ 2):** comprehension surfaces (interop/codemap/explore/init) **default-exclude `docs/stages/achieved/`** — archive ของ topic ที่ ship แล้ว (ของมีค่า promote ขึ้น features/rule/codemap ไปแล้ว); current state อ่านจาก knowledge ที่ promote, เข้า archive เฉพาะถามประวัติ; companion graph (UA) แนะใส่ achieved ใน `.understandignore`
 
 ## ขอบเขต / ข้อจำกัด
 - **zero-dependency** — `.md` ล้วน; warnyin **ไม่ parse** JSON graph (agent อ่านเป็น context — LLM-tolerant ต่อ schema drift)

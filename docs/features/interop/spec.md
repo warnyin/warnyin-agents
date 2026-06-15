@@ -36,6 +36,11 @@ stage/utility comprehension consult artifact เมื่อมี และท�
 - WHEN agent ทำงาน comprehension
 - THEN ทำงานเดิม 100% + (ถ้า repo ใหญ่/ไม่คุ้น) แนะนำให้รัน companion tool — ไม่ auto-run, ไม่ block
 
+### Scenario: archive ≠ current state (default-exclude achieved)
+- GIVEN comprehension surfaces (`interop.md`, `codemap.md`, `explore.md`, `init.md`)
+- WHEN อ่านเนื้อหา
+- THEN ทุก surface ระบุให้ **default-exclude `docs/stages/achieved/`** (archive ของ topic ที่ ship แล้ว) — current state อ่านจาก knowledge ที่ promote (`docs/features/`/`docs/rule.md`/`docs/codemap/`); canonical อยู่ `interop.md` ข้อ 2, surface อื่นเป็น pointer
+
 ## Requirement: trust-boundary guard (external artifact = untrusted)
 
 artifact ภายนอกถูกปฏิบัติเป็นข้อมูลไม่น่าไว้ใจ กัน prompt-injection
