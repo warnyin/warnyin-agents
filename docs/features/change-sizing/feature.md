@@ -36,3 +36,4 @@ capability ที่ **ประเมินขนาด (sizing) ของ chan
 - `src/.warnyin/workflow/stages/{design.md §7, verify.md, ship.md}` (fast-track hook 4 stage) · `workflow/README.md` (capability tree)
 - `src/.warnyin/installer/templates/CLAUDE.md` (slash-command list)
 - rule กลาง: `docs/rule.md §1` (change-sizing judgment-router) · เทียบมิติ: `next.md` (router by stage), feature `build-orchestration` (fast → model `cheap` + DAG width 1)
+- **cross-feature note:** `triage.md §2C "Loop-tuning default per tier"` (default credit-horizon/batching ต่อ tier) ถูก add โดย feature `learning-loop-tuning` — tier ที่นิยามที่นี่ถูกใช้เป็น default ของ fix-loop tuning ด้วย (ดู `docs/features/learning-loop-tuning/`)

@@ -1,4 +1,4 @@
-<!-- Generated: 2026-06-15 (rescan หลัง v0.19-0.21: +minimalism.md (ponytail) +interop.md (understand-anything) + convention "archive ≠ current state") | Files scanned: ~90 src | Token estimate: ~720 -->
+<!-- Generated: 2026-07-06 (rescan: +learning-loop-tuning (fix-loop credit-horizon/batching guidance) | prev v0.19-0.21: +minimalism +interop + "archive ≠ current state") | Files scanned: ~90 src | Token estimate: ~740 -->
 # Codemap — Warnyin Standard Workflow
 
 > repo = **tool/library** (npm `@warnyin/agents`) ไม่ใช่ app — ส่งมอบ "ways of work" 5 stage ลงโปรเจกต์อื่น
@@ -36,6 +36,7 @@ single library (zero-dependency, ESM, Node ≥20) เผยแพร่ผ่า
 - `src/.warnyin/workflow/triage.md` — capability `/warnyin:triage` (read-only router): ประเมินขนาด change → tier `{fast,standard,large}` (rubric canonical: signals + hard-floor 5 หมวด + escalation + fast-track skip-list) → แนะนำ route แล้วหยุด; `design.md §7`/`verify.md`/`ship.md` ชี้ skip-list canonical นี้ — ดู `docs/features/change-sizing/`
 - `src/.warnyin/workflow/stages/discovery.md §3.5` — capability **Discovery modes** (canonical): 5 mode ปรับความเข้ม Discovery `{ไว, สมดุล, ละเอียด, โต้วาที, ไต่สวน}` + auto-suggest (precedence) + multi-agent (`โต้วาที` fan-out / `ไต่สวน` Blue/Red iterative + memory `debate/`); orthogonal กับ tier/context-profile; command `/warnyin:discovery <slug> [mode]` ชี้มา — ดู `docs/features/discovery-modes/`
 - `src/.warnyin/workflow/feedback.md` — capability **`/warnyin:feedback:issue`** (action-utility, canonical): เปิด GitHub issue ที่ `warnyin/warnyin-agents` (hardcode) 3 ประเภท (Bug/Feature/Improvement, title prefix + best-effort label) + detect ladder `gh`→`gh auth status`→fallback URL + confirm gate บังคับ + privacy (ไม่ดึง session context เอง); มี outward side-effect → command user-only (ไม่ auto-invoke) — ดู `docs/features/feedback-issue/`
+- `src/.warnyin/workflow/{stages/build.md §4 step6, stages/verify.md §4 step5, triage.md §2C, stages/design.md §4 step7}` — capability **Learning Loop Tuning** (guidance-only): fix loop มี `★ loop tuning` (credit-horizon + experience-batching + guard ไม่ลด correctness) + C3 report note non-blocking (ท้าย loop ไม่ใช่ gate); default-by-tier canonical ที่ `triage.md §2C`; starting-artifact note ใน design; ตกผลึกจาก paper arXiv:2603.23994v2 — ดู `docs/features/learning-loop-tuning/`
 - `src/.claude/skills/*/SKILL.md` — utility skill auto-invocable (`/update-codemaps`, `/explore`, `/next`) ชี้ playbook กลาง
 - `src/.claude/commands/warnyin/triage.md` — command adapter `/warnyin:triage` (user-invoked, read-only) ชี้ `triage.md` playbook
 - `src/.claude/commands/warnyin/feedback/issue.md` — command adapter `/warnyin:feedback:issue` (**nested namespace แรก** `warnyin/feedback/`) ชี้ `feedback.md` playbook

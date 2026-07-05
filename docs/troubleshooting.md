@@ -180,3 +180,9 @@
 - **วิธีแก้:** Edit สองครั้ง — ลบ block จากตำแหน่งผิด แล้ว insert ด้วย **anchor คู่** = "บรรทัดสุดท้ายของ item ก่อนหน้า" + "บรรทัดแรกของ item ถัดไป" ที่ติดกันจริง; verify ด้วย `grep -n` เทียบ section boundaries
 - **ป้องกันซ้ำ:** ก่อนแทรก inline-numbered step ใน numbered list ที่ item มี sub-bullet หลายบรรทัด → เลือก anchor เป็น **ขอบของ item** (บรรทัดสุดท้าย item ก่อน + บรรทัดแรก item ถัดไป) ไม่ใช่ข้อความกลาง item แล้ว verify ตำแหน่งด้วย grep line-number เทียบ section header
 - **✅ FIXED (topic `uxui-designer-stage` · 2026-06-13):** BUILD T3 ย้าย step 4.5 ให้ถูก (verify T-FUNC-4 ผ่าน — step 4.5 อยู่ระหว่าง step 4–5)
+
+### 25. build-wave sub-agent stall = false-negative (artifact commit แล้วแต่ workflow mark failed/skipped)
+- **อาการ:** `parallel[N] failed: agent stalled on all 6 attempts (no progress for 180000ms each)` — workflow result ขึ้น task ใน `skipped`/`failed` แต่ worktree branch **มี commit จริง** ที่ตรง spec (topic `learning-loop-tuning` — task `loop-guidance` balanced tier แตะ 3 ไฟล์)
+- **Root cause:** workflow status สะท้อน "agent ตอบ structured result กลับทันไหม" **ไม่ใช่** "worktree branch มี commit ที่ใช้ได้ไหม" — task ยาว/หลายไฟล์ agent commit สำเร็จแล้วไป stall ช่วง self-verify/รายงานผล → timeout mark failed
+- **วิธีแก้:** ก่อนสรุปว่า task ล้ม → **ตรวจ worktree branch จริงเสมอ** — `git worktree list` + `git diff --stat <build-branch> <worktree-branch> -- <scoped files>`; มี commit ตรง canonical → integrate `git checkout <worktree-branch> -- <scoped src files>` แล้วพิสูจน์ด้วย full-gate (test/lint/pack) แทน re-run ซ้ำ (ประหยัดเวลา + ไม่เสียงานที่ทำถูกแล้ว)
+- **ป้องกันซ้ำ:** workflow `failed`/`skipped` ของ build-wave = **สัญญาณให้ไปตรวจ worktree ไม่ใช่ verdict สุดท้าย**; verify outcome จาก git artifact จริง ไม่ใช่ status string (สอด "รายงานผลตามจริง"). ต่อยอด #14/#17 (worktree ↔ orchestration)
