@@ -2,7 +2,7 @@
 
 > **Playbook กลาง — AI ทุกเจ้าทำตามไฟล์นี้ชุดเดียวกัน** (Claude Code / Codex / Antigravity / อื่นๆ)
 > เป้าหมาย: รับคำอธิบาย change ของ user → ประเมินขนาดเป็น tier `{fast, standard, large}` ตาม rubric (signals + hard-floor) → **แนะนำ route** แล้วหยุด — **ไม่สร้างหรือแก้ไฟล์ใดๆ**
-> ★ ไฟล์นี้ **canonical** ของ rubric — `design.md §7` / `verify.md` / `ship.md` / command adapter ชี้มาที่นี่ (ไม่ inline rubric ซ้ำ)
+> ★ ไฟล์นี้ **canonical** ของ rubric + loop-tuning default per tier (§2C) — `design.md §7` / `verify.md` / `ship.md` / command adapter ชี้มาที่นี่ (ไม่ inline rubric ซ้ำ)
 
 ---
 
@@ -22,7 +22,7 @@ TRIAGE คือโหมด **อ่านอย่างเดียว (read-
 
 | tier | ตัวอย่าง | route ที่แนะนำ |
 |---|---|---|
-| **fast** | bugfix, typo, config tweak, แก้/เพิ่ม wording-guidance สั้น, 1-2 ไฟล์, modify ของเดิม ไม่ cross-cutting | `/warnyin:design` แบบ **fast-track** (skip-list §2C) → build → verify-lite → ship-lite |
+| **fast** | bugfix, typo, config tweak, แก้/เพิ่ม wording-guidance สั้น, 1-2 ไฟล์, modify ของเดิม ไม่ cross-cutting | `/warnyin:design` แบบ **fast-track** ([skip-list](#fast-track-skip-list)) → build → verify-lite → ship-lite |
 | **standard** | feature ใหม่ขนาดปกติ, modify หลายไฟล์/หลาย component, มี logic ใหม่ | flow เต็มปัจจุบัน (`design` → build → verify → ship) |
 | **large** | greenfield/project ใหม่, cross-cutting หลาย component, mega | **บังคับ `/warnyin:discovery` ก่อน** → design → ... (decompose เต็ม = future) |
 
@@ -36,13 +36,25 @@ TRIAGE คือโหมด **อ่านอย่างเดียว (read-
   2. **Downgrade (standard→fast):** ถ้าประเมินเกิน (over-size) → ตัด ceremony ที่ยังไม่ทำได้ แต่ **ห้าม downgrade ข้าม hard-floor**
   3. sizing เป็น **default ที่ปรับได้ทุกเมื่อ ไม่ lock**
 
-> **fast-track skip-list** = ดู section **Fast-track skip-list** ด้านล่าง (§2C canonical)
+> **fast-track skip-list** = ดู section [**Fast-track skip-list**](#fast-track-skip-list) ด้านล่าง
+
+### 2C. Loop-tuning default per tier
+
+> starting point ปรับได้ ไม่ lock (escalate/downgrade ตาม §2B)
+
+| tier | credit horizon | batching |
+|---|---|---|
+| fast | สั้น — แก้ทีละ finding | 1 agent จัดการ failure น้อยๆ ตรงๆ |
+| standard | group by root-cause แล้วแก้ทีละกลุ่ม | delegate ต่อ root-cause group |
+| large | รวมชุด วิเคราะห์ cross-cutting root cause ก่อนแก้ | กลุ่มใหญ่ขึ้นแต่ยังแบ่ง — ระวัง "ใหญ่≠ดีกว่า" |
+
+why/วิธีตัดสิน: ดู [build.md §4 ข้อ 6](stages/build.md) · [verify.md §4 ข้อ 5](stages/verify.md) (★ loop tuning) — ไม่ inline ซ้ำที่นี่
 
 ---
 
 ## Fast-track skip-list
 
-> fast tier = **ข้าม ceremony ที่ไม่จำเป็น ไม่ใช่ข้าม correctness** (canonical §2C — `design.md §7` / `verify.md` / `ship.md` ชี้ anchor นี้)
+> fast tier = **ข้าม ceremony ที่ไม่จำเป็น ไม่ใช่ข้าม correctness** (`design.md §7` / `verify.md` / `ship.md` ชี้ section นี้)
 
 | stage | fast-track ทำ | คงไว้ (correctness floor) |
 |---|---|---|

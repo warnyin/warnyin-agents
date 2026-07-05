@@ -35,7 +35,7 @@ BUILD จะ **orchestrate การ implement** โดยกระจายง�
 5. **เคารพ standard/rule ของ task** — ทำตาม `standard.md` (pattern โค้ด, reuse shared component) และ `rule.md` (กฎ) อย่างเคร่งครัด; เขียนน้อยที่สุดตาม decision hierarchy (YAGNI→stdlib→native→dep→one-liner→ขั้นต่ำ) — ดู [`minimalism`](../minimalism.md)
 6. **ห้ามแตะ rule/standard กลางใน `docs/`** — rule ใหม่ที่เสนอถูก note ไว้ใน `tasks/<task>/rule.md` แล้ว รอ SHIP ค่อยอัปเดตไฟล์กลาง
 7. **fail = หยุดที่ wave นั้น** — ถ้า task ใน wave ล้ม ให้รายงาน user ก่อนไป wave ถัดไป (เพราะ wave ถัดไปอาจ depend อยู่)
-8. **★ ปิดท้ายด้วย full build + full test เสมอ (blocking gate — ห้ามลด bar)** — หลัง merge ทุก wave แล้ว ต้องรัน build ทั้งหมด + test suite ทั้งหมด (รวม unit test) + cross-component/integration บน build branch ที่ integrate; **แก้วนจนเขียวหมด** ก่อนปิด BUILD (กันกรณี task รายเดี่ยวเขียวแต่พอรวมกันแล้วพัง) — **gate นี้คงเป็น blocking เสมอ** การที่ข้อ 4 ลด self-verify ของ agent เหลือ scope component เดียว **ไม่ได้ลดความเข้มของ full-gate** (integration coverage ย้ายมารวมที่นี่ ไม่ใช่ตัดทิ้ง); ห้ามแปลง gate นี้เป็น optional/informational เพื่อให้ "ดูเร็วขึ้น"
+8. **★ ปิดท้ายด้วย full build + full test เสมอ (blocking gate — ห้ามลด bar)** — หลัง merge ทุก wave แล้ว ต้องรัน build ทั้งหมด + test suite ทั้งหมด (รวม unit test) + cross-component/integration บน build branch ที่ integrate; **แก้วนจนเขียวหมด** ก่อนปิด BUILD (กันกรณี task รายเดี่ยวเขียวแต่พอรวมกันแล้วพัง) — **gate นี้คงเป็น blocking เสมอ** การที่ข้อ 4 ลด self-verify ของ agent เหลือ scope component เดียว **ไม่ได้ลดความเข้มของ full-gate** (integration coverage ย้ายมารวมที่นี่ ไม่ใช่ตัดทิ้ง); ห้ามแปลง gate นี้เป็น optional/informational เพื่อให้ "ดูเร็วขึ้น"; fix loop มี finding >1 → ดู ★ loop tuning ข้อ 6 ด้านล่าง
 9. **ทุก build agent สวม role Developer** — ทำตาม role card `.warnyin/workflow/roles/developer.md` (lens + checklist ก่อนส่งงาน) — build-wave.mjs ใส่ให้ใน prompt แล้ว
 10. **★ ใช้ Troubleshooting KB** — เจอปัญหา/error ระหว่าง build ให้ **อ่าน `docs/troubleshooting.md` ก่อนเสมอ** เผื่อเคยแก้แล้ว; เมื่อแก้ปัญหาที่ **ยาก/เจอซ้ำ** สำเร็จ ให้บันทึก entry ลง `docs/stages/<slug>/troubleshooting.md` (ปัญหา/อาการ/root cause/วิธีแก้/ป้องกันซ้ำ) — ตอน SHIP จะยกขึ้น KB กลาง
 11. **★ investigate-before-edit** (enforce ของ "ห้ามเดา") — ก่อนแก้ไฟล์ที่มีอยู่ ต้องเข้าใจก่อน — **ใครใช้/อ่านไฟล์นี้, schema/contract/สัญญาของมัน, เจตนาเดิม**; แก้โดยไม่เข้าใจ = เดา (กรณีไม่ชัด → ถาม user / อ่านโค้ดที่อ้างถึง ก่อนแก้)
@@ -61,6 +61,18 @@ BUILD จะ **orchestrate การ implement** โดยกระจายง�
    - มี error / test แดง → **แก้จนเขียวหมด (loop)** อาจ delegate fix ให้ sub-agent ทีละจุด แล้ว rerun ใหม่
    - **ห้ามปิด BUILD ถ้ายังมี build error หรือ test ตัวใดแดง**
    - ถ้าวนแก้หลายรอบยังไม่ผ่าน → หยุด รายงาน user พร้อม log error
+   - **★ loop tuning (fix loop มี finding >1)** — จาก paper "iterative generative optimization": loop tuning ปรับแค่ "ลำดับ/การจัดกลุ่ม" ของการแก้ — ไม่ลด correctness/test-floor (สอด config-protection: "แก้จนผ่าน" = แก้ root cause ไม่ใช่ลด bar). ก่อนแก้ตัดสิน 2 อย่าง แล้วระบุ choice + เหตุผล 1 บรรทัดในรายงาน:
+     - credit horizon (feed feedback แค่ไหนต่อรอบ):
+       · สั้น = แก้ทีละ finding rerun ถี่ — เหมาะเมื่อ finding independent + สัญญาณเฉพาะหน้าสอดคล้องเป้า (เร็วกว่า)
+       · ยาว = รวม failure ทั้งชุด วิเคราะห์ root cause ร่วม แล้วแก้เป็นชุด — เหมาะเมื่อ finding coupled (แก้จุดนึงเสี่ยงพังอีกจุด)
+       ⚠ update ถี่เกินด้วย horizon สั้นเกิน → churn/ผลแย่ลง (อย่าแก้ทีละจุดถ้า failure โยงกัน)
+     - experience batching (ตอน delegate fix): แบ่ง failure ตาม component/root-cause แล้ว delegate ทีละกลุ่ม
+       ⚠ batch ใหญ่ ≠ ดีกว่าเสมอ (task-dependent) — เลือกขนาดกลุ่มตามโครงเหตุ-ผล ไม่ใช่ "อัด context เยอะ = ดี"
+     - default-by-tier: ดู [triage.md loop-tuning default](../triage.md) — default ปรับได้ ไม่ lock
+   - Loop-tuning report (fix loop มี finding >1 — non-blocking guidance):
+     - ระบุ credit-horizon choice (per-finding | batched) + เหตุผล 1 บรรทัด ในรายงาน ก่อนแก้
+     - ตอน delegate fix → failure ถูก group (รายงานเห็น ≥1 group boundary by component/root-cause)
+       หรือ ระบุเหตุผลว่าทำไมกลุ่มเดียวพอ — ไม่ dump ก้อนเดียวเงียบๆ
 7. **ปิดงาน:** อัปเดต `build.md` (รายงานผลต่อ task + ผล full build/test) + สถานะใน `task.md` แต่ละใบ → เสนอเข้า VERIFY ด้วย `/warnyin:verify`
 
 ---

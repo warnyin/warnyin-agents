@@ -93,6 +93,7 @@
    4. บันทึกสรุปผล panel + สิ่งที่แก้ ลงท้าย `design.md` (section "Design review")
    5. เครื่องที่ fan-out ไม่ได้ → รีวิวทีละ role ด้วย checklist เดียวกัน
 7. **แตก tasks:** แปลง design เป็น task (= vertical slice / step ที่แก้); task ซับซ้อน → แตก **sub-task** ย่อย; **วาด DAG** + ระบุ **critical-path depth (longest chain) + max wave width + เหตุผลถ้า task ใดถูก serialize** — ถ้าได้ chain ลึก ลอง DAG-width toolkit (§3 ข้อ 2) ก่อนยอม serialize; เขียน **dependency graph / ลำดับ** ให้ sub-task เชื่อมกัน
+   - **★ starting-artifact:** decomposition ที่ทำในขั้นนี้ + starting spec/standard (step 8–9) **กำหนด "solution ที่ BUILD เอื้อมถึง" ไว้ล่วงหน้า** — ค้นหาจุดบกพร่องเร็ว แล้ว BUILD ไม่เสี่ยงวนไป dead-end (ย้ำวินัยเดิม vertical-slice + DAG-width ไม่ใช่ knob ใหม่)
 8. **rule check ต่อ task:** เปิด `docs/techstack/<component>/rule.md` หา rule ที่ task นี้ต้องโฟกัส → ใส่ใน `tasks/<task>/rule.md`; rule ใหม่ที่อยากเพิ่ม → note ใน section "เสนอเพิ่ม (รอ SHIP)"
 9. **เช็ค Gate (ข้อ 8)** → เมื่อผ่าน จึง **เขียนไฟล์ task ครบทุกใบ** (แตก task ด้วย lens `.warnyin/workflow/roles/tech-lead.md`)
    - **standard/large tier → fan-out task-file generation เป็น default** (gathering/independent unit — §3 หลักการแกน): หลัง **ผ่าน Gate ข้อ 8 ก่อนเสมอ** → spawn read-only-capable sub-agent หนึ่งตัวต่อหนึ่ง task เขียน 4 ไฟล์ (`spec/standard/rule/task`) **ขนาน**
