@@ -26,6 +26,7 @@ Discovery คือขั้นตอน **ค้นหาข้อมูล + d
 3. `docs/codemap/index.md` — แผนที่โค้ด (ไปอ่านโค้ดจริงต่อได้)
 4. `docs/features/*`, `docs/techstack/*` — ฟีเจอร์เดิม + tech stack ของแต่ละ component
 5. `docs/stages/context.md` และ topic ที่ `achieved/` ที่ใกล้เคียง — เคยทำอะไรไปแล้ว
+6. `docs/backlog.md` — งาน deferred-out (open) ที่เคยยกออกจาก scope ก่อนหน้า (ถ้ามี; default-exclude `achieved/`) — ดู [`.warnyin/workflow/backlog.md` §Consume](../backlog.md)
 
 ---
 
@@ -226,8 +227,8 @@ ground เบื้องต้นก่อน → ประเมิน signals
 
 1. **เตรียมพื้นที่:** ถ้ายังไม่มีโฟลเดอร์ topic → copy `.warnyin/template/stages/[topic]/` เป็น `docs/stages/<slug>/` (slug = kebab-case ของหัวข้องาน)
 2. **เลือก mode (§3.5):** user ระบุ mode/keyword → ใช้ตามนั้น; ไม่ระบุ → ground เบื้องต้นแล้ว **auto-suggest** (§3.5.4) เสนอ mode + เหตุผล → user ยืนยัน/เปลี่ยน — แล้วปรับความเข้มของ loop ข้อ 3-5 ตาม behavior contract (§3.5.3)
-3. **Ground:** อ่าน Input ในข้อ 2 ให้ครบ สรุปความเข้าใจเริ่มต้น 3-5 บรรทัด ให้ user ยืนยัน
-4. **ตี scope กว้าง→แคบ ผ่านการสัมภาษณ์:** วนลูป — ถาม 1 ข้อ (พร้อม recommended answer) → user ตอบ → จดผลลง decision log → ถ้าตอบได้ด้วยโค้ดให้ไปอ่านเอง _(mode `โต้วาที`: ขับเคลื่อนด้วยประเด็นจาก debate §3.5.5 แทน/เสริมการถามทีละข้อ · mode `ไต่สวน`: เดิน Blue/Red iterative §3.5.7 — grill user ทุก finding ของ Red ทุกรอบ)_
+3. **Ground:** อ่าน Input ในข้อ 2 ให้ครบ สรุปความเข้าใจเริ่มต้น 3-5 บรรทัด ให้ user ยืนยัน — พบ entry ใน `docs/backlog.md` ที่เกี่ยวกับ scope นี้ → **เสนอ** item ที่เกี่ยวข้องให้ user พิจารณาหยิบเข้า scope (user ตัดสิน — ดู [`.warnyin/workflow/backlog.md` §Consume](../backlog.md)); ไม่มี backlog หรือไม่มี item เกี่ยวข้อง → ข้าม
+4. **ตี scope กว้าง→แคบ ผ่านการสัมภาษณ์:** วนลูป — ถาม 1 ข้อ (พร้อม recommended answer) → user ตอบ → จดผลลง decision log → ถ้าตอบได้ด้วยโค้ดให้ไปอ่านเอง _(mode `โต้วาที`: ขับเคลื่อนด้วยประเด็นจาก debate §3.5.5 แทน/เสริมการถามทีละข้อ · mode `ไต่สวน`: เดิน Blue/Red iterative §3.5.7 — grill user ทุก finding ของ Red ทุกรอบ)_ — พบ item ที่ "out-of-scope / ทำทีหลัง" ระหว่างตี scope → **เสนอ user** เพิ่มเข้า `docs/stages/<slug>/backlog.md` (5-field; user ยืนยันก่อนเขียน); ไม่มี → ข้าม — ดู [`.warnyin/workflow/backlog.md` §Capture](../backlog.md)
 5. **research คู่ขนาน:** สิ่งที่ต้องค้นจริง (prior art, ทางเลือก technical, ข้อจำกัด) → จดลง `research.md` พร้อม evidence/links _(ความลึก research ปรับตาม mode: `ไว` minimal · `ละเอียด`/`โต้วาที` deep · `ไต่สวน` deep + adversarial audit)_
 6. **เช็ค gate (ข้อ 6):** เมื่อครบเกณฑ์ → สรุปและเสนอ "พร้อมเข้า DESIGN"
 
@@ -241,6 +242,8 @@ ground เบื้องต้นก่อน → ประเมิน signals
 | `research.md` | คำถามวิจัย + วิธี/แหล่ง + findings + code inspection + implication | `.warnyin/template/stages/[topic]/research.md` |
 
 > เริ่มจาก template (ไฟล์ใน `.warnyin/template/stages/[topic]/`) เป็นโครง แล้วเติมเนื้อหาจริง อัปเดตทุกครั้งที่ได้ข้อสรุปใหม่
+
+**Out-of-scope capture:** item ใดที่ "out-of-scope / ทำทีหลัง" บันทึกใน `discovery.md` section Out-of-scope → **เสนอ user** เพิ่มเข้า `docs/stages/<slug>/backlog.md` (5-field; user ยืนยันก่อนเขียน); ไม่มี → ข้าม. global `docs/backlog.md` แตะเฉพาะ SHIP — ดู [`.warnyin/workflow/backlog.md` §Capture](../backlog.md)
 
 ---
 

@@ -14,7 +14,7 @@ NEXT คือโหมด **อ่านอย่างเดียว (read-on
 
 ## 2. วิธีหาสถานะ (สแกนจากไฟล์จริง — ไม่ถาม user ก่อน)
 
-0. **structural pre-scan (ถ้ารัน node ได้):** ถ้ารัน node ได้ → รัน `node .warnyin/workflow/scripts/validate-topic.mjs` (โหมด status) เป็น structural pre-scan ก่อน แล้วค่อยอ่านเชิง semantic เฉพาะจุดที่ต้องตัดสิน — เครื่องที่รันไม่ได้ ใช้ตาราง heuristic ด้านล่างเหมือนเดิม
+0. **structural pre-scan (ถ้ารัน node ได้):** ถ้ารัน node ได้ → รัน `node .warnyin/workflow/scripts/validate-topic.mjs` (โหมด status) เป็น structural pre-scan ก่อน แล้วค่อยอ่านเชิง semantic เฉพาะจุดที่ต้องตัดสิน — เครื่องที่รันไม่ได้ ใช้ตาราง heuristic ด้านล่างเหมือนเดิม; อ่าน `docs/backlog.md` (global — default-exclude `achieved/`) นับ entry `open` เพื่อรายงานใน §3
 1. **หา topic ที่ active:** โฟลเดอร์ใน `docs/stages/<slug>/` ทั้งหมด ยกเว้น `achieved/` และ `context.md`
    - ไม่มี topic เลย → รายงานว่า "ไม่มีงานค้าง" + แนะนำเริ่มงานใหม่ด้วย `/warnyin:discovery` หรือ `/warnyin:design`
 2. **อ่าน `docs/stages/context.md`** — บริบทงานที่จดไว้ (ถ้ามี)
@@ -37,7 +37,7 @@ NEXT คือโหมด **อ่านอย่างเดียว (read-on
 
 ## 3. รูปแบบรายงาน (ตอบในแชทเท่านั้น)
 
-1. **ตารางภาพรวม:** topic · stage ปัจจุบัน · งานค้าง/gate ที่ขาด · command ถัดไปที่แนะนำ
+1. **ตารางภาพรวม:** topic · stage ปัจจุบัน · งานค้าง/gate ที่ขาด · command ถัดไปที่แนะนำ · backlog: N รายการ open (จาก `docs/backlog.md`; ถ้าไม่มีไฟล์ → ระบุ "–")
 2. **รายละเอียดต่อ topic** (เฉพาะที่มีงานค้าง): ข้อ gate ที่ยังไม่ผ่าน, task ที่ยัง `รอ build`/`กำลังทำ`, open question
 3. **คำแนะนำลำดับงาน:** ถ้ามีหลาย topic ให้เสนอว่าควรทำอันไหนก่อนพร้อมเหตุผลสั้นๆ — ตัดสินใจสุดท้ายเป็นของ user
 

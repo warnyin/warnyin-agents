@@ -63,7 +63,7 @@
    - **hard-floor** (auth/migration/secret/public-API/security-sensitive) → ≥ standard เสมอ
    - tier → drive ceremony ตาม §7
 3. **business.md** *(optional — ข้ามได้ถ้า change เล็ก เช่น fix bug นิดหน่อย)*: what & why เชิงธุรกิจ — goal, คุณค่า, persona, success metric
-4. **proposal.md** (what & why): สรุป change ที่จะทำ, เหตุผล, ทางเลือกที่พิจารณา/ตัดทิ้ง, scope in/out
+4. **proposal.md** (what & why): สรุป change ที่จะทำ, เหตุผล, ทางเลือกที่พิจารณา/ตัดทิ้ง, scope in/out — item ใน "Out of scope" ที่เป็น deferred-out (ยกออกจาก scope, ยังไม่ทำ) → **เสนอ user** เพิ่มเข้า `docs/stages/<slug>/backlog.md` (5-field; user ยืนยันก่อนเขียน); ไม่มี → ข้าม — ดู [`.warnyin/workflow/backlog.md` §Capture](../backlog.md)
 4.5 **UX wireframe (optional — ถาม user ก่อน; เฉพาะ change มี UI surface):**
    - รัน detect (§ "UX wireframe — detect"); ไม่เข้าเงื่อนไข → **ข้าม step นี้ทั้งหมด**
    - เข้าเงื่อนไข → เสนอ user ว่าจะวาด wireframe ก่อนเขียน technical design ไหม (ให้เห็นภาพหน้าจอ+ยืนยันก่อนแตก task) — user ปฏิเสธ → บันทึกว่าข้าม แล้วไปต่อ
@@ -110,6 +110,7 @@
    3. รันครบทุก task แล้ว → **สรุปผลรวม** (จำนวน blocker/defer ต่อ task) ให้ user เห็นภาพ
    4. **หาวิธีแก้ DESIGN ตาม issue** (แก้ `design.md` / task ที่กระทบ) โดย **ห้ามเดา ห้ามคิดขึ้นเอง** — ติดจริงๆ ให้สัมภาษณ์ user **ถามทีละข้อ + เสนอคำตอบแนะนำทุกครั้ง**; คำถามที่โค้ดตอบได้ → ไปอ่านโค้ดเอง
    5. แก้แล้ว rerun dry-run เฉพาะ task ที่กระทบ วนจน **ไม่มี blocker ค้าง** (อัปเดตสถานะใน `issue.md` — defer ที่เหลือให้ user รับทราบ)
+   6. *(เฉพาะเมื่อทำ dry-run)* blocker/defer ที่ตัดสินใจยกออกจาก scope topic นี้ → **เสนอ user** เพิ่มเข้า `docs/stages/<slug>/backlog.md` (สะพาน `issue.md` → deferred-out; user ยืนยันก่อนเขียน); ไม่มี → ข้าม — ดู [`.warnyin/workflow/backlog.md` §Capture](../backlog.md)
 11. **เสนอเข้า BUILD:** พร้อม implement ด้วย `/warnyin:build`
 
 > generate ไฟล์ task หลายใบพร้อมกันด้วย sub-agent (หนึ่ง agent ต่อหนึ่ง task) เป็น **default สำหรับ standard/large** (step 9) — แต่ต้องผ่าน Gate ก่อนเสมอ; fast tier (1 task) เขียนเอง

@@ -73,7 +73,7 @@ BUILD จะ **orchestrate การ implement** โดยกระจายง�
      - ระบุ credit-horizon choice (per-finding | batched) + เหตุผล 1 บรรทัด ในรายงาน ก่อนแก้
      - ตอน delegate fix → failure ถูก group (รายงานเห็น ≥1 group boundary by component/root-cause)
        หรือ ระบุเหตุผลว่าทำไมกลุ่มเดียวพอ — ไม่ dump ก้อนเดียวเงียบๆ
-7. **ปิดงาน:** อัปเดต `build.md` (รายงานผลต่อ task + ผล full build/test) + สถานะใน `task.md` แต่ละใบ → เสนอเข้า VERIFY ด้วย `/warnyin:verify`
+7. **ปิดงาน:** อัปเดต `build.md` (รายงานผลต่อ task + ผล full build/test) + สถานะใน `task.md` แต่ละใบ → รวบ note นอก scope ที่ได้จากระหว่าง build → **เสนอ user** เพิ่มเข้า `docs/stages/<slug>/backlog.md` (per-topic; user ยืนยันก่อนเขียน); ไม่มี → ข้าม — ดู `.warnyin/workflow/backlog.md §5` → เสนอเข้า VERIFY ด้วย `/warnyin:verify`
 
 ---
 

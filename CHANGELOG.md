@@ -23,6 +23,21 @@
 
 ## [Unreleased]
 
+## [0.23.0] - 2026-07-06
+
+### Added
+- **learning-loop-tuning guidance ใน BUILD + VERIFY** (feature `learning-loop-tuning`) — เพิ่ม ★ loop tuning เมื่อ fix loop มี finding >1: **credit horizon** (สั้น = แก้ทีละ finding rerun ถี่ / ยาว = รวม failure วิเคราะห์ root cause ร่วมแล้วแก้เป็นชุด) + **experience batching** (group failure ตาม component/root-cause ตอน delegate fix) + **Loop-tuning report** (ระบุ choice + เหตุผล 1 บรรทัดก่อนแก้, เห็น ≥1 group boundary) — ปรับแค่ "ลำดับ/การจัดกลุ่ม" ของการแก้ ไม่ลด correctness/test-floor; `triage.md` เพิ่ม loop-tuning default-by-tier (ปรับได้ ไม่ lock); `design.md` เพิ่ม starting-artifact note. backward-compatible (guidance non-blocking)
+
+### Fixed
+- **กู้ payload feature `backlog` กลับเข้า repo (parity กับ npm)** — feature `backlog` เคย publish เป็น 0.22.0 จาก commit ที่**ไม่เคย push ขึ้น git** (`6634474d`) → payload ใน `src/` หลุดหายจาก history (main แตกจากฐาน 0.21.0 แล้วเริ่ม backlog ใหม่ที่ stage DESIGN). 0.23.0 **reconstruct payload จาก tarball 0.22.0** กลับเข้า `src/` (core `backlog.md` + template 2 ใบ + hook 8 ไฟล์: next/README/developer/discovery/ship) และ **3-way merge** (base = v0.21.0) hook ใน `stages/build.md` + `stages/verify.md` เข้ากับ learning-loop-tuning ให้ทั้งสอง feature อยู่ร่วมกัน. ยืนยัน: installer seed `docs/backlog.md` byte-equal กับ template + `npm pack` มี backlog 3 ไฟล์ + dev leak 0
+
+## [0.22.0] - 2026-06-19
+
+### Added
+- **Feature backlog — ที่เก็บงาน deferred-out ตลอด workflow** (feature `backlog`) — capability ใหม่ `.warnyin/workflow/backlog.md` เป็น single source of truth (8 section: semantic / governance recommend-not-auto / schema 5-field / lifecycle / capture / consume / promote / archive≠current state); template 2 ใบ (`template/stages/[topic]/backlog.md` per-topic working + `template/docs/backlog.md` global seed); hook 5 stage + `developer.md` (conditional pointer + recommend token — enumerate 6 จุด); consume: `discovery.md §2 Input` + `§4 step 3 ground` เสนอ item เกี่ยวข้อง + `next.md` report "backlog: N รายการ"; SHIP promote (หลัง archive อ่าน achieved path → merge entry `open` เข้า global + dedup idempotent + กลั่น); installer seed `docs/backlog.md` byte-equal กับ template (ยืนยันด้วย test + sandbox); validate topic ไม่มี backlog → ✖0 (optional). backward-compatible 100% (ทุก hook conditional "ไม่มี → ข้าม"); payload `.md` ล้วน, ติดมากับ `--update` รอบถัดไป
+
+> **หมายเหตุ history:** 0.22.0 publish จาก commit `6634474d` ที่ไม่เคย push ขึ้น GitHub — entry นี้ถูกเติมย้อนหลังใน 0.23.0 เพื่อให้ CHANGELOG ของ repo ตรงกับที่อยู่บน npm
+
 ## [0.21.0] - 2026-06-15
 
 ### Changed
