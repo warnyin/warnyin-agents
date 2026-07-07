@@ -36,7 +36,7 @@
 2. **เทสในสภาพแวดล้อมจริง (local env)** — รัน service ที่เกี่ยวข้องใน local แล้วเทสตามแผน
 3. **ใช้ guideline จาก `test.md`** ของ techstack; ถ้าไม่มีให้เสนอวิธีเทสที่เหมาะแล้วเขียนแผนเอง
 4. **Frontend → verify UX/UI ด้วย** (ไม่ใช่แค่ functional — ดู layout, state, flow, ความถูกต้องของหน้าจอ)
-5. **ข้อไหน verify ไม่ผ่าน → แก้จนผ่าน (loop)** และ **นับจำนวนการแก้ไข/จำนวนรอบ**; fix loop มี finding >1 → ดู ★ loop tuning ข้อ 5 ด้านล่าง
+5. **ข้อไหน verify ไม่ผ่าน → แก้จนผ่าน (loop)** และ **นับจำนวนการแก้ไข/จำนวนรอบ**; fix loop มี finding >1 → ดู ★ loop tuning ข้อ 5 ด้านล่าง; issue ที่เลือก**ไม่แก้รอบนี้** (ยกออกจาก scope) → **เสนอ user** เพิ่มเข้า `docs/stages/<slug>/backlog.md` (user ยืนยันก่อนเขียน); ไม่มี → ข้าม — ดู `.warnyin/workflow/backlog.md §5`
 6. **ปัญหายาก/ซ้ำในขั้นนี้ → บันทึก `docs/stages/<slug>/troubleshooting.md`** (เหมือน BUILD); เจอปัญหา → อ่าน `docs/troubleshooting.md` ก่อน
 7. **นาน/หลายรอบเกินไป → พิจารณาถาม user ทีละข้อ + เสนอคำตอบที่แนะนำ** (อย่าวนแก้เงียบๆ ไม่จบ)
 8. **ห้ามแตะไฟล์กลางใน `docs/`** — แผนเทสเขียนระดับ topic ที่ `test.md` ก่อน รอ SHIP merge เข้า `docs/techstack/<component>/test.md`
@@ -54,8 +54,15 @@
 3. **เตรียม local env:** รัน service ที่เกี่ยวข้องตาม `infra.md`
 4. **รันเทสตามแผน:** functional ตาม test-flow ใน spec; FE → e2e smoke (playwright-cli) + ตรวจ UX/UI
    - **★ contract validation (ถ้ามี `openapi.yaml`):** ยืนยัน implementation จริง = contract ตาม `.warnyin/workflow/api-doc.md` §4 (code-first regen → diff, หรือยิง request จริง → ตรวจ response/status/error ตรง schema); mismatch = ไม่ผ่าน → เข้า fix loop ข้อ 5
-5. **ไม่ผ่าน → แก้ → rerun:** วนจนผ่าน **นับจำนวนรอบ/จำนวนแก้**; ปัญหายาก→`troubleshooting.md`; ถ้านานเกิน→ถาม user (ทีละข้อ + recommended)
-   - **★ loop tuning (fix loop มี finding >1)** — วิธีตัดสิน credit horizon / experience batching + ⚠ ดู [`loop-tuning`](../loop-tuning.md); default-by-tier: ดู [triage.md loop-tuning default](../triage.md)
+5. **ไม่ผ่าน → แก้ → rerun:** วนจนผ่าน **นับจำนวนรอบ/จำนวนแก้**; ปัญหายาก→`troubleshooting.md`; ถ้านานเกิน→ถาม user (ทีละข้อ + recommended); issue ที่เลือก**ไม่แก้รอบนี้** (ยกออกจาก scope) → **เสนอ user** เพิ่มเข้า `docs/stages/<slug>/backlog.md` (user ยืนยันก่อนเขียน); ไม่มี → ข้าม — ดู `.warnyin/workflow/backlog.md §5`
+   - **★ loop tuning (fix loop มี finding >1)** — จาก paper "iterative generative optimization": loop tuning ปรับแค่ "ลำดับ/การจัดกลุ่ม" ของการแก้ — ไม่ลด correctness/test-floor (สอด config-protection: "แก้จนผ่าน" = แก้ root cause ไม่ใช่ลด bar). ก่อนแก้ตัดสิน 2 อย่าง แล้วระบุ choice + เหตุผล 1 บรรทัดในรายงาน:
+     - credit horizon (feed feedback แค่ไหนต่อรอบ):
+       · สั้น = แก้ทีละ finding rerun ถี่ — เหมาะเมื่อ finding independent + สัญญาณเฉพาะหน้าสอดคล้องเป้า (เร็วกว่า)
+       · ยาว = รวม failure ทั้งชุด วิเคราะห์ root cause ร่วม แล้วแก้เป็นชุด — เหมาะเมื่อ finding coupled (แก้จุดนึงเสี่ยงพังอีกจุด)
+       ⚠ update ถี่เกินด้วย horizon สั้นเกิน → churn/ผลแย่ลง (อย่าแก้ทีละจุดถ้า failure โยงกัน)
+     - experience batching (ตอน delegate fix): แบ่ง failure ตาม component/root-cause แล้ว delegate ทีละกลุ่ม
+       ⚠ batch ใหญ่ ≠ ดีกว่าเสมอ (task-dependent) — เลือกขนาดกลุ่มตามโครงเหตุ-ผล ไม่ใช่ "อัด context เยอะ = ดี"
+     - default-by-tier: ดู [triage.md loop-tuning default](../triage.md) — default ปรับได้ ไม่ lock
    - Loop-tuning report (fix loop มี finding >1 — non-blocking guidance):
      - ระบุ credit-horizon choice (per-finding | batched) + เหตุผล 1 บรรทัด ในรายงาน ก่อนแก้
      - ตอน delegate fix → failure ถูก group (รายงานเห็น ≥1 group boundary by component/root-cause)

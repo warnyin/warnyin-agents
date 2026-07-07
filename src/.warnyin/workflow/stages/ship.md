@@ -56,8 +56,12 @@
    3. **`docs/rule.md`** — global rule ใหม่/ที่เปลี่ยน (learned-rule ที่ยืนยันแล้ว scope `project` — กฎระดับโปรเจกต์ ไม่ผูกกับ component เดียว)
    > promote learned-rule **เฉพาะตัวที่ user ยืนยัน (step 3)** ตาม scope: `component:<c>` → `docs/techstack/<c>/rule.md` · `project` → `docs/rule.md`
    4. **`docs/troubleshooting.md`** — merge entry จาก `troubleshooting.md` ของ topic (ปัญหา/อาการ/root cause/วิธีแก้/ป้องกันซ้ำ)
-   5. **`docs/infra.md` + `docs/project.md`** — เฉพาะถ้ามีข้อมูลที่เกี่ยวข้อง (env/service ใหม่, scope/เป้าหมายโปรเจกต์ที่ขยับ)
-   6. **`docs/codemap/` ทั้งหมด** — อัปเดต code map ให้ตรงกับโค้ดจริงปัจจุบัน ทำตาม playbook `.warnyin/workflow/codemap.md` (Claude Code: `/warnyin:update-codemaps`)
+   5. **`docs/backlog.md`** (ถ้า topic มี `backlog.md`) — promote entry `open` จาก `achieved/<date>-<slug>/backlog.md` เข้า `docs/backlog.md` ตาม `.warnyin/workflow/backlog.md §7 Promote`:
+      - **ถ้า `docs/backlog.md` ยังไม่มี** → สร้างจาก `template/docs/backlog.md` ก่อนแล้วค่อย merge (รองรับ install เก่า)
+      - **กลั่น ไม่ copy ดิบ:** skip entry ที่ `promoted` แล้ว (idempotent — SHIP รันซ้ำไม่เพิ่มซ้ำ); รวม entry ซ้ำข้าม topic (กลั่นเป็นแถวเดียว); ใส่คอลัมน์ `มาจาก topic` (slug)
+      - **hook งานต่อยอด:** ระหว่าง promote ถ้าพบ tech-debt หรืองานต่อยอดที่เกี่ยวข้อง → **เสนอ user** เพิ่มเป็น entry ใหม่ใน backlog (user ยืนยันก่อนเขียน — recommend-not-auto)
+   6. **`docs/infra.md` + `docs/project.md`** — เฉพาะถ้ามีข้อมูลที่เกี่ยวข้อง (env/service ใหม่, scope/เป้าหมายโปรเจกต์ที่ขยับ)
+   7. **`docs/codemap/` ทั้งหมด** — อัปเดต code map ให้ตรงกับโค้ดจริงปัจจุบัน ทำตาม playbook `.warnyin/workflow/codemap.md` (Claude Code: `/warnyin:update-codemaps`)
 6. **เขียนสรุปส่งมอบ:** `achieved/<YYYY-MM-DD>-<slug>/ship.md` — feature ใหม่/ปรับปรุง, เอกสารกลางที่อัปเดต (ไฟล์ → สาระ), note ที่ตัดทิ้งพร้อมเหตุผล
 7. **ปิดงาน:** รายงาน user ว่าส่งมอบครบ — topic ปิดสมบูรณ์
 
@@ -72,6 +76,7 @@
 | `docs/techstack/<component>/openapi.yaml` | living API contract — เฉพาะ topic ที่แตะ REST API (merge ตาม delta) |
 | `docs/rule.md` | global rule ที่เพิ่ม/เปลี่ยน |
 | `docs/troubleshooting.md` | KB ปัญหา-วิธีแก้ที่ merge เข้า |
+| `docs/backlog.md` | entry `open` จาก per-topic backlog (ถ้ามี) — กลั่น+dedup+provenance |
 | `docs/infra.md`, `docs/project.md` | อัปเดตเฉพาะถ้ามีข้อมูลเกี่ยวข้อง |
 | `docs/codemap/` | code map ตรงกับโค้ดจริงปัจจุบัน |
 | `docs/stages/achieved/<YYYY-MM-DD>-<slug>/` | ทั้ง topic ที่ archive แล้ว + `ship.md` (สรุปการส่งมอบ) |
@@ -85,6 +90,7 @@
 - [ ] **Spec delta merge แล้ว** — `spec.md` ของ feature ที่แตะถูก merge ตาม delta; ทุก MODIFIED/REMOVED match requirement จริง (read-modify-verify — key ไม่เจอ → STOP ถาม user แล้ว ไม่ merge เงียบ)
 - [ ] learned-rules (planned + emergent) พิจารณาครบทุกตัว — note "รอ SHIP" ใน `tasks/*/rule.md` + `standard.md` + บทเรียน emergent จาก build/verify/troubleshooting; ทุก promote มี **evidence + user ยืนยัน**, ตัดทิ้งมีเหตุผล
 - [ ] `docs/troubleshooting.md` รวม entry จาก topic แล้ว
+- [ ] **backlog open promote เข้า global แล้ว (ถ้า topic มี `backlog.md`)** — entry `open` merge เข้า `docs/backlog.md` + dedup + `มาจาก topic` ครบ; ไม่มี `backlog.md` → N/A
 - [ ] `docs/techstack/`, `docs/rule.md`, `docs/infra.md`, `docs/project.md` อัปเดตตามที่เกี่ยวข้อง
 - [ ] **API contract (ถ้า topic มี `openapi.yaml`)** — promote/merge เข้า `docs/techstack/<component>/openapi.yaml` ตาม delta แล้ว (`.warnyin/workflow/api-doc.md`)
 - [ ] `docs/codemap/` ตรงกับโค้ดจริงปัจจุบัน

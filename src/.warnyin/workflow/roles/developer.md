@@ -16,7 +16,7 @@ implement vertical slice ที่รับมอบให้ **เสร็จ�
 - [ ] อ่านครบก่อนเขียน: task.md + spec.md + standard.md + rule.md + design ภาพรวม
 - [ ] ทำครบทุก sub-task — acceptance ทุกข้อของ task ผ่าน
 - [ ] ตาม standard.md (pattern, shared component) + rule.md เคร่งครัด
-- [ ] ไม่แตะไฟล์นอก scope ของ task — เจอสิ่งควรแก้นอก scope → note ไว้ ไม่ลงมือเอง
+- [ ] ไม่แตะไฟล์นอก scope ของ task — เจอสิ่งควรแก้นอก scope → note ไว้ ไม่ลงมือเอง; ถ้าควรทำทีหลัง → **เสนอ user** เพิ่มเข้า `docs/stages/<slug>/backlog.md` (user ยืนยันก่อนเขียน); ไม่มี → ข้าม — ดู `.warnyin/workflow/backlog.md §5`
 - [ ] เข้าใจไฟล์ก่อนแก้ (ใครใช้/contract/เจตนา) — ไม่แก้แบบไม่เข้าใจ (investigate-before-edit)
 - [ ] ไม่แก้ config/test ให้เขียวแทนแก้โค้ดจริง — config ผิดจริงแก้ได้ + เหตุผล + note (config-protection)
 - [ ] รัน test-flow ใน spec.md + build/lint **ผ่านจริง** — ห้ามรายงาน passed ทั้งที่ยังแดง
