@@ -123,6 +123,7 @@
 - **ป้องกันซ้ำ:** payload workflow script — **อย่าใช้ `node --check` standalone เป็น gate**; ใช้ runtime proof + `npm test`/`verify:pack` ที่เป็น gate จริง (ดู `docs/techstack/installer/test.md`)
 - **เสริม (topic `improve-performance`):** runtime-proof **ทั้ง body** ของ script ที่มี **top-level await** (เช่น `await parallel(...)`) → ต้องใช้ **`AsyncFunction`** ไม่ใช่ `new Function` (`new Function` สร้าง sync function → `SyntaxError: await is only valid in async functions`): `const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor; await new AsyncFunction('args','agent','parallel','log','phase', body)(...)` + neutralize `export` ก่อน wrap. สกัด **pure helper** (เช่น `normalizeTasks`/`buildOpts` ที่ไม่มี await) ใช้ `new Function` ปกติได้ (แต่ inject const ที่มันอ้าง เช่น `RESULT_SCHEMA` stub)
 - **อัปเดต (topic `build-wave-export-fix` · 2026-06-11):** `normalizeTasks`/`buildOpts` **ไม่ `export` แล้ว** (ดู #20 FIXED) — แต่ข้อจำกัดแกนของ #16 ยังคงอยู่ (`node --check` standalone ใช้เป็น gate ไม่ได้เพราะ top-level return + harness globals) → ใช้ runtime-proof + `npm test` เป็น gate ต่อไป
+- **เสริม (topic `build-lean`):** extractFn สกัด function ที่เป็น template literal อ้าง **ตัวแปร module-level ที่ harness inject** (`slug`/`isolate`/`baseRef`) → `new Function(body)` ตรงๆ ได้ `ReferenceError: slug is not defined` — ต้อง **inject เป็น parameter ของ factory**: `new Function('slug','isolate','baseRef', body + '\nreturn prompt')` แล้วเรียก factory ด้วยค่าต่อเคส (`makePrompt('demo', true, 'build/demo')('my-task')`) — ทุกครั้งที่สกัด function ที่อ้างตัวแปรนอก scope ให้ inject เป็น parameter เสมอ
 
 ### 17. BUILD worktree ว่าง — ไม่มี `.warnyin/` + topic docs (root build-wave.mjs stale)
 - **อาการ:** sub-agent ใน worktree อ่าน `.warnyin/workflow/stages/build.md`, `roles/developer.md`, `docs/stages/<topic>/tasks/<task>/*.md` ไม่เจอ — `find docs/stages` เจอแค่ `achieved/` + `context.md` ว่าง; agent หยุดรายงาน `failed` ถูกต้อง (ไม่เดา spec) — topic `improve-performance` (ต่อยอด #14)
@@ -186,3 +187,21 @@
 - **Root cause:** workflow status สะท้อน "agent ตอบ structured result กลับทันไหม" **ไม่ใช่** "worktree branch มี commit ที่ใช้ได้ไหม" — task ยาว/หลายไฟล์ agent commit สำเร็จแล้วไป stall ช่วง self-verify/รายงานผล → timeout mark failed
 - **วิธีแก้:** ก่อนสรุปว่า task ล้ม → **ตรวจ worktree branch จริงเสมอ** — `git worktree list` + `git diff --stat <build-branch> <worktree-branch> -- <scoped files>`; มี commit ตรง canonical → integrate `git checkout <worktree-branch> -- <scoped src files>` แล้วพิสูจน์ด้วย full-gate (test/lint/pack) แทน re-run ซ้ำ (ประหยัดเวลา + ไม่เสียงานที่ทำถูกแล้ว)
 - **ป้องกันซ้ำ:** workflow `failed`/`skipped` ของ build-wave = **สัญญาณให้ไปตรวจ worktree ไม่ใช่ verdict สุดท้าย**; verify outcome จาก git artifact จริง ไม่ใช่ status string (สอด "รายงานผลตามจริง"). ต่อยอด #14/#17 (worktree ↔ orchestration)
+
+### 26. guard self-install ใน cli.mjs trigger เมื่อรัน `node --test` จาก `src/` โดยตรง
+- **อาการ:** รัน test จากใน `src/` แล้ว cli.mjs โยน error self-install guard (topic `build-lean`)
+- **Root cause:** cli.mjs มี guard `if (path.resolve(pkgRoot) === path.resolve(cwd))` — เมื่อรัน test จาก `src/`, pkgRoot (parent ของ `bin/`) === cwd → trigger
+- **วิธีแก้:** รัน `node --test` จาก repo root เสมอ — auto-discover `tests/*.test.mjs` ได้เอง (สอด rule §5 ห้ามใส่ path arg)
+- **ป้องกันซ้ำ:** spec ของ task ระบุ test-flow รันจาก repo root (bare `node --test`) เสมอ — รันจาก `src/` = trigger guard โดย design ของ guard เอง
+
+### 27. md link ใน command adapter (`src/.claude/commands/warnyin/*.md`) ใช้ relative depth ผิด → dead-link โผล่เฉพาะตอน integration
+- **อาการ:** `lint:md` แดงหลัง merge wave: link `../../.warnyin/workflow/triage.md` ใน `commands/warnyin/design.md` ไม่ resolve — agent เจ้าของ task ตีความผิดว่าเป็น cross-slice pointer รอไฟล์ wave อื่น (จริงๆ เป็น bug ใน slice ตัวเอง) — topic `build-lean`
+- **Root cause:** จาก `src/.claude/commands/warnyin/` ต้องขึ้น **3 ชั้น** (`../../../`) ถึง root ที่มี `.warnyin/` — ใช้ `../../` ขาด 1 ชั้น; depth ฝั่ง `src/` = ฝั่ง target ที่ติดตั้ง จึงแก้ครั้งเดียวถูกทั้งคู่
+- **วิธีแก้:** แก้เป็น `../../../.warnyin/workflow/...` → lint เขียว
+- **ป้องกันซ้ำ:** md link ใหม่ใต้ `commands/warnyin/` นับชั้นจาก location จริงเสมอ (3 ชั้นถึง root); lint แดงในไฟล์ scope ตัวเอง → เช็ค path resolution ก่อน อย่ารีบสรุปเป็นปัญหา cross-slice (ต่อยอด #19 — คนละ cause: #19 = illustrative link, #27 = depth ผิดจริง)
+
+### 28. merge release branch ทับ block ที่เพิ่ง refactor เงียบๆ — full gate เขียวแต่ไม่จับ
+- **อาการ:** `verify.md §4` กลับไปมี theory block เต็มแบบเก่า ทั้งที่ wave ก่อนแทนด้วย pointer แล้ว; `npm test`/`lint:md`/`verify:pack` เขียวหมดไม่จับ (regression ระดับเนื้อ markdown ไม่ใช่ link/test) — topic `build-lean` verify F1
+- **Root cause:** wave ท้าย merge `origin/release/0.23.0` (มีไฟล์เวอร์ชันก่อน refactor) → conflict → agent resolve เก็บเนื้อฝั่ง release ในโซนที่ wave ก่อน refactor (hunk อื่นรอด เพราะคนละบริเวณ)
+- **วิธีแก้:** จับด้วย negative-grep single-source (`grep -rl '<ประโยคจาก canonical block>'` ต้องเจอไฟล์เดียว) → แทน block เก่าด้วย canonical wording คำต่อคำ
+- **ป้องกันซ้ำ:** merge branch ข้ามสายที่แตะไฟล์เดียวกับ block ที่เพิ่ง refactor → rerun เช็ค canonical/single-source เสมอ อย่าเชื่อแค่ full gate (กฎใน `docs/rule.md` §1 canonical-copy convention)

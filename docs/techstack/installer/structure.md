@@ -16,6 +16,8 @@ src/tests/setup-dogfood.test.mjs  unit test ของ verifyInstalled/semverGte/
 src/scripts/setup-dogfood.mjs     dev: ติดตั้ง release ลง root (--update + version-aware verifyInstalled; pin-exact + prefer-online สมมาตร npx/pack; checkTarballVersion ที่ source; npx explicit bin; export + main-guard)
 src/scripts/setup-sandbox.mjs     dev: ติดตั้ง v-next จาก src/ ลง temp (sandbox)
 src/.warnyin/{workflow,template}  playbook กลาง (stages/ roles/ contexts/ scripts/) + template (payload)
+src/.warnyin/workflow/loop-tuning.md         why-guidance ของ fix loop (orchestrator-only single-source — build/verify ชี้ pointer มา)
+src/.warnyin/template/stages/receipt.md      template fast-track receipt (≤40 บรรทัด, H1 placeholder = isFilled contract) — **นอก `[topic]/` โดยเจตนา** กัน whole-folder copy (ดู rule.md)
 src/.warnyin/installer/templates/CLAUDE.md   template CLAUDE.md ของ target (per-project root doc + resolution note)
 src/.warnyin/installer/templates/CLAUDE.global.md   note-only (resolution + workspace-guard + marker) → installGlobalNote เขียนลง ~/.claude/CLAUDE.md (global mode)
 src/.claude/{commands/warnyin,agents,skills}  adapter Claude (payload) — skills = utility auto-invocable (ดู docs/features/utility-skills/)

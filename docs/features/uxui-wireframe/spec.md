@@ -4,7 +4,7 @@
 > feature ประเภท playbook (ไม่มี runtime) → THEN เป็น **observable artifact** (ไฟล์/section/key string มีจริง, ลิงก์ resolve)
 
 ## Requirement: UX wireframe ใน DESIGN
-DESIGN stage มี capability วาด low-fidelity wireframe ให้ user เห็นภาพ + ยืนยันก่อนแตก task สำหรับ change ที่มี UI surface (conditional + backward-compatible)
+DESIGN stage มี capability วาด low-fidelity wireframe ให้ user เห็นภาพ + ยืนยันก่อนแตก task สำหรับ change ที่มี UI surface (conditional + backward-compatible); detect มี **exclusion precedence — เช็คก่อน signals**: change เป็น docs-only / config-only / tooling ล้วน → จบทันที ไม่ประเมิน signals ต่อ _(เดิม: exclusion เป็น note ท้าย signals — เคยหลุด trigger กับ docs-only topic; แก้โดย topic `build-lean`)_
 
 ### Scenario: change มี UI surface → เสนอทำ wireframe
 - GIVEN change ที่ detect ว่าแตะ UI surface (techstack FE/web/mobile/desktop, มี page/route/screen/component, หรือ user flow ใหม่)
@@ -15,6 +15,11 @@ DESIGN stage มี capability วาด low-fidelity wireframe ให้ user �
 - GIVEN change ที่ไม่มี UI surface (backend/REST API/CLI/library/docs/tooling ล้วน)
 - WHEN DESIGN รัน detect block
 - THEN detect block ระบุ "ไม่ใช่ → ข้าม UX step ทั้งหมด" และ gate item §8 "UX wireframe (ถ้า change มี UI surface)" ระบุ "ไม่มี UI surface → N/A" (backward compatible)
+
+### Scenario: docs-only ไม่ trigger wireframe (exclusion ก่อน signals)
+- GIVEN change ที่แตะเฉพาะไฟล์ docs/config/tooling
+- WHEN เดิน DESIGN step 4.5 detect
+- THEN playbook ระบุให้จบที่ exclusion (เช็คก่อน signals — เจอ → จบทันที ไม่ประเมิน signals ไม่เสนอ wireframe)
 
 ### Scenario: สัญญาณ UI surface ก้ำกึ่ง → ถาม user
 - GIVEN change ที่ detect ไม่ชัด (CLI ที่มี TUI, change แตะทั้ง API + component)

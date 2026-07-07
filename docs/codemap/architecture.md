@@ -44,7 +44,7 @@ capability เสริม conditional (เฉพาะ topic แตะ REST API
 
 change-sizing (ต้นน้ำ ก่อนเข้า flow — read-only): triage.md
 /warnyin:triage ประเมินขนาด change → tier {fast,standard,large} (signals + hard-floor 5 หมวด) → แนะนำ route แล้วหยุด
-▶ fast = fast-track (design §7 skip-list canonical → build 1 agent → verify-lite → ship-lite, คง test floor) ▶ large = บังคับ Discovery — ดู docs/features/change-sizing/
+▶ fast = fast-track (pre-flight สร้าง receipt ก่อนแตะโค้ด → code-first main loop ไม่ fan-out → verify-lite เติม receipt §4 → ship-lite + hard-floor scan, คง test floor — skip-list canonical triage.md) ▶ large = บังคับ Discovery — ดู docs/features/change-sizing/
 ```
 
 ## installer flow (src/bin/cli.mjs)

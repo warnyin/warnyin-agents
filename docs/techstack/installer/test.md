@@ -150,6 +150,15 @@
 - **ต้องเทสทุกรุ่น legacy** ที่ `cli.mjs` ตรวจจับ (≤0.2.x, 0.3–0.5.x)
 - **cross-platform / leak guard:** รันใน temp (`mktemp -d`) เท่านั้น — **ห้ามรัน `cli.mjs` ที่ cwd=repo root** (`troubleshooting.md` #6 dogfood leak); ใช้ `git mv <src>/* <dest>/` (ย้าย contents) — ไม่ใช่ `git mv <src> <dest>` (ซ้อน)
 
+## verify tier-lean playbook + receipt payload (L: topic `build-lean`)
+> change ที่ปรับ ceremony ตาม tier (skip-list/caps/receipt lifecycle/theory extraction) — payload `.md` + template + validator — ขยายจาก "payload `.md`" + "spec/delta payload"
+- **canonical wording = diff คำต่อคำ ไม่ใช่ grep key:** ตาราง/block ที่ประกาศ canonical-copy (skip-list ใน `triage.md` vs design §4.1, wording block `build.md §4·6` vs `verify.md §4·5`) → สกัดสองฝั่ง strip indent แล้ว `diff` ต้องว่าง
+- **single-source = negative-grep falsifiable:** `grep -rl '<ประโยคเฉพาะจาก why-block>'` ใน `src/.warnyin/workflow/` ต้องเจอ**ไฟล์เดียว** (canonical); ตาราง default/theory ต้องไม่โผล่ในไฟล์ pointer — เช็คนี้คือตัวจับ regression ที่ full gate (test/lint/pack) มองไม่เห็น
+- **★ หลัง merge branch ข้ามสาย (เช่น release branch) → rerun เช็ค canonical/single-source เสมอ** — conflict resolution เก็บเนื้อเก่าทับ block ที่เพิ่ง refactor ได้เงียบๆ โดย gate เขียวหมด (KB #28; rule §1 canonical-copy)
+- **gate-count regression:** `sed -n '/^## <sec>/,/^## /p' | grep -c '^- \[ \]'` ต่อ stage เทียบ baseline — count ต่างจากคาด → investigate ก่อนตัดสิน (item อาจมาจาก feature อื่นที่ merge เข้ามา ไม่ใช่ regression ของ topic — เคส ship.md 10→11 จาก backlog gate ของ 0.23.0)
+- **receipt template contract:** บรรทัดแรกไม่ว่าง = H1 `# Receipt — <...>` (placeholder — contract กับ `isFilled` ของ validator) · `wc -l` ≤ 40 · อยู่**นอก** `[topic]/` · installer.test มี assertion target-side คุ้ม existence
+- **prompt lean:** runtime proof ตาม §"verify payload workflow script" — เพิ่มมิติ**เชิงลบ** (path เอกสารที่ตัดออกต้องไม่โผล่ใน prompt) + conditional (step 0 sync เฉพาะ `isolate && baseRef`); template literal อ้าง module-level vars → inject เป็น parameter ของ factory (KB #16 เสริม)
+
 ## verify build-orchestration / DAG-width change (L: topic `improve-performance`)
 > change ที่แตะ DESIGN/BUILD orchestration (toolkit, critical-path gate, model routing, lean verify) — ขยายจาก "payload `.md`" + "payload workflow script"
 - **model-routing runtime proof (`build-wave.mjs`):** สกัด pure helper `normalizeTasks`/`buildOpts` ด้วย `new Function` (inject `RESULT_SCHEMA` stub) → assert: `string[]` เดิม→opts ไม่มี key `model` (backward compat) · `{name,model}`→`opts.model` = pass-through ตรงตัว (ไม่ map/hardcode) · `{name}`→ไม่มี key `model` · shared-tree→ไม่มี `isolation`/`model` key; รันทั้ง body ด้วย `AsyncFunction` (top-level await — `troubleshooting.md` #16)

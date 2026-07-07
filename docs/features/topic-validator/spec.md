@@ -53,3 +53,21 @@ next/DESIGN gate/SHIP step 1 อ้างคำสั่ง validator แบบ�
 - GIVEN payload ที่ติดตั้งแล้ว
 - WHEN grep `validate-topic.mjs` ใน `.warnyin/workflow/`
 - THEN พบใน `next.md` + `stages/design.md` + `stages/ship.md` — 3 ไฟล์
+
+## Requirement: Validator รู้จัก fast-track topic ผ่าน receipt
+topic ที่มี `receipt.md` filled (H1 ไม่ใช่ placeholder — filled-guard pattern เดิม) และไม่มี artifact ชุดเต็ม (ไม่มี proposal.md/design.md ที่ filled และไม่มี task folder จริง) → mode `fast`: ข้าม C1-C4 (C5 cross-cutting ยังรัน) แสดง `fast-track`; receipt filled ปนกับโครง full → full checks + ⚠ C6 mixed-state (ไม่ใช่ ✖); ไม่มี receipt/ยังเป็น template → พฤติกรรมเดิมทุกประการ
+
+### Scenario: fast topic ข้าม C1-C4
+- GIVEN topic มี `receipt.md` ที่ filled (H1 ไม่ใช่ placeholder) และไม่มี proposal.md/design.md filled/ไม่มี task folder จริง
+- WHEN รัน `validate-topic.mjs <slug>`
+- THEN exit 0 + ตาราง/รายงานแสดง mode `fast-track` และไม่มี ✖ C1-C4
+
+### Scenario: mixed-state ไม่ข้ามเช็ค
+- GIVEN topic มีทั้ง receipt.md filled และ design.md filled (หรือ tasks/ จริง)
+- WHEN รัน validate
+- THEN full checks ทำงานปกติ + มี ⚠ C6 mixed-state ("topic มีทั้งโครง full และ receipt — ระบุ mode ให้ชัด") ใน output
+
+### Scenario: ไม่มี receipt → พฤติกรรมเดิม
+- GIVEN topic ไม่มี receipt.md (หรือยังเป็น template)
+- WHEN รัน validate
+- THEN ผลเหมือน validator เวอร์ชันก่อน change ทุกประการ

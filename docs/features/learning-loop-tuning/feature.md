@@ -15,7 +15,7 @@
 ## ทำงานยังไง
 - **guidance-only ผูก tier (zero-config)** — ไม่มี knob ที่ตั้งค่าได้จริง (เลี่ยง setup-burden ที่ paper ชี้ว่าเป็นต้นเหตุ adoption ต่ำ); pattern เดียวกับ `minimalism`/`change-sizing`
 - **แยกหน้าที่ (canonical-copy — ไม่ duplicate):**
-  - **why + วิธีตัดสิน** (บล็อก `★ loop tuning`) อยู่จุดที่ loop รันจริง: `build.md §4 step 6` (+ §3 item 8 pointer) · `verify.md §4 step 5` (+ §3 item 5 pointer) — copy ทั้ง 2 stage โดยเจตนา (แต่ละ stage มี fix loop ของตัวเอง)
+  - **why + วิธีตัดสิน** เป็น **single-file canonical** ที่ `workflow/loop-tuning.md` (orchestrator-only — ผู้อ่าน = main loop ตอน fix loop มี finding >1); จุดที่ loop รันจริง (`build.md §4 step 6` + §3 item 8 · `verify.md §4 step 5` + §3 item 5) เหลือ **pointer + report requirement** _(เดิม: copy why-block ทั้ง 2 stage — เปลี่ยนเป็น single-source โดย topic `build-lean` เพื่อลด context ฝั่ง agent)_
   - **default-by-tier** (canonical เดียว) อยู่ `triage.md §2C "Loop-tuning default per tier"` — build/verify pointer มา
   - **starting-artifact note** อยู่ `design.md §4 step 7`
 - **non-blocking** — C3 report note (ระบุ credit-horizon choice `per-finding | batched` + เหตุผล) อยู่**ท้าย loop ไม่ใช่ใน gate checklist** (ไม่เพิ่ม `- [ ]` — เลี่ยง hard-gate ที่ block ด้วย filled-detection)
@@ -28,7 +28,8 @@
 - **zero-dependency** — `.md` ล้วน ship ผ่าน allowlist `src/.warnyin`
 
 ## ไฟล์ที่เกี่ยวข้อง
-- `src/.warnyin/workflow/stages/build.md` (§3 item 8, §4 step 6), `stages/verify.md` (§1 hook, §3 item 5, §4 step 5)
+- `src/.warnyin/workflow/loop-tuning.md` — why-guidance canonical เดียว (orchestrator-only)
+- `src/.warnyin/workflow/stages/build.md` (§3 item 8, §4 step 6 — pointer + report), `stages/verify.md` (§1 hook, §3 item 5, §4 step 5 — pointer + report)
 - `src/.warnyin/workflow/triage.md §2C` (default-by-tier canonical), `stages/design.md §4 step 7` (starting-artifact note)
 - เทียบมิติ: `docs/features/change-sizing/` (tier ที่ default ผูก), `docs/features/build-orchestration/` (fix loop ที่ guidance ลง)
 - rule: `docs/rule.md` "loop-tuning convention"

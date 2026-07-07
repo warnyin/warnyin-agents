@@ -17,7 +17,7 @@
 ### Scenario: change เล็กไม่ sensitive → fast
 - GIVEN คำอธิบาย change ที่แตะ 1-2 ไฟล์ modify ของเดิม ไม่ cross-cutting ไม่แตะ hard-floor
 - WHEN ประเมินตาม rubric ใน `triage.md §2A`
-- THEN tier ที่ระบุคือ `fast` พร้อม route fast-track (`/warnyin:design` แบบ skip panel/dry-run)
+- THEN tier ที่ระบุคือ `fast` พร้อม route fast-track: design fast-track (pre-flight สร้าง receipt) → code-first → verify-lite → ship-lite (ข้อความ route ใน `triage.md §2A` row fast ตรงเวอร์ชันนี้)
 
 ### Scenario: read-only — แนะนำแล้วหยุด
 - GIVEN command adapter `src/.claude/commands/warnyin/triage.md`
@@ -40,15 +40,15 @@ change ที่แตะพื้นที่อ่อนไหว — auth/aut
 
 ## Requirement: Fast-track ลด ceremony ไม่ลด correctness (canonical skip-list)
 
-tier `fast` ข้าม ceremony ที่ไม่จำเป็นต่อ stage (DESIGN/BUILD/VERIFY/SHIP) แต่คง correctness floor (test เขียว, archive ครบ) — skip-list canonical อยู่ที่ `triage.md` เดียว, stage อื่นชี้มาด้วย pointer
+tier `fast` เดินเส้นทาง receipt — skip-list canonical ที่ `triage.md` เป็นตาราง 4 row: DESIGN pre-flight สร้าง `receipt.md` จาก template (เติม meta + hard-floor row + §1 + §2) **ก่อนแตะโค้ด** ไม่สร้าง business/proposal/design/tasks · BUILD code-first (main loop แก้เอง ไม่เรียก build-wave/worktree) + anti-gaming floor (full-gate test เขียว blocking · config-protection · investigate-before-edit · ห้ามแตะ rule/standard กลาง) · VERIFY-lite functional ตาม acceptance ใน receipt §2 + เติมผลลง §4 · SHIP-lite เติม §3/§5 + hard-floor scan + archive; caps ขนาดเอกสารต่อ tier อยู่ `triage.md §2D` แยก anchor (fast receipt ≤40 บรรทัด · standard proposal ≤60 / design ≤120 บรรทัด · large = judgment)
 
-### Scenario: skip-list heading canonical + correctness floor
+### Scenario: skip-list canonical + floor ใหม่
 - GIVEN `src/.warnyin/workflow/triage.md`
-- WHEN อ่าน section `## Fast-track skip-list`
-- THEN ตารางระบุ fast-track ทำอะไรต่อ stage + คอลัมน์ "คงไว้ (correctness floor)" ที่ยังบังคับ (เช่น BUILD "full-gate test เขียว ยัง blocking")
+- WHEN อ่าน section `## Fast-track skip-list` และ `§2D`
+- THEN ตาราง skip-list 4 row มี receipt lifecycle (pre-flight / code-first / verify-lite / ship-lite) + คอลัมน์ "คงไว้ (correctness floor)" ครบ (anti-gaming floor + hard-floor scan) และ caps อยู่ `§2D` แยก anchor จาก skip-list
 
 ### Scenario: stage hook ชี้ skip-list canonical (ไม่ inline)
-- GIVEN ไฟล์ `src/.warnyin/workflow/stages/{design.md, verify.md, ship.md}`
+- GIVEN ไฟล์ `src/.warnyin/workflow/stages/{design.md, build.md, verify.md, ship.md}`
 - WHEN grep markdown-link ไป skip-list
 - THEN แต่ละไฟล์มี link `[fast-track skip-list](../triage.md#fast-track-skip-list)` ที่ resolve ได้ และ **ไม่มีตาราง skip-list inline** ในไฟล์ stage (rubric อยู่ triage.md เดียว)
 
