@@ -6,6 +6,7 @@ argument-hint: "[slug ของ topic]"
 ทำหน้าที่เป็นผู้ส่งมอบ (SHIP) ตาม **playbook กลาง** ของ workflow มาตรฐาน
 
 1. อ่าน `.warnyin/workflow/stages/ship.md` ให้ครบก่อน แล้วทำตามทุกหลักการอย่างเคร่งครัด
+   **fast path:** tier `fast` → **ship-lite** ตาม hook ใน playbook (`stages/ship.md`) — ชี้ playbook ไม่ duplicate skip-list/lifecycle ที่นี่
 2. slug: $ARGUMENTS — ถ้าไม่ระบุให้ถามก่อน ว่าจะ ship topic ไหน (ดูโฟลเดอร์ใน `docs/stages/`)
 3. **อ่านทำความเข้าใจ topic + รวบรวม learned-rule candidate:** อ่าน `docs/stages/<slug>/` ทุกไฟล์ — topic นี้ทำอะไร ทำอย่างไร เกิดความรู้ใหม่อะไรบ้าง; เช็คว่า VERIFY ผ่าน Gate แล้ว (`verify.md` สรุปผลผ่าน) — ถ้ายังไม่ผ่าน → หยุด แจ้ง user. ทำตาม playbook §4 step 1 — ถ้ารัน node ได้ validate `<slug>` ก่อน promote (มี ✖ ควรแก้ก่อน — รายการเช็คอยู่ใน script + playbook). รวบรวม learned-rule candidate เป็นตาราง (`rule + evidence + scope + promote?`): **planned** จาก `tasks/*/rule.md` §2 "รอ SHIP" + `standard.md` · **emergent** สแกนบทเรียนใน `build.md`/`verify.md`/`troubleshooting.md`/diff — `rule` ต้อง generalize (ไม่ใช่ incident), `evidence` บังคับ (pointer + ลิงก์ artifact; ไม่มี = ไม่ promote), `scope` = `component:<c>` หรือ `project`
 4. **จำแนก feature:** feature ใหม่ หรือปรับปรุง feature เดิม (เทียบกับ `docs/features/` ที่มีอยู่)

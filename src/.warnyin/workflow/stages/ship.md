@@ -14,7 +14,7 @@
 
 > SHIP เป็นเรื่อง **เอกสาร + archive เท่านั้น** — การ merge โค้ด (build branch → main / PR) จัดการเองนอก workflow
 
-> **★ fast-track hook:** ถ้า topic เป็น tier `fast` (จาก `/warnyin:triage`) → **ship-lite** ตาม [fast-track skip-list](../triage.md#fast-track-skip-list) — promote เฉพาะที่มี (อาจไม่มี learned-rule), archive ครบ; **correctness floor คงไว้ — archive ครบ + ไม่แตะ rule กลางมั่ว**. tier `standard`/`large` → flow เต็มด้านล่าง (hook นี้ N/A ไม่ลด bar)
+> **★ fast-track hook:** ถ้า topic เป็น tier `fast` (จาก `/warnyin:triage`) → **ship-lite** ตาม [fast-track skip-list](../triage.md#fast-track-skip-list) — เติม receipt §3/§5 → สแกน diff เทียบ hard-floor 5 หมวด (auth/authz · data-migration/schema · secret/credential · public-API/contract · security-sensitive — เจอ → ห้าม ship-lite ต้อง upgrade ตาม triage §2B) → archive ทั้งโฟลเดอร์; promote learned rule เฉพาะที่มีใน receipt §5 (evidence + user ยืนยัน); **correctness floor คงไว้ — receipt ครบทุก section + archive ครบ + ไม่แตะ rule กลางมั่ว**. tier `standard`/`large` → flow เต็มด้านล่าง (hook นี้ N/A ไม่ลด bar)
 
 ---
 

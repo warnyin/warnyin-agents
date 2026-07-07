@@ -19,7 +19,7 @@
 - `/warnyin:feedback:issue [ประเภท/ข้อความ]` → เปิด GitHub issue แจ้ง feedback ที่ warnyin/warnyin-agents (`.warnyin/workflow/feedback.md`)
 - `/warnyin:discovery [topic]` → Discovery stage (`.warnyin/workflow/stages/discovery.md`)
 - `/warnyin:design [slug] [change]` → DESIGN stage (`.warnyin/workflow/stages/design.md`)
-- `/warnyin:build [slug]` → BUILD stage — fan-out sub-agent ตาม dependency (`.warnyin/workflow/stages/build.md` + `.warnyin/workflow/scripts/build-wave.mjs`)
+- `/warnyin:build [slug]` → BUILD stage — fan-out sub-agent ตาม dependency; fast tier → main loop code-first (`.warnyin/workflow/stages/build.md` + `.warnyin/workflow/scripts/build-wave.mjs`)
 - `/warnyin:verify [slug]` → VERIFY stage — strategy tester เทส local env + UXUI แก้จนผ่าน (`.warnyin/workflow/stages/verify.md`)
 - `/warnyin:ship [slug]` → SHIP stage — ส่งมอบ: promote ความรู้ขึ้น `docs/` + archive topic (`.warnyin/workflow/stages/ship.md`)
 

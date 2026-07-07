@@ -5,6 +5,8 @@ argument-hint: "[slug ของ topic]"
 
 ทำหน้าที่เป็น BUILD orchestrator ตาม **playbook กลาง** ของ workflow มาตรฐาน
 
+> **★ fast-track:** ถ้า topic เป็น tier `fast` → ไม่ fan-out/ไม่ fork worktree — main loop code-first ตาม playbook hook (ดูรายละเอียดที่ `.warnyin/workflow/stages/build.md §1`)
+
 0. **★ เช็ค context window ก่อนเริ่ม:** ถ้า context ของ session ถูกใช้ไปเยอะหรือ**เกินครึ่ง** → เสนอ user ให้ `/compact` หรือ `/clear` ก่อนเสมอ แล้วค่อยรัน `/warnyin:build <slug>` ใหม่ใน context ที่โล่ง (สถานะงานอยู่ในไฟล์ `docs/stages/<slug>/` ครบ) — อย่าเริ่ม fan-out ทั้งที่ context ใกล้เต็ม
 1. อ่าน `.warnyin/workflow/stages/build.md` ให้ครบก่อน แล้วทำตามทุกหลักการอย่างเคร่งครัด
 2. slug: $ARGUMENTS — ถ้าไม่ระบุให้ถามก่อน ว่าจะ build topic ไหน (ดูโฟลเดอร์ใน `docs/stages/`)
@@ -13,6 +15,7 @@ argument-hint: "[slug ของ topic]"
 5. **ขออนุมัติครั้งเดียว** — ใช้ AskUserQuestion แสดง execution plan: แต่ละ wave มี task อะไร, อันไหน parallel, isolation mode, build branch → รอ go/no-go (อย่าเริ่มก่อนได้ไฟเขียว)
 6. **เดินทีละ wave** (หลังอนุมัติ):
    - **map tier→รุ่นจริง (Claude adapter):** สำหรับแต่ละ task ใน wave นี้ → อ่าน `Model tier` generic จาก `task.md` แล้ว map เป็นชื่อรุ่นจริงของ harness นี้: `cheap → claude-haiku-4-5` · `balanced → claude-sonnet-4-6` · `deepest → claude-opus-4-8` (ไม่ระบุ tier = `balanced`) — orchestrator เป็นคน map (payload `build-wave` คง generic ไม่ผูกชื่อรุ่น)
+   - **isolation ต่อ wave:** wave ≥2 task → `isolate:true` + `baseRef`; wave เดี่ยว → `isolate:false` + **checkout build branch ก่อนเรียก Workflow** (กัน commit ตกลง main)
    - เรียก **Workflow** ด้วย `{ scriptPath: ".warnyin/workflow/scripts/build-wave.mjs", args: { slug, tasks: [{ name: "<task ใน wave นี้>", model: "<ชื่อรุ่นจริงที่ map ได้>" }, ...], isolate, baseRef: "<ชื่อ build branch ที่สร้าง step 4>" } }` — `tasks` ส่งเป็น `{name, model}[]` (build-wave รับทั้ง `string[]` เดิมและ `{name, model?}[]`; `model` เป็น pass-through เข้า `agent()` ตรงๆ) · `baseRef` = build branch จริง (worktree fork จาก main → agent merge build branch เองก่อนทำงาน เพื่อเห็น `docs/stages/<slug>/` + output ของ wave ก่อนหน้า)
    - เมื่อ workflow คืนผล: ถ้า `isolate` → **integrate ด้วย `git checkout <result.branch> -- <ไฟล์ source ที่ task แก้>`** (checkout เฉพาะไฟล์ source ที่ scoped — เลี่ยง topic-docs copy ที่ agent merge เข้า worktree + ปลอด KB#11 tracked-deletion), แก้ conflict ถ้ามี; ถ้า shared-tree → review + commit ให้ · `task.md` status/checklist → main loop อัปเดตที่ main working dir ตอน integrate (E1 — agent แก้จาก worktree ไม่ได้ถ้า gitignored)
    - ถ้ามี task `failed` หรือ `skipped` → **หยุด** รายงาน user ก่อนไป wave ถัดไป

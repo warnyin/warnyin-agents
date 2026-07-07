@@ -11,7 +11,7 @@
 ใช้หลัง BUILD ผ่าน Gate (full build/test เขียว) — VERIFY ทดสอบ **เชิงพฤติกรรม/จุดประสงค์** ในสภาพแวดล้อมจริง (local env)
 ไม่ใช่แค่ unit test ผ่าน แต่ "ของจริงทำงานตามที่ topic ตั้งใจไหม"
 
-> **★ fast-track hook:** ถ้า topic เป็น tier `fast` (จาก `/warnyin:triage`) → **verify-lite** ตาม [fast-track skip-list](../triage.md#fast-track-skip-list) — functional ตาม spec + test เขียว, ข้าม empirical/panel ที่ไม่เกี่ยว; **correctness floor คงไว้ — test ต้องเขียวจริง**. tier `standard`/`large` → flow เต็มด้านล่าง (hook นี้ N/A ไม่ลด bar)
+> **★ fast-track hook:** ถ้า topic เป็น tier `fast` (จาก `/warnyin:triage`) → **verify-lite** ตาม [fast-track skip-list](../triage.md#fast-track-skip-list) — functional ตาม acceptance ใน receipt §2 + test เขียว → เติมผลลง receipt §4; **ไม่สร้าง `test.md`/`verify.md` สำหรับ fast** (ผลอยู่ใน receipt แทน); **correctness floor คงไว้ — test ต้องเขียวจริง**. tier `standard`/`large` → flow เต็มด้านล่าง (hook นี้ N/A ไม่ลด bar)
 > loop-tuning proxy (★ loop tuning report ใน §4 ข้อ 5) = non-blocking guidance ใน verify-lite — ระบุในรายงานเท่านั้น ไม่ block gate
 
 ---
@@ -55,14 +55,7 @@
 4. **รันเทสตามแผน:** functional ตาม test-flow ใน spec; FE → e2e smoke (playwright-cli) + ตรวจ UX/UI
    - **★ contract validation (ถ้ามี `openapi.yaml`):** ยืนยัน implementation จริง = contract ตาม `.warnyin/workflow/api-doc.md` §4 (code-first regen → diff, หรือยิง request จริง → ตรวจ response/status/error ตรง schema); mismatch = ไม่ผ่าน → เข้า fix loop ข้อ 5
 5. **ไม่ผ่าน → แก้ → rerun:** วนจนผ่าน **นับจำนวนรอบ/จำนวนแก้**; ปัญหายาก→`troubleshooting.md`; ถ้านานเกิน→ถาม user (ทีละข้อ + recommended)
-   - **★ loop tuning (fix loop มี finding >1)** — จาก paper "iterative generative optimization": loop tuning ปรับแค่ "ลำดับ/การจัดกลุ่ม" ของการแก้ — ไม่ลด correctness/test-floor (สอด config-protection: "แก้จนผ่าน" = แก้ root cause ไม่ใช่ลด bar). ก่อนแก้ตัดสิน 2 อย่าง แล้วระบุ choice + เหตุผล 1 บรรทัดในรายงาน:
-     - credit horizon (feed feedback แค่ไหนต่อรอบ):
-       · สั้น = แก้ทีละ finding rerun ถี่ — เหมาะเมื่อ finding independent + สัญญาณเฉพาะหน้าสอดคล้องเป้า (เร็วกว่า)
-       · ยาว = รวม failure ทั้งชุด วิเคราะห์ root cause ร่วม แล้วแก้เป็นชุด — เหมาะเมื่อ finding coupled (แก้จุดนึงเสี่ยงพังอีกจุด)
-       ⚠ update ถี่เกินด้วย horizon สั้นเกิน → churn/ผลแย่ลง (อย่าแก้ทีละจุดถ้า failure โยงกัน)
-     - experience batching (ตอน delegate fix): แบ่ง failure ตาม component/root-cause แล้ว delegate ทีละกลุ่ม
-       ⚠ batch ใหญ่ ≠ ดีกว่าเสมอ (task-dependent) — เลือกขนาดกลุ่มตามโครงเหตุ-ผล ไม่ใช่ "อัด context เยอะ = ดี"
-     - default-by-tier: ดู [triage.md loop-tuning default](../triage.md) — default ปรับได้ ไม่ lock
+   - **★ loop tuning (fix loop มี finding >1)** — วิธีตัดสิน credit horizon / experience batching + ⚠ ดู [`loop-tuning`](../loop-tuning.md); default-by-tier: ดู [triage.md loop-tuning default](../triage.md)
    - Loop-tuning report (fix loop มี finding >1 — non-blocking guidance):
      - ระบุ credit-horizon choice (per-finding | batched) + เหตุผล 1 บรรทัด ในรายงาน ก่อนแก้
      - ตอน delegate fix → failure ถูก group (รายงานเห็น ≥1 group boundary by component/root-cause)

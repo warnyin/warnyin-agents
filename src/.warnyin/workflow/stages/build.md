@@ -11,6 +11,8 @@
 ใช้เมื่อ DESIGN ผ่าน Gate แล้ว มี `tasks/<task>/` ครบ (task.md + spec.md + standard.md + rule.md)
 BUILD จะ **orchestrate การ implement** โดยกระจายงานเป็น sub-agent หนึ่งตัวต่อหนึ่ง task/slice และเดินตาม dependency graph
 
+> **★ fast-track hook:** ถ้า topic เป็น tier `fast` (จาก `/warnyin:triage`) → **code-first** ตาม [fast-track skip-list](../triage.md#fast-track-skip-list) — main loop แก้โค้ดเอง ไม่เรียก build-wave/ไม่ fork worktree; **correctness floor คงไว้:** full-gate เขียว (blocking, §3 ข้อ 8) · config-protection (§3 ข้อ 12) · investigate-before-edit (§3 ข้อ 11) · ห้ามแตะ rule/standard กลาง (§3 ข้อ 6). tier `standard`/`large` → flow เต็มด้านล่าง (hook นี้ N/A ไม่ลด bar)
+
 ---
 
 ## 2. Input ที่ต้องอ่านก่อนเริ่ม
@@ -28,8 +30,9 @@ BUILD จะ **orchestrate การ implement** โดยกระจายง�
 2. **Fan-out ตาม dependency (wave-based)** — จัด task เป็น "wave" ตาม topological order ของ dependency:
    - task ใน wave เดียวกัน = independent → รัน **parallel**
    - ข้าม wave = มี dependency → wave ถัดไปเริ่มหลัง wave ก่อนหน้ารวมผลเสร็จ
-3. **Worktree isolation ต่อ task** — แต่ละ parallel task ทำใน git worktree ของตัวเอง ไม่แก้ไฟล์ชนกัน แล้ว **integrate (merge) เข้า build branch หลังจบแต่ละ wave**
-   - **★ worktree fork จาก main (คุมไม่ได้) → agent ต้อง sync build branch ก่อน** — harness fork worktree จาก main จึงยังไม่เห็น `docs/stages/<slug>/` (topic docs) + output ของ wave ก่อนหน้า; build-wave สั่ง agent `git merge <baseRef>` (= build branch) เป็น step แรกก่อนอ่าน task เพื่อให้เห็น dependency ครบ (กลไกอยู่ใน `build-wave.mjs` — orchestrator ส่ง `baseRef` เข้ามา)
+3. **Worktree isolation ต่อ task** — 2 mode ตามขนาด wave:
+   - wave **≥2 task** → worktree ต่อ task: แต่ละ parallel task ทำใน git worktree ของตัวเอง ไม่แก้ไฟล์ชนกัน; **★ worktree fork จาก main (คุมไม่ได้) → agent ต้อง sync build branch ก่อน** — harness fork worktree จาก main จึงยังไม่เห็น `docs/stages/<slug>/` (topic docs) + output ของ wave ก่อนหน้า; build-wave สั่ง agent `git merge <baseRef>` (= build branch) เป็น step แรกก่อนอ่าน task เพื่อให้เห็น dependency ครบ (กลไกอยู่ใน `build-wave.mjs` — orchestrator ส่ง `baseRef` เข้ามา)
+   - wave **เดี่ยว** → `isolate:false` shared tree บน working tree จริง: **orchestrator checkout build branch ก่อนรัน wave** (กัน commit ตกลง main), agent **ไม่ commit เอง** (guard เดิมใน build-wave), main loop review แล้ว commit
    - ถ้า target ไม่ใช่ git repo → fallback เป็น **sequential shared-tree** (ทีละ task ตาม dependency)
 4. **แต่ละ build agent ต้อง self-verify (scope = component ตัวเองเท่านั้น)** — implement → รัน test-flow ใน `spec.md` + build/lint **ของ component ที่ task นั้นแตะ (unit + lint ของ component นั้น) ไม่ใช่ทั้ง repo** → **ต้องผ่านก่อนถึง mark passed**; ถ้าแก้ไม่ได้ให้รายงาน `failed` พร้อมเหตุผล **ห้ามรายงานผ่านทั้งที่ยังแดง** — **cross-component / integration / e2e ไม่ต้องรันต่อ task** (เลื่อนไป full-gate ข้อ 8 / §4 ข้อ 6) กันรันซ้ำเสียเวลา
 5. **เคารพ standard/rule ของ task** — ทำตาม `standard.md` (pattern โค้ด, reuse shared component) และ `rule.md` (กฎ) อย่างเคร่งครัด; เขียนน้อยที่สุดตาม decision hierarchy (YAGNI→stdlib→native→dep→one-liner→ขั้นต่ำ) — ดู [`minimalism`](../minimalism.md)
@@ -53,22 +56,15 @@ BUILD จะ **orchestrate การ implement** โดยกระจายง�
 3. **Pre-check:** target เป็น git repo ไหม (สำหรับ worktree) — ถ้าไม่ใช่ → fallback sequential shared-tree และแจ้ง user
 4. **เสนอ execution plan + ขออนุมัติ (ครั้งเดียว):** แสดง wave / task ในแต่ละ wave / อันไหน parallel / isolation mode → ถาม user go/no-go
 5. **เดินทีละ wave:**
-   - fan-out sub-agent ของ task ใน wave นั้น (parallel, worktree isolation) ผ่าน **Workflow** (`.warnyin/workflow/scripts/build-wave.mjs`) — orchestrator **ส่ง `baseRef` (= build branch)** เข้า build-wave เพื่อให้ agent sync build branch เข้า worktree ก่อน (เห็น topic docs + output wave ก่อนหน้า)
-   - แต่ละ agent: sync build branch (`git merge <baseRef>`) → implement → test/lint → commit (ถ้า worktree) → รายงานผลแบบ structured (status, files, branch, test result)
-   - **integrate:** main loop checkout **เฉพาะไฟล์ source ที่ scoped** ของ wave นั้นจาก worktree branch (`git checkout <branch> -- <files>` — เลี่ยง topic-docs copy ที่ agent merge เข้า worktree + ปลอด KB#11); ถ้า conflict → แก้/รายงาน
+   - fan-out sub-agent ของ task ใน wave นั้น ผ่าน **Workflow** (`.warnyin/workflow/scripts/build-wave.mjs`) — orchestrator ส่ง `{slug, tasks, isolate, baseRef}` ตาม mode: wave ≥2 task → `isolate:true` + `baseRef`; wave เดี่ยว → `isolate:false` + **checkout build branch ก่อนรัน wave** (กัน commit ตกลง main)
+   - แต่ละ agent: sync build branch (`git merge <baseRef>`, เฉพาะ worktree mode) → implement → test/lint → รายงานผลแบบ structured (status, files, branch, test result)
+   - **integrate ตาม mode:** worktree → main loop checkout **เฉพาะไฟล์ source ที่ scoped** จาก worktree branch (`git checkout <branch> -- <files>` — เลี่ยง topic-docs copy ที่ agent merge เข้า worktree + ปลอด KB#11); shared-tree → agent ไม่ commit เอง, main loop review + commit; ถ้า conflict → แก้/รายงาน
    - ถ้ามี task `failed` → หยุด รายงาน user
 6. **★ Full build & test gate (หลังทุก wave merge เสร็จ — blocking, ห้ามลด bar):** บน build branch ที่ integrate แล้ว รัน **build ทั้งหมด + test suite ทั้งหมด (รวม unit test) + cross-component/integration** ของทุก component ที่กระทบ — นี่คือจุดที่ครอบ integration ที่ self-verify ต่อ task (§3 ข้อ 4) ไม่ได้รัน จึง **ต้องคงเป็น blocking gate เต็มเสมอ**
    - มี error / test แดง → **แก้จนเขียวหมด (loop)** อาจ delegate fix ให้ sub-agent ทีละจุด แล้ว rerun ใหม่
    - **ห้ามปิด BUILD ถ้ายังมี build error หรือ test ตัวใดแดง**
    - ถ้าวนแก้หลายรอบยังไม่ผ่าน → หยุด รายงาน user พร้อม log error
-   - **★ loop tuning (fix loop มี finding >1)** — จาก paper "iterative generative optimization": loop tuning ปรับแค่ "ลำดับ/การจัดกลุ่ม" ของการแก้ — ไม่ลด correctness/test-floor (สอด config-protection: "แก้จนผ่าน" = แก้ root cause ไม่ใช่ลด bar). ก่อนแก้ตัดสิน 2 อย่าง แล้วระบุ choice + เหตุผล 1 บรรทัดในรายงาน:
-     - credit horizon (feed feedback แค่ไหนต่อรอบ):
-       · สั้น = แก้ทีละ finding rerun ถี่ — เหมาะเมื่อ finding independent + สัญญาณเฉพาะหน้าสอดคล้องเป้า (เร็วกว่า)
-       · ยาว = รวม failure ทั้งชุด วิเคราะห์ root cause ร่วม แล้วแก้เป็นชุด — เหมาะเมื่อ finding coupled (แก้จุดนึงเสี่ยงพังอีกจุด)
-       ⚠ update ถี่เกินด้วย horizon สั้นเกิน → churn/ผลแย่ลง (อย่าแก้ทีละจุดถ้า failure โยงกัน)
-     - experience batching (ตอน delegate fix): แบ่ง failure ตาม component/root-cause แล้ว delegate ทีละกลุ่ม
-       ⚠ batch ใหญ่ ≠ ดีกว่าเสมอ (task-dependent) — เลือกขนาดกลุ่มตามโครงเหตุ-ผล ไม่ใช่ "อัด context เยอะ = ดี"
-     - default-by-tier: ดู [triage.md loop-tuning default](../triage.md) — default ปรับได้ ไม่ lock
+   - **★ loop tuning (fix loop มี finding >1)** — วิธีตัดสิน credit horizon / experience batching + ⚠ ดู [`loop-tuning`](../loop-tuning.md); default-by-tier: ดู [triage.md loop-tuning default](../triage.md)
    - Loop-tuning report (fix loop มี finding >1 — non-blocking guidance):
      - ระบุ credit-horizon choice (per-finding | batched) + เหตุผล 1 บรรทัด ในรายงาน ก่อนแก้
      - ตอน delegate fix → failure ถูก group (รายงานเห็น ≥1 group boundary by component/root-cause)

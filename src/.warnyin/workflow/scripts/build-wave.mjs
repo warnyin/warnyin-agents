@@ -87,7 +87,7 @@ const RESULT_SCHEMA = {
 function prompt(task) {
   const dir = `docs/stages/${slug}/tasks/${task}`
   const lines = [
-    `คุณคือ build sub-agent ของ task "${task}" (vertical slice) ทำตาม playbook .warnyin/workflow/stages/build.md`,
+    `คุณคือ build sub-agent ของ task "${task}" (vertical slice)`,
     ``,
     `1. อ่านให้ครบก่อนเขียนโค้ด:`,
     `   - .warnyin/workflow/roles/developer.md (role card: lens + checklist ก่อนส่งงาน — ทำตามทุกข้อ)`,
@@ -95,8 +95,8 @@ function prompt(task) {
     `   - ${dir}/spec.md (API/UXUI/data-flow/user-flow/persona/test-flow)`,
     `   - ${dir}/standard.md (pattern โค้ด, shared component — reuse ห้ามเขียนซ้ำ)`,
     `   - ${dir}/rule.md (กฎที่ต้อง follow)`,
-    `   - ภาพรวม: docs/stages/${slug}/design.md, proposal.md`,
-    `   - rule/standard กลางที่อ้างถึงใน docs/techstack/<component>/`,
+    `   - docs/techstack/<component>/rule.md ของ component ที่ task นี้แตะ`,
+    `   - อ่านเพิ่มเฉพาะไฟล์ที่ task.md/standard.md/rule.md อ้างถึง`,
     `2. Implement ให้ครบทุก sub-task แบบ vertical slice (end-to-end) ทำตาม standard.md + rule.md เคร่งครัด`,
     `3. รัน test-flow ใน spec.md + build/lint ของ component นั้น`,
     `4. ถ้าเจอ error/ติดปัญหา → อ่าน docs/troubleshooting.md ก่อน เผื่อเคยแก้แล้ว`,
