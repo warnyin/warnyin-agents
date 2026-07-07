@@ -9,7 +9,7 @@
 | **Slice อ้างอิง** | `design.md` slice #6 |
 | **Component** | `installer` (repo นี้เอง) |
 | **Model tier** | `cheap` |
-| **สถานะ** | `✅ build สำเร็จ` |
+| **สถานะ** | `ผ่าน BUILD` |
 
 ## 1. เป้าหมายของ task (vertical slice)
 

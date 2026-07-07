@@ -9,7 +9,7 @@
 | **Slice อ้างอิง** | `design.md` slice #2 |
 | **Component** | `installer` (repo นี้เอง — แก้เฉพาะ `src/**`) |
 | **Model tier** | `balanced` |
-| **สถานะ** | `passed` |
+| **สถานะ** | `ผ่าน BUILD` |
 
 ## 1. เป้าหมายของ task (vertical slice)
 
