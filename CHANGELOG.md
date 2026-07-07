@@ -23,6 +23,21 @@
 
 ## [Unreleased]
 
+## [0.24.0] - 2026-07-07
+
+### Added
+- **Fast-track receipt — code-first path สำหรับ change เล็ก** (feature `fast-track-receipt`) — `fast` tier topics ข้าม task-file folder → ใช้ receipt ที่เก็บ meta + acceptance + test result อย่างเดียว; lifecycle: pre-flight ก่อนแตะโค้ด (DESIGN code-first ตาม playbook) → BUILD+VERIFY ใน receipt §3+§4 → SHIP-lite; template `src/.warnyin/template/stages/receipt.md` ≤40 บรรทัด ตาม tier cap — backward-compatible (standard/large ใช้ task folder เดิม). payload ติดมากับ `--update` รอบถัดไป
+- **Learning-loop-tuning orchestration guide** (feature `learning-loop-tuning-orchestration`) — `src/.warnyin/workflow/loop-tuning.md` เป็น single-source ของ loop tuning theory (credit horizon + experience batching) ย้ายจาก inline ใน `build.md`/`verify.md` → playbook ทั้งสอง stage ชี้ pointer บาง `../loop-tuning.md` (ไม่ duplicate theory) — gateway `triage.md` §2C ระบุ default-by-tier. backward-compatible (non-blocking guidance).
+
+### Changed
+- **Document length caps per tier** — `triage.md §2D` ระบุ cap: fast receipt ≤40 · standard proposal ≤60 / design ≤120 · large ไม่ cap (judgment); command adapter ชี้ cap ในรายงาน — ไม่ enforce automatic ให้ model judgment; `specs/` `design.md` ≤120 บรรทัดยืมตาม tier cap strategy
+- **Build orchestration — wave policy ปรับแบบ mixed** — wave ≥2 task → `isolate:true` (separate worktree) · wave เดี่ยว → `isolate:false` shared tree + main loop **checkout build branch ก่อน** (กัน commit ตกลง main); `src/.warnyin/workflow/stages/build.md` §3 principle 3 ปรับใจความ + `build.md` command adapter step 6 ชี้ทุก mode
+- **UX-detect exclusion precedence** — DESIGN wireframe auto-detect step 4.5 ข้อ 2 ปรับ signal hierarchy: docs-only/config-only/tooling change **จัดระดับเหนือ UI-surface signals** (จำหลัก "ถ้าไม่มี UI surface → ข้ามเงียบ"); `design.md` step 4.5 อัปเดต signal order ไม่ trigger wireframe
+- **Validator fast-mode** — `validate-topic.mjs` ได้รู้จัก receipt-filled topic (stage=fast-track ไม่มี ✖ C1-C4) + mixed-state ⚠; output/status table show `fast-track` indicator; `next.md` suggest receipt-path + ตรวจ closure อยู่ receipt §4 ไม่ task folder
+
+### Fixed
+- **Prompt lean ใน BUILD/DESIGN/VERIFY/SHIP adapter** — `src/.claude/commands/warnyin/{build,design,verify,ship}.md` ลบ playbook full-text → เหลือ pointer ขั้นต่ำ (role card + 4 ไฟล์ task + techstack rule.md ของ component ที่แตะ) — token ประหยัด ≈20-30% ต่อ prompt ไม่ลด strategy (ทั้งหมดชี้ playbook กลาง); DESIGN adapter เพิ่ม fast-path pointer + receipt template
+
 ## [0.23.0] - 2026-07-06
 
 ### Added
