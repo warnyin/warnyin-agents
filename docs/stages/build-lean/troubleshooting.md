@@ -1,6 +1,6 @@
 # Troubleshooting — build-lean
 
-> ปัญหายาก/เจอซ้ำที่แก้สำเร็จระหว่าง BUILD — SHIP จะยกขึ้น `docs/troubleshooting.md`
+> ปัญหายาก/เจอซ้ำที่แก้สำเร็จระหว่าง BUILD/VERIFY — SHIP จะยกขึ้น `docs/troubleshooting.md`
 
 ## TS-1: guard self-install ใน cli.mjs trigger เมื่อรัน `node --test` จาก `src/` โดยตรง
 
@@ -22,3 +22,10 @@
 - **Root cause:** จาก `src/.claude/commands/warnyin/` ต้องขึ้น **3 ชั้น** (`../../../`) ถึงจะถึง root ที่มี `.warnyin/` — ใช้ `../../` ขาดไปหนึ่งชั้น; depth ฝั่ง `src/` กับฝั่ง target ที่ติดตั้งแล้วเท่ากัน จึงแก้ครั้งเดียวถูกทั้งสองฝั่ง
 - **วิธีแก้:** แก้เป็น `../../../.warnyin/workflow/triage.md#fast-track-skip-list` → lint:md เขียว
 - **ป้องกันซ้ำ:** md link ใหม่ในไฟล์ใต้ `src/.claude/commands/warnyin/` นับชั้นจาก location จริงของไฟล์เสมอ (3 ชั้นถึง root) และอย่า assume ว่า lint แดงในไฟล์ scope ตัวเอง = ปัญหา cross-slice — เช็ค path resolution ก่อน
+
+## TS-4: merge release branch ทับ block ที่เพิ่ง refactor เงียบๆ (เจอตอน VERIFY)
+
+- **อาการ:** `verify.md §4 ข้อ 5` กลับไปมี theory block เต็มแบบเก่า ทั้งที่ wave 2 แทนด้วย wording block แล้ว + agent รายงาน acceptance ผ่าน — full gate (test/lint/pack) เขียวหมด ไม่จับ เพราะ regression นี้อยู่ระดับ "เนื้อ markdown" ไม่ใช่ link/test
+- **Root cause:** wave 3 merge `origin/release/0.23.0` (มี `verify.md` เวอร์ชัน theory inline) → conflict กับเวอร์ชัน wave 2 → agent resolve โดยเก็บเนื้อฝั่ง release ในโซน §4 ข้อ 5 (hook บรรทัด 14 รอดเพราะอยู่คนละ hunk)
+- **วิธีแก้:** VERIFY จับด้วย negative-grep single-source (`grep -rl '<ประโยคจาก why-block>'` ต้องเจอไฟล์เดียว) → แทน block เก่าด้วย canonical wording จาก `build.md` (คำต่อคำ)
+- **ป้องกันซ้ำ:** merge branch ข้ามสายที่แตะไฟล์เดียวกับที่เพิ่ง refactor → หลัง merge ต้อง rerun เช็ค canonical/single-source ของ topic เสมอ (อย่าเชื่อแค่ full gate เขียว — gate ไม่ครอบ wording); การเช็คแบบ falsifiable grep ใน spec คือกลไกที่จับได้จริง
