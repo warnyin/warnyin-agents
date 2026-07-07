@@ -43,11 +43,10 @@ function topLevel(files, name) {
   return files.has(name) ? files.get(name) : null
 }
 
-// ── C2: ทุกโฟลเดอร์ใน tasks/ (ข้าม [...]) มีครบ 4 ไฟล์ ──────────────────────
-// files key รูปแบบ: 'tasks/<taskName>/<file>' — รวบ taskName + เซตไฟล์ที่มี
-function checkTasks(files) {
-  const issues = []
-  const tasks = new Map() // taskName -> Set<file>
+// ── helper: รวบ task folder จริง (ข้าม [...]) → Map<taskName, Set<file>> ──────
+// ใช้ร่วมกันระหว่าง C2 (checkTasks) และ detectMode (design §4.2) — ห้าม duplicate เงื่อนไข
+function collectRealTasks(files) {
+  const tasks = new Map()
   for (const key of files.keys()) {
     const parts = key.split('/')
     if (parts[0] !== 'tasks' || parts.length < 3) continue
@@ -56,6 +55,14 @@ function checkTasks(files) {
     if (!tasks.has(taskName)) tasks.set(taskName, new Set())
     tasks.get(taskName).add(parts[2])
   }
+  return tasks
+}
+
+// ── C2: ทุกโฟลเดอร์ใน tasks/ (ข้าม [...]) มีครบ 4 ไฟล์ ──────────────────────
+// files key รูปแบบ: 'tasks/<taskName>/<file>' — รวบ taskName + เซตไฟล์ที่มี
+function checkTasks(files) {
+  const issues = []
+  const tasks = collectRealTasks(files) // reuse helper เดียวกับ detectMode
   for (const [taskName, present] of tasks) {
     const missing = TASK_REQUIRED.filter((f) => !present.has(f))
     if (missing.length) {
@@ -159,14 +166,40 @@ function checkSpecDelta(files) {
   return issues
 }
 
+// ── detectMode (design §4.2): fast / mixed / normal ──────────────────────────
+// fast: receipt filled + ไม่มี proposal/design filled + ไม่มี task folder จริง
+//   → ข้าม C1-C4; stage = 'fast-track'
+// mixed: receipt filled + (proposal/design filled หรือมี task folder จริง)
+//   → full checks + ⚠ C6 ("topic มีทั้งโครง full และ receipt")
+// normal: ไม่มี receipt filled → พฤติกรรมเดิมทุกประการ (backward compatible)
+function detectMode(files) {
+  const receiptFilled = isFilled(topLevel(files, 'receipt.md'))
+  if (!receiptFilled) return 'normal'
+  const proposalFilled = isFilled(topLevel(files, 'proposal.md'))
+  const designFilled = isFilled(topLevel(files, 'design.md'))
+  const hasTasks = collectRealTasks(files).size > 0
+  if (!proposalFilled && !designFilled && !hasTasks) return 'fast'
+  return 'mixed'
+}
+
 // ── pure fn หลัก: checkTopic(files) → {issues, stage} ────────────────────────
 export function checkTopic(files) {
+  // ── ตัดสิน mode ก่อน — early-branch (design §4.2) ──
+  const mode = detectMode(files)
+  if (mode === 'fast') {
+    // ข้าม C1-C4 ทั้งหมด — C5 (feature spec) cross-cutting ยังรันใน main ปกติ
+    return { issues: [], stage: 'fast-track' }
+  }
   const issues = []
-  issues.push(...checkTasks(files)) // C2 ✖
-  issues.push(...checkShipData(files)) // C3 ✖
+  issues.push(...checkTasks(files))     // C2 ✖
+  issues.push(...checkShipData(files))  // C3 ✖
   const { issues: c1Issues, stage } = inferStageAndC1(files) // C1 ⚠ + stage
   issues.push(...c1Issues)
   issues.push(...checkSpecDelta(files)) // C4 ⚠
+  if (mode === 'mixed') {
+    // C6: mixed-state — receipt filled ร่วมกับโครง full → ⚠ ห้ามเป็น ✖ (rule #21)
+    issues.push({ code: 'C6', level: 'warn', msg: 'topic มีทั้งโครง full และ receipt — ระบุ mode ให้ชัด' })
+  }
   return { issues, stage }
 }
 

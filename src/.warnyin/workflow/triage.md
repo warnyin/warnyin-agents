@@ -22,7 +22,7 @@ TRIAGE คือโหมด **อ่านอย่างเดียว (read-
 
 | tier | ตัวอย่าง | route ที่แนะนำ |
 |---|---|---|
-| **fast** | bugfix, typo, config tweak, แก้/เพิ่ม wording-guidance สั้น, 1-2 ไฟล์, modify ของเดิม ไม่ cross-cutting | `/warnyin:design` แบบ **fast-track** ([skip-list](#fast-track-skip-list)) → build → verify-lite → ship-lite |
+| **fast** | bugfix, typo, config tweak, แก้/เพิ่ม wording-guidance สั้น, 1-2 ไฟล์, modify ของเดิม ไม่ cross-cutting | design fast-track (pre-flight สร้าง receipt) → code-first → verify-lite → ship-lite |
 | **standard** | feature ใหม่ขนาดปกติ, modify หลายไฟล์/หลาย component, มี logic ใหม่ | flow เต็มปัจจุบัน (`design` → build → verify → ship) |
 | **large** | greenfield/project ใหม่, cross-cutting หลาย component, mega | **บังคับ `/warnyin:discovery` ก่อน** → design → ... (decompose เต็ม = future) |
 
@@ -48,7 +48,18 @@ TRIAGE คือโหมด **อ่านอย่างเดียว (read-
 | standard | group by root-cause แล้วแก้ทีละกลุ่ม | delegate ต่อ root-cause group |
 | large | รวมชุด วิเคราะห์ cross-cutting root cause ก่อนแก้ | กลุ่มใหญ่ขึ้นแต่ยังแบ่ง — ระวัง "ใหญ่≠ดีกว่า" |
 
-why/วิธีตัดสิน: ดู [build.md §4 ข้อ 6](stages/build.md) · [verify.md §4 ข้อ 5](stages/verify.md) (★ loop tuning) — ไม่ inline ซ้ำที่นี่
+why/วิธีตัดสิน: ดู [loop-tuning](loop-tuning.md) — ไม่ inline ซ้ำที่นี่
+
+### 2D. Caps (ขนาดสูงสุด per artifact per tier)
+
+| tier | artifact | cap |
+|---|---|---|
+| fast | receipt.md | ≤ 40 บรรทัด |
+| standard | proposal.md | ≤ 60 บรรทัด |
+| standard | design.md | ≤ 120 บรรทัด |
+| large | ทุก artifact | judgment — ไม่ตายตัว |
+
+cap วัดด้วยจำนวนบรรทัด (`wc -l`) — deterministic กับภาษาไทย
 
 ---
 
@@ -58,10 +69,10 @@ why/วิธีตัดสิน: ดู [build.md §4 ข้อ 6](stages/bui
 
 | stage | fast-track ทำ | คงไว้ (correctness floor) |
 |---|---|---|
-| DESIGN | ข้าม `business.md`, proposal/design สั้น, **ไม่ panel ไม่ dry-run**, 1 task, model tier `cheap` | spec/acceptance ขั้นต่ำของ task |
-| BUILD | 1 agent (DAG width 1, ไม่ต้อง fan-out) | **full-gate (test เขียว) ยัง blocking** |
-| VERIFY | lite — functional ตาม spec + test เขียว, ข้าม empirical/panel ที่ไม่เกี่ยว | test เขียวจริง |
-| SHIP | lite — promote เฉพาะที่มี (อาจไม่มี learned-rule), archive | archive ครบ + ไม่แตะ rule กลางมั่ว |
+| DESIGN | pre-flight: สร้าง `receipt.md` จาก template เติม meta + §1 + §2 **ก่อนแตะโค้ด** — ไม่สร้าง business/proposal/design/tasks, ไม่ panel ไม่ dry-run, model tier `cheap` | hard-floor เช็ค + acceptance ประกาศก่อนแก้ (มี artifact ใน receipt) |
+| BUILD | code-first — main loop แก้โค้ดเอง ไม่เรียก build-wave/ไม่ fork worktree | full-gate (test เขียว) blocking · config-protection · investigate-before-edit · ห้ามแตะ rule/standard กลาง (note ลง receipt §5 รอ SHIP) |
+| VERIFY | lite — functional ตาม acceptance ใน receipt §2 + test เขียว → เติมผลลง receipt §4 | test เขียวจริง |
+| SHIP | lite — เติม receipt §3/§5 → สแกน diff เทียบ hard-floor 5 หมวด → archive; promote learned rule เฉพาะที่มีใน §5 | receipt ครบทุก section + archive ครบ + hard-floor scan ผ่าน (เจอ → upgrade ตาม §2B ห้าม ship-lite) |
 
 ---
 

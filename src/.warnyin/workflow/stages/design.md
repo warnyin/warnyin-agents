@@ -62,6 +62,7 @@
    - **ไม่มั่นใจ/ก้ำกึ่ง** → ถาม user (options): (ก) ประเมินด้วย `/warnyin:triage` ก่อน · (ข) user กำหนด tier เองถ้ารู้  [ก้ำกึ่ง default = ปัดขึ้น standard]
    - **hard-floor** (auth/migration/secret/public-API/security-sensitive) → ≥ standard เสมอ
    - tier → drive ceremony ตาม §7
+   - **fast-track path (tier=fast) — pre-flight ก่อนแตะโค้ด:** copy template `.warnyin/template/stages/receipt.md` → เติม meta (รวม hard-floor row) + §1 + §2 (acceptance ประกาศก่อนแก้แบบมี artifact) → **ข้าม step 3-10 ทั้งหมด** ดู [fast-track skip-list](../triage.md#fast-track-skip-list)
 3. **business.md** *(optional — ข้ามได้ถ้า change เล็ก เช่น fix bug นิดหน่อย)*: what & why เชิงธุรกิจ — goal, คุณค่า, persona, success metric
 4. **proposal.md** (what & why): สรุป change ที่จะทำ, เหตุผล, ทางเลือกที่พิจารณา/ตัดทิ้ง, scope in/out
 4.5 **UX wireframe (optional — ถาม user ก่อน; เฉพาะ change มี UI surface):**
@@ -74,12 +75,17 @@
    - **fallback** (fan-out ไม่ได้): AI หลักสวม lens `roles/ux.md` วาด wireframe เองตามลำดับ
 
    ### UX wireframe — detect ว่า change มี UI surface ไหม?
+
+   **Exclusion (เช็คก่อน — เจอข้อใดต่อไปนี้ → จบทันที ไม่ประเมิน signals):**
+   - docs-only: change แตะเฉพาะไฟล์ docs/ (markdown, documentation)
+   - config-only: change แตะเฉพาะไฟล์ config/settings/tooling (ไม่มีหน้าจอ user)
+   - tooling ล้วน: script/automation/CLI/build-tool ที่ไม่มี user-facing UI
+
    ดูสัญญาณ (เจอ **อย่างน้อยหนึ่ง** ที่ชัด = ใช่):
    1. **techstack** — `docs/techstack/<component>/about.md` ระบุว่าเป็น frontend/web/mobile/desktop (มีหน้าจอที่ user เห็น)
    2. **change แตะหน้าจอ** — เพิ่ม/แก้ page · route · screen · view · component ที่ผู้ใช้มองเห็น/โต้ตอบ
    3. **flow ใหม่** — user flow / navigation / form / interaction ที่ออกแบบได้
 
-   > สัญญาณคลุมเครือ (backend/REST API · CLI · library · migration · docs/tooling ล้วน — ไม่มีหน้าจอ) → **ไม่ใช่** → ข้าม UX step ทั้งหมด
    > ไม่แน่ใจจริง → ถาม user ทีละข้อ + เสนอคำตอบที่แนะนำ (หลัก "ห้ามเดา")
 5. **design.md** (how): ออกแบบเชิงเทคนิคแบบ vertical slice — slice มีอะไรบ้าง, แต่ละ slice ตัดผ่าน layer ไหน, data model, interface/contract, flow, ผลกระทบต่อระบบเดิม (ใช้ lens `.warnyin/workflow/roles/sa.md`) — **ครอบ "Spec delta" ด้วย**: เทียบพฤติกรรมที่ change นี้แตะกับ `docs/features/<name>/spec.md` ปัจจุบัน แล้วเขียน ADDED/MODIFIED/REMOVED (SHIP merge ตามนี้); change ไม่แตะพฤติกรรม feature → ระบุ "ไม่มี delta"
    - **เก็บ fact ก่อนเขียนทำขนานได้ (gathering — §3 หลักการแกน)** — ถ้าต้องรวบรวมข้อเท็จจริงจากหลายจุด (โค้ด/contract/impact analysis) ก่อนเขียน → fan-out **research** sub-agent ขนาน (read-only) คืน fact + path/บรรทัด
@@ -99,7 +105,7 @@
    - **standard/large tier → fan-out task-file generation เป็น default** (gathering/independent unit — §3 หลักการแกน): หลัง **ผ่าน Gate ข้อ 8 ก่อนเสมอ** → spawn read-only-capable sub-agent หนึ่งตัวต่อหนึ่ง task เขียน 4 ไฟล์ (`spec/standard/rule/task`) **ขนาน**
      - **ไม่ต้องใช้ worktree** — แต่ละ task อยู่คนละโฟลเดอร์ `tasks/<task>/` → ไม่มี file conflict (ต่างจาก BUILD ที่ agent แก้ source ชนกัน); spawn agent ขนานตรงๆ ได้ (แนวเดียวกับ wave fan-out ของ BUILD ที่ `build-wave.mjs` — อ้างเป็น reference ไม่ duplicate logic)
      - หลัง fan-out → main loop **review coherence ข้าม task** (dependency/contract/naming สอดคล้องกัน) — single-writer ตรวจเอง ไม่ delegate (judgment = serialize)
-   - **fast tier → 1 task เขียนเอง ไม่ fan-out** (คงเดิม)
+   - **fast tier → ใช้ fast path/pre-flight (step 1.5) ไม่สร้าง task folder ไม่ fan-out**
    - **fan-out คือวิธีเขียนเร็วขึ้น ไม่ใช่ข้าม Gate** — Gate ข้อ 8 ยังต้องผ่านก่อน fan-out เสมอ
    - **fallback:** เครื่องที่ fan-out ขนานไม่ได้ → เขียนไฟล์ task ทีละใบตามลำดับเหมือนเดิม
 10. **Dry-run (optional — ถาม user ก่อน):** ถาม user ว่าต้องการ dry-run ทั้งหมดเพื่อหาจุดบกพร่องก่อนเข้า BUILD ไหม — ถ้า ok:
@@ -112,7 +118,7 @@
    5. แก้แล้ว rerun dry-run เฉพาะ task ที่กระทบ วนจน **ไม่มี blocker ค้าง** (อัปเดตสถานะใน `issue.md` — defer ที่เหลือให้ user รับทราบ)
 11. **เสนอเข้า BUILD:** พร้อม implement ด้วย `/warnyin:build`
 
-> generate ไฟล์ task หลายใบพร้อมกันด้วย sub-agent (หนึ่ง agent ต่อหนึ่ง task) เป็น **default สำหรับ standard/large** (step 9) — แต่ต้องผ่าน Gate ก่อนเสมอ; fast tier (1 task) เขียนเอง
+> generate ไฟล์ task หลายใบพร้อมกันด้วย sub-agent (หนึ่ง agent ต่อหนึ่ง task) เป็น **default สำหรับ standard/large** (step 9) — แต่ต้องผ่าน Gate ก่อนเสมอ; fast tier ใช้ fast path/pre-flight (step 1.5) ไม่สร้าง task folder
 > เครื่องที่ fan-out ขนานไม่ได้ (ไม่มี sub-agent tool) → เขียน task / dry-run สแกนทีละ task ตามลำดับด้วยหลักการเดียวกัน
 
 ---
@@ -150,11 +156,11 @@
 
 ปรับ ceremony ตาม **tier** (canonical rubric ดู `.warnyin/workflow/triage.md`) — fast/standard/large:
 
-- **fast** (bugfix, typo, config tweak, wording-guidance สั้น, 1-2 ไฟล์ modify ของเดิม ไม่ cross-cutting): **fast-track** — ข้าม `business.md`, proposal/design สั้น, **ไม่ panel ไม่ dry-run**, 1 task; ทำตาม [fast-track skip-list](../triage.md#fast-track-skip-list) (canonical ใน `triage.md` — ไม่ลอก rubric มาที่นี่). **คง correctness floor:** spec/acceptance ขั้นต่ำของ task ยังต้องครบ
+- **fast** (bugfix, typo, config tweak, wording-guidance สั้น, 1-2 ไฟล์ modify ของเดิม ไม่ cross-cutting): **fast-track: pre-flight receipt — ไม่สร้าง proposal/design/tasks** — ทำตาม [fast-track skip-list](../triage.md#fast-track-skip-list) (canonical ใน `triage.md` — ไม่ลอก rubric มาที่นี่). **คง correctness floor:** hard-floor เช็ค + acceptance ประกาศก่อนแก้ (มี artifact ใน receipt)
 - **standard** (feature ปกติ, modify หลายไฟล์/หลาย component, มี logic ใหม่): flow เต็ม — ครบทุก artifact, แตก vertical slice หลาย task + sub-task, dependency ชัด, panel/dry-run ตามเหมาะ; **task-file generation = fan-out default** (หนึ่ง agent ต่อหนึ่ง task หลังผ่าน Gate §8 — step 9)
 - **large** (greenfield/project ใหม่, cross-cutting หลาย component, mega): **บังคับ `/warnyin:discovery` ก่อน** แล้วค่อยกลับมา DESIGN → decompose เต็ม; **task-file generation = fan-out default** เช่นเดียวกับ standard (step 9)
 
-> hard-floor (auth/migration/secret/public-API/security-sensitive) บังคับ ≥ standard เสมอ — ดู [triage rubric](../triage.md#fast-track-skip-list) (`triage.md` §3B); fast-track ลดเฉพาะ ceremony ไม่ลด correctness — Gate §8 ของ standard/large คงเดิม
+> hard-floor (auth/migration/secret/public-API/security-sensitive) บังคับ ≥ standard เสมอ — ดู [triage rubric](../triage.md#fast-track-skip-list) (`triage.md` §2B); fast-track ลดเฉพาะ ceremony ไม่ลด correctness — Gate §8 ของ standard/large คงเดิม
 
 ---
 

@@ -302,3 +302,137 @@ test('exe: topic สะอาด → exit 0 + ✓', (t) => {
   assert.equal(r.code, 0, `STDOUT:\n${r.stdout}\nSTDERR:\n${r.stderr}`)
   assert.ok(r.stdout.includes('✓'), `ต้องมี ✓\nSTDOUT:\n${r.stdout}`)
 })
+
+// ── fast-track / mixed-state / receipt-template (design §4.2) ────────────────
+const RECEIPT_FILLED = '# Receipt — งานจริง\n'       // filled: H1 ไม่มี <...>
+const RECEIPT_TEMPLATE = '# Receipt — <ชื่อ change>\n' // template: H1 มี <...>
+
+// (ก) fast topic — unit
+test('fast: receipt filled อย่างเดียว → ไม่มี issue C1-C4 + stage = fast-track', () => {
+  const files = new Map([['receipt.md', RECEIPT_FILLED]])
+  const { issues, stage } = checkTopic(files)
+  assert.equal(stage, 'fast-track')
+  assert.equal(byCode(issues, 'C1').length, 0, 'ไม่มี C1')
+  assert.equal(byCode(issues, 'C2').length, 0, 'ไม่มี C2')
+  assert.equal(byCode(issues, 'C3').length, 0, 'ไม่มี C3')
+  assert.equal(byCode(issues, 'C4').length, 0, 'ไม่มี C4')
+})
+
+test('fast: receipt filled + tasks/[task-name]/ (placeholder) → ยังเป็น fast', () => {
+  const files = new Map([
+    ['receipt.md', RECEIPT_FILLED],
+    ['tasks/[task-name]/spec.md', 'x'], // placeholder ไม่นับเป็น task folder จริง
+  ])
+  const { stage } = checkTopic(files)
+  assert.equal(stage, 'fast-track')
+})
+
+test('fast: receipt filled + proposal/design template (ไม่ filled) → fast (ไม่ mixed)', () => {
+  const files = new Map([
+    ['receipt.md', RECEIPT_FILLED],
+    ['proposal.md', TEMPLATE_H1], // template = ไม่ filled
+    ['design.md', TEMPLATE_H1],
+  ])
+  const { stage } = checkTopic(files)
+  assert.equal(stage, 'fast-track')
+})
+
+// (ข) mixed-state — unit
+test('mixed: receipt filled + design filled → full checks ทำงาน + ⚠ C6 (ไม่ใช่ ✖)', () => {
+  const files = new Map([
+    ['receipt.md', RECEIPT_FILLED],
+    ['design.md', FILLED_H1 + '\n## 9. Spec delta\n'],
+    ['tasks/foo/spec.md', 'x'], // ขาด 3 ไฟล์ → C2
+  ])
+  const { issues, stage } = checkTopic(files)
+  assert.ok(hasError(issues, 'C2'), 'C2 ต้องยังทำงานใน mixed')
+  assert.ok(hasWarn(issues, 'C6'), 'ต้องมี ⚠ C6 mixed-state')
+  assert.ok(!hasError(issues, 'C6'), 'C6 ห้ามเป็น ✖')
+  assert.ok(stage !== 'fast-track', 'mixed ไม่ได้ stage fast-track')
+})
+
+test('mixed: receipt filled + task folder จริง (ไม่มี design filled) → full checks + ⚠ C6', () => {
+  const files = new Map([
+    ['receipt.md', RECEIPT_FILLED],
+    ['tasks/foo/spec.md', 'x'], // task folder จริง (ขาดไฟล์ → C2)
+  ])
+  const { issues } = checkTopic(files)
+  assert.ok(hasError(issues, 'C2'), 'C2 ต้องยังทำงาน')
+  assert.ok(hasWarn(issues, 'C6'), 'ต้องมี ⚠ C6')
+})
+
+test('mixed: ⚠ C6 อย่างเดียว (ไม่มี ✖ อื่น) → issues มีเฉพาะ C6 + ไม่มี C2/C3', () => {
+  // design filled + spec delta → C4 ไม่โผล่; ไม่มี task → C2 ไม่โผล่
+  const files = new Map([
+    ['receipt.md', RECEIPT_FILLED],
+    ['design.md', FILLED_H1 + '\n## 9. Spec delta\n'],
+  ])
+  const { issues } = checkTopic(files)
+  assert.ok(hasWarn(issues, 'C6'), 'ต้องมี ⚠ C6')
+  assert.ok(!hasError(issues, 'C2'), 'ไม่มี C2')
+  assert.ok(!hasError(issues, 'C3'), 'ไม่มี C3')
+})
+
+// (ค) receipt template / ไม่มี receipt → พฤติกรรมเดิม
+test('receipt template → ไม่มี fast-track ไม่มี ⚠ C6 (พฤติกรรมเดิม)', () => {
+  const files = new Map([
+    ['receipt.md', RECEIPT_TEMPLATE],
+    ['design.md', FILLED_H1], // design filled ไม่มี spec delta → C4
+  ])
+  const { issues, stage } = checkTopic(files)
+  assert.ok(stage !== 'fast-track', 'ไม่ใช่ fast-track')
+  assert.equal(byCode(issues, 'C6').length, 0, 'ไม่มี C6')
+  assert.ok(hasWarn(issues, 'C4'), 'C4 ยังทำงานเหมือนเดิม')
+})
+
+test('ไม่มี receipt เลย → ไม่มี fast-track ไม่มี ⚠ C6 (พฤติกรรมเดิม)', () => {
+  const files = new Map([
+    ['design.md', FILLED_H1], // design filled ไม่มี spec delta
+  ])
+  const { issues, stage } = checkTopic(files)
+  assert.ok(stage !== 'fast-track')
+  assert.equal(byCode(issues, 'C6').length, 0)
+  assert.ok(hasWarn(issues, 'C4'))
+})
+
+// (ก) fast topic — exe
+test('exe: fast topic (receipt filled only) → exit 0 + output มี fast-track + ไม่มี ✖', (t) => {
+  const tmp = makeTempProject(t)
+  writeTopic(tmp, 'fast-topic', { 'receipt.md': RECEIPT_FILLED })
+  const r = runScript(tmp, ['fast-topic'])
+  assert.equal(r.code, 0, `exit ต้อง 0\nSTDOUT:\n${r.stdout}\nSTDERR:\n${r.stderr}`)
+  assert.ok(!r.stdout.includes('✖'), `ไม่ควรมี ✖\nSTDOUT:\n${r.stdout}`)
+  assert.ok(r.stdout.includes('fast-track'), `ต้องมี fast-track\nSTDOUT:\n${r.stdout}`)
+})
+
+test('exe: status mode → fast topic แสดง fast-track ในตาราง', (t) => {
+  const tmp = makeTempProject(t)
+  writeTopic(tmp, 'fast-topic', { 'receipt.md': RECEIPT_FILLED })
+  const r = runScript(tmp, [])
+  assert.equal(r.code, 0)
+  assert.ok(r.stdout.includes('fast-track'), `ตารางต้องแสดง fast-track\nSTDOUT:\n${r.stdout}`)
+})
+
+// (ข) mixed — exe
+test('exe: mixed (receipt + design filled + task ขาดไฟล์) → ✖ C2 ยังโผล่ + ⚠ C6 + exit 1', (t) => {
+  const tmp = makeTempProject(t)
+  writeTopic(tmp, 'mixed-topic', {
+    'receipt.md': RECEIPT_FILLED,
+    'design.md': '# Design — งานจริง\n\n## 9. Spec delta\n',
+    'tasks/foo/spec.md': 'x', // ขาด 3 ไฟล์ → C2
+  })
+  const r = runScript(tmp, ['mixed-topic'])
+  assert.equal(r.code, 1, `mixed มี ✖ → exit 1\nSTDOUT:\n${r.stdout}`)
+  assert.ok(r.stdout.includes('✖ [C2]'), `ต้องมี ✖ C2\nSTDOUT:\n${r.stdout}`)
+  assert.ok(r.stdout.includes('⚠ [C6]'), `ต้องมี ⚠ C6\nSTDOUT:\n${r.stdout}`)
+})
+
+// (ค) receipt template — exe
+test('exe: receipt template → ไม่มี fast-track ไม่มี C6 (พฤติกรรมเดิม)', (t) => {
+  const tmp = makeTempProject(t)
+  writeTopic(tmp, 'tmpl-topic', { 'receipt.md': RECEIPT_TEMPLATE })
+  const r = runScript(tmp, ['tmpl-topic'])
+  assert.equal(r.code, 0, `receipt template topic สะอาด → exit 0\nSTDOUT:\n${r.stdout}`)
+  assert.ok(!r.stdout.includes('fast-track'), `ไม่ควรมี fast-track\nSTDOUT:\n${r.stdout}`)
+  assert.ok(!r.stdout.includes('C6'), `ไม่ควรมี C6\nSTDOUT:\n${r.stdout}`)
+})

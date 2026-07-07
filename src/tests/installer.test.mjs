@@ -79,6 +79,7 @@ test('1. ติดตั้งสด — สร้างโครงครบ', 
     path.join('docs', 'project.md'),
     'CLAUDE.md',
     'AGENTS.md',
+    path.join('.warnyin', 'template', 'stages', 'receipt.md'),
   ]) {
     assert.ok(existsSync(path.join(tmp, rel)), `ขาด ${rel}`)
   }
