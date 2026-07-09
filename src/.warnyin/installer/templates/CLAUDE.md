@@ -25,6 +25,7 @@
 
 ## รองรับหลาย AI / IDE
 - **Claude Code** — อ่าน `.claude/` + ไฟล์นี้
+- **CodeBuddy** — อ่าน `.codebuddy/plugins/warnyin/rules/warnyin_rules.md` + `/warnyin:*` จาก `.codebuddy/plugins/warnyin/commands/warnyin/`
 - **Codex / Antigravity** — อ่าน `AGENTS.md`
 - **Cursor** — อ่าน `.cursor/rules/warnyin.mdc`
 - **Windsurf** — อ่าน `.windsurf/rules/warnyin.md`

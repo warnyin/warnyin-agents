@@ -269,6 +269,70 @@ function installAdapterDoc(destRel, srcFilename, marker, opts = {}) {
 }
 
 /**
+ * ติดตั้ง CodeBuddy plugin — สร้างโครง plugin ใน <target>/.codebuddy/plugins/warnyin/
+ *   .codebuddy-plugin/plugin.json  → จาก installer/templates/codebuddy-plugin.json
+ *   rules/warnyin_rules.md         → จาก installer/templates/codebuddy-rules.md
+ *   commands/warnyin/*.md          → copy จาก .claude/commands/warnyin/ (shared source)
+ * — plugin.json + rules: overwrite เมื่อ --update (IDE-owned folder); commands: overwrite เมื่อ --update
+ * — idempotent: ถ้าไฟล์มีอยู่แล้วและ byte-equal → skip
+ */
+function installCodeBuddyPlugin() {
+  const pluginDir = path.join('.codebuddy', 'plugins', 'warnyin')
+
+  // plugin.json
+  const pluginJsonSrc = path.join(pkgRoot, '.warnyin', 'installer', 'templates', 'codebuddy-plugin.json')
+  const pluginJsonDest = path.join(target, pluginDir, '.codebuddy-plugin', 'plugin.json')
+  if (fs.existsSync(pluginJsonSrc)) {
+    const content = fs.readFileSync(pluginJsonSrc, 'utf8')
+    const exists = fs.existsSync(pluginJsonDest)
+    if (!exists || (UPDATE && fs.readFileSync(pluginJsonDest, 'utf8') !== content)) {
+      if (!DRY) { fs.mkdirSync(path.dirname(pluginJsonDest), { recursive: true }); fs.writeFileSync(pluginJsonDest, content) }
+      stats[exists ? 'updated' : 'created']++
+      console.log(`  ${exists ? '↻' : '+'} ${path.join(pluginDir, '.codebuddy-plugin', 'plugin.json')}`)
+    } else { stats.skipped++ }
+  }
+
+  // rules/warnyin_rules.md
+  const rulesSrc = path.join(pkgRoot, '.warnyin', 'installer', 'templates', 'codebuddy-rules.md')
+  const rulesDest = path.join(target, pluginDir, 'rules', 'warnyin_rules.md')
+  if (fs.existsSync(rulesSrc)) {
+    const content = fs.readFileSync(rulesSrc, 'utf8')
+    const exists = fs.existsSync(rulesDest)
+    if (!exists || (UPDATE && fs.readFileSync(rulesDest, 'utf8') !== content)) {
+      if (!DRY) { fs.mkdirSync(path.dirname(rulesDest), { recursive: true }); fs.writeFileSync(rulesDest, content) }
+      stats[exists ? 'updated' : 'created']++
+      console.log(`  ${exists ? '↻' : '+'} ${path.join(pluginDir, 'rules', 'warnyin_rules.md')}`)
+    } else { stats.skipped++ }
+  }
+
+  // commands/warnyin/*.md — copy จาก .claude/commands/warnyin/ (shared source ไม่ต้อง duplicate)
+  const cmdSrcDir = path.join(pkgRoot, '.claude', 'commands', 'warnyin')
+  if (fs.existsSync(cmdSrcDir)) {
+    copyDirToTarget(cmdSrcDir, path.join(pluginDir, 'commands', 'warnyin'))
+  }
+}
+
+/**
+ * copy ทุกไฟล์ใน srcAbsDir ไปที่ <target>/<destRel>/ — overwrite เมื่อ UPDATE; skip ถ้า byte-equal
+ * ★ ใช้เฉพาะ CodeBuddy plugin (copy .claude/commands → .codebuddy/plugins/warnyin/commands)
+ */
+function copyDirToTarget(srcAbsDir, destRel) {
+  for (const entry of fs.readdirSync(srcAbsDir, { withFileTypes: true })) {
+    const srcPath = path.join(srcAbsDir, entry.name)
+    const relChild = path.join(destRel, entry.name)
+    if (entry.isDirectory()) { copyDirToTarget(srcPath, relChild); continue }
+    const dest = path.join(target, relChild)
+    const content = fs.readFileSync(srcPath)
+    const exists = fs.existsSync(dest)
+    if (exists && !UPDATE) { stats.skipped++; continue }
+    if (exists && UPDATE && fs.readFileSync(dest).equals(content)) { stats.skipped++; continue }
+    if (!DRY) { fs.mkdirSync(path.dirname(dest), { recursive: true }); fs.writeFileSync(dest, content) }
+    stats[exists ? 'updated' : 'created']++
+    console.log(`  ${exists ? '↻' : '+'} ${relChild}`)
+  }
+}
+
+/**
  * เขียน resolution note ลง ~/.claude/CLAUDE.md แบบ note-only append-with-marker (global mode)
  * — ห้ามเขียนทับทั้งไฟล์ (personal global memory ของ user); append เฉพาะถ้ายังไม่มี marker (idempotent)
  * — defensive skip ถ้า template ไม่มี (worktree T1 เดี่ยวก่อน merge T2) — pattern เดียวกับ copyTree/seedDocs
@@ -351,6 +415,8 @@ async function main() {
     installAdapterDoc(path.join('.github', 'copilot-instructions.md'), 'copilot-instructions.md', '<!-- warnyin:copilot -->')
     installAdapterDoc('.clinerules', 'clinerules', '<!-- warnyin:cline -->')
     installAdapterDoc('GEMINI.md', 'GEMINI.md', '<!-- warnyin:gemini -->')
+    // CodeBuddy: plugin structure (IDE-owned folder → overwrite เมื่อ --update)
+    installCodeBuddyPlugin()
   } else {
     target = cwd
     console.log(`Warnyin Standard Workflow → ${target}${DRY ? '  (dry-run)' : ''}\n`)
@@ -368,6 +434,8 @@ async function main() {
     installAdapterDoc(path.join('.github', 'copilot-instructions.md'), 'copilot-instructions.md', '<!-- warnyin:copilot -->')
     installAdapterDoc('.clinerules', 'clinerules', '<!-- warnyin:cline -->')
     installAdapterDoc('GEMINI.md', 'GEMINI.md', '<!-- warnyin:gemini -->')
+    // CodeBuddy: plugin structure (IDE-owned folder → overwrite เมื่อ --update)
+    installCodeBuddyPlugin()
   }
 
   console.log(`\nสรุป: สร้างใหม่ ${stats.created} · อัปเดต ${stats.updated} · ข้าม (มีอยู่แล้ว) ${stats.skipped}`)

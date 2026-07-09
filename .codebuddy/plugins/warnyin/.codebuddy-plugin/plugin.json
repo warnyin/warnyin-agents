@@ -1,0 +1,14 @@
+{
+  "name": "warnyin",
+  "description": "Warnyin Standard Workflow — 5-stage ways of work (Discovery/DESIGN/BUILD/VERIFY/SHIP) สำหรับทุกโปรเจกต์",
+  "author": {
+    "name": "Warnyin",
+    "url": "https://github.com/warnyin/warnyin-agents"
+  },
+  "repository": "https://github.com/warnyin/warnyin-agents",
+  "homepage": {
+    "url": "https://github.com/warnyin/warnyin-agents",
+    "type": "git"
+  },
+  "license": "MIT"
+}

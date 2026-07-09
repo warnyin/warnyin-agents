@@ -23,6 +23,17 @@
 
 ## [Unreleased]
 
+## [0.26.0] - 2026-07-09
+
+### Added
+- **Support CodeBuddy IDE** — installer (`npx @warnyin/agents`) ติดตั้ง CodeBuddy plugin ใน `.codebuddy/plugins/warnyin/` พร้อมกันอัตโนมัติ (zero-config, ทั้ง `--project` และ `--global` mode)
+  - `.codebuddy-plugin/plugin.json` — plugin manifest (จาก `templates/codebuddy-plugin.json`)
+  - `rules/warnyin_rules.md` — context/rules adapter (`alwaysApply: true`, จาก `templates/codebuddy-rules.md`)
+  - `commands/warnyin/*.md` — slash commands ครบ 11 ตัว (share source จาก `.claude/commands/warnyin/` ไม่ duplicate)
+  - strategy: overwrite เมื่อ `--update`, idempotent (byte-equal → skip), ไม่แตะงาน user
+- `installCodeBuddyPlugin()` + `copyDirToTarget()` helper ใหม่ใน `cli.mjs`
+- CLAUDE.md template + `src/AGENTS.md` อัปเดต mention CodeBuddy
+
 ## [0.25.0] - 2026-07-09
 
 ### Added
