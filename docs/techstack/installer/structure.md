@@ -6,10 +6,10 @@
 ## ไฟล์ (SOURCE layer — `src/`)
 ```
 src/bin/cli.mjs                   installer หลัก (zero-dep); npm bin → ที่นี่ (export resolveMode + isEntrypoint)
-src/tests/installer.test.mjs      black-box integration test ของ installer (27 เคส; รวม global + version stamp a–d + isEntrypoint truth table + black-box symlink)
-src/tests/verify-pack.test.mjs    unit test ของ checkFiles (11 เคส, BL-4 testable denylist; รวม stamp-deny)
+src/tests/installer.test.mjs      black-box integration test ของ installer (33 เคส; รวม global + version stamp a–d + isEntrypoint truth table + black-box symlink + universal-ide T1-project-basic/T1-idempotent/T1-existing-clinerules/T1-update/T1-dry-run/T1-global)
+src/tests/verify-pack.test.mjs    unit test ของ checkFiles (13 เคส, BL-4 testable denylist; รวม stamp-deny + T2-adapter-templates/T2-negative)
 src/scripts/verify-pack.mjs       pack-verify gate (allowlist + denylist; export checkFiles)
-src/scripts/check-test-count.mjs  pass-count gate (anti-false-green; MIN_PASS=9)
+src/scripts/check-test-count.mjs  pass-count gate (anti-false-green; MIN_PASS=46)
 src/scripts/lint-md.mjs           dead-link gate (zero-dep; export checkLinks; strip-code alternation)
 src/tests/lint-md.test.mjs        unit test ของ checkLinks (7 เคส, BL-4 testable)
 src/tests/setup-dogfood.test.mjs  unit test ของ verifyInstalled/semverGte/checkTarballVersion/parse/readStamp (32 เคส, BL-4; truth table active≥0.17.0 + drift-guard + wire-proof)
@@ -20,6 +20,11 @@ src/.warnyin/workflow/loop-tuning.md         why-guidance ของ fix loop (or
 src/.warnyin/template/stages/receipt.md      template fast-track receipt (≤40 บรรทัด, H1 placeholder = isFilled contract) — **นอก `[topic]/` โดยเจตนา** กัน whole-folder copy (ดู rule.md)
 src/.warnyin/installer/templates/CLAUDE.md   template CLAUDE.md ของ target (per-project root doc + resolution note)
 src/.warnyin/installer/templates/CLAUDE.global.md   note-only (resolution + workspace-guard + marker) → installGlobalNote เขียนลง ~/.claude/CLAUDE.md (global mode)
+src/.warnyin/installer/templates/cursor-rules.mdc        template Cursor adapter → .cursor/rules/warnyin.mdc (overwrite strategy)
+src/.warnyin/installer/templates/windsurf-rules.md       template Windsurf adapter → .windsurf/rules/warnyin.md (overwrite strategy)
+src/.warnyin/installer/templates/copilot-instructions.md template Copilot adapter → .github/copilot-instructions.md (append-with-marker)
+src/.warnyin/installer/templates/clinerules              template Cline adapter → .clinerules (append-with-marker)
+src/.warnyin/installer/templates/GEMINI.md               template Gemini adapter → GEMINI.md (append-with-marker)
 src/.claude/{commands/warnyin,agents,skills}  adapter Claude (payload) — skills = utility auto-invocable (ดู docs/features/utility-skills/)
 src/AGENTS.md                     adapter Codex/Antigravity (payload)
 ```
@@ -64,6 +69,7 @@ ensureScaffold()                 generate SCAFFOLD_FILES เปล่า; skip �
 seedDocs(relDir=TEMPLATE_DOCS)   copy template docs→docs/; ข้าม entry ขึ้นต้น '['; ไม่ทับ  (project mode)
 installRootDoc(name, srcPath)    ไม่มี→สร้าง; มีแต่ไม่มี marker→append section; มี marker→skip  (เขียนทั้งไฟล์ — per-project)
 installGlobalNote()              อ่าน templates/CLAUDE.global.md → ~/.claude/CLAUDE.md append-with-marker `<!-- warnyin:global-note -->`; defensive-skip ถ้า template ไม่มี; เคารพ DRY  (global mode — note-only ไม่ทับ personal memory)
+installAdapterDoc(srcPath, destPath, {overwrite}) → อ่าน template → ถ้า !destExists: writeFileSync (created); ถ้า destExists+!overwrite: marker-check → ไม่มี marker→append section+marker · มี marker→skip; ถ้า destExists+overwrite=true: writeFileSync (updated) — universal-ide: Cursor/Windsurf ส่ง overwrite=UPDATE; Copilot/Cline/Gemini ส่ง overwrite=false เสมอ
 readPkgVersion() → string        อ่าน pkgRoot/../package.json → version (ทั้ง dev + tarball layout)
 writeVersionStamp()              เขียน target/.warnyin/.warnyin-version = pkgVersion+'\n' (unconditional writeFileSync ไม่ skip-if-equal; เคารพ DRY; stats/log +/↻) — version identity ของ payload
 ```

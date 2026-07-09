@@ -23,8 +23,15 @@
 - `/warnyin:verify [slug]` → VERIFY stage — strategy tester เทส local env + UXUI แก้จนผ่าน (`.warnyin/workflow/stages/verify.md`)
 - `/warnyin:ship [slug]` → SHIP stage — ส่งมอบ: promote ความรู้ขึ้น `docs/` + archive topic (`.warnyin/workflow/stages/ship.md`)
 
-## รองรับหลาย AI
-Claude Code อ่าน `.claude/` + ไฟล์นี้, ส่วน Codex/Antigravity อ่าน `AGENTS.md`
+## รองรับหลาย AI / IDE
+- **Claude Code** — อ่าน `.claude/` + ไฟล์นี้
+- **Codex / Antigravity** — อ่าน `AGENTS.md`
+- **Cursor** — อ่าน `.cursor/rules/warnyin.mdc`
+- **Windsurf** — อ่าน `.windsurf/rules/warnyin.md`
+- **Copilot Chat** — อ่าน `.github/copilot-instructions.md`
+- **Cline / Roo Code** — อ่าน `.clinerules`
+- **Gemini CLI** — อ่าน `GEMINI.md`
+
 ทุกเครื่องชี้กลับมาที่ playbook กลางชุดเดียวกันใน `.warnyin/workflow/stages/` — ดูภาพรวมที่ `.warnyin/workflow/README.md`
 
 ## อัปเดต workflow

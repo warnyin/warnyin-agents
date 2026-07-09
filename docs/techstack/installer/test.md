@@ -8,13 +8,13 @@
 - **CI:** `.github/workflows/ci.yml` matrix node [20,22,24] รัน `npm test 2>&1 | node src/scripts/check-test-count.mjs` (pass-count gate) ทุก PR/push(main) + job `pack-verify` (`npm run verify:pack`) ที่ `needs: test`
 
 ## pass-count gate (anti-false-green — troubleshooting #3)
-- CI ไม่เชื่อแค่ exit 0 — `check-test-count.mjs` parse summary ของ `node --test` แล้ว **fail ถ้า:** `fail!=0` หรือ `pass<MIN_PASS (9)` หรือ `pass!=tests` (มีเคส skip/cancel)
-- กัน false-green แบบ #3 (เช่น `node --test <dir>` เปล่า exit 0 แต่ไม่มีเคสรัน) — acceptance = เห็น **pass count ≥ 9** ไม่ใช่แค่ exit 0 (BL-2)
+- CI ไม่เชื่อแค่ exit 0 — `check-test-count.mjs` parse summary ของ `node --test` แล้ว **fail ถ้า:** `fail!=0` หรือ `pass<MIN_PASS (46)` หรือ `pass!=tests` (มีเคส skip/cancel)
+- กัน false-green แบบ #3 (เช่น `node --test <dir>` เปล่า exit 0 แต่ไม่มีเคสรัน) — acceptance = เห็น **pass count ≥ 46** ไม่ใช่แค่ exit 0 (BL-2)
 - step CI ใช้ `set -o pipefail` (`shell: bash`) ให้ pipe ยัง fail ตาม node --test
 
-## เคสที่ test suite ครอบ (รวม suite 85 เคส — bare discovery เจอครบ; หลักด้านล่าง)
+## เคสที่ test suite ครอบ (รวม suite 135 เคส — bare discovery เจอครบ; หลักด้านล่าง)
 
-### `src/tests/installer.test.mjs` — 21 เคส (black-box, spawn `src/bin/cli.mjs`; 9 ฐาน + 8 global + 4 version stamp)
+### `src/tests/installer.test.mjs` — 33 เคส (black-box, spawn `src/bin/cli.mjs`; 9 ฐาน + 8 global + 4 version stamp + 6 universal-ide + 6 isEntrypoint)
 1. ติดตั้งสด — โครงครบ (`.warnyin/workflow`, `.warnyin/template`, `.claude/commands/warnyin`, `.claude/skills/update-codemaps/SKILL.md`, `docs/stages`, `docs/project.md`, `CLAUDE.md`, `AGENTS.md`)
 2. idempotent — รัน 2 ครั้ง byte-equal + ไม่ append ซ้ำ (`stdout` มี "ข้าม")
 3. `--update` ไม่ทับงานจริง — `docs/project.md`/`docs/stages/demo/` คงเดิม
@@ -26,8 +26,15 @@
 9. **scaffold สร้างเปล่า ไม่ leak `docs/stages/<topic>`** — มี `context.md`+`achieved/.gitkeep` แต่ไม่มี topic ของ repo ต้นทาง
 10–17. global mode (8 เคส — ดู feature `global-install`)
 18–21. **version stamp** (a) project install → `.warnyin/.warnyin-version` = pkg version จริง + match semver · (b) `--dry-run` → ไม่เขียน stamp · (c) `--update` ซ้ำ → byte-equal (idempotent, ไม่ assert stdout "ข้าม") · (d) global → `home/.warnyin/.warnyin-version` ตรงเวอร์ชัน — **อ่าน pkg version สดจาก `package.json` ไม่ hardcode** (กัน tautology)
+22–27. **universal-ide** (L: topic `support-universal-ide`):
+  - T1-project-basic — ติดตั้งสด: ไฟล์ครบ 5 adapter (`.cursor/rules/warnyin.mdc`, `.windsurf/rules/warnyin.md`, `.github/copilot-instructions.md`, `.clinerules`, `GEMINI.md`) + marker ถูกต้องตาม strategy
+  - T1-idempotent — รัน 2 ครั้ง: marker ปรากฏ 1 ครั้ง; stdout มี "ข้าม" สำหรับ append-strategy
+  - T1-existing-clinerules — `.clinerules` มีเนื้อหา user อยู่ก่อน: append ต่อท้าย ไม่ overwrite; เนื้อ user คงอยู่ครบ
+  - T1-update — `--update`: Cursor/Windsurf ถูก overwrite ด้วย template ใหม่; Copilot/Cline/Gemini marker 1 ครั้ง (ไม่ซ้ำ)
+  - T1-dry-run — `--dry-run`: log path adapter ทั้ง 5 แต่ไม่สร้างไฟล์จริง
+  - T1-global — `--global`: adapter ครบ 5 ตัวลงที่ temp HOME
 
-### `src/tests/verify-pack.test.mjs` — 11 เคส (unit, import `checkFiles` ตรง — BL-4 testable denylist)
+### `src/tests/verify-pack.test.mjs` — 13 เคส (unit, import `checkFiles` ตรง — BL-4 testable denylist)
 1. payload ถูกต้อง → ไม่มี error (GOOD baseline รวม `src/.claude/skills/explore/SKILL.md`)
 2. R2 denylist: `src/tests/` หลุด → จับได้ (กัน gate ลวง)
 3. R2 denylist: `src/scripts/` หลุด → จับได้
@@ -39,6 +46,8 @@
 9. allowlist: ไฟล์นอก allow (เช่น `src/.vscode/`) → จับได้ (skills อยู่ใน allow แล้ว → ใช้ subdir อื่นที่ยังนอก allow พิสูจน์ guard)
 10. R1 assertion: ขาด `src/.claude/skills/` → คืน error (skills เป็น required payload)
 11. **stamp-deny:** `checkFiles(['.warnyin/.warnyin-version'])` (root) → คืน error (gate จับ stamp ที่หลุดขึ้น tarball — install-time artifact ไม่ควรอยู่ใน package)
+12. **T2-adapter-templates:** `checkFiles(['src/.warnyin/installer/templates/cursor-rules.mdc', ...adapter templates ×5])` → ไม่มี error (adapter templates อยู่ใน allowlist `src/.warnyin`)
+13. **T2-negative:** payload ยังจับ `docs/` รั่วได้หลัง adapter templates เข้า allowlist (denylist ยังทำงาน)
 
 ### `src/tests/setup-dogfood.test.mjs` — 14 เคส (unit, import ตรง — BL-4 testable; truth table + drift-guard)
 1–3. ฐาน (backward compat): `verifyInstalled(tmp)` ไม่มี expected → marker-only (เคส empty→false, ครบ→true, partial→false)
@@ -134,6 +143,16 @@
 - **wire-proof (structural):** assert source `setup-dogfood.mjs` ส่ง `expected` เข้า `verifyInstalled` ทั้ง `installViaNpx` + `installViaPack` (กัน drift ตายเงียบบน pack/Windows)
 - **packaging:** stamp = install-time artifact → `checkFiles(['.warnyin/.warnyin-version'])` คืน error + `npm pack --dry-run --json` ยืนยัน stamp ไม่อยู่ใน file list (Windows: `verify:pack` ENOENT = KB#4 → ใช้ unit gate + `npm pack` แทน)
 - **★ transition snapshot (self-referential verify):** integration end-to-end (`setup:dogfood` จริงจับ drift) = **defer รอ publish ≥2 release ที่มี stamp**; VERIFY พิสูจน์ *logic ถูก* (drift→false ใน temp) + **บันทึก snapshot จริง** ว่า ณ ตอน verify registry `@latest` มี stamp หรือยัง — ห้ามเคลมจับ drift end-to-end ได้ก่อนถึงรอบที่ artifact มีจริงบน registry
+
+## verify universal-ide / multi-IDE adapter install (L: topic `support-universal-ide`)
+> change ที่เพิ่ม adapter หลาย IDE (Cursor, Windsurf, Copilot, Cline, Gemini) และ helper `installAdapterDoc` — ขยายจาก "installer behavior" black-box + "verify global mode"
+- **empirical 5-adapter proof (black-box spawn):** target ว่าง → รัน installer → assert ไฟล์ครบทั้ง 5 path + เนื้อหา marker ถูกตาม strategy (overwrite-strategy มี template content; append-strategy มี marker section)
+- **existing-user-content guard:** target มี `.clinerules` เนื้อ user → รัน installer → assert เนื้อ user ยังอยู่ครบ + warnyin section ต่อท้าย (append ไม่ overwrite)
+- **`--update` strategy split:** รัน `--update` หลังติดตั้งครั้งแรก → assert Cursor/Windsurf byte-new-template (overwrite สำเร็จ); Copilot/Cline/Gemini marker ยัง 1 ครั้ง (append-strategy ไม่ซ้ำ) — ยืนยัน `installAdapterDoc({overwrite:true})` branch ทำงาน
+- **idempotent ต่อ strategy:** รัน 2 ครั้ง → overwrite-strategy byte-equal; append-strategy marker count=1; stdout "ข้าม" ปรากฏ
+- **`--dry-run` zero-write:** assert target ยังว่าง (ไม่มี `.cursor/`, `.windsurf/`, `.github/`, `.clinerules`, `GEMINI.md`)
+- **global-mode adapter:** `--global` + HOME override temp → adapter ครบ 5 ลงที่ temp HOME (path relative เดียวกัน); global CORE/stamp ยังติดด้วย
+- **packaging:** adapter templates อยู่ใน `src/.warnyin/installer/templates/` → ติด tarball ผ่าน `src/.warnyin` allowlist โดยไม่ต้องแก้ `package.json files`; `npm run verify:pack` ผ่าน
 
 ## verify stage-invoked capability + generator agent — payload `.md` (L: topic `uxui-designer-stage`)
 > capability ที่ DESIGN เรียกเอง (UX wireframe) + **generator agent** (`warnyin-ux`) + template + playbook wiring — payload `.md` ล้วน (ไม่มี runtime/FE) → verify เชิงโครงสร้าง + behavioral + canonical-consistency **โดย agent อิสระจากผู้เขียน** (rule §5 ข้อ 4 — self-check ของ build agent ไม่พอ)

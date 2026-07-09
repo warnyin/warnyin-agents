@@ -1,6 +1,6 @@
 # AGENTS.md
 
-มาตรฐานเปิดสำหรับ AI agent ทุกเจ้าที่อ่านไฟล์นี้ (Codex, Antigravity, และเครื่องมืออื่นที่รองรับ `AGENTS.md`)
+มาตรฐานเปิดสำหรับ AI agent ทุกเจ้าที่อ่านไฟล์นี้ (Codex, Antigravity, Cursor, Windsurf, Copilot Chat, Cline/Roo Code, Gemini CLI และเครื่องมืออื่นที่รองรับ `AGENTS.md` หรือ root instruction file pattern)
 
 ## repo นี้คืออะไร
 

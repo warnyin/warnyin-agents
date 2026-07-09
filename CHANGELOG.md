@@ -23,6 +23,11 @@
 
 ## [Unreleased]
 
+## [0.25.0] - 2026-07-09
+
+### Added
+- **Support universal IDE — adapter install สำหรับทุก IDE ที่มี root instruction file pattern** (feature `support-universal-ide`) — installer (`npx @warnyin/agents`) ติดตั้ง adapter ทุกตัวพร้อมกันแบบ unconditional (zero-config): Cursor (`.cursor/rules/warnyin.mdc`), Windsurf (`.windsurf/rules/warnyin.md`), Copilot Chat (`.github/copilot-instructions.md`), Cline/Roo Code (`.clinerules`), Gemini CLI (`GEMINI.md`). strategy: Cursor/Windsurf ใช้ `installAdapterDoc` (overwrite-capable) · Copilot/Cline/Gemini ใช้ append-with-marker (idempotent, ไม่เขียนทับงาน user). ทำงานทั้ง `--project` และ `--global` mode. backward-compatible 100% (ไม่ลบหรือแก้ไฟล์เดิม). `verify-pack` รู้จัก adapter template paths ผ่าน `src/.warnyin/` prefix ที่มีอยู่แล้ว
+
 ## [0.24.0] - 2026-07-07
 
 ### Added

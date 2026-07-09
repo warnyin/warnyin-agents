@@ -222,6 +222,53 @@ function writeVersionStamp() {
 const GLOBAL_NOTE_MARKER = '<!-- warnyin:global-note -->'
 
 /**
+ * ติดตั้ง adapter doc สำหรับ IDE — pattern เดียวกับ installGlobalNote แต่:
+ * - src อ่านจาก installer/templates/<srcFilename>
+ * - ใช้ marker parameter (idempotent append-with-marker)
+ * - defensive skip ถ้า template ไม่มี
+ * @param {string} destRel  — path ปลายทาง relative ต่อ target (เช่น '.cursor/rules/warnyin.mdc')
+ * @param {string} srcFilename — ชื่อไฟล์ template ใน installer/templates/
+ * @param {string} marker — HTML comment marker สำหรับตรวจ idempotent (เช่น '<!-- warnyin:cursor -->')
+ * @param {{overwrite?: boolean}} [opts] — overwrite:true → เขียนทับไฟล์ที่มีอยู่แล้ว (เช่น เมื่อ --update) แทน append-with-marker
+ */
+function installAdapterDoc(destRel, srcFilename, marker, opts = {}) {
+  const src = path.join(pkgRoot, '.warnyin', 'installer', 'templates', srcFilename)
+  const dest = path.join(target, destRel)
+  if (!fs.existsSync(src)) {
+    console.log(`  · ข้าม ${destRel} (ยังไม่มี template ${srcFilename})`)
+    return
+  }
+  const content = fs.readFileSync(src, 'utf8')
+  if (!fs.existsSync(dest)) {
+    if (!DRY) {
+      fs.mkdirSync(path.dirname(dest), { recursive: true })
+      fs.writeFileSync(dest, content)
+    }
+    stats.created++
+    console.log(`  + ${destRel}`)
+    return
+  }
+  const existing = fs.readFileSync(dest, 'utf8')
+  // overwrite mode (--update สำหรับ IDE-owned folder เช่น Cursor/Windsurf)
+  if (opts.overwrite) {
+    if (existing === content) { stats.skipped++; return }
+    if (!DRY) fs.writeFileSync(dest, content)
+    stats.updated++
+    console.log(`  ↻ ${destRel}`)
+    return
+  }
+  // append-with-marker mode (Copilot/Cline/Gemini — user-owned file)
+  if (existing.includes(marker)) {
+    stats.skipped++
+    return
+  }
+  const section = (existing.endsWith('\n') ? '\n' : '\n\n') + content
+  if (!DRY) fs.appendFileSync(dest, section)
+  stats.updated++
+  console.log(`  ± ${destRel} (ต่อท้าย warnyin section)`)
+}
+
+/**
  * เขียน resolution note ลง ~/.claude/CLAUDE.md แบบ note-only append-with-marker (global mode)
  * — ห้ามเขียนทับทั้งไฟล์ (personal global memory ของ user); append เฉพาะถ้ายังไม่มี marker (idempotent)
  * — defensive skip ถ้า template ไม่มี (worktree T1 เดี่ยวก่อน merge T2) — pattern เดียวกับ copyTree/seedDocs
@@ -296,6 +343,14 @@ async function main() {
     writeVersionStamp()
     // ข้าม scaffold/seedDocs (ยกให้ /warnyin:init) + ข้าม AGENTS.md global (DQ3 limitation)
     installGlobalNote()
+    // IDE adapters — global mode
+    // Cursor/Windsurf: IDE-owned folder → overwrite เมื่อ --update (สอดกับ design §4 copyTree intent)
+    installAdapterDoc(path.join('.cursor', 'rules', 'warnyin.mdc'), 'cursor-rules.mdc', '<!-- warnyin:cursor -->', { overwrite: UPDATE })
+    installAdapterDoc(path.join('.windsurf', 'rules', 'warnyin.md'), 'windsurf-rules.md', '<!-- warnyin:windsurf -->', { overwrite: UPDATE })
+    // Copilot/Cline/Gemini: user-owned file → append-with-marker เสมอ (ไม่ overwrite งาน user)
+    installAdapterDoc(path.join('.github', 'copilot-instructions.md'), 'copilot-instructions.md', '<!-- warnyin:copilot -->')
+    installAdapterDoc('.clinerules', 'clinerules', '<!-- warnyin:cline -->')
+    installAdapterDoc('GEMINI.md', 'GEMINI.md', '<!-- warnyin:gemini -->')
   } else {
     target = cwd
     console.log(`Warnyin Standard Workflow → ${target}${DRY ? '  (dry-run)' : ''}\n`)
@@ -305,6 +360,14 @@ async function main() {
     seedDocs()
     installRootDoc('CLAUDE.md', path.join(pkgRoot, '.warnyin', 'installer', 'templates', 'CLAUDE.md'))
     installRootDoc('AGENTS.md', path.join(pkgRoot, 'AGENTS.md'))
+    // IDE adapters — project mode
+    // Cursor/Windsurf: IDE-owned folder → overwrite เมื่อ --update (สอดกับ design §4 copyTree intent)
+    installAdapterDoc(path.join('.cursor', 'rules', 'warnyin.mdc'), 'cursor-rules.mdc', '<!-- warnyin:cursor -->', { overwrite: UPDATE })
+    installAdapterDoc(path.join('.windsurf', 'rules', 'warnyin.md'), 'windsurf-rules.md', '<!-- warnyin:windsurf -->', { overwrite: UPDATE })
+    // Copilot/Cline/Gemini: user-owned file → append-with-marker เสมอ (ไม่ overwrite งาน user)
+    installAdapterDoc(path.join('.github', 'copilot-instructions.md'), 'copilot-instructions.md', '<!-- warnyin:copilot -->')
+    installAdapterDoc('.clinerules', 'clinerules', '<!-- warnyin:cline -->')
+    installAdapterDoc('GEMINI.md', 'GEMINI.md', '<!-- warnyin:gemini -->')
   }
 
   console.log(`\nสรุป: สร้างใหม่ ${stats.created} · อัปเดต ${stats.updated} · ข้าม (มีอยู่แล้ว) ${stats.skipped}`)

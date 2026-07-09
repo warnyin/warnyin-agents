@@ -79,6 +79,30 @@ test('R1 assertion: ขาด src/.claude/skills/ → คืน error', () => {
   assert.ok(errors.some((e) => e.includes('src/.claude/skills/')), `hasSkills assertion ต้องทำงาน: ${errors.join(' | ')}`)
 })
 
+// T2: adapter template paths pass allowlist (src/.warnyin/ ครอบ installer/templates/ อยู่แล้ว)
+test('T2-adapter-templates: adapter template paths ผ่าน allowlist (ไม่ error)', () => {
+  const withAdapters = [
+    ...GOOD,
+    'src/.warnyin/installer/templates/cursor-rules.mdc',
+    'src/.warnyin/installer/templates/windsurf-rules.md',
+    'src/.warnyin/installer/templates/copilot-instructions.md',
+    'src/.warnyin/installer/templates/clinerules',
+    'src/.warnyin/installer/templates/GEMINI.md',
+  ]
+  assert.deepEqual(checkFiles(withAdapters), [], 'adapter template paths ต้องผ่าน allowlist โดยไม่มี error')
+})
+
+// T2-negative: path ต้องห้าม (docs/, src/tests/) ยังจับได้แม้ add adapter
+test('T2-negative: denylist ยังจับ path ต้องห้ามหลัง add adapter template', () => {
+  const withAdapters = [
+    ...GOOD,
+    'src/.warnyin/installer/templates/cursor-rules.mdc',
+    'docs/stages/demo.md',
+  ]
+  const errors = checkFiles(withAdapters)
+  assert.ok(errors.some((e) => e.includes('docs/stages/demo.md')), `denylist ต้องยังจับ docs/: ${errors.join(' | ')}`)
+})
+
 // stamp deny: .warnyin/.warnyin-version (root-level) ต้องถูกจับ — พิสูจน์ gate จับได้ถ้า stamp หลุดขึ้น tarball
 test('stamp deny: .warnyin/.warnyin-version (root) หลุดขึ้น tarball → gate จับได้', () => {
   const errors = checkFiles([...GOOD, '.warnyin/.warnyin-version'])

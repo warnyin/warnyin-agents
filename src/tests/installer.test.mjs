@@ -453,6 +453,117 @@ test('isEntrypoint — realpath throw (argv1 ไม่อยู่จริง) 
   )
 })
 
+// ─────────────────────────────────────────────────────────────
+// เคสใหม่ — IDE adapter install (task add-ide-adapters)
+// ─────────────────────────────────────────────────────────────
+
+const ADAPTER_PATHS = [
+  path.join('.cursor', 'rules', 'warnyin.mdc'),
+  path.join('.windsurf', 'rules', 'warnyin.md'),
+  path.join('.github', 'copilot-instructions.md'),
+  '.clinerules',
+  'GEMINI.md',
+]
+const ADAPTER_MARKERS = {
+  [path.join('.cursor', 'rules', 'warnyin.mdc')]: '<!-- warnyin:cursor -->',
+  [path.join('.windsurf', 'rules', 'warnyin.md')]: '<!-- warnyin:windsurf -->',
+  [path.join('.github', 'copilot-instructions.md')]: '<!-- warnyin:copilot -->',
+  '.clinerules': '<!-- warnyin:cline -->',
+  'GEMINI.md': '<!-- warnyin:gemini -->',
+}
+
+// T1-project-basic: adapter ครบ 5 ตัว + content มี marker
+test('T1-project-basic: project install → adapter ครบ 5 ตัว + มี marker', (t) => {
+  const tmp = makeTempProject(t)
+  ok(runCli(tmp, ['--project']), 'project install')
+
+  for (const rel of ADAPTER_PATHS) {
+    assert.ok(existsSync(path.join(tmp, rel)), `ขาด ${rel}`)
+    const content = readFileSync(path.join(tmp, rel), 'utf8')
+    assert.ok(content.includes(ADAPTER_MARKERS[rel]), `${rel} ต้องมี marker ${ADAPTER_MARKERS[rel]}`)
+  }
+})
+
+// T1-idempotent: รัน 2 ครั้ง → append-once (marker ปรากฏ 1 ครั้งเท่านั้น)
+test('T1-idempotent: รัน 2 ครั้ง → marker ปรากฏครั้งเดียว (append-once)', (t) => {
+  const tmp = makeTempProject(t)
+  ok(runCli(tmp, ['--project']), 'install#1')
+  ok(runCli(tmp, ['--project']), 'install#2')
+
+  for (const rel of ['.clinerules', path.join('.github', 'copilot-instructions.md'), 'GEMINI.md']) {
+    const content = readFileSync(path.join(tmp, rel), 'utf8')
+    const marker = ADAPTER_MARKERS[rel]
+    const occ = content.split(marker).length - 1
+    assert.equal(occ, 1, `${rel}: marker ต้องมีครั้งเดียว (idempotent) — เจอ ${occ}`)
+  }
+})
+
+// T1-existing-clinerules: .clinerules มีเนื้อหาเดิม → ต้องมีทั้งเนื้อเดิม + section warnyin (ไม่เขียนทับ)
+test('T1-existing-clinerules: .clinerules มีเนื้อหาเดิม → append ไม่ overwrite', (t) => {
+  const tmp = makeTempProject(t)
+  const clineRules = path.join(tmp, '.clinerules')
+  writeFileSync(clineRules, '# My existing rules\n\nsome rules here\n')
+
+  ok(runCli(tmp, ['--project']), 'install over existing .clinerules')
+
+  const after = readFileSync(clineRules, 'utf8')
+  assert.ok(after.includes('# My existing rules'), 'ต้องคงเนื้อเดิมไว้')
+  assert.ok(after.includes('<!-- warnyin:cline -->'), 'ต้อง append warnyin section')
+})
+
+// T1-global: global install → adapter ลง homedir(temp) ครบ
+test('T1-global: --global → adapter ลง homedir ครบ 5 ตัว', (t) => {
+  const cwd = makeTempProject(t)
+  const home = makeTempHome(t)
+  ok(runCli(cwd, ['--global'], globalEnv(home)), 'global install')
+
+  for (const rel of ADAPTER_PATHS) {
+    assert.ok(existsSync(path.join(home, rel)), `global: ขาด home/${rel}`)
+  }
+})
+
+// T1-update: Cursor/Windsurf — --update → overwrite กลับเป็น template; Copilot/Cline/Gemini → ยังคงเนื้อเดิม
+test('T1-update: --update → Cursor/Windsurf overwrite; Copilot/Cline/Gemini append-once ไม่ซ้ำ', (t) => {
+  const tmp = makeTempProject(t)
+  ok(runCli(tmp, ['--project']), 'install#1')
+
+  const cursorFile = path.join(tmp, '.cursor', 'rules', 'warnyin.mdc')
+  const windsurfFile = path.join(tmp, '.windsurf', 'rules', 'warnyin.md')
+  const clineFile = path.join(tmp, '.clinerules')
+
+  // แก้ Cursor/Windsurf file ก่อน (เพิ่มเนื้อหาพิเศษ)
+  writeFileSync(cursorFile, readFileSync(cursorFile, 'utf8') + '\n# User custom cursor rule\n')
+  writeFileSync(windsurfFile, readFileSync(windsurfFile, 'utf8') + '\n# User custom windsurf rule\n')
+
+  ok(runCli(tmp, ['--project', '--update']), '--update')
+
+  // Cursor/Windsurf ต้อง overwrite → ไม่มี custom rule
+  assert.ok(!readFileSync(cursorFile, 'utf8').includes('# User custom cursor rule'), 'Cursor --update ต้อง overwrite กลับเป็น template')
+  assert.ok(!readFileSync(windsurfFile, 'utf8').includes('# User custom windsurf rule'), 'Windsurf --update ต้อง overwrite กลับเป็น template')
+
+  // Cline ยังมี marker ครั้งเดียว (ไม่ append ซ้ำ)
+  const clineContent = readFileSync(clineFile, 'utf8')
+  const occ = clineContent.split('<!-- warnyin:cline -->').length - 1
+  assert.equal(occ, 1, `Cline --update: marker ต้องมีครั้งเดียว เจอ ${occ}`)
+})
+
+// T1-dry-run: --dry-run → log มี adapter path แต่ไม่สร้างไฟล์จริง
+test('T1-dry-run: --dry-run → log มี adapter แต่ไม่สร้างไฟล์', (t) => {
+  const tmp = makeTempProject(t)
+  const r = runCli(tmp, ['--project', '--dry-run'])
+  ok(r, 'dry-run')
+
+  // log ต้องมี adapter path อย่างน้อย 1 ตัว
+  assert.ok(
+    r.stdout.includes('warnyin.mdc') || r.stdout.includes('warnyin.md') || r.stdout.includes('copilot'),
+    `stdout ต้องมี adapter path\nSTDOUT:\n${r.stdout}`,
+  )
+  // ไม่มีไฟล์จริง
+  for (const rel of ADAPTER_PATHS) {
+    assert.ok(!existsSync(path.join(tmp, rel)), `dry-run ต้องไม่สร้าง ${rel}`)
+  }
+})
+
 // black-box: spawn cli.mjs ผ่าน symlink จริง → main() ต้องทำงาน (behavioral end-to-end, CI ubuntu)
 test('black-box: รัน cli.mjs ผ่าน symlink → main() ทำงาน + เขียน stamp (regression npx/dogfood)', (t) => {
   const tmp = makeTempProject(t)

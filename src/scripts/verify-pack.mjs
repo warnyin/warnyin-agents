@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 // allowlist = safety net ชั้นสองของ package.json `files` — ดัก leak ชนิด "ใหม่" ที่ denylist จับไม่ได้
 // narrow src/.claude/ → subdir ตรงกับ files (commands/agents/skills); กัน settings.local.json / subdir อื่นหลุดอนาคต
 const ALLOWED_PREFIX = ['src/bin/', 'src/.warnyin/', 'src/.claude/commands/', 'src/.claude/agents/', 'src/.claude/skills/']
+// Note: src/.warnyin/ ครอบ src/.warnyin/installer/templates/ อยู่แล้ว — ไม่ต้องเพิ่ม prefix แยก
 // npm always-include: package.json / README / LICENSE / CHANGELOG + payload src/AGENTS.md (ต้องอยู่ใน list ไม่งั้น false-positive)
 const ALLOWED_FILE = ['package.json', 'README.md', 'CHANGELOG.md', 'LICENSE', 'src/AGENTS.md']
 

@@ -5,10 +5,10 @@
 // zero-dependency: ใช้เฉพาะ built-in node:* · ESM (import.meta) ห้าม __dirname/require
 //
 // ใช้ใน CI: `npm test 2>&1 | node src/scripts/check-test-count.mjs`
-// ค่า MIN_PASS = 9 (เคส installer ขั้นต่ำ — bare discovery ต้องเจอครบ; suite อาจมีไฟล์ test อื่นเพิ่ม)
+// ค่า MIN_PASS = 46 (installer 33 + verify-pack 13; bump หลัง VERIFY เพิ่ม T1-update — เคส 33)
 import process from 'node:process'
 
-const MIN_PASS = 9
+const MIN_PASS = 46
 
 // อ่าน stdin ทั้งหมด (output ของ node --test ที่ pipe มา)
 async function readStdin() {

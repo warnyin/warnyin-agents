@@ -1,0 +1,14 @@
+<!-- warnyin:gemini -->
+# Warnyin Standard Workflow
+
+โปรเจกต์นี้ใช้ Warnyin Standard Workflow — เดินงานผ่าน 5 stage:
+`Discovery (optional) ▶ DESIGN ▶ BUILD ▶ VERIFY ▶ SHIP`
+
+## กฎหลัก
+- playbook อยู่ที่ `.warnyin/workflow/stages/` — ทำตามก่อนเริ่มงานใน stage
+- output ของงานจริงเก็บใน `docs/stages/<slug>/`
+- ความรู้ถาวรระดับโปรเจกต์อยู่ใน `docs/`
+
+## อ้างอิง
+- ภาพรวม: `.warnyin/workflow/README.md`
+- เริ่มต้นโปรเจกต์: `.warnyin/workflow/init.md`
