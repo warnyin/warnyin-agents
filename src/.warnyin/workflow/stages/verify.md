@@ -11,7 +11,7 @@
 ใช้หลัง BUILD ผ่าน Gate (full build/test เขียว) — VERIFY ทดสอบ **เชิงพฤติกรรม/จุดประสงค์** ในสภาพแวดล้อมจริง (local env)
 ไม่ใช่แค่ unit test ผ่าน แต่ "ของจริงทำงานตามที่ topic ตั้งใจไหม"
 
-> **★ fast-track hook:** ถ้า topic เป็น tier `fast` (จาก `/warnyin:triage`) → **verify-lite** ตาม [fast-track skip-list](../triage.md#fast-track-skip-list) — functional ตาม acceptance ใน receipt §2 + test เขียว → เติมผลลง receipt §4; **ไม่สร้าง `test.md`/`verify.md` สำหรับ fast** (ผลอยู่ใน receipt แทน); **correctness floor คงไว้ — test ต้องเขียวจริง**. tier `standard`/`large` → flow เต็มด้านล่าง (hook นี้ N/A ไม่ลด bar)
+> **★ fast-track hook:** ถ้า topic เป็น tier `fast` (จาก `/warnyin:triage` หรือ `/warnyin:fastlane`) → **verify-lite** ตาม [fast-track skip-list](../triage.md#fast-track-skip-list) — functional ตาม acceptance ใน receipt §2 + test เขียว → เติมผลลง receipt §4; **ไม่สร้าง `test.md`/`verify.md` สำหรับ fast** (ผลอยู่ใน receipt แทน); **correctness floor คงไว้ — test ต้องเขียวจริง**. tier `standard`/`large` → flow เต็มด้านล่าง (hook นี้ N/A ไม่ลด bar)
 > loop-tuning proxy (★ loop tuning report ใน §4 ข้อ 5) = non-blocking guidance ใน verify-lite — ระบุในรายงานเท่านั้น ไม่ block gate
 
 ---

@@ -42,6 +42,7 @@ Discovery (optional) ──▶ DESIGN ──▶ BUILD ──▶ VERIFY ──▶
     explore.md         #   playbook: EXPLORE — สำรวจ/ตอบคำถามแบบ read-only ไม่สร้าง artifact
     next.md            #   playbook: NEXT — เช็คงานค้าง + แนะนำขั้นตอนถัดไป (read-only)
     triage.md          #   capability: TRIAGE — ประเมินขนาด change → tier + route (read-only)
+    fastlane.md        #   capability: FASTLANE — executor ของ fast tier (บังคับ tier=fast; รัน pre-flight → code-first → gate → receipt → ship-lite จบในคำสั่งเดียว)
     api-doc.md         #   capability: API-DOC — adaptive OpenAPI 3.1 contract (DESIGN/VERIFY/SHIP เรียกเอง)
     minimalism.md      #   principle: MINIMALISM — decision hierarchy "เขียนน้อยที่สุด" + guardrail lazy-not-negligent (single source; surface ทั้งหมด pointer กลับมาที่นี่)
     interop.md         #   capability: INTEROP — companion tool consult-if-present convention + inclusion bar 4 ข้อ + UA entry (stage pointer conditional; trust-boundary guard)

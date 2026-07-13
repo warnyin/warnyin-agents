@@ -72,7 +72,9 @@ cap วัดด้วยจำนวนบรรทัด (`wc -l`) — determi
 | DESIGN | pre-flight: สร้าง `receipt.md` จาก template เติม meta + §1 + §2 **ก่อนแตะโค้ด** — ไม่สร้าง business/proposal/design/tasks, ไม่ panel ไม่ dry-run, model tier `cheap` | hard-floor เช็ค + acceptance ประกาศก่อนแก้ (มี artifact ใน receipt) |
 | BUILD | code-first — main loop แก้โค้ดเอง ไม่เรียก build-wave/ไม่ fork worktree | full-gate (test เขียว) blocking · config-protection · investigate-before-edit · ห้ามแตะ rule/standard กลาง (note ลง receipt §5 รอ SHIP) |
 | VERIFY | lite — functional ตาม acceptance ใน receipt §2 + test เขียว → เติมผลลง receipt §4 | test เขียวจริง |
-| SHIP | lite — เติม receipt §3/§5 → สแกน diff เทียบ hard-floor 5 หมวด → archive; promote learned rule เฉพาะที่มีใน §5 | receipt ครบทุก section + archive ครบ + hard-floor scan ผ่าน (เจอ → upgrade ตาม §2B ห้าม ship-lite) |
+| SHIP | lite — เติม receipt §3/§5 → สแกน diff เทียบ hard-floor 5 หมวด → archive; promote learned rule เฉพาะที่มีใน §5 | receipt ครบทุก section + archive ครบ + hard-floor scan ผ่าน (เจอ → ห้าม ship-lite **เว้นแต่** receipt meta ระบุ `override โดย user` (fastlane §2 — user ยืนยันเอง)) |
+
+> **ผู้เดิน (executor):** user สั่งทีละ stage command · หรือ `/warnyin:fastlane` เดินครบ 4 row ในคำสั่งเดียว (บังคับ tier=fast) — ดู [fastlane](fastlane.md)
 
 ---
 

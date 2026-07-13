@@ -63,6 +63,7 @@
    - **hard-floor** (auth/migration/secret/public-API/security-sensitive) → ≥ standard เสมอ
    - tier → drive ceremony ตาม §7
    - **fast-track path (tier=fast) — pre-flight ก่อนแตะโค้ด:** copy template `.warnyin/template/stages/receipt.md` → เติม meta (รวม hard-floor row) + §1 + §2 (acceptance ประกาศก่อนแก้แบบมี artifact) → **ข้าม step 3-10 ทั้งหมด** ดู [fast-track skip-list](../triage.md#fast-track-skip-list)
+   > งาน fast ทั้งเส้นรันจบได้ด้วย `/warnyin:fastlane` (executor) — command นี้ใช้เมื่อต้องการ pre-flight แยก/escalate
 3. **business.md** *(optional — ข้ามได้ถ้า change เล็ก เช่น fix bug นิดหน่อย)*: what & why เชิงธุรกิจ — goal, คุณค่า, persona, success metric
 4. **proposal.md** (what & why): สรุป change ที่จะทำ, เหตุผล, ทางเลือกที่พิจารณา/ตัดทิ้ง, scope in/out — item ใน "Out of scope" ที่เป็น deferred-out (ยกออกจาก scope, ยังไม่ทำ) → **เสนอ user** เพิ่มเข้า `docs/stages/<slug>/backlog.md` (5-field; user ยืนยันก่อนเขียน); ไม่มี → ข้าม — ดู [`.warnyin/workflow/backlog.md` §Capture](../backlog.md)
 4.5 **UX wireframe (optional — ถาม user ก่อน; เฉพาะ change มี UI surface):**

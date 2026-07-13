@@ -26,7 +26,7 @@ NEXT คือโหมด **อ่านอย่างเดียว (read-on
    | ยังไม่มีอะไรเติม | ยังไม่เริ่ม | `/warnyin:discovery <slug>` หรือ `/warnyin:design <slug> <change>` ถ้า scope ชัด |
    | `discovery.md` / `research.md` | Discovery | เช็ค gate ของ `stages/discovery.md` → ผ่านแล้วไป `/warnyin:design` |
    | `proposal.md` / `design.md` / `tasks/` | DESIGN | เช็ค gate ของ `stages/design.md` → ผ่านแล้วไป `/warnyin:build` |
-   | `receipt.md` เติมแล้ว (ไม่มี proposal/design filled · ไม่มี tasks/ จริง) | fast-track | receipt §3/§4 ยังไม่เติม → ทำต่อ (code-first + verify-lite) แล้ว ship-lite; เติมครบทุก section → `/warnyin:ship` |
+   | `receipt.md` เติมแล้ว (ไม่มี proposal/design filled · ไม่มี tasks/ จริง) | fast-track | receipt §3/§4 ยังไม่เติม → `/warnyin:fastlane <slug>` (resume); เติมครบทุก section → `/warnyin:ship` |
    | `build.md` / task มีสถานะ `กำลังทำ`-`เสร็จ` | BUILD | task ค้าง → `/warnyin:build` ต่อ; ครบแล้ว → `/warnyin:verify` |
    | `test.md` / `verify.md` | VERIFY | เช็ค gate ของ `stages/verify.md` → ผ่านแล้วไป `/warnyin:ship` |
    | `ship.md` เติมแล้วแต่ topic ยังไม่ถูก archive | SHIP ยังไม่จบ | รัน `/warnyin:ship` ให้จบ (promote ขึ้น `docs/` + ย้ายไป `achieved/`) |

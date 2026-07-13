@@ -16,6 +16,7 @@
 - `/warnyin:explore [คำถาม]` → สำรวจ/ตอบคำถามแบบ read-only — ไม่สร้าง artifact (`.warnyin/workflow/explore.md`)
 - `/warnyin:next [slug]` → เช็คงานค้าง + แนะนำ command ถัดไป แบบ read-only (`.warnyin/workflow/next.md`)
 - `/warnyin:triage [คำอธิบาย change]` → ประเมินขนาด + แนะนำ path (read-only) (`.warnyin/workflow/triage.md`)
+- `/warnyin:fastlane [slug] [คำอธิบาย change]` → รันงานขนาด fast จบในคำสั่งเดียว — บังคับ tier=fast: แก้โค้ดจน test เขียว + acceptance ผ่าน → receipt → ship-lite + archive (`.warnyin/workflow/fastlane.md`)
 - `/warnyin:feedback:issue [ประเภท/ข้อความ]` → เปิด GitHub issue แจ้ง feedback ที่ warnyin/warnyin-agents (`.warnyin/workflow/feedback.md`)
 - `/warnyin:discovery [topic]` → Discovery stage (`.warnyin/workflow/stages/discovery.md`)
 - `/warnyin:design [slug] [change]` → DESIGN stage (`.warnyin/workflow/stages/design.md`)

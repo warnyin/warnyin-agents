@@ -24,6 +24,7 @@ This project uses **Warnyin Standard Workflow** — มาตรฐานกล�
 - `/warnyin:explore [คำถาม]` → สำรวจ/ตอบคำถามแบบ read-only
 - `/warnyin:next [slug]` → เช็คงานค้าง + แนะนำ command ถัดไป
 - `/warnyin:triage [คำอธิบาย change]` → ประเมินขนาด + แนะนำ path
+- `/warnyin:fastlane [slug] [คำอธิบาย change]` → รันงานขนาด fast จบในคำสั่งเดียว — บังคับ tier=fast: แก้โค้ดจน test เขียว + acceptance ผ่าน → receipt → ship-lite + archive
 - `/warnyin:discovery [topic]` → Discovery stage
 - `/warnyin:design [slug] [change]` → DESIGN stage
 - `/warnyin:build [slug]` → BUILD stage

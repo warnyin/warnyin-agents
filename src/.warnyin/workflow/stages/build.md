@@ -11,7 +11,7 @@
 ใช้เมื่อ DESIGN ผ่าน Gate แล้ว มี `tasks/<task>/` ครบ (task.md + spec.md + standard.md + rule.md)
 BUILD จะ **orchestrate การ implement** โดยกระจายงานเป็น sub-agent หนึ่งตัวต่อหนึ่ง task/slice และเดินตาม dependency graph
 
-> **★ fast-track hook:** ถ้า topic เป็น tier `fast` (จาก `/warnyin:triage`) → **code-first** ตาม [fast-track skip-list](../triage.md#fast-track-skip-list) — main loop แก้โค้ดเอง ไม่เรียก build-wave/ไม่ fork worktree; **correctness floor คงไว้:** full-gate เขียว (blocking, §3 ข้อ 8) · config-protection (§3 ข้อ 12) · investigate-before-edit (§3 ข้อ 11) · ห้ามแตะ rule/standard กลาง (§3 ข้อ 6). tier `standard`/`large` → flow เต็มด้านล่าง (hook นี้ N/A ไม่ลด bar)
+> **★ fast-track hook:** ถ้า topic เป็น tier `fast` (จาก `/warnyin:triage` หรือ `/warnyin:fastlane`) → **code-first** ตาม [fast-track skip-list](../triage.md#fast-track-skip-list) — main loop แก้โค้ดเอง ไม่เรียก build-wave/ไม่ fork worktree; **correctness floor คงไว้:** full-gate เขียว (blocking, §3 ข้อ 8) · config-protection (§3 ข้อ 12) · investigate-before-edit (§3 ข้อ 11) · ห้ามแตะ rule/standard กลาง (§3 ข้อ 6). tier `standard`/`large` → flow เต็มด้านล่าง (hook นี้ N/A ไม่ลด bar)
 
 ---
 

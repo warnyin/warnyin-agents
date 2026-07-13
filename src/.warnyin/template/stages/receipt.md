@@ -8,7 +8,8 @@
 | **Tier** | `fast` |
 | **ประเภท** | `bugfix` / `docs` / `config` / `refactor` |
 | **วันที่** | `YYYY-MM-DD` |
-| **Hard-floor** | ผ่าน (ไม่แตะ auth/migration/secret/public-API/security) · แตะหมวด X → upgrade |
+| **Base** | `<git SHA ตอน pre-flight>` |
+| **Hard-floor** | ผ่าน (ไม่แตะ auth/migration/secret/public-API/security) · แตะหมวด X → upgrade **หรือ** `override โดย user` (fastlane §2 — user ยืนยันเอง) |
 
 ## §1 ทำอะไร + ทำไม
 
