@@ -23,6 +23,11 @@
 
 ## [Unreleased]
 
+## [0.27.1] - 2026-07-14
+
+### Fixed
+- **BUILD พังด้วย `script contains control characters` — payload script เป็น CRLF** — `.warnyin/workflow/scripts/build-wave.mjs` (และ `.mjs` อื่น) ถูก checkout/pack เป็น CRLF บนเครื่อง Windows (`core.autocrlf`) → CR (`\r`, 0x0D) เป็น control char → Workflow tool ปัดตกตอน BUILD fan-out. แก้: เพิ่ม `.gitattributes` บังคับ `* eol=lf` + normalize payload เป็น LF ล้วน → payload สะอาดข้าม OS. เพิ่ม EOL regression gate (`src/tests/eol.test.mjs`) กัน CRLF หลุดกลับ
+
 ## [0.27.0] - 2026-07-13
 
 ### Added

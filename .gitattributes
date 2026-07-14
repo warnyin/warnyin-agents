@@ -1,0 +1,15 @@
+# Enforce LF line endings repo-wide.
+# เหตุผล: เป็น cross-platform Node tool + payload script (`src/.warnyin/workflow/scripts/*.mjs`)
+# ถูกส่งผ่าน Workflow tool ซึ่ง "ปัดตก script ที่มี control character" — CR (`\r`, 0x0D) ของ CRLF
+# เป็น control char → BUILD พังบน Windows/บนเครื่องที่ checkout เป็น CRLF. override `core.autocrlf`.
+* text=auto eol=lf
+
+# Binary — ห้าม normalize
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.tgz binary
+*.gz binary
+*.zip binary
