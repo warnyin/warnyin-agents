@@ -9,7 +9,7 @@
 | **Slice อ้างอิง** | `design.md` slice #2 |
 | **Component** | `installer` |
 | **Model tier** | `balanced` |
-| **สถานะ** | `รอ build` |
+| **สถานะ** | `passed` |
 
 ## 1. เป้าหมายของ task (vertical slice)
 ทำให้ **ระบบเดิมรู้จัก executor ใหม่** (`/warnyin:fastlane`) — policy (`triage.md`) · stage playbook 4 ไฟล์ · router (`next.md`) · template `receipt.md` · registry 3 ไฟล์ — โดย **แก้ไฟล์เดิม 8 ไฟล์** ใต้ `src/` เท่านั้น ไม่สร้างไฟล์ใหม่

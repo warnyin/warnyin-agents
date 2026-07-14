@@ -46,7 +46,7 @@
 | C14 | `next.md:29` row `fast-track` — แทน route เดิม | ``receipt §3/§4 ยังไม่เติม → `/warnyin:fastlane <slug>` (resume); เติมครบทุก section → `/warnyin:ship``` |
 | C15 | `triage.md` skip-list — **เพิ่มบรรทัดใต้ตาราง** (ไม่แก้ 4 row เดิม, **ห้ามเปลี่ยน heading `## Fast-track skip-list`** — anchor ถูกอ้าง 5 ไฟล์) | ข้อความ: ดู **§4.1** ด้านล่าง (มี markdown-link → ต้องอยู่ใน fenced block ไม่งั้น `lint:md` resolve เทียบ dir ของ `design.md` แล้วแดง) |
 | C16 | `triage.md` row SHIP + `stages/ship.md:17` — แก้เงื่อนไข hard-floor | เดิม "เจอ → ห้าม ship-lite" → ใหม่: ``เจอ → ห้าม ship-lite **เว้นแต่** receipt meta ระบุ `override โดย user` (fastlane §2 — user ยืนยันเอง)`` |
-| C17 | registry (เพิ่ม 1 บรรทัดต่อไฟล์ ใช้ C4) | `src/.warnyin/workflow/README.md` (capability tree) · `src/.warnyin/installer/templates/CLAUDE.md` · `src/.warnyin/installer/templates/codebuddy-rules.md` |
+| C17 | registry (เพิ่ม 1 บรรทัดต่อไฟล์) | **C4 คำต่อคำ** (user-facing slash-command list): `src/.warnyin/installer/templates/CLAUDE.md` · `src/.warnyin/installer/templates/codebuddy-rules.md` — ส่วน `src/.warnyin/workflow/README.md` เป็น **capability tree** (dev-facing, format `file.md # capability: NAME — …`) → เพิ่ม entry `fastlane.md` แบบเดียวกับ sibling ไม่ใช่ C4 verbatim _(refined ตอน BUILD: contract เดิม lump README เข้า C4-verbatim ผิด convention ของ tree)_ |
 | C18 | **path prefix** | ทุกไฟล์ที่แก้ต้องอยู่ใต้ `src/` — **ห้ามแตะ root `.warnyin/`, `.claude/`, `CLAUDE.md`** (dogfood gitignored — `docs/rule.md:79`) |
 
 ### 4.1 C15 — ข้อความคำต่อคำ (เขียนใต้ตาราง skip-list ใน `src/.warnyin/workflow/triage.md`)

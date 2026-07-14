@@ -23,6 +23,14 @@
 
 ## [Unreleased]
 
+## [0.27.0] - 2026-07-13
+
+### Added
+- **`/warnyin:fastlane`** — executor ของ fast tier: รับ change ขนาดเล็กจาก user → บังคับ `tier=fast` → เดิน [fast-track skip-list](src/.warnyin/workflow/triage.md#fast-track-skip-list) ครบ 4 row จบในคำสั่งเดียว (pre-flight เขียน receipt → code-first → gate → เติม receipt → ship-lite + archive) — playbook `.warnyin/workflow/fastlane.md`, adapter `.claude/commands/warnyin/fastlane.md`; user-invoked เท่านั้น (ไม่ auto-invoke เป็น skill)
+
+### Changed
+- **hard-floor รับ explicit user override** — เดิม แตะ 5 หมวด hard-floor (auth/authz · data-migration/schema · secret/credential · public-API/contract · security-sensitive) บังคับ ≥ standard เสมอ; ตอนนี้ fast-track ที่เจอ hard-floor กลางทาง เตือนชัด + หยุดถาม user 2 ทาง (`upgrade เป็น standard` | `ยืนยันลุย fast ต่อ`) — ยืนยันลุยต่อ → บันทึก `override โดย user` ลง receipt meta (audit trail); ship-lite ยอม ship เฉพาะ receipt ที่มี override นี้เท่านั้น. `/warnyin:triage` ยัง read-only เหมือนเดิม — ยังห้ามแนะนำ fast เมื่อแตะ hard-floor
+
 ## [0.26.0] - 2026-07-09
 
 ### Added

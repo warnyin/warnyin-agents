@@ -8,7 +8,7 @@
 | **Slice อ้างอิง** | `design.md` slice #3 |
 | **Component** | `installer` |
 | **Model tier** | `balanced` |
-| **สถานะ** | `รอ build` |
+| **สถานะ** | `passed` |
 
 ## 1. เป้าหมายของ task (vertical slice)
 พิสูจน์ได้ว่า `/warnyin:fastlane` **ติดตั้งลงเครื่อง user จริง** + กฎ fast tier **ไม่ drift 2 ที่** (canonical เดียวที่ `triage.md`) + ปล่อยรุ่นได้ (CHANGELOG + version) — ทุกอย่างเป็นเคสใน `npm test` ที่ CI รันทุก PR ไม่ใช่การอ่านเอกสารด้วยตา

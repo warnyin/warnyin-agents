@@ -417,8 +417,11 @@ test('(d) --global → home/.warnyin/.warnyin-version ตรงเวอร์�
 // `path.resolve(argv[1])` mismatch realpath → main() เงียบ exit 0 ไม่ติดตั้ง (กระทบ end-user + dogfood)
 // ─────────────────────────────────────────────────────────────
 
-const ENTRY_REAL = path.join('/real', 'pkg', 'src', 'bin', 'cli.mjs')
-const ENTRY_META = pathToFileURL(ENTRY_REAL).href
+// derive REAL จาก META (round-trip ผ่าน fileURLToPath) → cross-platform:
+// บน Windows pathToFileURL('/real/...') prepend drive (C:) แต่ path.join ไม่ → ต้องให้ REAL = fileURLToPath(META)
+// ไม่งั้น self (=fileURLToPath(META)) ≠ ENTRY_REAL ที่ inject → แดงเฉพาะ Windows
+const ENTRY_META = pathToFileURL(path.join('/real', 'pkg', 'src', 'bin', 'cli.mjs')).href
+const ENTRY_REAL = fileURLToPath(ENTRY_META)
 
 test('isEntrypoint — argv1 = realpath ตรง module → true (direct run ปกติ)', () => {
   assert.equal(isEntrypoint(ENTRY_REAL, ENTRY_META, (p) => p), true)
@@ -562,6 +565,31 @@ test('T1-dry-run: --dry-run → log มี adapter แต่ไม่สร้�
   for (const rel of ADAPTER_PATHS) {
     assert.ok(!existsSync(path.join(tmp, rel)), `dry-run ต้องไม่สร้าง ${rel}`)
   }
+})
+
+// ─────────────────────────────────────────────────────────────
+// เคสใหม่ — fastlane install proof (task fastlane-test-release, spec §7 A)
+// black-box spawn — reuse makeTempProject/runCli/ok เดิม
+// ─────────────────────────────────────────────────────────────
+
+// A1: temp project เปล่า → มี .warnyin/workflow/fastlane.md (target-side path ไม่มี prefix src/)
+test('A1. fastlane install proof — .warnyin/workflow/fastlane.md ติดตั้งจริง', (t) => {
+  const tmp = makeTempProject(t)
+  ok(runCli(tmp), 'install')
+  assert.ok(
+    existsSync(path.join(tmp, '.warnyin', 'workflow', 'fastlane.md')),
+    'ขาด .warnyin/workflow/fastlane.md',
+  )
+})
+
+// A2: temp project เดียวกัน (spawn ใหม่) → มี .claude/commands/warnyin/fastlane.md
+test('A2. fastlane install proof — .claude/commands/warnyin/fastlane.md ติดตั้งจริง', (t) => {
+  const tmp = makeTempProject(t)
+  ok(runCli(tmp), 'install')
+  assert.ok(
+    existsSync(path.join(tmp, '.claude', 'commands', 'warnyin', 'fastlane.md')),
+    'ขาด .claude/commands/warnyin/fastlane.md',
+  )
 })
 
 // black-box: spawn cli.mjs ผ่าน symlink จริง → main() ต้องทำงาน (behavioral end-to-end, CI ubuntu)

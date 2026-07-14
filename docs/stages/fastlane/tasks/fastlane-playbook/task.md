@@ -9,7 +9,7 @@
 | **Slice อ้างอิง** | `design.md` slice #1 |
 | **Component** | `installer` |
 | **Model tier** | `deepest` _(เป็นแก่นกลางของ executor — orchestration + gate 2 ชั้น + resume + escalation; ผิดพลาดแล้วกระจายทั้ง flow)_ |
-| **สถานะ** | `รอ build` |
+| **สถานะ** | `passed` |
 
 ## 1. เป้าหมายของ task (vertical slice)
 user รัน `/warnyin:fastlane [slug] <change>` แล้วได้ flow ครบเส้น: pre-flight (resume + hard-floor gate + receipt meta/§1/§2) → code-first → gate loop → เติม receipt → ship-lite
