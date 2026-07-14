@@ -205,3 +205,9 @@
 - **Root cause:** wave ท้าย merge `origin/release/0.23.0` (มีไฟล์เวอร์ชันก่อน refactor) → conflict → agent resolve เก็บเนื้อฝั่ง release ในโซนที่ wave ก่อน refactor (hunk อื่นรอด เพราะคนละบริเวณ)
 - **วิธีแก้:** จับด้วย negative-grep single-source (`grep -rl '<ประโยคจาก canonical block>'` ต้องเจอไฟล์เดียว) → แทน block เก่าด้วย canonical wording คำต่อคำ
 - **ป้องกันซ้ำ:** merge branch ข้ามสายที่แตะไฟล์เดียวกับ block ที่เพิ่ง refactor → rerun เช็ค canonical/single-source เสมอ อย่าเชื่อแค่ full gate (กฎใน `docs/rule.md` §1 canonical-copy convention)
+
+### 29. test fixture ประกอบ path/URL 2 ค่าจากคนละ API → drive-letter mismatch แดงเฉพาะ Windows
+- **อาการ:** `isEntrypoint()` test 2 เคส (meta URL == entry) แดงบน Windows (`actual false / expected true`) แต่เขียวบน POSIX/CI Linux — bug ซ่อนนานเพราะ CI ส่วนใหญ่รัน Linux — topic `fastlane` verify (installer.test.mjs)
+- **Root cause:** fixture สร้าง entry path ด้วย `path.join('/real',…)` (บน Windows คืน `\real\…` **ไม่มี drive letter**) แล้ว derive `ENTRY_REAL` แยกจากค่านั้น; แต่ `pathToFileURL()` **prepend drive ปัจจุบัน (`C:`) เสมอ** → `fileURLToPath(metaUrl)` = `C:\real\…` ≠ `ENTRY_REAL` → เทียบ path ไม่ตรง คืน false. POSIX ไม่มี drive letter จึงเขียว
+- **วิธีแก้:** derive "ค่าที่ต้องตรงกัน" จาก **transform เดียว** — round-trip: `const ENTRY_META = pathToFileURL(path.join('/real','pkg','src','bin','cli.mjs')).href; const ENTRY_REAL = fileURLToPath(ENTRY_META)` (ให้ทั้งคู่ผ่าน URL เดียวกัน → cross-platform)
+- **ป้องกันซ้ำ:** อย่าประกอบ 2 ค่าที่ต้อง equality จากคนละ API (`path.join` vs `pathToFileURL`); เทสที่เทียบ path/URL ต้องรันบน Windows อย่างน้อยครั้งหนึ่งก่อนเชื่อว่าเขียว (drive-letter + `\` vs `/` เป็นบ่อเกิด bug ซ่อนที่ CI Linux จับไม่ได้)

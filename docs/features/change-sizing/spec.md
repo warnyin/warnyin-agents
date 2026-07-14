@@ -26,7 +26,7 @@
 
 ## Requirement: Hard-floor บังคับ ≥ standard (5 หมวด)
 
-change ที่แตะพื้นที่อ่อนไหว — auth/authz · data-migration/schema · secret/credential · public-API/contract(breaking) · security-sensitive(input/crypto/permission) — rubric ห้ามแนะนำ `fast` ไม่ว่าดูเล็กแค่ไหน (fail-safe)
+change ที่แตะพื้นที่อ่อนไหว — auth/authz · data-migration/schema · secret/credential · public-API/contract(breaking) · security-sensitive(input/crypto/permission) — rubric ห้ามแนะนำ `fast` ไม่ว่าดูเล็กแค่ไหน (fail-safe) เป็น**ค่าตั้งต้น**; **ข้อยกเว้นเดียว** = user สั่ง `/warnyin:fastlane` เอง + ยืนยันซ้ำหลังถูกเตือน → บันทึก `override โดย user` + หมวดที่แตะ ลง receipt meta (audit trail); ship-lite ยอม ship เฉพาะ receipt ที่มี override นี้ — `/warnyin:triage` ยังห้ามแนะนำ `fast` เมื่อแตะ hard-floor (ไม่เปลี่ยน)
 
 ### Scenario: hard-floor list ครบ 5 หมวดใน rubric
 - GIVEN section `## 2. วิธีประเมิน` (§2B) ใน `src/.warnyin/workflow/triage.md`
@@ -38,9 +38,14 @@ change ที่แตะพื้นที่อ่อนไหว — auth/aut
 - WHEN ประเมินตาม rubric
 - THEN tier ที่ระบุ ≥ `standard` พร้อมเหตุผลระบุหมวด hard-floor ที่ตรง (ไม่แนะนำ fast)
 
+### Scenario: explicit user override ผ่าน `/warnyin:fastlane`
+- GIVEN `src/.warnyin/workflow/triage.md` (row SHIP + ใต้ skip-list) และ `src/.warnyin/workflow/stages/ship.md`
+- WHEN อ่านเงื่อนไข hard-floor ของ ship-lite
+- THEN ระบุว่า "เจอ hard-floor → ห้าม ship-lite **เว้นแต่** receipt meta ระบุ `override โดย user`" — override เกิดได้เฉพาะเมื่อ user สั่ง `/warnyin:fastlane` เอง + ยืนยันซ้ำ (fastlane §2) และถูกบันทึกลง receipt meta
+
 ## Requirement: Fast-track ลด ceremony ไม่ลด correctness (canonical skip-list)
 
-tier `fast` เดินเส้นทาง receipt — skip-list canonical ที่ `triage.md` เป็นตาราง 4 row: DESIGN pre-flight สร้าง `receipt.md` จาก template (เติม meta + hard-floor row + §1 + §2) **ก่อนแตะโค้ด** ไม่สร้าง business/proposal/design/tasks · BUILD code-first (main loop แก้เอง ไม่เรียก build-wave/worktree) + anti-gaming floor (full-gate test เขียว blocking · config-protection · investigate-before-edit · ห้ามแตะ rule/standard กลาง) · VERIFY-lite functional ตาม acceptance ใน receipt §2 + เติมผลลง §4 · SHIP-lite เติม §3/§5 + hard-floor scan + archive; caps ขนาดเอกสารต่อ tier อยู่ `triage.md §2D` แยก anchor (fast receipt ≤40 บรรทัด · standard proposal ≤60 / design ≤120 บรรทัด · large = judgment)
+tier `fast` เดินเส้นทาง receipt โดยมี **ผู้เดิน (executor) ได้ 2 ทาง** — (ก) user สั่งทีละ stage command หรือ (ข) `/warnyin:fastlane` เดินครบ 4 row ในคำสั่งเดียว (executor บาง reuse canonical ไม่ตั้งกฎใหม่); skip-list canonical ที่ `triage.md` เป็นตาราง 4 row: DESIGN pre-flight สร้าง `receipt.md` จาก template (เติม meta + hard-floor row + §1 + §2) **ก่อนแตะโค้ด** ไม่สร้าง business/proposal/design/tasks · BUILD code-first (main loop แก้เอง ไม่เรียก build-wave/worktree) + anti-gaming floor (full-gate test เขียว blocking · config-protection · investigate-before-edit · ห้ามแตะ rule/standard กลาง) · VERIFY-lite functional ตาม acceptance ใน receipt §2 + เติมผลลง §4 · SHIP-lite เติม §3/§5 + hard-floor scan + archive; caps ขนาดเอกสารต่อ tier อยู่ `triage.md §2D` แยก anchor (fast receipt ≤40 บรรทัด · standard proposal ≤60 / design ≤120 บรรทัด · large = judgment)
 
 ### Scenario: skip-list canonical + floor ใหม่
 - GIVEN `src/.warnyin/workflow/triage.md`
@@ -51,6 +56,11 @@ tier `fast` เดินเส้นทาง receipt — skip-list canonical �
 - GIVEN ไฟล์ `src/.warnyin/workflow/stages/{design.md, build.md, verify.md, ship.md}`
 - WHEN grep markdown-link ไป skip-list
 - THEN แต่ละไฟล์มี link `[fast-track skip-list](../triage.md#fast-track-skip-list)` ที่ resolve ได้ และ **ไม่มีตาราง skip-list inline** ในไฟล์ stage (rubric อยู่ triage.md เดียว)
+
+### Scenario: skip-list ระบุผู้เดิน + stage hook ยอมรับ 2 แหล่ง
+- GIVEN `src/.warnyin/workflow/triage.md` (ใต้ตาราง skip-list) และ `stages/{build,verify,ship}.md`
+- WHEN อ่านบรรทัดผู้เดิน + hook tier fast
+- THEN ใต้ skip-list ระบุ executor 2 ทาง (user ทีละ stage · หรือ `/warnyin:fastlane` เดินครบ) และ hook แต่ละ stage ระบุ "tier fast (จาก `/warnyin:triage` หรือ `/warnyin:fastlane`)" — heading `## Fast-track skip-list` ไม่ถูกเปลี่ยน (anchor คงเดิม)
 
 ## Requirement: Escalation/Downgrade กลางคัน — topic ไม่พัง (symmetric)
 

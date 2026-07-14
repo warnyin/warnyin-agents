@@ -19,7 +19,7 @@
 
 ## 4. ขอบเขตเชิงธุรกิจ / ข้อจำกัด
 - **in scope:** `/warnyin:triage` (read-only assess+route) · sizing rubric (3-tier + hard-floor) · fast-track spec (reframe §7 + skip-list 4 stage) · escalation guidance · triage↔next ชัด
-- **out of scope:** decompose L/XL อัตโนมัติ (large แค่ route → Discovery) · 2 มิติ size×type · `/warnyin:quick` one-shot · auto-execution
+- **out of scope:** decompose L/XL อัตโนมัติ (large แค่ route → Discovery) · 2 มิติ size×type · `/warnyin:triage` auto-execute (คง read-only) — _หมายเหตุ: one-shot executor ของ fast tier มีแล้วเป็น command แยก `/warnyin:fastlane` (feature `fastlane`, user-invoked) ไม่ใช่ auto-execution ของ triage_
 - **ข้อจำกัด:** payload `.md` + 1 command — zero-dep, tool-agnostic (command = adapter บางชี้ playbook); triage = judgment heuristic (⚠ ไม่ใช่ ✖)
 
 ## 5. ความเสี่ยง & การคุม

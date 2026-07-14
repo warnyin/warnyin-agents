@@ -12,9 +12,9 @@
 - กัน false-green แบบ #3 (เช่น `node --test <dir>` เปล่า exit 0 แต่ไม่มีเคสรัน) — acceptance = เห็น **pass count ≥ 46** ไม่ใช่แค่ exit 0 (BL-2)
 - step CI ใช้ `set -o pipefail` (`shell: bash`) ให้ pipe ยัง fail ตาม node --test
 
-## เคสที่ test suite ครอบ (รวม suite 135 เคส — bare discovery เจอครบ; หลักด้านล่าง)
+## เคสที่ test suite ครอบ (รวม suite 149 เคส — bare discovery เจอครบ; หลักด้านล่าง)
 
-### `src/tests/installer.test.mjs` — 33 เคส (black-box, spawn `src/bin/cli.mjs`; 9 ฐาน + 8 global + 4 version stamp + 6 universal-ide + 6 isEntrypoint)
+### `src/tests/installer.test.mjs` — 35 เคส (black-box, spawn `src/bin/cli.mjs`; 9 ฐาน + 8 global + 4 version stamp + 6 universal-ide + 6 isEntrypoint + 2 fastlane install-proof)
 1. ติดตั้งสด — โครงครบ (`.warnyin/workflow`, `.warnyin/template`, `.claude/commands/warnyin`, `.claude/skills/update-codemaps/SKILL.md`, `docs/stages`, `docs/project.md`, `CLAUDE.md`, `AGENTS.md`)
 2. idempotent — รัน 2 ครั้ง byte-equal + ไม่ append ซ้ำ (`stdout` มี "ข้าม")
 3. `--update` ไม่ทับงานจริง — `docs/project.md`/`docs/stages/demo/` คงเดิม
@@ -65,6 +65,13 @@
 5. `http(s)://` / `mailto:` / `#anchor` → ข้าม
 6. `path#sec` (path exists) → ไม่ error (ตัด anchor ก่อนเช็ค path)
 7. fake `exists` injectable → resolved path ถูกส่งเข้า (ไม่แตะ fs จริง)
+
+### `src/tests/fastlane.test.mjs` — 14 เคส (structural/canonical/consistency, node ล้วน; L: topic `fastlane`)
+- **B1-B3 canonical negative-grep** — `pre-flight: สร้าง receipt.md จาก template` เจอใน `triage.md` ไฟล์เดียว · `fastlane.md` ไม่ลอก 5 หมวด hard-floor เต็ม (pointer แทน) · ไม่ prose-duplicate `config-protection`+`investigate-before-edit` ของ BUILD floor
+- **C1 anchor structural** — link `triage.md#fast-track-skip-list` resolve ไป heading จริง (slugify เอง เพราะ lint-md ตัด anchor)
+- **D1-D3 consistency (C4 คำต่อคำ)** — C4 อยู่ frontmatter command · อยู่ command-list registry 2 ไฟล์ (CLAUDE.md + codebuddy-rules) · README capability tree มี entry `fastlane.md`
+- **E1 ordering** — step "เขียน receipt §1+§2" มาก่อน "แก้โค้ด" ใน `fastlane.md` (กัน goalpost moving)
+- **F1-F4 regression** — 4 stage ยังมี link skip-list · ไม่มีตาราง skip-list inline · triage command ยัง read-only (0 write-intent) · `skills/` ไม่มี entry `fastlane` (command-only)
 
 ## verify-pack testable (BL-4)
 - `checkFiles(files[]) → error[]` = pure function ใน `src/scripts/verify-pack.mjs`, `export` ออกมา → unit ป้อน file list ปลอม (มี `src/tests/` ฯลฯ) แล้ว assert จับได้ — พิสูจน์ว่า denylist **ทำงานจริง** ไม่ใช่เขียวเพราะ allowlist ปิดอยู่
@@ -237,3 +244,12 @@
 - **consistency:** contract (command id/path/description/prefix) ตรง adapter ↔ registry (CLAUDE template/README/CHANGELOG) คำต่อคำ
 - **regression additive:** command/utility เดิมใน list ครบ (ไม่ถูกลบ)
 - **no real side-effect proof:** ตรวจ gh command/fallback URL ประกอบถูกเชิงโครงสร้าง (urlencode) — ไม่รันยิงจริง (confirm gate กันตอนใช้จริง)
+
+## verify executor playbook / one-shot fast lane (L: topic `fastlane`)
+> feature เป็น **workflow-payload change** (ไม่มี service/UI/API) → "real env" = พิสูจน์ว่า **installer ส่งมอบ + wire executor จริง** ไม่ใช่แค่ unit test บน `src/`
+- **install-proof (real env):** `node src/scripts/setup-sandbox.mjs` → รัน installer v-next ลง temp dir สะอาด → ตรวจ executor 2 ไฟล์ถูกส่งมอบ (`.claude/commands/warnyin/fastlane.md` + `.warnyin/workflow/fastlane.md`) — เสริมด้วย 2 เคสใน `installer.test.mjs` (A1/A2 assert payload ติดครบตอน pack/install)
+- **discoverable ใน registry (grep C4 คำต่อคำ):** description อยู่ command-list ที่ user เห็น (CLAUDE.md/codebuddy) + capability tree มี entry — แยก concern: command-list = C4 verbatim, capability tree = `file.md # capability: NAME` (คนละ format ไม่บังคับ C4 verbatim)
+- **single-source (negative-grep):** executor ที่เดินกฎ playbook อื่นต้อง **ไม่ลอกกฎ** (ตาราง+prose) — assert canonical string เจอไฟล์เจ้าของไฟล์เดียว (คู่กับ rule `executor-playbook convention`)
+- **anchor structural (เช็คเอง):** `lint-md` ตัด anchor ทิ้ง → เขียนเคส slugify heading เอง assert `#fast-track-skip-list` resolve (คู่กับ rule `anchor-immutability`)
+- **ordering proxy (กัน goalpost moving):** playbook ที่บังคับ "ประกาศ acceptance ก่อนลงมือ" → assert index ของ step receipt < step แก้โค้ด
+- **regression:** heading/anchor ที่มี inbound หลายไฟล์ห้ามเปลี่ยน; hook 4 stage + read-only ของ command เดิมไม่พัง

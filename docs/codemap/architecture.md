@@ -44,7 +44,9 @@ capability เสริม conditional (เฉพาะ topic แตะ REST API
 
 change-sizing (ต้นน้ำ ก่อนเข้า flow — read-only): triage.md
 /warnyin:triage ประเมินขนาด change → tier {fast,standard,large} (signals + hard-floor 5 หมวด) → แนะนำ route แล้วหยุด
-▶ fast = fast-track (pre-flight สร้าง receipt ก่อนแตะโค้ด → code-first main loop ไม่ fan-out → verify-lite เติม receipt §4 → ship-lite + hard-floor scan, คง test floor — skip-list canonical triage.md) ▶ large = บังคับ Discovery — ดู docs/features/change-sizing/
+▶ fast = fast-track (pre-flight สร้าง receipt ก่อนแตะโค้ด → code-first main loop ไม่ fan-out → verify-lite เติม receipt §4 → ship-lite + hard-floor scan, คง test floor — skip-list canonical triage.md)
+   ผู้เดิน fast 2 ทาง: user สั่งทีละ stage · หรือ /warnyin:fastlane เดินครบ 4 row จบในคำสั่งเดียว (executor — fastlane.md; hard-floor explicit override ได้ผ่านทางนี้เท่านั้น) — ดู docs/features/fastlane/
+▶ large = บังคับ Discovery — ดู docs/features/change-sizing/
 ```
 
 ## installer flow (src/bin/cli.mjs)
@@ -81,7 +83,7 @@ lint-md.mjs         walk src/+docs/ (exclude template+archived) → checkLinks(d
 - **principle / capability docs (top-level `src/.warnyin/workflow/*.md`):**
   - `minimalism.md` — principle "เขียนน้อยที่สุด" (decision hierarchy + lazy-not-negligent guardrail); always-on, surface ผลิต/ตรวจ pointer มา — `docs/features/minimalism/`
   - `interop.md` — stage-invoked capability "companion-tool consult-if-present" (UA knowledge graph) + trust-boundary guard (untrusted artifact) + **convention "archive ≠ current state"** (comprehension default-exclude `docs/stages/achieved/`) — `docs/features/interop/`
-  - `triage.md` (change-sizing) · `api-doc.md` (REST contract) · `feedback.md` (issue) · `discovery.md §3.5` (Discovery modes) — capability เสริม conditional/utility, stage หรือ command ชี้มา
+  - `triage.md` (change-sizing) · `fastlane.md` (executor fast tier — one-shot 4-row, `docs/features/fastlane/`) · `api-doc.md` (REST contract) · `feedback.md` (issue) · `discovery.md §3.5` (Discovery modes) — capability เสริม conditional/utility, stage หรือ command ชี้มา
 - generator agent: `src/.claude/agents/warnyin-ux.md` (ASCII wireframe ใน DESIGN step 4.5, read-only) — `docs/features/uxui-wireframe/`
 
 ## เผยแพร่ (packaging)

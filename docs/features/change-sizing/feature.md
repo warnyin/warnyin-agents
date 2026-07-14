@@ -15,7 +15,7 @@ capability ที่ **ประเมินขนาด (sizing) ของ chan
 | 1 | **triage rubric (canonical)** | `triage.md` playbook | 3-tier taxonomy + signals + tie-break (ก้ำกึ่ง→standard) + hard-floor 5 หมวด + escalation/downgrade 3 step + fast-track skip-list + route behavior — **single source of truth** ที่ทุกที่ชี้มา |
 | 2 | **`/warnyin:triage` command** | `.claude/commands/warnyin/triage.md` | adapter บาง (read-only, user-invoked) ชี้ playbook ด้วย backtick runtime-ref — รับคำอธิบาย change → รายงาน tier+route |
 | 3 | **fast-track wiring (4 stage)** | `design.md §7` + `verify.md` + `ship.md` hook | reframe §7 (2-level → 3-tier) + pointer hook ใน verify/ship → tier `fast` เดิน lite ตาม skip-list canonical; ชี้ด้วย markdown-link (ไม่ inline rubric) |
-| 4 | **hard-floor (5 หมวด)** | `triage.md §2B` | auth/authz · data-migration/schema · secret/credential · public-API/contract(breaking) · security-sensitive → บังคับ ≥ standard เสมอ (fail-safe กันงานอ่อนไหว fast) |
+| 4 | **hard-floor (5 หมวด)** | `triage.md §2B` + row SHIP | auth/authz · data-migration/schema · secret/credential · public-API/contract(breaking) · security-sensitive → บังคับ ≥ standard เป็น**ค่าตั้งต้น** (fail-safe กันงานอ่อนไหว fast); ข้อยกเว้นเดียว = **explicit user override** ผ่าน `/warnyin:fastlane` (ยืนยัน 2 ชั้น → `override โดย user` ใน receipt meta → ship-lite ยอม) — ดู feature [`fastlane`](../fastlane/feature.md) |
 | 5 | **DESIGN sizing gate** | `design.md §4 step 1.5` | **establish tier ก่อนจ่าย ceremony** — DESIGN ประเมินเอง → มั่นใจกำหนด / ไม่มั่นใจถาม user (triage / กำหนดเอง); กัน DESIGN เดินโดยไม่รู้ขนาด (enforcement — topic `design-tier-gate` 2026-06-11) |
 
 ## ทำงานยังไง (flow)
@@ -26,7 +26,7 @@ capability ที่ **ประเมินขนาด (sizing) ของ chan
 ## ขอบเขต / ข้อจำกัด (การตัดสินใจเชิงสถาปัตยกรรม)
 - **MVP = assess + fast-track งานเล็ก** — `large` แค่ route ไป "Discovery บังคับ"; **decompose L/XL เป็น epic/หลาย topic อัตโนมัติ = future** (out of scope)
 - **1 มิติ (size) ไม่ใช่ 2 มิติ size×type** — ชนิดงานเป็น *สัญญาณ* ไม่ใช่แกนแยก
-- **reuse command เดิม** — ไม่เพิ่ม `/warnyin:quick` one-shot (collapse gate เสี่ยง mis-size); triage แนะนำเท่านั้น **ไม่ auto-execute**
+- **one-shot executor มีแล้วแบบมี guard** — `/warnyin:fastlane` (feature [`fastlane`](../fastlane/feature.md)) เดิน fast tier จบในคำสั่งเดียว โดย `/warnyin:triage` ยัง **read-only แนะนำเท่านั้น ไม่ auto-execute** (คนละ command — triage ไม่ collapse gate); ความเสี่ยง mis-size ที่เคยห้าม one-shot ถูกคุมด้วย hard-floor gate ก่อนแตะโค้ด + escalation symmetric + audit trail ใน receipt _(กลับ decision เดิม "ไม่เพิ่ม one-shot" — ตอนนั้น fast tier ยังไม่มี guard เหล่านี้)_
 - **rubric canonical ที่ `triage.md` เดียว** — `design.md §7`/`verify.md`/`ship.md`/command ชี้มาด้วย pointer ไม่ duplicate (canonical-copy)
 - **command-only (ไม่ทำ skill auto-invoke)** — triage เป็น utility read-only แต่คงเป็น command user-invoked ตาม design scope (ต่างจาก next/explore ที่เป็นทั้ง skill+command — triage รอบนี้ทำ command ก่อน)
 - **behavior change ที่ตั้งใจ:** `design.md §7` tier `large` **บังคับ `/warnyin:discovery`** (เดิม "ใหญ่" ไม่บังคับ)
