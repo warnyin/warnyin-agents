@@ -666,3 +666,44 @@ test('R1. context.md ว่างก่อน install → --update ไม่ท�
     'docs/memory.md ต้องถูกสร้างในรอบเดียวกัน (พิสูจน์ seed ทำงาน)',
   )
 })
+
+// ─────────────────────────────────────────────────────────────
+// EOLI. installer เขียน payload เป็น LF เสมอ แม้ package ต้นทางเป็น CRLF
+// เหตุผล: `.warnyin/workflow/scripts/*.mjs` ถูกส่งผ่าน Workflow tool ที่ปัดตก control char
+// (CR = 0x0D) → tarball ที่ pack จากเครื่อง CRLF ทำ /warnyin:build ของผู้ใช้พังทั้งระบบ (เจอจริง 0.22.0)
+// black-box: ประกอบ package ปลอมที่ payload เป็น CRLF → spawn cli จริง → ตรวจไฟล์ปลายทาง
+// ─────────────────────────────────────────────────────────────
+test('EOLI. package ต้นทาง CRLF → ไฟล์ที่ติดตั้งเป็น LF ล้วน (copyTree + seedDocs + rootDoc)', (t) => {
+  const pkg = makeTempProject(t)
+  const target = makeTempProject(t)
+  const crlf = (s) => s.replace(/\n/g, '\r\n')
+
+  // package ปลอม: layout เดียวกับของจริง (pkgRoot = <pkg>/src, version อ่านจาก <pkg>/package.json)
+  const write = (rel, text) => {
+    const abs = path.join(pkg, rel)
+    mkdirSync(path.dirname(abs), { recursive: true })
+    writeFileSync(abs, text)
+  }
+  write('package.json', JSON.stringify({ version: '0.0.0-eol-test' }))
+  write('src/bin/cli.mjs', readFileSync(cliPath, 'utf8'))
+  write('src/.warnyin/workflow/scripts/crlf-probe.mjs', crlf('export const meta = {}\nlog("hi")\n'))
+  write('src/.warnyin/template/docs/crlf-note.md', crlf('# note\n\nบรรทัดสอง\n'))
+  write('src/.warnyin/installer/templates/CLAUDE.md', crlf('# CLAUDE\n\nwarnyin/workflow/stages/\n'))
+  write('src/AGENTS.md', crlf('# AGENTS\n\nwarnyin/workflow/stages/\n'))
+
+  const r = spawnSync(process.execPath, [path.join(pkg, 'src', 'bin', 'cli.mjs'), '--project'], {
+    cwd: target,
+    encoding: 'utf8',
+  })
+  assert.equal(r.status, 0, `installer exit!=0\nSTDERR:\n${r.stderr}\nSTDOUT:\n${r.stdout}`)
+
+  const noCr = (rel) => {
+    const abs = path.join(target, rel)
+    assert.ok(existsSync(abs), `ไม่พบไฟล์ที่ควรถูกติดตั้ง: ${rel}`)
+    const buf = readFileSync(abs)
+    assert.equal(buf.includes(0x0d), false, `${rel} ยังมี CR (\r) — installer ต้อง normalize เป็น LF ตอนเขียน`)
+  }
+  noCr(path.join('.warnyin', 'workflow', 'scripts', 'crlf-probe.mjs')) // copyTree (payload script — เคสวิกฤต)
+  noCr(path.join('docs', 'crlf-note.md')) // seedDocs
+  noCr('CLAUDE.md') // installRootDoc
+})

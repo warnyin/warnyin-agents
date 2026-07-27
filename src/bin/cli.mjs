@@ -106,6 +106,29 @@ const stats = { created: 0, updated: 0, skipped: 0 }
 // target = ปลายทางที่จะเขียนไฟล์ — ตั้งหลัง resolve mode (project=cwd | global=homedir)
 let target = cwd
 
+// นามสกุลที่ถือเป็น text payload — normalize EOL ตอนเขียน (นอกรายการนี้ = byte-copy ตรง)
+const TEXT_EXT = new Set(['.md', '.mjs', '.js', '.json', '.txt', '.yml', '.yaml'])
+
+/**
+ * ★ payload ที่เขียนลง target ต้องเป็น **LF เสมอ** ไม่ว่าไฟล์ใน package จะเป็น EOL อะไร
+ * เหตุผล (falsifiable): `.warnyin/workflow/scripts/*.mjs` ถูกส่งผ่าน Workflow tool ที่ **ปัดตก script
+ * ที่มี control character** — CR (`\r`, 0x0D) ของ CRLF เป็น control char → `/warnyin:build` พังทั้งระบบ
+ * ของผู้ใช้. `.gitattributes` คุมได้แค่ repo ต้นทาง แต่ tarball ที่ pack จาก checkout เก่า/เครื่องที่
+ * `core.autocrlf=true` ยังมี CRLF ติดมาได้ และ copy แบบ byte ก็ลอกลง target ตรง ๆ (เจอจริง 0.22.0)
+ * → กันที่ **จุดเขียน** ไม่ใช่แค่จุด commit
+ * @param {Buffer|string} data เนื้อไฟล์ที่อ่านจาก package
+ * @param {string} filename ชื่อ/path ของไฟล์ต้นทาง (ใช้ดูนามสกุล)
+ * @returns {Buffer|string} ชนิดเดิม แต่ CRLF/CR → LF (ไม่มี CR = คืนตัวเดิม)
+ */
+export function normalizeEol(data, filename) {
+  if (!TEXT_EXT.has(path.extname(filename))) return data
+  const isBuffer = Buffer.isBuffer(data)
+  const text = isBuffer ? data.toString('utf8') : data
+  if (!text.includes('\r')) return data
+  const lf = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
+  return isBuffer ? Buffer.from(lf, 'utf8') : lf
+}
+
 function copyTree(relDir, { overwrite }) {
   const srcDir = path.join(pkgRoot, relDir)
   if (!fs.existsSync(srcDir)) return
@@ -122,13 +145,15 @@ function copyTree(relDir, { overwrite }) {
       stats.skipped++
       continue
     }
-    if (exists && overwrite && fs.readFileSync(src).equals(fs.readFileSync(dest))) {
+    const content = normalizeEol(fs.readFileSync(src), src)
+    // เทียบกับ content ที่ normalize แล้ว — ไม่งั้น target ที่เป็น LF อยู่แล้วจะถูกเขียนซ้ำทุกรอบ
+    if (exists && overwrite && fs.readFileSync(dest).equals(content)) {
       stats.skipped++
       continue
     }
     if (!DRY) {
       fs.mkdirSync(path.dirname(dest), { recursive: true })
-      fs.copyFileSync(src, dest)
+      fs.writeFileSync(dest, content)
     }
     stats[exists ? 'updated' : 'created']++
     console.log(`  ${exists ? '↻' : '+'} ${rel}`)
@@ -171,8 +196,9 @@ function seedDocs(relDir = TEMPLATE_DOCS) {
       continue
     }
     if (!DRY) {
+      const src = path.join(pkgRoot, rel)
       fs.mkdirSync(path.dirname(dest), { recursive: true })
-      fs.copyFileSync(path.join(pkgRoot, rel), dest)
+      fs.writeFileSync(dest, normalizeEol(fs.readFileSync(src), src))
     }
     stats.created++
     console.log(`  + ${destRel}`)
@@ -182,7 +208,7 @@ function seedDocs(relDir = TEMPLATE_DOCS) {
 /** CLAUDE.md / AGENTS.md: ไม่มี → สร้างจาก template; มีอยู่แล้วแต่ยังไม่มี workflow → ต่อท้ายเป็น section */
 function installRootDoc(name, srcPath) {
   const dest = path.join(target, name)
-  const content = fs.readFileSync(srcPath, 'utf8')
+  const content = normalizeEol(fs.readFileSync(srcPath, 'utf8'), srcPath)
   if (!fs.existsSync(dest)) {
     if (!DRY) fs.writeFileSync(dest, content)
     stats.created++
@@ -240,7 +266,7 @@ function installAdapterDoc(destRel, srcFilename, marker, opts = {}) {
     console.log(`  · ข้าม ${destRel} (ยังไม่มี template ${srcFilename})`)
     return
   }
-  const content = fs.readFileSync(src, 'utf8')
+  const content = normalizeEol(fs.readFileSync(src, 'utf8'), src)
   if (!fs.existsSync(dest)) {
     if (!DRY) {
       fs.mkdirSync(path.dirname(dest), { recursive: true })
@@ -285,7 +311,7 @@ function installCodeBuddyPlugin() {
   const pluginJsonSrc = path.join(pkgRoot, '.warnyin', 'installer', 'templates', 'codebuddy-plugin.json')
   const pluginJsonDest = path.join(target, pluginDir, '.codebuddy-plugin', 'plugin.json')
   if (fs.existsSync(pluginJsonSrc)) {
-    const content = fs.readFileSync(pluginJsonSrc, 'utf8')
+    const content = normalizeEol(fs.readFileSync(pluginJsonSrc, 'utf8'), pluginJsonSrc)
     const exists = fs.existsSync(pluginJsonDest)
     if (!exists || (UPDATE && fs.readFileSync(pluginJsonDest, 'utf8') !== content)) {
       if (!DRY) { fs.mkdirSync(path.dirname(pluginJsonDest), { recursive: true }); fs.writeFileSync(pluginJsonDest, content) }
@@ -298,7 +324,7 @@ function installCodeBuddyPlugin() {
   const rulesSrc = path.join(pkgRoot, '.warnyin', 'installer', 'templates', 'codebuddy-rules.md')
   const rulesDest = path.join(target, pluginDir, 'rules', 'warnyin_rules.md')
   if (fs.existsSync(rulesSrc)) {
-    const content = fs.readFileSync(rulesSrc, 'utf8')
+    const content = normalizeEol(fs.readFileSync(rulesSrc, 'utf8'), rulesSrc)
     const exists = fs.existsSync(rulesDest)
     if (!exists || (UPDATE && fs.readFileSync(rulesDest, 'utf8') !== content)) {
       if (!DRY) { fs.mkdirSync(path.dirname(rulesDest), { recursive: true }); fs.writeFileSync(rulesDest, content) }
@@ -324,7 +350,7 @@ function copyDirToTarget(srcAbsDir, destRel) {
     const relChild = path.join(destRel, entry.name)
     if (entry.isDirectory()) { copyDirToTarget(srcPath, relChild); continue }
     const dest = path.join(target, relChild)
-    const content = fs.readFileSync(srcPath)
+    const content = normalizeEol(fs.readFileSync(srcPath), srcPath)
     const exists = fs.existsSync(dest)
     if (exists && !UPDATE) { stats.skipped++; continue }
     if (exists && UPDATE && fs.readFileSync(dest).equals(content)) { stats.skipped++; continue }
@@ -347,7 +373,7 @@ function installGlobalNote() {
     console.log(`  · ข้าม ${destRel} (ยังไม่มี template CLAUDE.global.md)`)
     return
   }
-  const note = fs.readFileSync(src, 'utf8')
+  const note = normalizeEol(fs.readFileSync(src, 'utf8'), src)
   if (!fs.existsSync(dest)) {
     if (!DRY) {
       fs.mkdirSync(path.dirname(dest), { recursive: true })
