@@ -229,3 +229,24 @@ test('N1. ซอร์สของ memory-status.mjs ไม่มี import/API 
     assert.ok(!src.includes(token), `ห้ามพบ "${token}" ในซอร์ส memory-status.mjs`)
   }
 })
+
+// ═══════════════════════════ V. VERIFY fix — placeholder ที่เป็น HTML comment ═══════════════════════════
+// template ใช้ HTML comment เป็น "placeholder ที่ไม่ใช่ข้อมูลจริง" (แถวตัวอย่างใน memory.md ก็ใช้กติกานี้
+// เพื่อไม่ให้ถูกนับเป็น entry) — `## อัปเดตล่าสุด` ต้องใช้กติกาเดียวกัน ไม่งั้น fresh install
+// จะรายงาน comment ดิบออก stdout (เจอตอน VERIFY V5 ด้วย sandbox จริง)
+
+test('V1. `## อัปเดตล่าสุด` ที่มีแต่ HTML comment placeholder → lastUpdated = null', () => {
+  const r = summarize({
+    contextText: '# Context\n\n## อัปเดตล่าสุด\n<!-- YYYY-MM-DD · stage/เหตุการณ์ -->\n',
+    memoryText: null,
+  })
+  assert.equal(r.lastUpdated, null, 'placeholder comment ต้องถือว่ายังไม่มีค่า')
+})
+
+test('V2. ค่าจริงหลัง `## อัปเดตล่าสุด` ยังถูกอ่านปกติ (คู่ตรงข้าม — กัน over-fix)', () => {
+  const r = summarize({
+    contextText: '# Context\n\n## อัปเดตล่าสุด\n2026-07-27 · VERIFY\n',
+    memoryText: null,
+  })
+  assert.equal(r.lastUpdated, '2026-07-27 · VERIFY')
+})

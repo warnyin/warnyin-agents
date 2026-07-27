@@ -32,6 +32,8 @@ function parseRow(line) {
 }
 
 // หาเนื้อหลัง '## อัปเดตล่าสุด' (บรรทัดถัดไปที่ไม่ว่าง) — ไม่มี section → null (spec §4.2)
+// placeholder ที่เป็น HTML comment ล้วน = "ยังไม่มีค่า" → null (กติกาเดียวกับแถวตัวอย่างใน memory.md
+// ที่ถูกครอบด้วย <!-- --> เพื่อไม่ให้ถูกนับเป็น entry — template ใช้ convention นี้ทั้งสองไฟล์)
 function findLastUpdated(text) {
   const lines = text.split('\n')
   const idx = lines.findIndex((l) => l.trim().startsWith('## อัปเดตล่าสุด'))
@@ -40,6 +42,7 @@ function findLastUpdated(text) {
     const t = lines[i].trim()
     if (t === '') continue
     if (t.startsWith('##')) return null
+    if (/^<!--[\s\S]*-->$/.test(t)) return null
     return t
   }
   return null

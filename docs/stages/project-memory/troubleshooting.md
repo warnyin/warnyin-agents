@@ -82,3 +82,23 @@
 - **อาการ/บริบท:** `task.md`/`rule.md` บังคับ anti-false-green — ต้องพิสูจน์ว่าเคส legend-only จะ **แดงจริง** ถ้า entry-detector พัง (ยอมรับทุกบรรทัดที่ขึ้นต้น `|`) ซึ่งเป็นขั้นตอนยืนยัน**คุณภาพเทส**ระหว่าง BUILD ไม่ใช่เคสถาวรในสวีท
 - **วิธีแก้ที่ได้ผล:** แก้ `parseRow()` ชั่วคราวให้เงื่อนไขกรองคอลัมน์แรกเป็น no-op → รัน `node --test src/tests/memory-status.test.mjs` เห็นเคสแดงจริง → restore จาก backup → รันซ้ำเขียว 16/16 โดยไม่มีไฟล์ `.bak`/โค้ด mutate ตกค้าง
 - **วิธีป้องกันไม่ให้เกิดซ้ำ:** ใช้ **copy-then-mutate-then-restore-from-backup** เสมอ (ไม่ใช้ sed/regex replace กลับ เพราะเสี่ยง diff ไม่ตรง 100%) แล้วยืนยันด้วย `git status` ว่าสะอาดก่อน commit
+- **ข้อควรระวังเพิ่ม (เจอซ้ำตอน VERIFY):** ถ้า mutation ทำผ่าน `node -e "..."` ที่ฝังอยู่ในคำสั่ง shell → **escaping ของ regex พังเงียบ** ทำให้ไฟล์ไม่ถูกแก้จริง แล้ว RED proof รายงาน "ยังเขียว" = สรุปผิดว่าเป็น false-green ทั้งที่การทดลองไม่เคยเกิด → **ให้ mutation script `exit 2` เมื่อเนื้อไฟล์ก่อน/หลังเท่ากัน** (พิสูจน์ว่า mutate ติดจริง) และเขียนเป็นไฟล์ `.mjs` แยกแทนการฝังใน shell
+
+---
+
+### TS-5: placeholder convention ถูกบังคับใช้ไม่ตรงกันระหว่าง parser สองตัวที่อ่าน template ชุดเดียวกัน
+| | |
+|---|---|
+| **วันที่** | `2026-07-27` |
+| **Component / Task** | `workflow core` / `tasks/memory-status-script` (T5) — เจอตอน **VERIFY** |
+| **ความถี่** | เจอครั้งเดียว (แต่เป็น class ของบั๊กที่เกิดซ้ำได้ทุกครั้งที่มี parser หลายตัวอ่าน template เดียวกัน) |
+| **ยกขึ้น KB กลางตอน SHIP?** | ✅ |
+
+- **อาการ:** ติดตั้งสดแล้วรัน `memory-status` → รายงาน `อัปเดตล่าสุด <!-- YYYY-MM-DD · stage/เหตุการณ์ -->` (พิมพ์ HTML comment ดิบให้ผู้ใช้เห็น) ทั้งที่ยังไม่มีใครเขียนอะไรเลย
+- **บริบทที่ทำให้เกิด (trigger):** fresh install — ไฟล์ยังเป็น template ล้วน; **unit test ไม่จับ** เพราะ fixture ของเทสใช้ค่าจริง (`2026-07-27 · BUILD`) ไม่ได้ใช้เนื้อ template จริง
+- **สาเหตุที่แท้จริง (root cause):** design เลือกใช้ **HTML comment = placeholder ที่ไม่ใช่ข้อมูลจริง** อย่างจงใจ (`design.md §3.1` เตือนไว้ชัดว่าแถวตัวอย่างต้องเป็น comment ไม่งั้น fresh install จะรายงาน `open 1`) — `parseRow()` ทำตามกติกานี้ถูก แต่ `findLastUpdated()` **ไม่ได้ทำตาม** เพราะ parse contract (C10) เขียนกติกา comment ไว้เฉพาะฝั่งตาราง ไม่ได้เขียนฝั่ง section
+- **วิธีแก้ที่ได้ผล (solution):** เพิ่ม guard ที่ `findLastUpdated()` — บรรทัดที่เป็น HTML comment ล้วน → คืน `null` (แสดง `–`) สอดคล้อง C13; เพิ่มเทส regression **คู่** (placeholder → `null` และค่าจริง → อ่านได้ปกติ เพื่อกัน over-fix) + RED proof ว่าถอด guard แล้วแดงจริง
+- **วิธีสังเกต/ป้องกันไม่ให้เกิดซ้ำ:**
+  - **convention ของ template ต้องเขียนเป็นกฎระดับไฟล์ ไม่ใช่ระดับ field** — ถ้า design ประกาศว่า "HTML comment = placeholder" ต้องบังคับกับ **ทุก parser ที่อ่านไฟล์นั้น** ไม่ใช่เฉพาะจุดที่นึกออกตอนเขียน contract
+  - **เทสของ parser ต้องมี fixture ที่เป็นเนื้อ template จริงอย่างน้อย 1 เคส** — fixture ที่ประดิษฐ์ค่าสวยงามเองจะไม่มีวันเจอบั๊กของ "สภาพตั้งต้นที่ผู้ใช้ได้จริง"
+  - เห็นได้จาก **install proof เท่านั้น** (รันของจริงในปลายทาง) — unit + structural เขียวหมดโดยไม่จับเคสนี้
