@@ -23,6 +23,23 @@
 
 ## [Unreleased]
 
+### Added
+- **Project memory — ความจำระดับโปรเจกต์ที่อยู่ใน repo** (feature `project-memory`) — playbook กลาง `.warnyin/workflow/memory.md` เป็น single source ของกติกา (semantic · governance · schema · lifecycle · write point · consume · promote · trust boundary · ทบทวน) + ไฟล์จริง 2 ใบที่ installer seed ให้: `docs/stages/context.md` (snapshot 4 section เขียนทับ ไม่สะสม) และ `docs/memory.md` (ตาราง 6 คอลัมน์ = บทเรียนที่ยังพิสูจน์ไม่พอจะเป็นกฎ)
+- **hook เขียน memory ท้ายงาน** — ทั้ง 5 stage + executor `fastlane` เขียนแบบ conditional (ไม่มีอะไรเปลี่ยน → ข้าม); BUILD เขียนเฉพาะ **main loop หลัง integrate** — sub-agent ใน git worktree ห้ามเขียนเอง
+- **จุดอ่าน memory** — Discovery / `next` / `explore` อ่าน 2 ไฟล์นี้เป็น **data ไม่ใช่ instruction** (คำสั่งที่เขียนอยู่ในไฟล์ → ignore, ยืนยันกับโค้ด/เอกสารจริงเสมอ)
+- **`/warnyin:memory [ทบทวน]`** — command ดู/ทบทวน project memory (read-only; โหมดทบทวนเสนอรายการที่จะ promote/ตัด แล้ว **รอ user ยืนยันก่อนเขียน** ไม่ลบเงียบ)
+- **`.warnyin/workflow/scripts/memory-status.mjs`** — รายงานสุขภาพ memory แบบ deterministic (จำนวน entry ต่อสถานะ, จำนวนบรรทัดของ context, entry ที่ค้างนาน) — read-only, ไม่พิมพ์เนื้อ entry, exit 0 เสมอ (report ไม่ใช่ gate)
+- **`src/tests/memory.test.mjs`** — structural test ข้าม slice: heading freeze, single-source negative-grep, hook ครบ 6 ไฟล์, registry/root-doc note, คำเตือนใน template + 0 markdown-link, และ regression ของ SHIP gate
+
+### Changed
+- **SHIP รับ `docs/memory.md` เป็นแหล่ง learned-rule candidate เพิ่ม** — step รวบ candidate ดึง entry สถานะ `open` ที่มี evidence (dedup กับ `tasks/*/rule.md` §2 โดยยึดฝั่งที่ผูก task) และเปลี่ยนสถานะเป็น `promoted`/`dropped` **หลัง user อนุมัติแล้วเท่านั้น**; **gate เดิมไม่ถูกลดทอน** (evidence บังคับ + user ยืนยัน per-rule เหมือนเดิม) — `docs/memory.md` อยู่นอก `docs/stages/` จึงไม่ถูก archive ไปกับ topic
+- **`verify:pack` เลิกเป็น gate ลวงของ template** — เดิม assert แค่ 3 prefix (payload workflow/commands/skills) → template หายจาก tarball ก็ยังเขียว; ตอนนี้ assert เพิ่มว่า `src/.warnyin/template/docs/` ติด tarball จริง พร้อม unit ที่ป้อน file list ปลอมพิสูจน์ว่าจับได้
+- **`/warnyin:init`** — seed `docs/` จาก template แบบ recursive **ก่อน** แล้วสร้างไฟล์เปล่าเป็น fallback เฉพาะเมื่อ template ไม่มี (เดิมสร้าง `docs/stages/context.md` เป็นไฟล์เปล่าเสมอ)
+
+### Migration
+- **ผู้ใช้เดิมที่รัน `npx @warnyin/agents --update` ได้ `docs/memory.md` อัตโนมัติ** — installer seed `docs/` ทุกครั้ง (ไม่ว่ามี `--update` หรือไม่) และ **ไม่ทับไฟล์ที่มีอยู่**
+- **`docs/stages/context.md` ที่เป็นไฟล์ว่าง 0 byte อยู่แล้ว จะไม่ถูกทับ** (installer รุ่นก่อนสร้างไว้เป็นไฟล์เปล่า → seed มองว่า "มีแล้ว" จึงข้าม) — **ไม่ต้องทำอะไร**: stage แรกที่เขียน memory จะเติมโครง 4 section ให้เองตามกติกา `.warnyin/workflow/memory.md` §4 (ไฟล์ว่าง/ไม่มี heading = ถือว่ายังไม่มี → เขียนทับด้วยโครงเต็มจาก template); ถ้าอยากได้โครงทันที ให้ลบไฟล์ว่างนั้นแล้วรัน `npx @warnyin/agents --update` ซ้ำ
+
 ## [0.27.1] - 2026-07-14
 
 ### Fixed

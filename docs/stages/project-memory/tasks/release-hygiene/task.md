@@ -8,7 +8,7 @@
 | **Slice อ้างอิง** | `design.md` slice #6 (T6) |
 | **Component** | `installer` (test/packaging/release) |
 | **Model tier** | `balanced` |
-| **สถานะ** | `todo` |
+| **สถานะ** | `done` |
 
 ## 1. เป้าหมายของ task (vertical slice)
 ปล่อยรุ่นได้จริง + **invariant ของ project memory ถูกล็อกด้วยเทส** — ทุก contract C1-C13 ที่ตรวจได้เชิงโครงสร้างกลายเป็น **เคสใน `npm test`** (ไม่ใช่การอ่านเอกสารด้วยตา, ไม่ใช่ shell `grep`), ปิด **gate ลวง** ของ `verify:pack` (template ไม่ติด tarball ก็ยังเขียว), และผู้ใช้ npm อ่าน CHANGELOG แล้ว migrate เองได้โดยไม่ต้องเดา
@@ -22,14 +22,14 @@
 - **ส่งต่อ:** suite เขียว (`pass === tests`) + gate 4 ตัวเขียว → เป็นหลักฐาน gate ของ VERIFY
 
 ## 3. Sub-tasks
-- [ ] 1. **ยืนยัน precondition** — ไฟล์ของ T1-T5 มีจริงครบ: `src/.warnyin/workflow/memory.md` · `src/.warnyin/template/docs/memory.md` + `.../docs/stages/context.md` · stage 5 ไฟล์ + `fastlane.md`/`next.md`/`explore.md` แก้แล้ว · `src/.claude/commands/warnyin/memory.md` · registry 2 ไฟล์ + root doc 3 ไฟล์ · `workflow/scripts/memory-status.mjs` — **ไม่ครบ → หยุด รายงาน main loop** ห้ามเขียนเทสไล่ตามไฟล์ที่ยังไม่มี และห้ามสร้างไฟล์แทนเจ้าของ task
-- [ ] 2. **เขียน `src/tests/memory.test.mjs` (ไฟล์ใหม่)** — structural test ข้าม slice 9 กลุ่ม (M1-M9) ตาม `spec.md §7`; node ล้วน (`node:test` + `node:fs` + walker เอง) — ห้าม shell `grep`/`rg`, ห้าม `t.skip()`
-- [ ] 3. **falsifiability check ของ M3 + M2** — แก้ไฟล์ชั่วคราวให้ผิด invariant (เช่น ลอกประโยค `working state (ปัจจุบัน)` ไปไฟล์ที่สอง / ลบ hook ออกจาก `fastlane.md`) → เคสต้อง **แดงจริง** → คืนไฟล์เดิม → เขียว (พิสูจน์ว่าไม่ใช่ assertion ที่ผ่านเสมอ)
-- [ ] 4. **`src/scripts/verify-pack.mjs`** — เพิ่ม R1 assertion ก้อนที่ 4: `src/.warnyin/template/docs/` ต้องติด tarball (ปิด gate ลวงตาม `design.md §6` แถว packaging) — เขียนแบบ pure fn เดิม (`checkFiles`) ไม่แตะ `main()`
-- [ ] 5. **`src/tests/verify-pack.test.mjs`** — เติม path `src/.warnyin/template/docs/memory.md` เข้า fixture `GOOD` (fixture ไม่ใช่ assertion) + **เคสใหม่ negative**: ป้อน file list ปลอมที่ไม่มี prefix นั้น → ต้องได้ error ที่อ้าง `src/.warnyin/template/docs/` — **ห้ามแก้ข้อความ/รูปแบบ assertion ของเคสเดิม**
-- [ ] 6. **`src/scripts/check-test-count.mjs`** — bump `MIN_PASS` ตามยอดจริงหลัง integrate (สูตร + วิธีพิสูจน์ใน `standard.md §4`) + อัปเดตคอมเมนต์ที่มาของตัวเลข
-- [ ] 7. **`CHANGELOG.md`** — entry ใหม่ใต้ `## [Unreleased]`: **Added / Changed / Migration** (ข้อความเต็มใน §3.1 ด้านล่าง)
-- [ ] 8. **รัน gate ครบ 4 ตัว** (ดู §5) — แดงเพราะไฟล์ของ task อื่น → **รายงาน main loop ห้ามแก้เอง** (`rule.md §1` fix authority)
+- [x] 1. **ยืนยัน precondition** — ไฟล์ของ T1-T5 มีจริงครบ: `src/.warnyin/workflow/memory.md` · `src/.warnyin/template/docs/memory.md` + `.../docs/stages/context.md` · stage 5 ไฟล์ + `fastlane.md`/`next.md`/`explore.md` แก้แล้ว · `src/.claude/commands/warnyin/memory.md` · registry 2 ไฟล์ + root doc 3 ไฟล์ · `workflow/scripts/memory-status.mjs` — **ไม่ครบ → หยุด รายงาน main loop** ห้ามเขียนเทสไล่ตามไฟล์ที่ยังไม่มี และห้ามสร้างไฟล์แทนเจ้าของ task
+- [x] 2. **เขียน `src/tests/memory.test.mjs` (ไฟล์ใหม่)** — structural test ข้าม slice 9 กลุ่ม (M1-M9) ตาม `spec.md §7`; node ล้วน (`node:test` + `node:fs` + walker เอง) — ห้าม shell `grep`/`rg`, ห้าม `t.skip()`
+- [x] 3. **falsifiability check ของ M3 + M2** — แก้ไฟล์ชั่วคราวให้ผิด invariant (เช่น ลอกประโยค `working state (ปัจจุบัน)` ไปไฟล์ที่สอง / ลบ hook ออกจาก `fastlane.md`) → เคสต้อง **แดงจริง** → คืนไฟล์เดิม → เขียว (พิสูจน์ว่าไม่ใช่ assertion ที่ผ่านเสมอ)
+- [x] 4. **`src/scripts/verify-pack.mjs`** — เพิ่ม R1 assertion ก้อนที่ 4: `src/.warnyin/template/docs/` ต้องติด tarball (ปิด gate ลวงตาม `design.md §6` แถว packaging) — เขียนแบบ pure fn เดิม (`checkFiles`) ไม่แตะ `main()`
+- [x] 5. **`src/tests/verify-pack.test.mjs`** — เติม path `src/.warnyin/template/docs/memory.md` เข้า fixture `GOOD` (fixture ไม่ใช่ assertion) + **เคสใหม่ negative**: ป้อน file list ปลอมที่ไม่มี prefix นั้น → ต้องได้ error ที่อ้าง `src/.warnyin/template/docs/` — **ห้ามแก้ข้อความ/รูปแบบ assertion ของเคสเดิม**
+- [x] 6. **`src/scripts/check-test-count.mjs`** — bump `MIN_PASS` ตามยอดจริงหลัง integrate (สูตร + วิธีพิสูจน์ใน `standard.md §4`) + อัปเดตคอมเมนต์ที่มาของตัวเลข
+- [x] 7. **`CHANGELOG.md`** — entry ใหม่ใต้ `## [Unreleased]`: **Added / Changed / Migration** (ข้อความเต็มใน §3.1 ด้านล่าง)
+- [x] 8. **รัน gate ครบ 4 ตัว** (ดู §5) — แดงเพราะไฟล์ของ task อื่น → **รายงาน main loop ห้ามแก้เอง** (`rule.md §1` fix authority)
 
 ### 3.1 ข้อความ CHANGELOG ที่ต้องเขียน (copy — เขียนใต้ `## [Unreleased]`)
 
@@ -63,15 +63,15 @@
 - **ไม่แตะ:** ไฟล์ของ T1-T5 ทุกใบ (`workflow/memory.md`, template, stage/utility playbook, `cli.mjs`, `installer.test.mjs`, adapter/registry/root doc, `memory-status.mjs`, `memory-status.test.mjs`) · `package.json` · `src/scripts/lint-md.mjs` · **root `.warnyin/`, `.claude/`, root `CLAUDE.md`/`AGENTS.md`** (dogfood gitignored)
 
 ## 5. Acceptance criteria (เกณฑ์ว่า task เสร็จ)
-- [ ] เคส M1-M9 ใน `spec.md §7` ครบและเขียว — และ **ตาราง §8 (Scenario coverage) ไม่มีช่องว่าง**
-- [ ] เคส M3 (+M2) พิสูจน์แล้วว่า **แดงได้จริง** (sub-task 3) ไม่ใช่ assertion ที่ผ่านเสมอ
-- [ ] `npm test` เขียว — bare `node --test` (ห้ามใส่ path arg) — summary `pass === tests`, `fail === 0`, `skipped 0`
-- [ ] `npm run lint:md` เขียว (CHANGELOG + `docs/memory.md` ของ dogfood + ไฟล์ใหม่ไม่มี dead link)
-- [ ] `npm run verify:pack` เขียว **และ** assertion ใหม่พิสูจน์แล้วว่าจับได้จริงด้วย unit (ไม่ใช่เขียวเพราะ vacuous)
-- [ ] `npm run setup:sandbox` แล้ว **install-proof ผ่าน**: sandbox มี `docs/memory.md` (ตาราง 6 คอลัมน์ + คำเตือน) และ `docs/stages/context.md` (4 heading) ที่ **ไม่ใช่ไฟล์ 0 byte**
-- [ ] `CHANGELOG.md` มี Added + Changed + Migration ตาม §3.1 · `MIN_PASS` bump แล้วตามสูตรใน `standard.md §4`
-- [ ] `git status` ไม่มีไฟล์ root `.warnyin/`/`.claude/` ถูกแตะ และไม่มีไฟล์ของ T1-T5 ถูกแก้โดย task นี้
-- [ ] ทำตาม `rule.md` และ `standard.md`
+- [x] เคส M1-M9 ใน `spec.md §7` ครบและเขียว — และ **ตาราง §8 (Scenario coverage) ไม่มีช่องว่าง**
+- [x] เคส M3 (+M2) พิสูจน์แล้วว่า **แดงได้จริง** (sub-task 3) ไม่ใช่ assertion ที่ผ่านเสมอ
+- [x] `npm test` เขียว — bare `node --test` (ห้ามใส่ path arg) — summary `pass === tests`, `fail === 0`, `skipped 0` (`tests 192 / pass 192 / fail 0 / skipped 0`)
+- [x] `npm run lint:md` เขียว (CHANGELOG + `docs/memory.md` ของ dogfood + ไฟล์ใหม่ไม่มี dead link) — `170 ไฟล์ 109 ลิงก์`
+- [x] `npm run verify:pack` เขียว **และ** assertion ใหม่พิสูจน์แล้วว่าจับได้จริงด้วย unit (ไม่ใช่เขียวเพราะ vacuous) — `npm run verify:pack` เอง spawn `npm` ตรงล้ม `ENOENT` บน Windows dev shell นี้ (pre-existing — `docs/troubleshooting.md` #4); ใช้ workaround ที่ระบุไว้: `npm pack --dry-run --json` ตรง แล้วป้อน file list จริง (107 ไฟล์ มี `src/.warnyin/template/docs/memory.md`) เข้า `checkFiles()` โดยตรง → `errors: []` ยืนยันว่า logic เขียวกับ tarball จริง + unit test negative (`verify-pack.test.mjs`) พิสูจน์ว่า assertion จับ error ได้จริงเมื่อ prefix หาย
+- [x] `npm run setup:sandbox` แล้ว **install-proof ผ่าน**: sandbox มี `docs/memory.md` (ตาราง 6 คอลัมน์ + คำเตือน) และ `docs/stages/context.md` (4 heading) ที่ **ไม่ใช่ไฟล์ 0 byte** — ยืนยันแล้วที่ `C:\Users\Rujiroj.Ta\AppData\Local\Temp\wy-sandbox-Ft35ph\docs\{memory.md,stages\context.md}`
+- [x] `CHANGELOG.md` มี Added + Changed + Migration ตาม §3.1 · `MIN_PASS` bump แล้วตามสูตรใน `standard.md §4` (N=192 → `MIN_PASS=180`; พิสูจน์ falsifiable ด้วย `MIN_PASS=193` ชั่วคราว → exit 1 ข้อความ "pass count ต่ำกว่าขั้นต่ำ" → คืนค่า 180)
+- [x] `git status` ไม่มีไฟล์ root `.warnyin/`/`.claude/` ถูกแตะ และไม่มีไฟล์ของ T1-T5 ถูกแก้โดย task นี้ (เปลี่ยนเฉพาะ `CHANGELOG.md`, `src/scripts/{verify-pack,check-test-count}.mjs`, `src/tests/verify-pack.test.mjs`, ใหม่ `src/tests/memory.test.mjs`)
+- [x] ทำตาม `rule.md` และ `standard.md`
 
 ## 6. อ้างอิงในโฟลเดอร์ task นี้
 - Spec: `./spec.md`

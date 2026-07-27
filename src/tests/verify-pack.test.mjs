@@ -15,6 +15,7 @@ const GOOD = [
   'src/bin/cli.mjs',
   'src/.warnyin/workflow/README.md',
   'src/.warnyin/template/x.md',
+  'src/.warnyin/template/docs/memory.md',
   'src/.claude/commands/warnyin/build.md',
   'src/.claude/agents/warnyin-x.md',
   'src/.claude/skills/explore/SKILL.md',
@@ -77,6 +78,15 @@ test('R1 assertion: ขาด src/.claude/skills/ → คืน error', () => {
   const noSkills = GOOD.filter((p) => !p.startsWith('src/.claude/skills/'))
   const errors = checkFiles(noSkills)
   assert.ok(errors.some((e) => e.includes('src/.claude/skills/')), `hasSkills assertion ต้องทำงาน: ${errors.join(' | ')}`)
+})
+
+test('R1 assertion: ขาด src/.warnyin/template/docs/ → คืน error (กัน gate ลวงของ template)', () => {
+  const noTemplateDocs = GOOD.filter((p) => !p.startsWith('src/.warnyin/template/docs/'))
+  const errors = checkFiles(noTemplateDocs)
+  assert.ok(
+    errors.some((e) => e.includes('src/.warnyin/template/docs/')),
+    `hasTemplateDocs assertion ต้องทำงาน: ${errors.join(' | ')}`,
+  )
 })
 
 // T2: adapter template paths pass allowlist (src/.warnyin/ ครอบ installer/templates/ อยู่แล้ว)

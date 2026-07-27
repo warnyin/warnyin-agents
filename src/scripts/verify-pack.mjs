@@ -31,6 +31,11 @@ export function checkFiles(files) {
   if (!hasClaude) errors.push('src/.claude/commands/warnyin/ ไม่ติดใน package (R1)')
   if (!hasSkills) errors.push('src/.claude/skills/ ไม่ติดใน package (R1)')
 
+  // R1: template ที่ผู้ใช้ต้องได้ต้องติด tarball ด้วย (กัน gate ลวง — เดิม assert แค่ payload 3 ก้อน
+  //     → template หาย = ผู้ใช้ได้ scaffold เปล่า แต่ gate ยังเขียว)
+  const hasTemplateDocs = files.some((p) => p.startsWith('src/.warnyin/template/docs/'))
+  if (!hasTemplateDocs) errors.push('src/.warnyin/template/docs/ ไม่ติดใน package (R1)')
+
   // denylist: งานจริง/tooling/dogfood/tripwire รั่ว
   for (const p of files) {
     const base = p.split('/').pop()
