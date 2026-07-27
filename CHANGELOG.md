@@ -36,6 +36,11 @@
 - **`verify:pack` เลิกเป็น gate ลวงของ template** — เดิม assert แค่ 3 prefix (payload workflow/commands/skills) → template หายจาก tarball ก็ยังเขียว; ตอนนี้ assert เพิ่มว่า `src/.warnyin/template/docs/` ติด tarball จริง พร้อม unit ที่ป้อน file list ปลอมพิสูจน์ว่าจับได้
 - **`/warnyin:init`** — seed `docs/` จาก template แบบ recursive **ก่อน** แล้วสร้างไฟล์เปล่าเป็น fallback เฉพาะเมื่อ template ไม่มี (เดิมสร้าง `docs/stages/context.md` เป็นไฟล์เปล่าเสมอ)
 
+### Fixed
+- **★ installer เขียน payload เป็น LF เสมอ — แก้ `/warnyin:build` พังบนเครื่องที่ payload เป็น CRLF** — `.warnyin/workflow/scripts/*.mjs` ถูกส่งผ่าน Workflow tool ที่ **ปัดตก script ที่มี control character**; CR (`\r`) ของ CRLF เป็น control char → BUILD ล้มทันทีตั้งแต่ยังไม่เริ่ม fan-out (`script contains control characters that would be hidden in the approval dialog`). ต้นเหตุ: `npm pack` แพ็คจาก **working tree** — checkout ที่เกิดก่อนมี `.gitattributes` ยังเป็น CRLF ทั้งชุด → tarball มี CRLF → installer copy แบบ byte ลง target ตรง ๆ. แก้ที่ **จุดเขียน**: `normalizeEol()` ใช้กับทุกจุดที่ installer เขียนเนื้อไฟล์จาก package ลง target (payload, seed `docs/`, root doc, adapter, CodeBuddy plugin) — ไฟล์ binary ไม่ถูกแตะ, byte-equal skip เทียบกับเนื้อที่ normalize แล้ว (ไม่เขียนซ้ำทุกรอบ)
+  - **ผู้ใช้ที่ติดตั้งไว้แล้วและ BUILD พัง:** รัน `npx @warnyin/agents --update` — payload จะถูกเขียนทับเป็น LF
+  - เทสคุม: unit ของ `normalizeEol` (string/Buffer · lone CR · utf-8 ไทย · binary ไม่แตะ) · black-box ที่ประกอบ package ปลอมเป็น CRLF แล้วยืนยันว่าไฟล์ที่ติดตั้งเป็น LF · gate ว่าไฟล์ text ทุกนามสกุลใต้ `src/` ไม่มี CR (เดิมครอบแค่ `.mjs`)
+
 ### Migration
 - **ผู้ใช้เดิมที่รัน `npx @warnyin/agents --update` ได้ `docs/memory.md` อัตโนมัติ** — installer seed `docs/` ทุกครั้ง (ไม่ว่ามี `--update` หรือไม่) และ **ไม่ทับไฟล์ที่มีอยู่**
 - **`docs/stages/context.md` ที่เป็นไฟล์ว่าง 0 byte อยู่แล้ว จะไม่ถูกทับ** (installer รุ่นก่อนสร้างไว้เป็นไฟล์เปล่า → seed มองว่า "มีแล้ว" จึงข้าม) — **ไม่ต้องทำอะไร**: stage แรกที่เขียน memory จะเติมโครง 4 section ให้เองตามกติกา `.warnyin/workflow/memory.md` §4 (ไฟล์ว่าง/ไม่มี heading = ถือว่ายังไม่มี → เขียนทับด้วยโครงเต็มจาก template); ถ้าอยากได้โครงทันที ให้ลบไฟล์ว่างนั้นแล้วรัน `npx @warnyin/agents --update` ซ้ำ

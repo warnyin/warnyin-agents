@@ -25,12 +25,18 @@
   { "path": ["script"], "message": "script contains control characters that would be hidden in the approval dialog" }
   ```
 - **บริบทที่ทำให้เกิด (trigger):** เรียก `Workflow({ scriptPath: ".warnyin/workflow/scripts/build-wave.mjs" })` เพื่อ fan-out wave — พังทันทีก่อน agent ตัวแรกจะเริ่ม
-- **สาเหตุที่แท้จริง (root cause):** **แก้ผิดชั้นมาก่อน** — `.gitattributes` (`* eol=lf`) + `src/tests/eol.test.mjs` คุมเฉพาะ **`src/**` (source ที่ publish)** แต่ไฟล์ที่ orchestrator โหลดจริงคือ **dogfood layer ที่ root** (`/.warnyin/` ซึ่ง gitignored ตาม `docs/rule.md §6`) ซึ่งมาจาก **published tarball 0.22.0 ที่ pack ก่อนมี `.gitattributes`** → payload เป็น CRLF ทั้ง 84 ไฟล์ และ `copyTree()` ใน `cli.mjs` ใช้ `fs.copyFileSync` (byte copy) จึงลอก CRLF ลง target ตรงๆ. **ผลกระทบไม่ได้จำกัดที่ repo นี้** — ผู้ใช้ทุกคนที่ติดตั้งจาก tarball ที่มี CRLF จะรัน `/warnyin:build` ไม่ได้เลย
+- **สาเหตุที่แท้จริง (root cause) — 2 ชั้นซ้อน:**
+  1. **`.gitattributes` ไม่ renormalize working tree ที่ checkout ไปแล้ว** — index เป็น LF ถูกต้อง แต่ **working tree ยังเป็น CRLF ทั้ง repo** (วัดจริง: `git ls-files --eol` → `i/lf w/crlf` **812 ไฟล์**) เพราะ checkout เกิดก่อน commit `0a2e7c4` ที่เพิ่ม `.gitattributes` และ git ไม่เขียนไฟล์ใหม่ให้เองย้อนหลัง
+  2. **`npm pack` แพ็คจาก working tree ไม่ใช่ index** → tarball ได้ CRLF ทั้งก้อน → `copyTree()` ใน `cli.mjs` ใช้ `fs.copyFileSync` (byte copy) ลอก CRLF ลง target ตรง ๆ (root dogfood ของ repo นี้มาจาก published **0.22.0** จึงเป็น CRLF ครบ 84 ไฟล์)
+  - **แก้ผิดชั้นมาก่อน:** `eol.test.mjs` เดิมคุมเฉพาะ `src/**/*.mjs` ซึ่ง**เขียวอยู่** เพราะ `.mjs` ใต้ `src/` บังเอิญถูก re-checkout ไปแล้ว — แต่ `.md` 800+ ไฟล์ยัง CRLF และ artifact ที่ orchestrator โหลดจริงคือ **dogfood layer ที่ root** (gitignored → ไม่มี gate ใดแตะ). **ผลกระทบไม่จำกัดที่ repo นี้** — ผู้ใช้ทุกคนที่ติดตั้งจาก tarball ที่มี CRLF รัน `/warnyin:build` ไม่ได้เลย
 - **วิธีแก้ที่ได้ผล (solution):**
   1. **ปลดล็อกทันที:** normalize `/.warnyin/**` + `/.claude/**` (นามสกุล text) จาก CRLF → LF ในที่ (gitignored ไม่กระทบ commit)
-  2. **แก้ถาวรที่ต้นเหตุ:** installer ต้อง**เขียน payload เป็น LF เสมอ** ไม่ว่าไฟล์ต้นทางใน tarball จะเป็น EOL อะไร (normalize ตอนเขียน ไม่ใช่ byte-copy) — ป้องกัน tarball ที่ pack จาก checkout เก่า/เครื่องที่ `core.autocrlf=true` ทำผู้ใช้พังต่อ
+  2. **แก้ working tree ให้ตรง attribute:** `git rm --cached -r .` แล้ว `git reset --hard` (ต้อง commit งานค้างให้หมดก่อน) → 889 ไฟล์กลายเป็น `i/lf w/lf` และ `git status` สะอาด (ไม่เกิด diff เพราะ index เป็น LF อยู่แล้ว)
+  3. **แก้ถาวรที่จุดเขียน:** `normalizeEol()` ใน `cli.mjs` — installer เขียน payload เป็น **LF เสมอ** ไม่ว่าไฟล์ใน tarball จะเป็น EOL อะไร ใช้กับทุกจุดที่เขียนเนื้อจาก package ลง target; ไฟล์ binary ไม่ถูกแตะ และ byte-equal skip เทียบกับเนื้อที่ normalize แล้ว (ไม่เขียนซ้ำทุกรอบ)
+  4. **ขยาย gate:** เทสไฟล์ text **ทุกนามสกุล**ใต้ `src/` ต้องไม่มี CR (เดิมครอบแค่ `.mjs`) + unit ของ `normalizeEol` + black-box ที่ประกอบ package ปลอมเป็น CRLF แล้วยืนยันว่าไฟล์ที่ติดตั้งออกมาเป็น LF
 - **วิธีสังเกต/ป้องกันไม่ให้เกิดซ้ำ:**
-  - `grep` บน Git Bash (MSYS) **เชื่อไม่ได้** สำหรับหา CR — text mode strip CR ทิ้ง ทำให้ `grep -c $'\r'` คืน 0 ทั้งที่ไฟล์เป็น CRLF → ใช้ `file <path>` หรืออ่าน buffer ด้วย node (`buf.includes(13)`) แทน
+  - `grep` บน Git Bash (MSYS) **เชื่อไม่ได้** สำหรับหา CR — text mode strip CR ทิ้ง ทำให้ `grep -c $'\r'` คืน 0 ทั้งที่ไฟล์เป็น CRLF → ใช้ `file <path>`, `git ls-files --eol` หรืออ่าน buffer ด้วย node (`buf.includes(13)`) แทน
+  - **`.gitattributes` เป็นกฎของ checkout ครั้งหน้า ไม่ใช่ของ working tree ปัจจุบัน** — เพิ่ม `eol=lf` แล้วต้อง renormalize working tree ด้วย ไม่งั้น `npm pack` (ซึ่งอ่าน working tree) ยังส่ง CRLF ออกไปให้ผู้ใช้
   - **gate ที่คุมแค่ source ไม่พอ ถ้า artifact ที่ runtime ใช้จริงคือ layer ที่ถูก generate/ติดตั้งลงมา** — ต้องคุมที่ "จุดเขียน" (installer) ไม่ใช่แค่ "จุด commit"
 
 ---
