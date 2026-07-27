@@ -21,7 +21,7 @@
 
 > **0.6.0 → 0.7.0:** ผู้ใช้ปลายทาง (`npx @warnyin/agents`) **ไม่ต้องทำอะไร** — payload ที่ติดตั้งคงเดิม การเปลี่ยนแปลงทั้งหมด (bin path → `src/`, dogfood 2-layer) เป็นเรื่องภายใน repo เท่านั้น; ผู้พัฒนา repo เอง (contributor) ดู [`CONTRIBUTING.md`](CONTRIBUTING.md)
 
-## [Unreleased]
+## [0.28.0] - 2026-07-27
 
 ### Added
 - **Project memory — ความจำระดับโปรเจกต์ที่อยู่ใน repo** (feature `project-memory`) — playbook กลาง `.warnyin/workflow/memory.md` เป็น single source ของกติกา (semantic · governance · schema · lifecycle · write point · consume · promote · trust boundary · ทบทวน) + ไฟล์จริง 2 ใบที่ installer seed ให้: `docs/stages/context.md` (snapshot 4 section เขียนทับ ไม่สะสม) และ `docs/memory.md` (ตาราง 6 คอลัมน์ = บทเรียนที่ยังพิสูจน์ไม่พอจะเป็นกฎ)

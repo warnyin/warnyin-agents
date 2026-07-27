@@ -52,9 +52,16 @@
 
 ## Requirement: /warnyin:init รับผิดชอบ workspace bootstrap
 
-`/warnyin:init` สร้าง scaffold (`docs/stages/context.md` + `achieved/.gitkeep`) + seed `docs/` ถ้ายังไม่มี (idempotent) — ทำให้ global mode (installer ไม่ scaffold) มี workspace
+`/warnyin:init` สร้าง scaffold (`docs/stages/achieved/.gitkeep`) + seed `docs/` จาก template แบบ recursive **รวมถึง `docs/stages/context.md` และ `docs/memory.md` ที่มีโครงตั้งต้น** ถ้ายังไม่มี (idempotent) — ทำให้ global mode (installer ไม่ scaffold) มี workspace
 
 ### Scenario: init สร้าง workspace เมื่อไม่มี
 - GIVEN playbook `src/.warnyin/workflow/init.md`
 - WHEN อ่านขั้นตอน
-- THEN มี step สร้าง scaffold + seed docs/ (อ่าน template local→global, ข้าม `[...]`, ไม่ทับของเดิม) ก่อนวิเคราะห์โปรเจกต์
+- THEN มี step สร้าง scaffold + seed docs/ (อ่าน template local→global, ข้าม `[...]`, **recursive เข้าโฟลเดอร์ย่อย**, ไม่ทับของเดิม) ก่อนวิเคราะห์โปรเจกต์
+
+### Scenario: context.md ได้โครงจาก template ไม่ใช่ไฟล์เปล่า
+- GIVEN playbook `src/.warnyin/workflow/init.md`
+- WHEN อ่าน step 0 ส่วน scaffold
+- THEN ระบุลำดับ **seed จาก template ก่อน** และสร้างไฟล์เปล่าเป็น fallback เฉพาะเมื่อ template ไม่มี
+
+_(เดิม: init สร้าง `docs/stages/context.md` เป็นไฟล์เปล่า และ seed อธิบายแบบ flat — topic `project-memory` 2026-07-27)_

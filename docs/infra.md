@@ -41,3 +41,9 @@ npm run setup:sandbox    # ติดตั้ง v-next จาก src/ ลง te
 - npm scripts ที่เป็น dev tooling (`setup:*`) ต้องเป็น **node script** (`node src/scripts/*.mjs`) ไม่ใช่ shell oneliner ที่ผูก POSIX
 - ใช้ `os.tmpdir()` (ห้าม hardcode `/tmp`), `path.join` (ห้าม `/` literal), spawn array args (ห้าม `shell:true` ยกเว้น npx บน Windows ที่เป็น `.cmd`)
 - เผื่อ Windows: npx bin-shim อาจ resolve ไม่ได้ → ต้องมี fallback (npm pack + node) หรือ exit ด้วย error ชัดเจน
+
+## project memory ใน working tree ของ repo นี้ (dogfood)
+- ตั้งแต่ **0.28.0** installer seed `docs/memory.md` + `docs/stages/context.md` ให้ทุกโปรเจกต์ → **`npm run setup:dogfood` หลัง release จะ seed `docs/memory.md` เข้า working tree ของ repo นี้ด้วย** (path อยู่นอก `.gitignore` ของ dogfood layer จึงเป็นไฟล์ **tracked** ที่ต้อง review ก่อน commit)
+- ไฟล์ทั้งสองอยู่ใต้ข้อบังคับเดียวกับ artifact ที่ agent เขียนแล้ว commit: **ห้าม raw secret/token/credential, absolute path ของเครื่อง, PII จริง** และอ้าง path เป็น **inline-code ห้าม markdown-link** (อยู่ใน `SCAN_ROOTS` ของ `lint:md` → ลิงก์ที่ชี้ `docs/stages/<slug>/` จะพังถาวรเมื่อ SHIP archive topic) — กติกาเต็ม `.warnyin/workflow/memory.md`
+- ตรวจสุขภาพ: `node .warnyin/workflow/scripts/memory-status.mjs` (read-only, exit 0 เสมอ — ไม่ใช่ gate)
+- **EOL:** payload ที่ติดตั้งลง root dogfood ต้องเป็น **LF** — installer normalize ให้ตั้งแต่ 0.28.0 แล้ว; dogfood ที่ติดตั้งจากรุ่นก่อนหน้าอาจยังเป็น CRLF ทำให้ Workflow ปัดตก `build-wave.mjs` (`docs/troubleshooting.md` #30) → แก้ด้วย `npx @warnyin/agents --update`
