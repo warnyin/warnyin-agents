@@ -94,8 +94,10 @@ const CORE = [
 ]
 // scaffold = พื้นที่ทำงานเปล่าของโปรเจกต์ — installer "สร้างเอง" ไม่ copy tree จาก package
 // (สำคัญ: ถ้า copy docs/stages จาก pkgRoot งานจริงของ repo ต้นทางจะรั่วไป target ทุกครั้ง — ดู verify installer-test-ci)
+// ★ docs/stages/context.md ไม่ได้อยู่ในรายการนี้แล้ว — มันมี template ที่ .warnyin/template/docs/stages/context.md
+//   จึงถูก seedDocs() (ด้านล่าง) เป็นคนสร้างให้แทน (ได้โครง 4 section จริง ไม่ใช่ไฟล์ 0 byte)
+//   scaffold ที่เหลือจึงมีแค่โฟลเดอร์ archive เปล่าใบเดียว
 const SCAFFOLD_FILES = [
-  path.join('docs', 'stages', 'context.md'), // บริบทงานที่จดไว้ (next/discovery/explore อ่าน "ถ้ามี")
   path.join('docs', 'stages', 'achieved', '.gitkeep'), // ให้ git track โฟลเดอร์ archive เปล่า
 ]
 

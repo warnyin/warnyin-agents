@@ -15,6 +15,7 @@
 - `/warnyin:update-codemaps` → สแกนโครงสร้าง + สร้าง/อัปเดต codemap แบบ token-lean (`.warnyin/workflow/codemap.md`)
 - `/warnyin:explore [คำถาม]` → สำรวจ/ตอบคำถามแบบ read-only — ไม่สร้าง artifact (`.warnyin/workflow/explore.md`)
 - `/warnyin:next [slug]` → เช็คงานค้าง + แนะนำ command ถัดไป แบบ read-only (`.warnyin/workflow/next.md`)
+- `/warnyin:memory [ทบทวน]` → ดู/ทบทวน project memory (`.warnyin/workflow/memory.md`)
 - `/warnyin:triage [คำอธิบาย change]` → ประเมินขนาด + แนะนำ path (read-only) (`.warnyin/workflow/triage.md`)
 - `/warnyin:fastlane [slug] [คำอธิบาย change]` → รันงานขนาด fast จบในคำสั่งเดียว — บังคับ tier=fast: แก้โค้ดจน test เขียว + acceptance ผ่าน → receipt → ship-lite + archive (`.warnyin/workflow/fastlane.md`)
 - `/warnyin:feedback:issue [ประเภท/ข้อความ]` → เปิด GitHub issue แจ้ง feedback ที่ warnyin/warnyin-agents (`.warnyin/workflow/feedback.md`)
@@ -23,6 +24,14 @@
 - `/warnyin:build [slug]` → BUILD stage — fan-out sub-agent ตาม dependency; fast tier → main loop code-first (`.warnyin/workflow/stages/build.md` + `.warnyin/workflow/scripts/build-wave.mjs`)
 - `/warnyin:verify [slug]` → VERIFY stage — strategy tester เทส local env + UXUI แก้จนผ่าน (`.warnyin/workflow/stages/verify.md`)
 - `/warnyin:ship [slug]` → SHIP stage — ส่งมอบ: promote ความรู้ขึ้น `docs/` + archive topic (`.warnyin/workflow/stages/ship.md`)
+
+## Project memory
+**เฉพาะโปรเจกต์ที่ติดตั้ง warnyin แล้ว (มี `.warnyin/` ที่ root) — ไม่มี → ข้าม section นี้ทั้งหมด**
+ความจำระดับโปรเจกต์อยู่ใน repo: `docs/stages/context.md` (สถานะล่าสุด) + `docs/memory.md` (บทเรียนที่ยังไม่เป็นกฎ)
+เครื่องที่มี memory store ของตัวเอง (นอก repo) → **เขียนลง 2 ไฟล์นี้แทน** เพื่อไม่ให้ความจำแยกเป็นสองแหล่ง
+**ยกเว้น sub-agent ที่ทำงานใน git worktree ของ BUILD: ห้ามเขียน memory เอง** (main loop เขียนตอน integrate)
+จดข้อสรุป — **ห้ามเขียน raw secret/token/credential, absolute path ของเครื่อง, หรือ PII จริง** (ไฟล์นี้ถูก commit)
+กติกาเต็ม: `.warnyin/workflow/memory.md`
 
 ## รองรับหลาย AI / IDE
 - **Claude Code** — อ่าน `.claude/` + ไฟล์นี้

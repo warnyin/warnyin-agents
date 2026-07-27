@@ -63,6 +63,8 @@
 6. **เขียนสรุป `verify.md`:** ผลเทส + รายการแก้ไข + **จำนวนการแก้ไข** + ผล UX/UI
 7. **ปิดงาน:** เสนอเข้า SHIP ด้วย `/warnyin:ship`
 
+> **★ อัปเดต project memory (conditional):** จบ stage แล้ว → เขียนสถานะล่าสุด **ทับ** `docs/stages/context.md` (snapshot สั้น ไม่ต่อท้าย) และบทเรียนที่ยัง**พิสูจน์ไม่พอจะเป็น rule** → `docs/memory.md`; ไม่มีอะไรเปลี่ยน → ข้าม — กติกาเต็มดู [`.warnyin/workflow/memory.md`](../memory.md)
+
 ---
 
 ## 5. Output (สร้างที่ `docs/stages/<slug>/`)

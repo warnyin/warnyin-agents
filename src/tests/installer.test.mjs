@@ -611,3 +611,58 @@ test('black-box: รัน cli.mjs ผ่าน symlink → main() ทำงา�
   assert.ok(existsSync(stampPath), 'รันผ่าน symlink → main() ต้องทำงาน + เขียน stamp (ไม่เงียบ exit 0)')
   assert.equal(readFileSync(stampPath, 'utf8').trim(), pkgVersion, 'stamp ผ่าน symlink ต้องตรง version')
 })
+
+// ─────────────────────────────────────────────────────────────
+// เคสใหม่ — installer-seed (task installer-seed, spec §7 M1/M2/R1)
+// template 2 ใบเป็นของ task นี้ อยู่ worktree เดียวกัน → assert ตรง ๆ ไม่มี existence guard
+// ─────────────────────────────────────────────────────────────
+
+// M1: context.md ที่ถูก seed มี 4 heading ครบ
+test('M1. context.md ที่ถูก seed มี 4 heading ครบ', (t) => {
+  const tmp = makeTempProject(t)
+  ok(runCli(tmp), 'install')
+
+  const contextPath = path.join(tmp, 'docs', 'stages', 'context.md')
+  const content = readFileSync(contextPath, 'utf8')
+  assert.ok(content.length > 0, 'docs/stages/context.md ต้องไม่ว่าง (กัน false-green ถ้า seed ลงไฟล์เปล่า)')
+
+  const HEADINGS = ['## กำลังทำอะไรอยู่', '## ค้างอะไร', '## เพิ่งตัดสินอะไรไป', '## อัปเดตล่าสุด']
+  for (const h of HEADINGS) {
+    assert.ok(content.includes(h), `docs/stages/context.md ขาด heading: ${h}`)
+  }
+})
+
+// M2: docs/memory.md ถูก seed + มี legend closed-set
+test('M2. docs/memory.md ถูก seed + มี legend closed-set', (t) => {
+  const tmp = makeTempProject(t)
+  ok(runCli(tmp), 'install')
+
+  const memoryPath = path.join(tmp, 'docs', 'memory.md')
+  assert.ok(existsSync(memoryPath), 'ต้องมี docs/memory.md')
+
+  const content = readFileSync(memoryPath, 'utf8')
+  for (const status of ['open', 'promoted', 'dropped']) {
+    assert.ok(content.includes(status), `docs/memory.md ขาดสถานะ legend: ${status}`)
+  }
+})
+
+// R1: regression — context.md ว่างอยู่ก่อน → --update → ไม่ถูกทับ ไม่ crash (พฤติกรรมที่ตั้งใจ)
+test('R1. context.md ว่างก่อน install → --update ไม่ทับ (พฤติกรรมที่ตั้งใจ) + memory.md ยังถูกสร้าง', (t) => {
+  const tmp = makeTempProject(t)
+  mkdirSync(path.join(tmp, 'docs', 'stages'), { recursive: true })
+  writeFileSync(path.join(tmp, 'docs', 'stages', 'context.md'), '')
+
+  const r = runCli(tmp, ['--update'])
+  ok(r, 'update over empty context.md')
+
+  assert.equal(
+    readFileSync(path.join(tmp, 'docs', 'stages', 'context.md'), 'utf8'),
+    '',
+    'seed ต้องไม่ทับไฟล์ context.md ที่มีอยู่แล้ว (existsSync → skip) — เคสไฟล์ว่างแก้ที่ playbook (C13) ไม่ใช่ installer',
+  )
+  // พิสูจน์ว่า seed ยังทำงานจริงในรอบเดียวกัน (ไม่ใช่ผ่านเพราะ seed ไม่รันเลย = false-green)
+  assert.ok(
+    existsSync(path.join(tmp, 'docs', 'memory.md')),
+    'docs/memory.md ต้องถูกสร้างในรอบเดียวกัน (พิสูจน์ seed ทำงาน)',
+  )
+})

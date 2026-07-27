@@ -123,6 +123,8 @@
 > generate ไฟล์ task หลายใบพร้อมกันด้วย sub-agent (หนึ่ง agent ต่อหนึ่ง task) เป็น **default สำหรับ standard/large** (step 9) — แต่ต้องผ่าน Gate ก่อนเสมอ; fast tier ใช้ fast path/pre-flight (step 1.5) ไม่สร้าง task folder
 > เครื่องที่ fan-out ขนานไม่ได้ (ไม่มี sub-agent tool) → เขียน task / dry-run สแกนทีละ task ตามลำดับด้วยหลักการเดียวกัน
 
+> **★ อัปเดต project memory (conditional):** จบ stage แล้ว → เขียนสถานะล่าสุด **ทับ** `docs/stages/context.md` (snapshot สั้น ไม่ต่อท้าย) และบทเรียนที่ยัง**พิสูจน์ไม่พอจะเป็น rule** → `docs/memory.md`; ไม่มีอะไรเปลี่ยน → ข้าม — กติกาเต็มดู [`.warnyin/workflow/memory.md`](../memory.md)
+
 ---
 
 ## 5. Output (สร้างที่ `docs/stages/<slug>/`)

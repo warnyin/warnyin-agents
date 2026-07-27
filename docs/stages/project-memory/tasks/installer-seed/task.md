@@ -8,7 +8,7 @@
 | **Slice อ้างอิง** | `design.md` slice #3 |
 | **Component** | `installer` |
 | **Model tier** | `balanced` |
-| **สถานะ** | `รอ build` |
+| **สถานะ** | `build เสร็จ — เขียวจริง (npm test 154 pass / 0 fail, lint:md ผ่าน, verify:pack ผ่าน — ตรวจแบบ manual ตาม troubleshooting.md #4 เพราะ Windows dev env มี execFileSync ENOENT)` |
 
 ## 1. เป้าหมายของ task (vertical slice)
 
@@ -28,14 +28,14 @@
 
 > ลำดับสำคัญ: **สร้าง template ก่อน** แล้วค่อยแก้ `cli.mjs` — ไม่งั้น `runCli()` ระหว่างทดสอบจะไม่มีไฟล์ให้ seed
 
-- [ ] 1. **`src/.warnyin/template/docs/stages/context.md` (ไฟล์ใหม่)** — 4 section ตาม `spec.md` §3.1 + คำเตือน C12 ที่หัวไฟล์ **คำต่อคำ** · **0 markdown-link** (สร้างโฟลเดอร์ `template/docs/stages/` ด้วย)
-- [ ] 2. **`src/.warnyin/template/docs/memory.md` (ไฟล์ใหม่)** — ตาราง 6 คอลัมน์ + legend closed-set + pointer เป็น inline-code ตาม `spec.md` §3.2 + คำเตือน C12 **คำต่อคำ** · **0 markdown-link** · แถวตัวอย่าง (ถ้าใส่) เป็น **HTML comment**
-- [ ] 3. **investigate-before-edit (ยืนยันกับโค้ดจริงก่อนแก้ `cli.mjs`)** — อ่าน `SCAFFOLD_FILES` (~บรรทัด 96-100), `ensureScaffold()`, `seedDocs()` (~140-180), `main()` project/global branch (~395-440) → ยืนยัน 3 ข้อ: (ก) `main()` เรียก `ensureScaffold()` **ก่อน** `seedDocs()` · (ข) `seedDocs` skip ไฟล์ที่ `existsSync` · (ค) global branch **ข้าม** ทั้งคู่ — ไม่ตรงกับ `spec.md` §4.1 → **หยุด รายงาน** ห้ามเดา
-- [ ] 4. **`src/bin/cli.mjs`** — ถอด `path.join('docs','stages','context.md')` ออกจาก `SCAFFOLD_FILES` (เหลือ `achieved/.gitkeep` ใบเดียว) + **แก้คอมเมนต์ให้ตรงพฤติกรรมใหม่** (ระบุว่า `context.md` มาจาก `seedDocs` แล้ว, scaffold เหลือเฉพาะโฟลเดอร์ archive เปล่า) — _ขึ้นกับ 1-3_
-- [ ] 5. **`src/.warnyin/workflow/init.md` step 0** — เปลี่ยนลำดับเป็น **seed จาก `<template>/docs/` (ทุกชั้น) ก่อน → สร้างไฟล์เปล่าเป็น fallback เฉพาะเมื่อ template ไม่มี**; ระบุชัดว่า seed loop **recursive เข้าโฟลเดอร์ย่อย** (ข้าม entry ที่ขึ้นต้น `[` ทุกชั้น, ไม่ทับไฟล์ที่มีอยู่); ครอบ `docs/stages/context.md` + `docs/memory.md`
-- [ ] 6. **`init.md` §4 output table + §5 gate** — ระบุ 2 ไฟล์ใหม่ให้ชัด (seed ที่ step 0 ไม่ใช่ไฟล์ที่ INIT วิเคราะห์แล้วเติมเนื้อ) + gate เป็น **conditional/N-A** (template ไม่มี → ไฟล์เปล่ายอมรับได้) — _ขึ้นกับ 5_
-- [ ] 7. **`src/tests/installer.test.mjs`** — **เพิ่มเคสใหม่ 3 เคส** (M1/M2/R1 ใน `spec.md` §7) ใต้ section comment ใหม่ · **ห้ามแก้/ลบ assertion ของเคส 1-9 เดิม** · **ห้าม `t.skip()`** · **ไม่มี guard** — _ขึ้นกับ 1,2,4_
-- [ ] 8. **รัน gate ครบ** (§5) + ตรวจว่า `pass === tests`
+- [x] 1. **`src/.warnyin/template/docs/stages/context.md` (ไฟล์ใหม่)** — 4 section ตาม `spec.md` §3.1 + คำเตือน C12 ที่หัวไฟล์ **คำต่อคำ** · **0 markdown-link** (สร้างโฟลเดอร์ `template/docs/stages/` ด้วย)
+- [x] 2. **`src/.warnyin/template/docs/memory.md` (ไฟล์ใหม่)** — ตาราง 6 คอลัมน์ + legend closed-set + pointer เป็น inline-code ตาม `spec.md` §3.2 + คำเตือน C12 **คำต่อคำ** · **0 markdown-link** · แถวตัวอย่าง (ถ้าใส่) เป็น **HTML comment**
+- [x] 3. **investigate-before-edit (ยืนยันกับโค้ดจริงก่อนแก้ `cli.mjs`)** — อ่าน `SCAFFOLD_FILES` (~บรรทัด 96-100), `ensureScaffold()`, `seedDocs()` (~140-180), `main()` project/global branch (~395-440) → ยืนยัน 3 ข้อ: (ก) `main()` เรียก `ensureScaffold()` **ก่อน** `seedDocs()` · (ข) `seedDocs` skip ไฟล์ที่ `existsSync` · (ค) global branch **ข้าม** ทั้งคู่ — **ยืนยันแล้ว ตรงกับ `spec.md` §4.1 ทั้ง 3 ข้อ** (`ensureScaffold()` บรรทัด 425 ก่อน `seedDocs()` บรรทัด 426, skip-if-exists บรรทัด 167-170, global branch comment "ข้าม scaffold/seedDocs (ยกให้ /warnyin:init)" บรรทัด 408)
+- [x] 4. **`src/bin/cli.mjs`** — ถอด `path.join('docs','stages','context.md')` ออกจาก `SCAFFOLD_FILES` (เหลือ `achieved/.gitkeep` ใบเดียว) + **แก้คอมเมนต์ให้ตรงพฤติกรรมใหม่** (ระบุว่า `context.md` มาจาก `seedDocs` แล้ว, scaffold เหลือเฉพาะโฟลเดอร์ archive เปล่า) — _ขึ้นกับ 1-3_
+- [x] 5. **`src/.warnyin/workflow/init.md` step 0** — เปลี่ยนลำดับเป็น **seed จาก `<template>/docs/` (ทุกชั้น) ก่อน → สร้างไฟล์เปล่าเป็น fallback เฉพาะเมื่อ template ไม่มี**; ระบุชัดว่า seed loop **recursive เข้าโฟลเดอร์ย่อย** (ข้าม entry ที่ขึ้นต้น `[` ทุกชั้น, ไม่ทับไฟล์ที่มีอยู่); ครอบ `docs/stages/context.md` + `docs/memory.md`
+- [x] 6. **`init.md` §4 output table + §5 gate** — ระบุ 2 ไฟล์ใหม่ให้ชัด (seed ที่ step 0 ไม่ใช่ไฟล์ที่ INIT วิเคราะห์แล้วเติมเนื้อ) + gate เป็น **conditional/N-A** (template ไม่มี → ไฟล์เปล่ายอมรับได้) — _ขึ้นกับ 5_
+- [x] 7. **`src/tests/installer.test.mjs`** — **เพิ่มเคสใหม่ 3 เคส** (M1/M2/R1 ใน `spec.md` §7) ใต้ section comment ใหม่ · **ห้ามแก้/ลบ assertion ของเคส 1-9 เดิม** · **ห้าม `t.skip()`** · **ไม่มี guard** — _ขึ้นกับ 1,2,4_
+- [x] 8. **รัน gate ครบ** (§5) + ตรวจว่า `pass === tests`
 
 ## 4. ขอบเขตไฟล์/โค้ดที่จะแตะ
 
@@ -48,16 +48,16 @@
 
 ## 5. Acceptance criteria (เกณฑ์ว่า task เสร็จ)
 
-- [ ] **`design.md` §9 MODIFIED — Scenario "init สร้าง workspace เมื่อไม่มี":** `init.md` มี step สร้าง scaffold + seed `docs/` (template local→global, ข้าม `[...]`, **recursive เข้าโฟลเดอร์ย่อย**, ไม่ทับของเดิม) **ก่อน** วิเคราะห์โปรเจกต์
-- [ ] **`design.md` §9 MODIFIED — Scenario "context.md ได้โครงจาก template ไม่ใช่ไฟล์เปล่า":** step 0 ระบุลำดับ **seed จาก template ก่อน** และสร้างไฟล์เปล่าเป็น **fallback เฉพาะเมื่อ template ไม่มี**
-- [ ] template 2 ใบมีอยู่จริง + ตรง contract `spec.md` §3 (4 section / ตาราง 6 คอลัมน์ + legend) + **คำเตือน C12 คำต่อคำ** + **0 markdown-link** (T6 assert string-equality + นับลิงก์)
-- [ ] เคส M1/M2/R1 ใน `spec.md` §7 เขียวครบ — **ไม่มี `t.skip()` และไม่มี existence guard**
-- [ ] `SCAFFOLD_FILES` เหลือ `docs/stages/achieved/.gitkeep` ใบเดียว + คอมเมนต์ตรงพฤติกรรมจริง
-- [ ] `npm test` เขียว (**bare `node --test` ห้ามใส่ path arg**) + summary `pass === tests`, `fail === 0`
-- [ ] เคส 1-9 เดิมไม่ถูกแก้ assertion (ยืนยันด้วย `git diff src/tests/installer.test.mjs` = เพิ่มบรรทัดล้วนในช่วงเคสเดิม) — โดยเฉพาะ **เคส 9 ต้องยังเขียว**
-- [ ] `npm run lint:md` เขียว · `npm run verify:pack` เขียว (template ใหม่ติด tarball ผ่าน allowlist `src/.warnyin` เดิม — ไม่ต้องแก้ `package.json files`)
-- [ ] `git status` ไม่มีไฟล์ root `.warnyin/`/`.claude/` ถูกแตะ
-- [ ] ทำตาม `rule.md` และ `standard.md`
+- [x] **`design.md` §9 MODIFIED — Scenario "init สร้าง workspace เมื่อไม่มี":** `init.md` มี step สร้าง scaffold + seed `docs/` (template local→global, ข้าม `[...]`, **recursive เข้าโฟลเดอร์ย่อย**, ไม่ทับของเดิม) **ก่อน** วิเคราะห์โปรเจกต์
+- [x] **`design.md` §9 MODIFIED — Scenario "context.md ได้โครงจาก template ไม่ใช่ไฟล์เปล่า":** step 0 ระบุลำดับ **seed จาก template ก่อน** และสร้างไฟล์เปล่าเป็น **fallback เฉพาะเมื่อ template ไม่มี**
+- [x] template 2 ใบมีอยู่จริง + ตรง contract `spec.md` §3 (4 section / ตาราง 6 คอลัมน์ + legend) + **คำเตือน C12 คำต่อคำ** + **0 markdown-link** (T6 assert string-equality + นับลิงก์)
+- [x] เคส M1/M2/R1 ใน `spec.md` §7 เขียวครบ — **ไม่มี `t.skip()` และไม่มี existence guard**
+- [x] `SCAFFOLD_FILES` เหลือ `docs/stages/achieved/.gitkeep` ใบเดียว + คอมเมนต์ตรงพฤติกรรมจริง
+- [x] `npm test` เขียว (**bare `node --test` ห้ามใส่ path arg**) + summary `pass === tests`(154), `fail === 0`
+- [x] เคส 1-9 เดิมไม่ถูกแก้ assertion (ยืนยันด้วย `git diff src/tests/installer.test.mjs` = เพิ่มบรรทัดล้วนในช่วงเคสเดิม) — โดยเฉพาะ **เคส 9 ต้องยังเขียว**
+- [x] `npm run lint:md` เขียว (168 ไฟล์ 92 ลิงก์) · `npm run verify:pack` — **execFileSync('npm',...) ENOENT บน Windows dev (troubleshooting.md #4, pre-existing ไม่เกี่ยวกับ task นี้)** → ตรวจแบบ manual แทน: `npm pack --dry-run --json` + import `checkFiles()` จาก `verify-pack.mjs` มา apply เอง → ผ่าน (104 ไฟล์, ทั้ง `src/.warnyin/template/docs/memory.md` และ `src/.warnyin/template/docs/stages/context.md` ติด tarball ผ่าน allowlist เดิม, 0 error) — unit gate ของ `verify-pack.test.mjs` เขียวปกติใน `npm test` ทุก platform
+- [x] `git status` ไม่มีไฟล์ root `.warnyin/`/`.claude/` ถูกแตะ
+- [x] ทำตาม `rule.md` และ `standard.md`
 
 ## 6. อ้างอิงในโฟลเดอร์ task นี้
 

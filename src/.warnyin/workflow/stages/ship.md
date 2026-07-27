@@ -46,6 +46,7 @@
 1. **อ่านทำความเข้าใจ topic + รวบรวม learned-rule candidate:** อ่าน `docs/stages/<slug>/` ทุกไฟล์ — topic นี้ทำอะไร ทำอย่างไร เกิดความรู้ใหม่อะไรบ้าง (เช็คก่อนว่า VERIFY ผ่าน Gate แล้ว — มี `verify.md` สรุปผลผ่าน; ถ้ารัน node ได้ → รัน `node .warnyin/workflow/scripts/validate-topic.mjs <slug>` — มี ✖ ควรแก้ก่อน promote (script เช็คโครง; ความถูกของเนื้อหายังเป็นหน้าที่ผู้ ship)) — พร้อมกันนั้น **รวบรวม learned-rule candidate** เป็นตาราง (ทุกตัว = `rule + evidence + scope + promote?`):
    - **planned:** จาก `tasks/*/rule.md` §2 "เสนอเพิ่ม rule ใหม่ (รอ SHIP)"
    - **emergent:** สแกนบทเรียนที่โผล่ตอนลงมือ — `build.md` (pattern แก้ซ้ำ/integration), `verify.md` (รายการแก้+จำนวนรอบ), `troubleshooting.md` (ปัญหายาก→"กันซ้ำ" = candidate ชัดสุด), diff/commit
+   - **project memory:** entry สถานะ `open` ใน `docs/memory.md` ที่มี evidence + generalize เป็นกฎได้ — **dedup กับ planned:** ซ้ำกับ `tasks/*/rule.md` §2 → รวมเป็นรายการเดียว (ยึดฝั่ง `tasks/*` ที่มี evidence ผูก task); ไม่มีไฟล์ → ข้าม — ดู [`.warnyin/workflow/memory.md`](../memory.md)
    - **entry แต่ละตัว:** `rule` = ข้อความ **generalize** (ถ้าเป็น incident "X พังเพราะ Y" ยกเป็นกฎ "ก่อนแก้ Z เช็ค Y เสมอ") · `evidence` = **บังคับ** concrete pointer 1 บรรทัด + ลิงก์ artifact (`build.md`/`verify.md`/`troubleshooting.md`/diff/commit) — **ไม่มี evidence = ไม่ promote** · `scope` = `component:<c>`→`docs/techstack/<c>/rule.md` หรือ `project`→`docs/rule.md`
 2. **จำแนก feature:** สิ่งที่ทำเป็น **feature ใหม่** หรือ **ปรับปรุง feature เดิม** (เทียบกับ `docs/features/` ที่มีอยู่)
 3. **สรุป promotion plan + ขออนุมัติ (ครั้งเดียว):** feature ใหม่/ปรับปรุง, รายการไฟล์กลางที่จะอัปเดต + สาระ, ชื่อโฟลเดอร์ archive — **fold ตาราง learned-rule (rule + evidence + scope) เข้า approval เดียวกันนี้ ให้ user ยืนยัน per-rule** (✅ promote / ✂️ ตัด + เหตุผล) → รอ user ไฟเขียว
@@ -62,8 +63,11 @@
       - **hook งานต่อยอด:** ระหว่าง promote ถ้าพบ tech-debt หรืองานต่อยอดที่เกี่ยวข้อง → **เสนอ user** เพิ่มเป็น entry ใหม่ใน backlog (user ยืนยันก่อนเขียน — recommend-not-auto)
    6. **`docs/infra.md` + `docs/project.md`** — เฉพาะถ้ามีข้อมูลที่เกี่ยวข้อง (env/service ใหม่, scope/เป้าหมายโปรเจกต์ที่ขยับ)
    7. **`docs/codemap/` ทั้งหมด** — อัปเดต code map ให้ตรงกับโค้ดจริงปัจจุบัน ทำตาม playbook `.warnyin/workflow/codemap.md` (Claude Code: `/warnyin:update-codemaps`)
+   8. **`docs/memory.md` (ถ้ามี)** — entry ที่ user อนุมัติใน step 3 → เปลี่ยนสถานะเป็น `promoted`; ที่ตัดทิ้ง → `dropped` + เหตุผล (idempotent — SHIP รันซ้ำไม่ promote ซ้ำ); **ไฟล์นี้อยู่นอก `docs/stages/` จึงไม่ถูก archive** — อ่าน/เขียนที่ path เดิมเสมอ; ไม่มีไฟล์ → N/A
 6. **เขียนสรุปส่งมอบ:** `achieved/<YYYY-MM-DD>-<slug>/ship.md` — feature ใหม่/ปรับปรุง, เอกสารกลางที่อัปเดต (ไฟล์ → สาระ), note ที่ตัดทิ้งพร้อมเหตุผล
 7. **ปิดงาน:** รายงาน user ว่าส่งมอบครบ — topic ปิดสมบูรณ์
+
+> **★ อัปเดต project memory (conditional):** จบ stage แล้ว → เขียนสถานะล่าสุด **ทับ** `docs/stages/context.md` (snapshot สั้น ไม่ต่อท้าย) และบทเรียนที่ยัง**พิสูจน์ไม่พอจะเป็น rule** → `docs/memory.md`; ไม่มีอะไรเปลี่ยน → ข้าม — กติกาเต็มดู [`.warnyin/workflow/memory.md`](../memory.md)
 
 ---
 
@@ -96,5 +100,6 @@
 - [ ] `docs/codemap/` ตรงกับโค้ดจริงปัจจุบัน
 - [ ] `ship.md` สรุปการส่งมอบเขียนครบใน achieved
 - [ ] user รับทราบผลการส่งมอบ
+- [ ] **project memory พิจารณาแล้ว (ถ้ามี `docs/memory.md`)** — entry `open` ที่พร้อมเป็น learned-rule ถูกเสนอครบใน step 3, ที่อนุมัติแล้วเปลี่ยนเป็น `promoted`, ที่ตัดทิ้งเป็น `dropped` + เหตุผล; ไม่มีไฟล์ → N/A
 
 ยังไม่ครบ → อยู่ SHIP ต่อ topic ยังไม่ปิด

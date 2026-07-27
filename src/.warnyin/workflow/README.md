@@ -48,6 +48,7 @@ Discovery (optional) ──▶ DESIGN ──▶ BUILD ──▶ VERIFY ──▶
     interop.md         #   capability: INTEROP — companion tool consult-if-present convention + inclusion bar 4 ข้อ + UA entry (stage pointer conditional; trust-boundary guard)
     backlog.md         #   capability: BACKLOG — ที่เก็บกลาง deferred-out (recommend-not-auto); per-topic → SHIP promote → global (stage pointer; mirror troubleshooting)
     feedback.md        #   capability: FEEDBACK — เปิด GitHub issue แจ้ง feedback (gh + fallback URL)
+    memory.md          #   capability: MEMORY — ความจำระดับโปรเจกต์ (docs/stages/context.md + docs/memory.md; write hook ทุก stage, promote ที่ SHIP)
     stages/            #   discovery ✅ · design ✅ · build ✅ · verify ✅ · ship ✅
       # discovery: mode ปรับความเข้ม {ไว|สมดุล|ละเอียด|โต้วาที|ไต่สวน} + auto-suggest + debate
       # → taxonomy + behavior + auto-suggest signal อยู่ใน section "Discovery modes (ความเข้มของ Discovery)" ของ discovery.md
@@ -55,6 +56,7 @@ Discovery (optional) ──▶ DESIGN ──▶ BUILD ──▶ VERIFY ──▶
     contexts/          #   context profile กลาง (session-level posture): research, build, review + README
     scripts/
       build-wave.mjs   #   Workflow script: fan-out sub-agent ต่อ task ใน wave (worktree)
+      memory-status.mjs #   รายงานสุขภาพ project memory (read-only, exit 0 เสมอ)
   template/            # ★ template ทั้งหมดรวมที่เดียว
     stages/[topic]/    #   หนึ่งหน่วยงาน — copy เป็น docs/stages/<slug>
       discovery.md  research.md            # output ของ Discovery
@@ -77,6 +79,7 @@ docs/                  # ความรู้ถาวรระดับโป�
   project.md           # ★ จุดเริ่มของ Discovery — อ่านก่อนเสมอ
   rule.md  infra.md
   troubleshooting.md   # ★ KB ปัญหา-วิธีแก้ (อ่านก่อนเมื่อ build เจอ error; SHIP ป้อนเข้า)
+  memory.md            # บทเรียนสะสมระดับโปรเจกต์ที่ยังไม่เป็นกฎ (project memory — ดู .warnyin/workflow/memory.md)
   codemap/  features/  techstack/
   stages/              #   พื้นที่ทำงานจริง ตาม topic (<slug>/) + achieved/<YYYY-MM-DD>-<slug>/ หลัง SHIP
 ```

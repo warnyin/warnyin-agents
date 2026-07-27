@@ -23,6 +23,7 @@ This project uses **Warnyin Standard Workflow** — มาตรฐานกล�
 - `/warnyin:update-codemaps` → สแกนโครงสร้าง + สร้าง/อัปเดต codemap
 - `/warnyin:explore [คำถาม]` → สำรวจ/ตอบคำถามแบบ read-only
 - `/warnyin:next [slug]` → เช็คงานค้าง + แนะนำ command ถัดไป
+- `/warnyin:memory [ทบทวน]` → ดู/ทบทวน project memory (`.warnyin/workflow/memory.md`)
 - `/warnyin:triage [คำอธิบาย change]` → ประเมินขนาด + แนะนำ path
 - `/warnyin:fastlane [slug] [คำอธิบาย change]` → รันงานขนาด fast จบในคำสั่งเดียว — บังคับ tier=fast: แก้โค้ดจน test เขียว + acceptance ผ่าน → receipt → ship-lite + archive
 - `/warnyin:discovery [topic]` → Discovery stage

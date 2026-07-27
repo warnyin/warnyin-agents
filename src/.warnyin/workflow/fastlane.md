@@ -43,6 +43,7 @@ executor ของ **fast tier** — ข้ามขั้นประเมิ�
 | 3 | gate loop — test + acceptance (เงื่อนไข: §4) | row VERIFY + `stages/verify.md` · วนแก้อย่างไร: [`loop-tuning`](loop-tuning.md) |
 | 4 | เติม receipt §3 (ไฟล์ที่แตะ — จาก `git diff <base>`) · §4 (ผล test) · §5 (learned rule) | row VERIFY / SHIP |
 | 5 | ship-lite: สแกน diff เทียบ hard-floor → archive → promote rule ที่มีใน §5 (user ยืนยัน) | row SHIP + `stages/ship.md` |
+| — | **อัปเดต project memory** (conditional) | เขียน `docs/stages/context.md` ทับ + บทเรียน → `docs/memory.md`; ไม่มีอะไรเปลี่ยน → ข้าม — ดู [`memory.md`](./memory.md) |
 
 ★ ระหว่างทาง **ไม่เขียนไฟล์ report** — note อยู่ในแชท; receipt แตะ 2 ครั้งเท่านั้น (pre-flight / ตอนจบ)
 

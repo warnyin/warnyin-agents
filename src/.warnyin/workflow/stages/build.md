@@ -71,6 +71,8 @@ BUILD จะ **orchestrate การ implement** โดยกระจายง�
        หรือ ระบุเหตุผลว่าทำไมกลุ่มเดียวพอ — ไม่ dump ก้อนเดียวเงียบๆ
 7. **ปิดงาน:** อัปเดต `build.md` (รายงานผลต่อ task + ผล full build/test) + สถานะใน `task.md` แต่ละใบ → รวบ note นอก scope ที่ได้จากระหว่าง build → **เสนอ user** เพิ่มเข้า `docs/stages/<slug>/backlog.md` (per-topic; user ยืนยันก่อนเขียน); ไม่มี → ข้าม — ดู `.warnyin/workflow/backlog.md §5` → เสนอเข้า VERIFY ด้วย `/warnyin:verify`
 
+> **★ อัปเดต project memory (conditional · main loop เท่านั้น):** หลัง integrate ครบทุก wave → เขียนสถานะล่าสุด **ทับ** `docs/stages/context.md` และบทเรียนที่ยัง**พิสูจน์ไม่พอจะเป็น rule** → `docs/memory.md`; **build sub-agent ที่ทำงานใน worktree ห้ามเขียน memory เอง**; ไม่มีอะไรเปลี่ยน → ข้าม — กติกาเต็มดู [`.warnyin/workflow/memory.md`](../memory.md)
+
 ---
 
 ## 5. Output

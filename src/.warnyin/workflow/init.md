@@ -31,15 +31,17 @@
 
 ## 3. ลำดับขั้นการทำงาน (process)
 
-0. **Workspace bootstrap (ทำก่อนวิเคราะห์โปรเจกต์ — idempotent):**
+0. **Workspace bootstrap (ทำก่อนวิเคราะห์โปรเจกต์ — idempotent — ลำดับสำคัญ: seed ก่อนเสมอ ไฟล์เปล่าเป็น fallback เท่านั้น):**
    - **หา template:** ตรวจ `./.warnyin/template/` ก่อน (local) — ไม่มีหรือไม่มี `./.warnyin/` → fallback `~/.warnyin/template/` (global install); ใช้ path ที่พบเป็น `<template>`
-   - **สร้าง scaffold (ถ้ายังไม่มี):**
-     - `docs/stages/context.md` — ไม่มีให้สร้างไฟล์เปล่า; มีอยู่แล้ว → ข้าม
+   - **ขั้นที่ 1 — seed `docs/` จาก `<template>/docs/**` ก่อนเสมอ (ถ้า template มี):**
+     - วน entry ใน `<template>/docs/` **แบบ recursive เข้าโฟลเดอร์ย่อยทุกชั้น** (เช่น `<template>/docs/stages/context.md`, `<template>/docs/codemap/index.md` — ไม่ใช่แค่ชั้นบนสุด)
+     - **ข้าม entry ที่ชื่อขึ้นต้นด้วย `[`** ทุกชั้น (placeholder เช่น `[component]/`, `[topic]/` — seedDocs-skip invariant)
+     - entry ที่เหลือ: ปลายทาง `docs/<rel>` ตรงโครง (mirror) — **ไม่ทับไฟล์ที่มีอยู่แล้ว** (copy เฉพาะที่ยังไม่มี) — ครอบทั้ง `docs/stages/context.md` และ `docs/memory.md`
+   - **ขั้นที่ 2 — สร้างไฟล์เปล่าเป็น fallback เฉพาะเมื่อ template ไม่มีไฟล์นั้น** (ปลายทางยังไม่มีไฟล์หลัง seed ขั้นที่ 1 เพราะ template ไม่มีต้นทาง):
+     - `docs/stages/context.md` — ยังไม่มี (seed ไม่ได้สร้างให้เพราะ template ไม่มี) → สร้างไฟล์เปล่า; มีอยู่แล้ว (จาก seed หรือของเดิม) → ข้าม
      - `docs/stages/achieved/.gitkeep` — ไม่มีให้สร้างไฟล์เปล่า (สร้าง dir `docs/stages/achieved/` ด้วยถ้าจำเป็น); มีอยู่แล้ว → ข้าม
-   - **seed `docs/` จาก `<template>/docs/**` (ถ้า template มี):**
-     - วน entry ใน `<template>/docs/` — **ข้าม entry ที่ชื่อขึ้นต้นด้วย `[`** (placeholder เช่น `[component]/`, `[topic]/` — seedDocs-skip invariant)
-     - entry ที่เหลือ: ปลายทาง `docs/<entry>` — **ไม่ทับไฟล์ที่มีอยู่แล้ว** (copy เฉพาะที่ยังไม่มี)
-   - **ทั้งหมดนี้เป็น agent-driven** — agent ตรวจ/สร้างไฟล์เปล่าเอง; ไม่ต้องรัน script
+   - **★ ห้ามสลับลำดับ (สร้างไฟล์เปล่าก่อน seed)** — ไฟล์เปล่าจะทำให้ `existsSync` = true แล้ว seed ขั้นที่ 1 ของไฟล์นั้น skip ตลอดกาล → ผู้ใช้ได้ไฟล์ 0 byte ค้างถาวรแทนที่จะได้โครงจาก template
+   - **ทั้งหมดนี้เป็น agent-driven** — agent ตรวจ/สร้างไฟล์เอง; ไม่ต้องรัน script
 
 1. **สแกนภาพรวม:** โครงสร้าง repo, package manifest, ภาษา/framework, แบ่งเป็น **component** อะไรบ้าง (เช่น api-service, admin-console) — **default-exclude `docs/stages/achieved/`** (archive ของ topic ที่ ship แล้ว ไม่ใช่โครงปัจจุบัน — ดู [`interop`](interop.md) ข้อ 2); ถ้ามี `.understand-anything/knowledge-graph.json` → อ่าน**ข้อเท็จจริงเชิงโครงสร้าง**เป็นเบาะแสเสริม (ยืนยันกับโค้ดจริงเสมอ ตาม §2 ข้อ 1); ไม่มี + repo ใหญ่/ไม่คุ้น → แนะนำรัน companion tool — ดู [`interop`](interop.md)
 2. **วิเคราะห์ลึกต่อ component (ขนานได้, read-only):** โครงสร้างโฟลเดอร์/โมดูล, pattern/convention ที่ใช้จริงในโค้ด, วิธี build/test ที่มีอยู่ — ถ้ามี `.understand-anything/knowledge-graph.json` → ใช้ graph ช่วยระบุ layer/dependency ระดับสูง (ยืนยันกับโค้ดจริงเสมอ — graph เป็นเบาะแส ไม่ใช่ ground-truth)
@@ -90,6 +92,8 @@
 
 | ไฟล์ | เนื้อหา | แหล่งข้อมูล |
 |---|---|---|
+| `docs/stages/context.md` | โครง 4 section เปล่า (ไม่ใช่ไฟล์ที่ INIT วิเคราะห์แล้วเติมเนื้อหา) | seed จาก template ที่ **ขั้น 0** — conditional/N-A ถ้า template ไม่มี (ได้ไฟล์เปล่าแทน) |
+| `docs/memory.md` | ตาราง 6 คอลัมน์ + legend เปล่า (ไม่ใช่ไฟล์ที่ INIT วิเคราะห์แล้วเติมเนื้อหา) | seed จาก template ที่ **ขั้น 0** — conditional/N-A ถ้า template ไม่มี |
 | `docs/project.md` | โปรเจกต์คืออะไร เป้าหมาย ลูกค้า ขอบเขต | สัมภาษณ์ user (+ README เดิมเป็น recommended) |
 | `docs/techstack/<component>/about.md` | component นี้คืออะไร ทำหน้าที่อะไร | โค้ดจริง |
 | `docs/techstack/<component>/structure.md` | โครงสร้างโฟลเดอร์/โมดูล | โค้ดจริง |
@@ -128,6 +132,7 @@
 ## 5. Gate → จบ INIT เมื่อ
 
 - [ ] **ไฟล์ทุกแถวในตาราง §4 ถูกเขียนลง `docs/` จริง** (ยืนยันด้วย `find docs -type f`) — ไม่มีแถวไหนเหลือแค่ในแชท
+- [ ] **conditional/N-A:** `docs/stages/context.md` + `docs/memory.md` มีอยู่ (จาก seed ขั้น 0 หรือ fallback ไฟล์เปล่าถ้า template ไม่มี) — ไฟล์เปล่ายอมรับได้เมื่อ template ไม่มี ไม่ block gate นี้
 - [ ] ไม่มีโฟลเดอร์ชื่อ `[component]` (มีวงเล็บ) หลงเหลือ — ถูก copy เป็นชื่อ component จริงครบทุกตัว
 - [ ] `docs/project.md` มีเป้าหมาย/ลูกค้า/ขอบเขต ที่ user ยืนยันแล้ว
 - [ ] `docs/techstack/` ครบทุก component ที่พบ (about + structure + standard + test)
