@@ -21,6 +21,11 @@
 
 > **0.6.0 → 0.7.0:** ผู้ใช้ปลายทาง (`npx @warnyin/agents`) **ไม่ต้องทำอะไร** — payload ที่ติดตั้งคงเดิม การเปลี่ยนแปลงทั้งหมด (bin path → `src/`, dogfood 2-layer) เป็นเรื่องภายใน repo เท่านั้น; ผู้พัฒนา repo เอง (contributor) ดู [`CONTRIBUTING.md`](CONTRIBUTING.md)
 
+## [0.29.0] - 2026-08-08
+
+### Added
+- **Skill เสริม role UX: `emilkowalski/skills`** — เพิ่มชุด design/animation 9 skills (MIT, โดย Emil Kowalski — Sonner/Vaul) เข้าตาราง "Skill เสริมต่อ role" ใน `roles/README.md` + section "Skill เสริม" ของ `roles/ux.md` ตามแนวทาง **reference ไม่ vendor**: แกนคือ `emil-design-eng` (design judgment + animation philosophy) เสริมด้วย `animate` · `review-animations` (เหมาะกับ VERIFY UXUI) · `improve-animations` · `find-animation-opportunities` · `animation-vocabulary` · `apple-design` · `pick-ui-library` · `prototype` — ใช้ยกคุณภาพ motion/design ตอนลง hi-fi ใน BUILD ต่อจาก wireframe low-fi (คนละแกนกับ `ui-ux-pro-max` ที่เน้น styles/palettes ใช้คู่กันได้); ตรวจเนื้อหา ณ commit `de33dbe` (markdown ล้วน ไม่มี script) + note prompt-injection ตาม `docs/rule.md` §3.2
+
 ## [0.28.0] - 2026-07-27
 
 ### Added
