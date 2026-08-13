@@ -98,7 +98,7 @@ npx @warnyin/agents --dry-run   # ดูก่อนว่าจะสร้า�
 ```
 
 - โปรเจกต์ที่มี `CLAUDE.md`/`AGENTS.md` อยู่แล้ว → installer ต่อท้ายเป็น section ไม่เขียนทับ
-- `--update` เขียนทับเฉพาะ core (`.warnyin/workflow/`, `.claude/commands/warnyin/`, template ใน `.warnyin/template/`) — ไม่แตะ `docs/` และงานจริง
+- `--update` เขียนทับเฉพาะ CORE — ไฟล์ `docs/` ถูก seed จาก template ถ้ายังไม่มี ไม่ทับของเดิม
 - หลังติดตั้ง → เปิด Claude Code แล้วรัน `/warnyin:init` ให้ agent วิเคราะห์โปรเจกต์ + เติม `docs/` (playbook: `.warnyin/workflow/init.md`)
 
 ## วิธีใช้

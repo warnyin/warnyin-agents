@@ -46,7 +46,7 @@
 ทุกเครื่องชี้กลับมาที่ playbook กลางชุดเดียวกันใน `.warnyin/workflow/stages/` — ดูภาพรวมที่ `.warnyin/workflow/README.md`
 
 ## อัปเดต workflow
-`npx @warnyin/agents --update` — เขียนทับเฉพาะ playbook กลาง (`.warnyin/workflow/`, `.claude/commands/warnyin/`, template `.warnyin/template/stages/[topic]/`) ไม่แตะ `docs/` และงานจริงใน `docs/stages/`
+`npx @warnyin/agents --update` — เขียนทับเฉพาะ CORE — ไฟล์ `docs/` ถูก seed จาก template ถ้ายังไม่มี ไม่ทับของเดิม
 
 ## การ resolve playbook (local-first → global)
 - path `.warnyin/workflow/...` / `.warnyin/template/...`: หาในโปรเจกต์ `./.warnyin/` ก่อน ไม่มี → `~/.warnyin/` (global install)

@@ -9,7 +9,7 @@
 | **Slice อ้างอิง** | `design.md` slice A |
 | **Component** | `installer` |
 | **Model tier** | `balanced` |
-| **สถานะ** | `รอ build` |
+| **สถานะ** | `เสร็จ` |
 
 ## 1. เป้าหมายของ task (vertical slice)
 เพิ่ม EOL gate ใน `verify:pack` (text files ใน payload ต้องเป็น LF — ไม่มี CR) + แก้ Windows dev ให้รันได้ (`process.execPath + npm_execpath` ไม่ใช่ `.cmd`) — script → unit → behavior end-to-end

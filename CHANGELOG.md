@@ -21,6 +21,11 @@
 
 > **0.6.0 → 0.7.0:** ผู้ใช้ปลายทาง (`npx @warnyin/agents`) **ไม่ต้องทำอะไร** — payload ที่ติดตั้งคงเดิม การเปลี่ยนแปลงทั้งหมด (bin path → `src/`, dogfood 2-layer) เป็นเรื่องภายใน repo เท่านั้น; ผู้พัฒนา repo เอง (contributor) ดู [`CONTRIBUTING.md`](CONTRIBUTING.md)
 
+## [0.29.1]
+
+### Fixed
+- cli --help wording: `'ไม่แตะ docs/'` → `'docs/ ถูก seed จาก template ไม่ทับของเดิม'`
+
 ## [0.29.0] - 2026-08-08
 
 ### Added
