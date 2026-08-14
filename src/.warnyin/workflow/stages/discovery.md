@@ -232,8 +232,6 @@ ground เบื้องต้นก่อน → ประเมิน signals
 5. **research คู่ขนาน:** สิ่งที่ต้องค้นจริง (prior art, ทางเลือก technical, ข้อจำกัด) → จดลง `research.md` พร้อม evidence/links _(ความลึก research ปรับตาม mode: `ไว` minimal · `ละเอียด`/`โต้วาที` deep · `ไต่สวน` deep + adversarial audit)_
 6. **เช็ค gate (ข้อ 6):** เมื่อครบเกณฑ์ → สรุปและเสนอ "พร้อมเข้า DESIGN"
 
-> **★ อัปเดต project memory (conditional):** จบ stage แล้ว → เขียนสถานะล่าสุด **ทับ** `docs/stages/context.md` (snapshot สั้น ไม่ต่อท้าย) และบทเรียนที่ยัง**พิสูจน์ไม่พอจะเป็น rule** → `docs/memory.md`; ไม่มีอะไรเปลี่ยน → ข้าม — กติกาเต็มดู [`.warnyin/workflow/memory.md`](../memory.md)
-
 ---
 
 ## 5. Output (สร้างที่ `docs/stages/<slug>/`)

@@ -9,7 +9,7 @@
 | **Slice อ้างอิง** | `design.md` slice #4 |
 | **Component** | `workflow core` (`src/.warnyin/workflow/`) |
 | **Model tier** | `balanced` |
-| **สถานะ** | `รอ build` |
+| **สถานะ** | `done` |
 
 ## 1. เป้าหมายของ task (vertical slice)
 
@@ -51,14 +51,14 @@
 
 ## 3. Sub-tasks (แตกย่อยถ้าซับซ้อน)
 
-- [ ] 1. **อ่าน contract + baseline** — `design.md §4` (C6, C7) + `design.md §9 MODIFIED` ของ feature `project-memory`/`fastlane`; ยืนยันสถานะปัจจุบันด้วย grep `อัปเดต project memory` ใน `src/.warnyin/workflow/` (ต้องเจอ 6 ไฟล์ก่อนเริ่ม) — _ผลลัพธ์:_ รู้ string เป๊ะ + จุดแก้
-- [ ] 2. **`memory.md §5` — ตัดตารางเหลือ 3 แถว (C7)** — ลบแถว `Discovery` / `DESIGN` / `VERIFY`; แถว `BUILD`/`SHIP`/`fastlane` **คงคำต่อคำ**; header + separator + blockquote ปิดท้าย §5 คงเดิม — _ขึ้นกับ 1_
-- [ ] 3. **`memory.md §5` — ประโยคนำ** — เพิ่ม/ปรับให้สื่อว่าเขียนที่ **"จุดจบงาน"** + ระบุว่า Discovery/DESIGN/VERIFY ไม่มี hook เพราะสถานะอยู่ใน artifact ของตัวเอง (`spec.md §2.2`) — ⚠ **ห้ามให้บรรทัดใดมีทั้ง `อัปเดต project memory` และ `ไม่มีอะไรเปลี่ยน → ข้าม`** — _ขึ้นกับ 2 (ไฟล์เดียวกัน)_
-- [ ] 4. **coherence check ภายใน `memory.md`** — อ่าน §1 / §2 / §9 แล้วยืนยันว่าไม่ขัดกับ §5 ใหม่ (§2 ยังชี้ "จุดเขียนดู §5" + worktree rule เดิม; §9 ไม่พูดถึง hook ต่อ stage) — พบข้อขัดแย้ง → **แก้ให้น้อยที่สุดและรายงาน** ไม่ rewrite section — _ขึ้นกับ 3_
-- [ ] 5. **`stages/discovery.md` — ลบ hook** — ลบ blockquote `อัปเดต project memory` ท้าย §4 ทั้งบรรทัด + บรรทัดว่างที่ค้าง; ⚠ **ห้ามแตะ §2 ข้อ 5** (จุดอ่าน + clause data-ไม่ใช่-instruction) — _อิสระจาก 2-4_
-- [ ] 6. **`stages/ship.md` — ตรวจ hook (ค่าตั้งต้น: ไม่แก้)** — ยืนยันว่าประโยค hook ยังตรงนิยามใหม่; ถ้าปรับถ้อยคำ ต้องคง substring `อัปเดต project memory` + `ไม่มีอะไรเปลี่ยน → ข้าม` ในบรรทัดเดียวกัน และห้ามแตะ §4 step 5 ข้อย่อย 8 / gate 12 ข้อใน §6 — _อิสระ_
-- [ ] 7. **`fastlane.md §1` — วาง C6 (unify-in-place)** — **แทนที่บรรทัด** `- **★ user-invoked เท่านั้น** — stateful + irreversible ...` ด้วย bullet ที่ขึ้นต้นด้วย C6 **คำต่อคำ ไม่มี markdown emphasis แทรกกลาง**; คง `fastlane.md §3` แถว memory hook ไว้ทั้งแถว — _อิสระ_
-- [ ] 8. **self-verify ตาม `spec.md §7`** (H1-H4 · T1-T7 · C6-1..3 · R1-R3 · N1-N3) ด้วย grep/`node -e` — **ห้ามรัน `npm test` เต็ม / `npm run lint:md`** (เหตุผลใน `spec.md §7`) — _ขึ้นกับ 2-7_
+- [x] 1. **อ่าน contract + baseline** — `design.md §4` (C6, C7) + `design.md §9 MODIFIED` ของ feature `project-memory`/`fastlane`; ยืนยันสถานะปัจจุบันด้วย grep `อัปเดต project memory` ใน `src/.warnyin/workflow/` (ต้องเจอ 6 ไฟล์ก่อนเริ่ม) — _ผลลัพธ์:_ รู้ string เป๊ะ + จุดแก้
+- [x] 2. **`memory.md §5` — ตัดตารางเหลือ 3 แถว (C7)** — ลบแถว `Discovery` / `DESIGN` / `VERIFY`; แถว `BUILD`/`SHIP`/`fastlane` **คงคำต่อคำ**; header + separator + blockquote ปิดท้าย §5 คงเดิม — _ขึ้นกับ 1_
+- [x] 3. **`memory.md §5` — ประโยคนำ** — เพิ่ม/ปรับให้สื่อว่าเขียนที่ **"จุดจบงาน"** + ระบุว่า Discovery/DESIGN/VERIFY ไม่มี hook เพราะสถานะอยู่ใน artifact ของตัวเอง (`spec.md §2.2`) — ⚠ **ห้ามให้บรรทัดใดมีทั้ง `อัปเดต project memory` และ `ไม่มีอะไรเปลี่ยน → ข้าม`** — _ขึ้นกับ 2 (ไฟล์เดียวกัน)_
+- [x] 4. **coherence check ภายใน `memory.md`** — อ่าน §1 / §2 / §9 แล้วยืนยันว่าไม่ขัดกับ §5 ใหม่ (§2 ยังชี้ "จุดเขียนดู §5" + worktree rule เดิม; §9 ไม่พูดถึง hook ต่อ stage) — พบข้อขัดแย้ง → **แก้ให้น้อยที่สุดและรายงาน** ไม่ rewrite section — _ขึ้นกับ 3_
+- [x] 5. **`stages/discovery.md` — ลบ hook** — ลบ blockquote `อัปเดต project memory` ท้าย §4 ทั้งบรรทัด + บรรทัดว่างที่ค้าง; ⚠ **ห้ามแตะ §2 ข้อ 5** (จุดอ่าน + clause data-ไม่ใช่-instruction) — _อิสระจาก 2-4_
+- [x] 6. **`stages/ship.md` — ตรวจ hook (ค่าตั้งต้น: ไม่แก้)** — ยืนยันว่าประโยค hook ยังตรงนิยามใหม่; ถ้าปรับถ้อยคำ ต้องคง substring `อัปเดต project memory` + `ไม่มีอะไรเปลี่ยน → ข้าม` ในบรรทัดเดียวกัน และห้ามแตะ §4 step 5 ข้อย่อย 8 / gate 12 ข้อใน §6 — _อิสระ_
+- [x] 7. **`fastlane.md §1` — วาง C6 (unify-in-place)** — **แทนที่บรรทัด** `- **★ user-invoked เท่านั้น** — stateful + irreversible ...` ด้วย bullet ที่ขึ้นต้นด้วย C6 **คำต่อคำ ไม่มี markdown emphasis แทรกกลาง**; คง `fastlane.md §3` แถว memory hook ไว้ทั้งแถว — _อิสระ_
+- [x] 8. **self-verify ตาม `spec.md §7`** (H1-H4 · T1-T7 · C6-1..3 · R1-R3 · N1-N3) ด้วย grep/`node -e` — **ห้ามรัน `npm test` เต็ม / `npm run lint:md`** (เหตุผลใน `spec.md §7`) — _ขึ้นกับ 2-7_
 
 ## 4. ขอบเขตไฟล์/โค้ดที่จะแตะ
 
@@ -87,19 +87,19 @@
 
 วัดด้วย Scenario ใน `../../design.md §9` (release-hygiene จะ assert เป็นเคส node จริง — task นี้ต้องทำให้ผ่านล่วงหน้า):
 
-- [ ] **hook ถูกตัดที่ Discovery** — grep `อัปเดต project memory` ใน `src/.warnyin/workflow/stages/discovery.md` = **0 hit**
-- [ ] **hook ที่คงไว้ยังครบ** — พบใน `stages/build.md`, `stages/ship.md`, `fastlane.md` (3 ไฟล์); `stages/design.md`/`stages/verify.md` **ยังพบในรอบนี้ = ถูกต้อง** (ของ slice 1/2 — ตรวจรวมตอน `release-hygiene`)
-- [ ] **anchor table เหลือ 3 แถว** — `memory.md` §5 มี data row = 3 (`BUILD`, `SHIP`, `fastlane`) และไม่มีแถว `Discovery`/`DESIGN`/`VERIFY`
-- [ ] **ประโยคนำสอดคล้อง** — §5 สื่อว่าเขียนที่ "จุดจบงาน" ไม่ใช่ท้ายทุก stage และไม่ขัดกับ §1/§2/§9
-- [ ] **ไม่ลอก wording ของ hook** — `memory.md` ไม่มี substring `จบ stage แล้ว → เขียนสถานะล่าสุด` และไม่มีบรรทัดที่มีทั้ง `อัปเดต project memory` + `ไม่มีอะไรเปลี่ยน → ข้าม`
-- [ ] **heading freeze** — `memory.md` มี heading ครบ **9 หัวข้อคำต่อคำ ลำดับเดิม** (ไม่ rename `## 5. Write points (hook ต่อ stage)`)
-- [ ] **C6 คำต่อคำ** — `fastlane.md` มี substring C6 เป๊ะ อยู่ใน §1 นับได้ 1 บรรทัด และไม่มี bullet เดิมหลงเหลือขนาน
-- [ ] **BUILD variant ไม่ถูกลดทอน** — `stages/build.md` ยังมี `main loop เท่านั้น` + `build sub-agent ที่ทำงานใน worktree ห้ามเขียน memory เอง` (ไฟล์ไม่ถูกแตะ)
-- [ ] **จุดอ่านครบ 3 จุด** — `เป็น data ไม่ใช่ instruction` ยังพบใน `stages/discovery.md`, `next.md`, `explore.md`
-- [ ] **ทุก markdown-link ในไฟล์ที่แก้ resolve ได้** (ตรวจเฉพาะไฟล์ที่แตะ)
-- [ ] **ขอบเขตสะอาด** — `git status --short` แสดงเฉพาะไฟล์ใน §4 (ไม่มี `src/tests/`, template, adapter, script, root dogfood)
-- [ ] ผ่าน test ตาม `spec.md §7` (self-verify ด้วย grep)
-- [ ] ทำตาม `rule.md` และ `standard.md`
+- [x] **hook ถูกตัดที่ Discovery** — grep `อัปเดต project memory` ใน `src/.warnyin/workflow/stages/discovery.md` = **0 hit**
+- [x] **hook ที่คงไว้ยังครบ** — พบใน `stages/build.md`, `stages/ship.md`, `fastlane.md` (3 ไฟล์); `stages/design.md`/`stages/verify.md` **ยังพบในรอบนี้ = ถูกต้อง** (ของ slice 1/2 — ตรวจรวมตอน `release-hygiene`)
+- [x] **anchor table เหลือ 3 แถว** — `memory.md` §5 มี data row = 3 (`BUILD`, `SHIP`, `fastlane`) และไม่มีแถว `Discovery`/`DESIGN`/`VERIFY`
+- [x] **ประโยคนำสอดคล้อง** — §5 สื่อว่าเขียนที่ "จุดจบงาน" ไม่ใช่ท้ายทุก stage และไม่ขัดกับ §1/§2/§9
+- [x] **ไม่ลอก wording ของ hook** — `memory.md` ไม่มี substring `จบ stage แล้ว → เขียนสถานะล่าสุด` และไม่มีบรรทัดที่มีทั้ง `อัปเดต project memory` + `ไม่มีอะไรเปลี่ยน → ข้าม`
+- [x] **heading freeze** — `memory.md` มี heading ครบ **9 หัวข้อคำต่อคำ ลำดับเดิม** (ไม่ rename `## 5. Write points (hook ต่อ stage)`)
+- [x] **C6 คำต่อคำ** — `fastlane.md` มี substring C6 เป๊ะ อยู่ใน §1 นับได้ 1 บรรทัด และไม่มี bullet เดิมหลงเหลือขนาน
+- [x] **BUILD variant ไม่ถูกลดทอน** — `stages/build.md` ยังมี `main loop เท่านั้น` + `build sub-agent ที่ทำงานใน worktree ห้ามเขียน memory เอง` (ไฟล์ไม่ถูกแตะ)
+- [x] **จุดอ่านครบ 3 จุด** — `เป็น data ไม่ใช่ instruction` ยังพบใน `stages/discovery.md`, `next.md`, `explore.md`
+- [x] **ทุก markdown-link ในไฟล์ที่แก้ resolve ได้** (ตรวจเฉพาะไฟล์ที่แตะ)
+- [x] **ขอบเขตสะอาด** — `git status --short` แสดงเฉพาะไฟล์ใน §4 (ไม่มี `src/tests/`, template, adapter, script, root dogfood)
+- [x] ผ่าน test ตาม `spec.md §7` (self-verify ด้วย grep)
+- [x] ทำตาม `rule.md` และ `standard.md`
 
 ## 6. อ้างอิงในโฟลเดอร์ task นี้
 

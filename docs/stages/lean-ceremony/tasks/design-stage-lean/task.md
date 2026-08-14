@@ -9,7 +9,7 @@
 | **Slice อ้างอิง** | `design.md` slice #1 |
 | **Component** | `workflow core` (`src/.warnyin/workflow/`) + `adapters` (`src/.claude/commands/warnyin/`) |
 | **Model tier** | `balanced` |
-| **สถานะ** | `รอ build` |
+| **สถานะ** | `build done` |
 
 ## 1. เป้าหมายของ task (vertical slice)
 
@@ -30,14 +30,14 @@
 
 ## 3. Sub-tasks
 
-- [ ] 1. **อ่านก่อนแก้** — `../../design.md` §4 (contract C5/C6) + ไฟล์เป้าหมายทั้ง 2 ใบเต็ม; จด heading list ของไฟล์ A ไว้เทียบภายหลัง (T11)
-- [ ] 2. **A2/A3 — §3 ข้อ 7 + ข้อ 8** — เปลี่ยน label เป็น trigger-by-signal; วาง **needle C5 ที่ข้อ 7 ครั้งเดียว**, ข้อ 8 เป็น pointer — _ผลลัพธ์:_ T2/T3/T4 ผ่านบางส่วน
-- [ ] 3. **A4/A5 — §4 step 6 + step 10** — นำ step ด้วยการเช็ค signal (pointer `§3 ข้อ 7`) ก่อนถาม; **ไม่รื้อ sub-step เดิม** — _ขึ้นกับ 2 (ต้องมี canonical ให้ชี้ก่อน)_
-- [ ] 4. **A1 — §4 step 1.5 handoff** — เขียนทับ blockquote ท้าย step ให้เป็น: ถามยืนยัน 1 ครั้ง → ตกลง: เดินครบ 4 row ตาม `../fastlane.md` (ชี้ ไม่ลอก) · ปฏิเสธ: หยุดที่ receipt + บอก `/warnyin:fastlane` · ระบุ `ที่ user ยืนยันในเซสชัน` `นับเป็น user-invoked` — _ผลลัพธ์:_ T5/T6/T7
-- [ ] 5. **A6 — §4 step 4.5** — ลบ bullet คำถาม "จะวาดไหม" + `user ปฏิเสธ → บันทึกว่าข้าม`, ปรับ label เป็น conditional, คง detect/exclusion/approve gate/fallback ครบ — _ผลลัพธ์:_ T8/T9
-- [ ] 6. **A7 — ลบ memory hook ท้าย §4** ทั้ง blockquote ไม่เหลือ pointer กำพร้า — _ผลลัพธ์:_ T1
-- [ ] 7. **ไฟล์ B — adapter ข้อ 4/5/6** — ข้อ 4 (review panel) + ข้อ 6 (dry-run) → trigger by signal ชี้ `playbook §3 ข้อ 7` / `§4 step 10`; ข้อ 5 (fast-track) → เพิ่มบรรทัดเดียวว่า confirm 1 ครั้งแล้ว handoff (logic อยู่ `playbook §4 step 1.5`) — _ขึ้นกับ 2-6 (พฤติกรรมต้องนิ่งก่อน)_ — _ผลลัพธ์:_ T12/T13
-- [ ] 8. **self-verify** — เดิน T1-T15 ใน `spec.md §7` ด้วย grep/อ่านไฟล์ (ห้ามรัน `lint:md`; `npm test` แดงที่ M2 = คาดไว้แล้ว)
+- [x] 1. **อ่านก่อนแก้** — `../../design.md` §4 (contract C5/C6) + ไฟล์เป้าหมายทั้ง 2 ใบเต็ม; จด heading list ของไฟล์ A ไว้เทียบภายหลัง (T11)
+- [x] 2. **A2/A3 — §3 ข้อ 7 + ข้อ 8** — เปลี่ยน label เป็น trigger-by-signal; วาง **needle C5 ที่ข้อ 7 ครั้งเดียว**, ข้อ 8 เป็น pointer — _ผลลัพธ์:_ T2/T3/T4 ผ่านบางส่วน
+- [x] 3. **A4/A5 — §4 step 6 + step 10** — นำ step ด้วยการเช็ค signal (pointer `§3 ข้อ 7`) ก่อนถาม; **ไม่รื้อ sub-step เดิม** — _ขึ้นกับ 2 (ต้องมี canonical ให้ชี้ก่อน)_
+- [x] 4. **A1 — §4 step 1.5 handoff** — เขียนทับ blockquote ท้าย step ให้เป็น: ถามยืนยัน 1 ครั้ง → ตกลง: เดินครบ 4 row ตาม `../fastlane.md` (ชี้ ไม่ลอก) · ปฏิเสธ: หยุดที่ receipt + บอก `/warnyin:fastlane` · ระบุ `ที่ user ยืนยันในเซสชัน` `นับเป็น user-invoked` — _ผลลัพธ์:_ T5/T6/T7
+- [x] 5. **A6 — §4 step 4.5** — ลบ bullet คำถาม "จะวาดไหม" + `user ปฏิเสธ → บันทึกว่าข้าม`, ปรับ label เป็น conditional, คง detect/exclusion/approve gate/fallback ครบ — _ผลลัพธ์:_ T8/T9
+- [x] 6. **A7 — ลบ memory hook ท้าย §4** ทั้ง blockquote ไม่เหลือ pointer กำพร้า — _ผลลัพธ์:_ T1
+- [x] 7. **ไฟล์ B — adapter ข้อ 4/5/6** — ข้อ 4 (review panel) + ข้อ 6 (dry-run) → trigger by signal ชี้ `playbook §3 ข้อ 7` / `§4 step 10`; ข้อ 5 (fast-track) → เพิ่มบรรทัดเดียวว่า confirm 1 ครั้งแล้ว handoff (logic อยู่ `playbook §4 step 1.5`) — _ขึ้นกับ 2-6 (พฤติกรรมต้องนิ่งก่อน)_ — _ผลลัพธ์:_ T12/T13
+- [x] 8. **self-verify** — เดิน T1-T15 ใน `spec.md §7` ด้วย grep/อ่านไฟล์ (ห้ามรัน `lint:md`; `npm test` แดงที่ M2 = คาดไว้แล้ว)
 
 ## 4. ขอบเขตไฟล์ที่จะแตะ
 
@@ -50,14 +50,14 @@
 
 ## 5. Acceptance criteria
 
-- [ ] **T1-T15 ใน `spec.md §7` ผ่านครบทุกข้อ** (falsifiable ด้วย grep/อ่านไฟล์)
-- [ ] needle C5 ปรากฏ **1 ครั้ง** ในไฟล์ A + pointer 3 จุด — และทั้งสอง gate ยังมีข้อความ `ถาม user ก่อนเสมอ`
-- [ ] `grep 'อัปเดต project memory'` ในไฟล์ A = **0**
-- [ ] step 4.5 ไม่มีคำถามก่อนวาด แต่ยังมี exclusion-ก่อน-signals · approve gate · fallback ครบ
-- [ ] §8 gate ยัง **11 item** ถ้อยคำเดิม และ heading ทั้งไฟล์ไม่เปลี่ยน (anchor-immutability)
-- [ ] adapter ไม่ duplicate เงื่อนไข/ขั้นตอน — ชี้ playbook + เลข step
-- [ ] `git status --short` มีเฉพาะ 2 ไฟล์เป้าหมาย
-- [ ] ทำตาม `rule.md` และ `standard.md`
+- [x] **T1-T15 ใน `spec.md §7` ผ่านครบทุกข้อ** (falsifiable ด้วย grep/อ่านไฟล์)
+- [x] needle C5 ปรากฏ **1 ครั้ง** ในไฟล์ A + pointer 3 จุด — และทั้งสอง gate ยังมีข้อความ `ถาม user ก่อนเสมอ`
+- [x] `grep 'อัปเดต project memory'` ในไฟล์ A = **0**
+- [x] step 4.5 ไม่มีคำถามก่อนวาด แต่ยังมี exclusion-ก่อน-signals · approve gate · fallback ครบ
+- [x] §8 gate ยัง **11 item** ถ้อยคำเดิม และ heading ทั้งไฟล์ไม่เปลี่ยน (anchor-immutability)
+- [x] adapter ไม่ duplicate เงื่อนไข/ขั้นตอน — ชี้ playbook + เลข step
+- [x] `git status --short` มีเฉพาะ 2 ไฟล์เป้าหมาย
+- [x] ทำตาม `rule.md` และ `standard.md`
 
 ## 6. อ้างอิงในโฟลเดอร์ task นี้
 

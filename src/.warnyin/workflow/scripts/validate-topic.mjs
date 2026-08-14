@@ -17,11 +17,21 @@ const STAGES = [
   { order: 1, stage: 'Discovery', required: [], optional: ['discovery.md', 'research.md'] },
   { order: 2, stage: 'DESIGN', required: ['proposal.md', 'design.md'], optional: ['business.md'] },
   { order: 4, stage: 'BUILD', required: ['build.md'], optional: [] },
-  { order: 5, stage: 'VERIFY', required: ['verify.md', 'test.md'], optional: [] },
+  // VERIFY: required ว่าง (contract C2 — design.md §4) — topic ใหม่ใช้ section ใน build.md แทน
+  // backward-compat: verify.md/test.md เดิมยังอยู่เป็น optional → infer VERIFY ได้เหมือนเดิม
+  { order: 5, stage: 'VERIFY', required: [], optional: ['verify.md', 'test.md'] },
   { order: 6, stage: 'SHIP', required: ['ship.md'], optional: [] },
 ]
 // ไฟล์ artifact ทั้งหมดที่ใช้ infer stage (รวม required + optional ของทุก stage)
 const STAGE_FILES = STAGES.flatMap((s) => [...s.required, ...s.optional])
+
+// ── canonical cap ต่อ tier (contract C3 — design.md §4; ตัวเลข = .warnyin/workflow/triage.md §2D) ──
+// อ่านอย่างเดียว — ห้ามแก้ triage.md; large = {} หมายถึงไม่มี cap
+const CAPS = {
+  fast:     { 'receipt.md': 40 },
+  standard: { 'proposal.md': 60, 'design.md': 120 },
+  large:    {},
+}
 const TASK_REQUIRED = ['spec.md', 'standard.md', 'rule.md', 'task.md']
 
 // ── filled heuristic (B1): "เริ่มเติม" = H1 (บรรทัดแรกที่ไม่ว่าง) ไม่มี placeholder <...> ─────
@@ -133,6 +143,17 @@ function inferStageAndC1(files) {
     const anyFilled = [...s.required, ...s.optional].some(filledOf)
     if (anyFilled && s.order > maxOrder) { maxOrder = s.order; stageName = s.stage }
   }
+  // section-based VERIFY inference (contract C2 — design.md §4)
+  // build.md filled + heading '## 4. ผล verify' (H2 เป๊ะ) → VERIFY (structural ล้วน ไม่พึ่ง isFilled ของเนื้อ)
+  const buildContent = topLevel(files, 'build.md')
+  if (buildContent != null && isFilled(buildContent)) {
+    const buildLines = buildContent.split('\n')
+    const hasVerifySection = buildLines.some((l) => /^##\s+4\.\s+ผล verify/.test(l))
+    if (hasVerifySection) {
+      const verifyEntry = STAGES.find((s) => s.stage === 'VERIFY')
+      if (verifyEntry && verifyEntry.order > maxOrder) { maxOrder = verifyEntry.order; stageName = 'VERIFY' }
+    }
+  }
   // C1: stage ที่เริ่มเติม (order N) แต่ required ของ stage order < N ยังไม่ครบ filled
   for (const s of STAGES) {
     if (s.required.length === 0) continue
@@ -166,6 +187,78 @@ function checkSpecDelta(files) {
   return issues
 }
 
+// ── C7: นับบรรทัด / tier / cap (contract C3+C4 — design.md §4) ──────────────
+// นิยามการนับ = wc -l: split('\n') แล้วตัด element สุดท้ายทิ้งถ้าเป็น '' (ไฟล์จบ \n ไม่นับบรรทัดว่างท้าย)
+function countLines(content) {
+  const lines = content.split('\n')
+  if (lines[lines.length - 1] === '') lines.pop()
+  return lines.length
+}
+
+// parse tier จาก content ของ proposal.md — หา row '| **ขนาด** |' แล้ว match fast|standard|large ตัวแรก
+function parseTier(content) {
+  if (!content) return null
+  for (const line of content.split('\n')) {
+    if (/^\|\s*\*\*ขนาด\*\*\s*\|/.test(line)) {
+      const m = line.match(/\b(fast|standard|large)\b/)
+      return m ? m[1] : null
+    }
+  }
+  return null
+}
+
+// resolve tier จาก files + mode (contract C4 — design.md §4)
+// 1. proposal.md row ขนาด → tier; 2. fast-mode structural → 'fast'; 3. null (fail-safe)
+function resolveTier(files, mode) {
+  const proposal = topLevel(files, 'proposal.md')
+  if (proposal != null) {
+    const tier = parseTier(proposal)
+    if (tier) return tier
+  }
+  if (mode === 'fast') return 'fast' // structural inference จาก mode ไม่ใช่การเดา
+  return null
+}
+
+// checkCaps: pure fn, export (contract C3 — design.md §4) — รับ Map + tier, ไม่แตะ node:fs
+// design.md นับเฉพาะบรรทัดก่อน '## 9. Spec delta' (anchor H2 เป๊ะ)
+// tier === null + มี artifact ที่ cap ครอบ → ⚠ ข้ามเช็ค (ไม่ block); large → ไม่มี cap
+export function checkCaps(files, tier) {
+  const issues = []
+  if (tier === null) {
+    // ออก ⚠ เฉพาะเมื่อ topic มี artifact ที่ cap ครอบอย่างน้อย 1 ไฟล์ (ไม่ noise ถ้า topic ว่าง)
+    const allCapFiles = Object.values(CAPS).flatMap((caps) => Object.keys(caps))
+    const hasCapFile = [...new Set(allCapFiles)].some((f) => files.has(f))
+    if (hasCapFile) {
+      issues.push({ code: 'C7', level: 'warn', msg: 'ไม่ระบุ tier — ข้ามเช็ค cap' })
+    }
+    return issues
+  }
+  if (tier === 'large') return issues // large ไม่มี cap
+  const caps = CAPS[tier] || {}
+  for (const [file, cap] of Object.entries(caps)) {
+    if (!files.has(file)) continue // ไม่มีไฟล์ = ไม่ใช่ issue ของ C7 (เรื่อง C1/C2)
+    let content = files.get(file)
+    // design.md: ตัดที่ heading '## 9. Spec delta' (anchor H2 เป๊ะ — กัน false-match ####)
+    if (file === 'design.md') {
+      const lines = content.split('\n')
+      let cutIdx = lines.length
+      for (let i = 0; i < lines.length; i++) {
+        if (/^##\s+9\.\s+Spec delta/.test(lines[i])) { cutIdx = i; break }
+      }
+      content = lines.slice(0, cutIdx).join('\n')
+    }
+    const lineCount = countLines(content)
+    if (lineCount > cap) {
+      issues.push({
+        code: 'C7',
+        level: 'error',
+        msg: `${file} มี ${lineCount} บรรทัด เกิน cap ${cap} บรรทัด (tier: ${tier})`,
+      })
+    }
+  }
+  return issues
+}
+
 // ── detectMode (design §4.2): fast / mixed / normal ──────────────────────────
 // fast: receipt filled + ไม่มี proposal/design filled + ไม่มี task folder จริง
 //   → ข้าม C1-C4; stage = 'fast-track'
@@ -188,7 +281,8 @@ export function checkTopic(files) {
   const mode = detectMode(files)
   if (mode === 'fast') {
     // ข้าม C1-C4 ทั้งหมด — C5 (feature spec) cross-cutting ยังรันใน main ปกติ
-    return { issues: [], stage: 'fast-track' }
+    // C7 cap ยังเช็ค receipt.md (contract C3 — design.md §4)
+    return { issues: checkCaps(files, 'fast'), stage: 'fast-track' }
   }
   const issues = []
   issues.push(...checkTasks(files))     // C2 ✖
@@ -196,6 +290,7 @@ export function checkTopic(files) {
   const { issues: c1Issues, stage } = inferStageAndC1(files) // C1 ⚠ + stage
   issues.push(...c1Issues)
   issues.push(...checkSpecDelta(files)) // C4 ⚠
+  issues.push(...checkCaps(files, resolveTier(files, mode))) // C7 cap (contract C3 — design.md §4)
   if (mode === 'mixed') {
     // C6: mixed-state — receipt filled ร่วมกับโครง full → ⚠ ห้ามเป็น ✖ (rule #21)
     issues.push({ code: 'C6', level: 'warn', msg: 'topic มีทั้งโครง full และ receipt — ระบุ mode ให้ชัด' })

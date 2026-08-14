@@ -25,7 +25,7 @@ argument-hint: "[slug ของ topic]"
    - มี build error / test แดง → **แก้จนเขียวหมด (loop)**: วิเคราะห์ error, แก้ (จะ delegate fix ให้ sub-agent ทีละจุดก็ได้), rerun build/test ใหม่ ทำซ้ำจนผ่าน
    - ปัญหา **ยาก/เจอซ้ำ** ที่แก้สำเร็จในรอบนี้ → บันทึกลง `docs/stages/<slug>/troubleshooting.md`
    - ห้ามปิด BUILD ถ้ายังแดง; ถ้าวนหลายรอบยังไม่ผ่าน → หยุด รายงาน user พร้อม error log
-8. **ปิดงาน:** เขียน `docs/stages/<slug>/build.md` (ผลต่อ task + ผล full build/test + integration notes), อัปเดตสถานะใน `task.md` แต่ละใบ → เสนอเข้า VERIFY ด้วย `/warnyin:verify`
+8. **ปิดงาน:** เขียน `docs/stages/<slug>/build.md §1/§2` (ผลต่อ task + ผล full build/test + integration notes), อัปเดตสถานะใน `task.md` แต่ละใบ → ใช้ **AskUserQuestion** ถามยืนยันหนึ่งครั้ง: "เดิน VERIFY ต่อในเซสชันนี้ไหม" — ตกลง → เดิน `stages/verify.md` ต่อทันที; ปฏิเสธ → หยุดที่นี่ แจ้ง user ว่าสั่ง `/warnyin:verify <slug>` เองได้
 
 หมายเหตุ:
 - ห้ามแก้ rule/standard กลางใน `docs/` (rule ใหม่ที่เสนอถูก note ไว้ใน `tasks/<task>/rule.md` รอ SHIP)

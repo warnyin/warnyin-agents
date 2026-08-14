@@ -9,7 +9,7 @@
 | **Slice อ้างอิง** | `design.md` slice #2 — "BUILD↔VERIFY ไร้รอยต่อ" |
 | **Component** | `workflow core` + `templates` + `adapters` (`src/`) |
 | **Model tier** | `balanced` |
-| **สถานะ** | `รอ build` |
+| **สถานะ** | `build passed` |
 
 ## 1. เป้าหมายของ task (vertical slice)
 
@@ -32,18 +32,18 @@
 
 ## 3. Sub-tasks (ตามลำดับ)
 
-- [ ] **1. สำรวจผู้อ้างถึงก่อนแก้** (investigate-before-edit) — `grep -rn "test\.md\|verify\.md" src/` แล้วแยกเป็น 2 กอง: (ก) ไฟล์ที่ task นี้เป็นเจ้าของ (แก้เอง) (ข) ไฟล์ของ slice อื่น (จดลง §6 ข้อสังเกตส่งต่อ) — _ผลลัพธ์: รายการไฟล์ที่ต้องแก้ + รายการส่งต่อ_
-- [ ] **2. ยุบ template 3→1 (C1)** — เขียน `src/.warnyin/template/stages/[topic]/build.md` ใหม่: meta table + 4 heading `##` คำต่อคำจาก `spec.md §3 C1` โดย**ย้ายเนื้อจาก `test.md`/`verify.md` เข้ามาเป็น `###` ใต้ §3/§4** (แผนเทส/test cases/local env/e2e/UXUI checklist → §3; ผลเทส/ตารางแก้ไข/จำนวนรอบ/หมายเหตุถึง user → §4) + gate checklist ของ BUILD ใต้ §2 และของ VERIFY ใต้ §4 → `git rm` `test.md` + `verify.md` — _ขึ้นกับ 1_
-- [ ] **3. seam ฝั่ง BUILD** — `stages/build.md`: §4 ปิดงาน (ข้อ 7) เพิ่ม **W2 confirm handoff** ต่อจาก full-gate; อัปเดตชื่อ artifact ใน §4 ข้อ 7 + ตาราง Output §5 ให้ตรง 4 section; **คง hook memory ของ BUILD ไว้เหมือนเดิมทุกคำ** (`main loop เท่านั้น` / `build sub-agent … ห้ามเขียน memory เอง`) — _ขึ้นกับ 2 (รู้ชื่อ section แน่นอนแล้ว)_
-- [ ] **4. seam ฝั่ง VERIFY** — `stages/verify.md`: §1 ระบุว่าเข้าได้ทั้งจาก `/warnyin:verify` และ handoff ที่ user ยืนยันใน BUILD; §3 ข้อ 1 ใส่ **W1 ผู้ตรวจอิสระจากผู้เขียนโค้ด** (+ fallback เครื่องที่ fan-out ไม่ได้ → main loop สวม lens `roles/qa.md`); **ลบ hook `อัปเดต project memory` ทั้งบรรทัด** (C7); เปลี่ยนทุกจุดที่เขียน `test.md`/`verify.md` → `build.md §3` / `build.md §4` (§2 ข้อ 3, §3 ข้อ 8, §4 ข้อ 2/6, §5 ตาราง Output, §6 gate); แก้ fast-track hook §1 ที่อ้างไฟล์ที่ไม่มีแล้ว — _ขึ้นกับ 2_
-- [ ] **5. unify 4 block ที่ซ้ำ** — เจ้าของ = `stages/build.md` (นิยามเต็มคงอยู่ที่เดิม), `stages/verify.md` เหลือ **pointer + สรุป 1 บรรทัด** โดย**คงหมายเลขข้อเดิม**:
+- [x] **1. สำรวจผู้อ้างถึงก่อนแก้** (investigate-before-edit) — `grep -rn "test\.md\|verify\.md" src/` แล้วแยกเป็น 2 กอง: (ก) ไฟล์ที่ task นี้เป็นเจ้าของ (แก้เอง) (ข) ไฟล์ของ slice อื่น (จดลง §6 ข้อสังเกตส่งต่อ) — _ผลลัพธ์: รายการไฟล์ที่ต้องแก้ + รายการส่งต่อ_
+- [x] **2. ยุบ template 3→1 (C1)** — เขียน `src/.warnyin/template/stages/[topic]/build.md` ใหม่: meta table + 4 heading `##` คำต่อคำจาก `spec.md §3 C1` โดย**ย้ายเนื้อจาก `test.md`/`verify.md` เข้ามาเป็น `###` ใต้ §3/§4** (แผนเทส/test cases/local env/e2e/UXUI checklist → §3; ผลเทส/ตารางแก้ไข/จำนวนรอบ/หมายเหตุถึง user → §4) + gate checklist ของ BUILD ใต้ §2 และของ VERIFY ใต้ §4 → `git rm` `test.md` + `verify.md` — _ขึ้นกับ 1_
+- [x] **3. seam ฝั่ง BUILD** — `stages/build.md`: §4 ปิดงาน (ข้อ 7) เพิ่ม **W2 confirm handoff** ต่อจาก full-gate; อัปเดตชื่อ artifact ใน §4 ข้อ 7 + ตาราง Output §5 ให้ตรง 4 section; **คง hook memory ของ BUILD ไว้เหมือนเดิมทุกคำ** (`main loop เท่านั้น` / `build sub-agent … ห้ามเขียน memory เอง`) — _ขึ้นกับ 2 (รู้ชื่อ section แน่นอนแล้ว)_
+- [x] **4. seam ฝั่ง VERIFY** — `stages/verify.md`: §1 ระบุว่าเข้าได้ทั้งจาก `/warnyin:verify` และ handoff ที่ user ยืนยันใน BUILD; §3 ข้อ 1 ใส่ **W1 ผู้ตรวจอิสระจากผู้เขียนโค้ด** (+ fallback เครื่องที่ fan-out ไม่ได้ → main loop สวม lens `roles/qa.md`); **ลบ hook `อัปเดต project memory` ทั้งบรรทัด** (C7); เปลี่ยนทุกจุดที่เขียน `test.md`/`verify.md` → `build.md §3` / `build.md §4` (§2 ข้อ 3, §3 ข้อ 8, §4 ข้อ 2/6, §5 ตาราง Output, §6 gate); แก้ fast-track hook §1 ที่อ้างไฟล์ที่ไม่มีแล้ว — _ขึ้นกับ 2_
+- [x] **5. unify 4 block ที่ซ้ำ** — เจ้าของ = `stages/build.md` (นิยามเต็มคงอยู่ที่เดิม), `stages/verify.md` เหลือ **pointer + สรุป 1 บรรทัด** โดย**คงหมายเลขข้อเดิม**:
       - step 0 context window: `verify.md §4 ข้อ 0` → ชี้ `build.md §4 ข้อ 0`
       - investigate-before-edit: `verify.md §3 ข้อ 10` → ชี้ `build.md §3 ข้อ 11`
       - config-protection: `verify.md §3 ข้อ 11` → ชี้ `build.md §3 ข้อ 12` + **คงประโยคเฉพาะ VERIFY** (`"แก้จนผ่าน"` = แก้ root cause ไม่ลด bar)
       - Loop-tuning report block: `verify.md §4 ข้อ 5` → คงลิงก์ `loop-tuning.md` + ชี้ `build.md §4 ข้อ 6 · Loop-tuning report`
       ตรวจด้วย negative-grep ใน `spec.md §7 B` — _ขึ้นกับ 3, 4_
-- [ ] **6. adapter** — `src/.claude/commands/warnyin/build.md`: step ปิดงานเพิ่ม confirm handoff (ใช้ AskUserQuestion) + artifact ใหม่; `src/.claude/commands/warnyin/verify.md`: step 5 → เขียนแผนลง `build.md §3`, step 9 → เขียนผลลง `build.md §4`, หมายเหตุท้ายไฟล์เปลี่ยนจาก "`test.md` เขียนระดับ topic" → "`build.md §3`"; adapter ทั้งสอง**คงเป็น command (user-only)** ไม่แปลงเป็น skill — _ขึ้นกับ 3, 4_
-- [ ] **7. self-verify** — ไล่ `spec.md §7` A–G ทีละข้อ, รัน `npm test` + `npm run lint:md` เฉพาะเพื่อยืนยันว่าไม่พังจากไฟล์ที่ตัวเองแตะ, สรุปข้อที่ยังแดงเพราะ slice อื่น → ใส่ §6 — _ขึ้นกับ 2-6_
+- [x] **6. adapter** — `src/.claude/commands/warnyin/build.md`: step ปิดงานเพิ่ม confirm handoff (ใช้ AskUserQuestion) + artifact ใหม่; `src/.claude/commands/warnyin/verify.md`: step 5 → เขียนแผนลง `build.md §3`, step 9 → เขียนผลลง `build.md §4`, หมายเหตุท้ายไฟล์เปลี่ยนจาก "`test.md` เขียนระดับ topic" → "`build.md §3`"; adapter ทั้งสอง**คงเป็น command (user-only)** ไม่แปลงเป็น skill — _ขึ้นกับ 3, 4_
+- [x] **7. self-verify** — ไล่ `spec.md §7` A–G ทีละข้อ, รัน `npm test` + `npm run lint:md` เฉพาะเพื่อยืนยันว่าไม่พังจากไฟล์ที่ตัวเองแตะ, สรุปข้อที่ยังแดงเพราะ slice อื่น → ใส่ §6 — _ขึ้นกับ 2-6_
 
 ## 4. ขอบเขตไฟล์/โค้ดที่จะแตะ
 
@@ -63,15 +63,15 @@
 
 ## 5. Acceptance criteria
 
-- [ ] template `[topic]/build.md` มี 4 heading คำต่อคำตาม C1 และ `grep -c '^## '` = `4`; `test.md`/`verify.md` ของ template **ไม่มีอยู่แล้ว** (spec §7 A)
-- [ ] เนื้อของ `test.md`/`verify.md` เดิมถูกย้ายเข้า §3/§4 ครบ ไม่มีหัวข้อไหนหายเงียบ (spec §7 A4)
-- [ ] negative-grep ผ่านทั้ง 4 needle — นิยามเหลือใน `build.md` ไฟล์เดียว และ `verify.md` ชี้กลับครบทุกจุดพร้อมพิกัด (spec §7 B)
-- [ ] `build.md` มี W2 (confirm หนึ่งครั้ง หลัง full-gate) · `verify.md` มี W1 (ผู้ตรวจอิสระจากผู้เขียนโค้ด) (spec §7 C)
-- [ ] `verify.md` ไม่มีข้อความ `อัปเดต project memory`; `build.md` ยังมีและยังระบุ `main loop เท่านั้น` (spec §7 D)
-- [ ] ตาราง Output + gate ของสอง playbook + adapter ทั้งสองตรงกับ artifact ใหม่ (spec §7 E)
-- [ ] **gate เดิมครบทุกข้อ**: full build+test blocking · regression baseline จาก `docs/features/*/spec.md` · UX/UI verify · contract validation (`openapi.yaml`) (spec §7 F)
-- [ ] ลิงก์ในไฟล์ที่แตะ resolve ทุกเส้น · ไม่ rename anchor/เลขข้อที่มี inbound link · `npm test` pass count ไม่ลด (spec §7 G)
-- [ ] ทำตาม `rule.md` และ `standard.md`
+- [x] template `[topic]/build.md` มี 4 heading คำต่อคำตาม C1 และ `grep -c '^## '` = `4`; `test.md`/`verify.md` ของ template **ไม่มีอยู่แล้ว** (spec §7 A)
+- [x] เนื้อของ `test.md`/`verify.md` เดิมถูกย้ายเข้า §3/§4 ครบ ไม่มีหัวข้อไหนหายเงียบ (spec §7 A4)
+- [x] negative-grep ผ่านทั้ง 4 needle — นิยามเหลือใน `build.md` ไฟล์เดียว และ `verify.md` ชี้กลับครบทุกจุดพร้อมพิกัด (spec §7 B)
+- [x] `build.md` มี W2 (confirm หนึ่งครั้ง หลัง full-gate) · `verify.md` มี W1 (ผู้ตรวจอิสระจากผู้เขียนโค้ด) (spec §7 C)
+- [x] `verify.md` ไม่มีข้อความ `อัปเดต project memory`; `build.md` ยังมีและยังระบุ `main loop เท่านั้น` (spec §7 D)
+- [x] ตาราง Output + gate ของสอง playbook + adapter ทั้งสองตรงกับ artifact ใหม่ (spec §7 E)
+- [x] **gate เดิมครบทุกข้อ**: full build+test blocking · regression baseline จาก `docs/features/*/spec.md` · UX/UI verify · contract validation (`openapi.yaml`) (spec §7 F)
+- [x] ลิงก์ในไฟล์ที่แตะ resolve ทุกเส้น · ไม่ rename anchor/เลขข้อที่มี inbound link · `npm test` pass count ไม่ลด (spec §7 G — M2 แดงจาก design intent C7 ซึ่ง memory-hook-lean/release-hygiene จะแก้ test expected set)
+- [x] ทำตาม `rule.md` และ `standard.md`
 
 ## 6. ข้อสังเกตส่งต่อ (ไฟล์ของ slice อื่น — **ห้ามแก้ในรอบนี้** รายงานตอน integrate)
 

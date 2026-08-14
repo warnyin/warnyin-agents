@@ -44,9 +44,9 @@
 4. **สอดคล้องมาตรฐานเสมอ** — อิง rule + standard ของ techstack; ถ้าจะเพิ่ม rule/standard ใหม่ ให้ **note ไว้ก่อน** (ยังไม่แก้ไฟล์กลาง — รอ SHIP)
 5. **Gate ก่อนเขียนไฟล์ task จริง** — ต้องผ่านเกณฑ์ข้อ 8 ก่อนจะ generate ไฟล์ task และก่อนโยนให้ sub-agent
 6. **ใช้ role lens** — ออกแบบ (design.md) ด้วยมุม **SA** (`.warnyin/workflow/roles/sa.md`) และแตก/ตรวจ task ด้วยมุม **Tech Lead** (`.warnyin/workflow/roles/tech-lead.md`); วาด wireframe ด้วยมุม **UX/UI** (`.warnyin/workflow/roles/ux.md`) เมื่อ change มี UI surface (step 4.5)
-7. **Review panel ก่อนแตก task (optional — ถาม user ก่อนเสมอ)** — ให้หลาย role (SA / Tech Lead / QA / Security / Infra ตาม `.warnyin/workflow/roles/`) รีวิว design ขนานแบบอิสระ (read-only) แล้วแก้ blocker ให้ครบก่อนแตก task (ดู §4 step 6)
+7. **Review panel ก่อนแตก task (optional — trigger by signal; เข้าเงื่อนไขแล้วยังถาม user ก่อนเสมอ)** — `tier=large` **หรือ** change แตะ hard-floor 5 หมวด **หรือ** จำนวน task ≥ 4 → เสนอ user (ถาม); ไม่เข้าเงื่อนไข → **ข้ามเงียบ ไม่ถาม** — ให้หลาย role (SA / Tech Lead / QA / Security / Infra ตาม `.warnyin/workflow/roles/`) รีวิว design ขนานแบบอิสระ (read-only) แล้วแก้ blocker ให้ครบก่อนแตก task (ดู §4 step 6)
    > หมายเหตุ: UX/UI (`warnyin-ux`) เป็น **generator** (วาด wireframe ที่ step 4.5) **ไม่ใช่ reviewer** ของ panel — อย่า fan-out เป็น reviewer ตัวที่ 6
-8. **Dry-run ก่อนเข้า BUILD (optional — ถาม user ก่อนเสมอ)** — หลังเขียนไฟล์ task ครบ เสนอ user ว่าจะ dry-run ทั้งหมดเพื่อหาจุดบกพร่องไหม ถ้า ok → สแกนทุก task แบบขนาน (read-only) หา **defer/blocker** แล้วแก้ DESIGN จนไม่มี blocker ค้าง (ดู §4 step 10) — การแก้ **ห้ามเดา ห้ามคิดขึ้นเอง**
+8. **Dry-run ก่อนเข้า BUILD (optional — trigger by signal; เข้าเงื่อนไขแล้วยังถาม user ก่อนเสมอ)** — signal ตาม §3 ข้อ 7 — หลังเขียนไฟล์ task ครบ เสนอ user ว่าจะ dry-run ทั้งหมดเพื่อหาจุดบกพร่องไหม ถ้า ok → สแกนทุก task แบบขนาน (read-only) หา **defer/blocker** แล้วแก้ DESIGN จนไม่มี blocker ค้าง (ดู §4 step 10) — การแก้ **ห้ามเดา ห้ามคิดขึ้นเอง**
 
 ---
 
@@ -63,13 +63,12 @@
    - **hard-floor** (auth/migration/secret/public-API/security-sensitive) → ≥ standard เสมอ
    - tier → drive ceremony ตาม §7
    - **fast-track path (tier=fast) — pre-flight ก่อนแตะโค้ด:** copy template `.warnyin/template/stages/receipt.md` → เติม meta (รวม hard-floor row) + §1 + §2 (acceptance ประกาศก่อนแก้แบบมี artifact) → **ข้าม step 3-10 ทั้งหมด** ดู [fast-track skip-list](../triage.md#fast-track-skip-list)
-   > งาน fast ทั้งเส้นรันจบได้ด้วย `/warnyin:fastlane` (executor) — command นี้ใช้เมื่อต้องการ pre-flight แยก/escalate
+   > หลังเขียน receipt: **ถามยืนยันหนึ่งครั้ง** ว่าจะเดิน fastlane ต่อในเซสชันเดียวไหม — ตกลง → เดินครบ **4 row** ตาม [fastlane](../fastlane.md) (ชี้ ไม่ลอกขั้นตอน); ปฏิเสธ → หยุดที่ receipt + บอก command `/warnyin:fastlane` ที่ user สั่งเองได้ · handoff **ที่ user ยืนยันในเซสชัน** **นับเป็น user-invoked**
 3. **business.md** *(optional — ข้ามได้ถ้า change เล็ก เช่น fix bug นิดหน่อย)*: what & why เชิงธุรกิจ — goal, คุณค่า, persona, success metric
 4. **proposal.md** (what & why): สรุป change ที่จะทำ, เหตุผล, ทางเลือกที่พิจารณา/ตัดทิ้ง, scope in/out — item ใน "Out of scope" ที่เป็น deferred-out (ยกออกจาก scope, ยังไม่ทำ) → **เสนอ user** เพิ่มเข้า `docs/stages/<slug>/backlog.md` (5-field; user ยืนยันก่อนเขียน); ไม่มี → ข้าม — ดู [`.warnyin/workflow/backlog.md` §Capture](../backlog.md)
-4.5 **UX wireframe (optional — ถาม user ก่อน; เฉพาะ change มี UI surface):**
+4.5 **UX wireframe (conditional — เฉพาะ change มี UI surface):**
    - รัน detect (§ "UX wireframe — detect"); ไม่เข้าเงื่อนไข → **ข้าม step นี้ทั้งหมด**
-   - เข้าเงื่อนไข → เสนอ user ว่าจะวาด wireframe ก่อนเขียน technical design ไหม (ให้เห็นภาพหน้าจอ+ยืนยันก่อนแตก task) — user ปฏิเสธ → บันทึกว่าข้าม แล้วไปต่อ
-   - ตกลง → fan-out sub-agent `warnyin-ux` **ขนาน read-only** (หนึ่งตัวต่อหนึ่งกลุ่มหน้าจอถ้าหลายจอ) ตาม role card `roles/ux.md` → คืน **ASCII wireframe + user flow + screen states** เป็น text
+   - เข้าเงื่อนไข → fan-out sub-agent `warnyin-ux` **ขนาน read-only** (หนึ่งตัวต่อหนึ่งกลุ่มหน้าจอถ้าหลายจอ) ตาม role card `roles/ux.md` → คืน **ASCII wireframe + user flow + screen states** เป็น text
    - **main loop เขียนลง `docs/stages/<slug>/wireframe.md`** (single-writer) → เสนอ user
    - **★ approve gate:** user ยืนยัน/ปรับ wireframe ก่อนไปต่อ (วน rerun/แก้จนพอใจ) — ห้ามเดา ปรับตาม feedback user
    - design.md §5 (UI layer ของ vertical slice) **อ้าง wireframe ที่ approve**
@@ -92,7 +91,7 @@
    - **เก็บ fact ก่อนเขียนทำขนานได้ (gathering — §3 หลักการแกน)** — ถ้าต้องรวบรวมข้อเท็จจริงจากหลายจุด (โค้ด/contract/impact analysis) ก่อนเขียน → fan-out **research** sub-agent ขนาน (read-only) คืน fact + path/บรรทัด
    - **single-writer guardrail (narrative = serialize):** การเขียน narrative ของ `design.md` ทำโดย main loop คนเดียว — **ห้ามแตก narrative ให้หลาย agent เขียนคนละ section** (coherence cost: เอกสารต่อกันไม่เนียน → review+rewrite แพงกว่าเขียนรอบเดียว)
    - **fallback:** เครื่องที่ fan-out ขนานไม่ได้ → main loop อ่าน + เขียนเองตามลำดับเหมือนเดิม
-6. **Review panel (optional — ถาม user ก่อน):** เสนอ user ว่าจะให้ panel หลาย role รีวิว design ก่อนแตก task ไหม — ถ้า ok:
+6. **Review panel (optional — trigger by signal; เข้าเงื่อนไขแล้วยังถาม user ก่อนเสมอ):** เช็ค signal ก่อน — ไม่เข้าเงื่อนไข → ข้ามเงียบ ไม่ถาม (signal ตาม §3 ข้อ 7); เข้าเงื่อนไข → เสนอ user ว่าจะให้ panel หลาย role รีวิว design ก่อนแตก task ไหม — ถ้า ok:
    > หมายเหตุ: UX/UI (`warnyin-ux`) เป็น **generator** (วาด wireframe ที่ step 4.5) **ไม่ใช่ reviewer** ของ panel — อย่า fan-out เป็น reviewer ตัวที่ 6
    1. fan-out sub-agent reviewer **ขนาน (read-only)** ตาม role card: **SA** (architecture/data model/contract), **Tech Lead** (feasibility/ขนาด task/dependency), **QA** (testability/acceptance), **Security** (ช่องโหว่/ข้อมูลอ่อนไหว), **Infra** (env/config/migration) — แต่ละตัวอ่าน `proposal.md` + `design.md` + โค้ดจริงที่เกี่ยว แล้วให้ความเห็นตาม checklist ใน `.warnyin/workflow/roles/<role>.md` แบ่งเป็น **blocker / suggestion**
    2. รวมความเห็นทุก role → สรุปให้ user เห็นภาพ
@@ -109,7 +108,7 @@
    - **fast tier → ใช้ fast path/pre-flight (step 1.5) ไม่สร้าง task folder ไม่ fan-out**
    - **fan-out คือวิธีเขียนเร็วขึ้น ไม่ใช่ข้าม Gate** — Gate ข้อ 8 ยังต้องผ่านก่อน fan-out เสมอ
    - **fallback:** เครื่องที่ fan-out ขนานไม่ได้ → เขียนไฟล์ task ทีละใบตามลำดับเหมือนเดิม
-10. **Dry-run (optional — ถาม user ก่อน):** ถาม user ว่าต้องการ dry-run ทั้งหมดเพื่อหาจุดบกพร่องก่อนเข้า BUILD ไหม — ถ้า ok:
+10. **Dry-run (optional — trigger by signal; เข้าเงื่อนไขแล้วยังถาม user ก่อนเสมอ):** เช็ค signal ก่อน — ไม่เข้าเงื่อนไข → ข้ามเงียบ ไม่ถาม (signal ตาม §3 ข้อ 7); เข้าเงื่อนไข → ถาม user ว่าต้องการ dry-run ทั้งหมดเพื่อหาจุดบกพร่องก่อนเข้า BUILD ไหม — ถ้า ok:
    1. **fan-out agent หนึ่งตัวต่อหนึ่ง task แบบขนาน (read-only — ห้ามแก้โค้ด/ไฟล์ design)** — แต่ละตัวอ่าน task ทั้ง 4 ไฟล์ + `design.md`/`proposal.md` + โค้ดจริงที่เกี่ยว แล้ว "เดิน implement ในหัว" เพื่อหา:
       - **blocker** — สิ่งที่ทำให้ implement ตาม spec ไม่ได้ (ขัดแย้งกับโค้ดจริง/กับ task อื่น, ข้อมูล/spec ขาด, dependency ผิด) — BUILD จะล้มถ้าไม่แก้
       - **defer** — จุดที่ตัดสินใจ/ทำทีหลังได้ ไม่ block การเริ่ม BUILD แต่ต้องบันทึกและ track
@@ -122,8 +121,6 @@
 
 > generate ไฟล์ task หลายใบพร้อมกันด้วย sub-agent (หนึ่ง agent ต่อหนึ่ง task) เป็น **default สำหรับ standard/large** (step 9) — แต่ต้องผ่าน Gate ก่อนเสมอ; fast tier ใช้ fast path/pre-flight (step 1.5) ไม่สร้าง task folder
 > เครื่องที่ fan-out ขนานไม่ได้ (ไม่มี sub-agent tool) → เขียน task / dry-run สแกนทีละ task ตามลำดับด้วยหลักการเดียวกัน
-
-> **★ อัปเดต project memory (conditional):** จบ stage แล้ว → เขียนสถานะล่าสุด **ทับ** `docs/stages/context.md` (snapshot สั้น ไม่ต่อท้าย) และบทเรียนที่ยัง**พิสูจน์ไม่พอจะเป็น rule** → `docs/memory.md`; ไม่มีอะไรเปลี่ยน → ข้าม — กติกาเต็มดู [`.warnyin/workflow/memory.md`](../memory.md)
 
 ---
 
