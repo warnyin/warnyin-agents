@@ -9,7 +9,7 @@
 | **Slice อ้างอิง** | `design.md` slice C |
 | **Component** | `installer` |
 | **Model tier** | `balanced` |
-| **สถานะ** | `รอ build` |
+| **สถานะ** | `เสร็จ` |
 
 ## 1. เป้าหมายของ task (vertical slice)
 Finalize 0.29.1 release: bump version + MIN_PASS + finalize CHANGELOG (วันที่ + Migration section) + เขียน `docs/infra.md` runbook + full-gate integration (npm test + lint:md + verify:pack)

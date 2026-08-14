@@ -21,6 +21,23 @@
 
 > **0.6.0 → 0.7.0:** ผู้ใช้ปลายทาง (`npx @warnyin/agents`) **ไม่ต้องทำอะไร** — payload ที่ติดตั้งคงเดิม การเปลี่ยนแปลงทั้งหมด (bin path → `src/`, dogfood 2-layer) เป็นเรื่องภายใน repo เท่านั้น; ผู้พัฒนา repo เอง (contributor) ดู [`CONTRIBUTING.md`](CONTRIBUTING.md)
 
+## [0.29.1] - 2026-08-14
+
+### Fixed
+- cli --help wording: `'ไม่แตะ docs/'` → `'docs/ ถูก seed จาก template ไม่ทับของเดิม'`
+
+### Migration
+> **⚠️ commit/stash งานที่ยังไม่ได้ commit ก่อน** — `git reset --hard` ลบงานค้างถาวร
+>
+> ผู้ใช้ที่ clone repo ก่อน 2026-07-14 (release 0.27.1 — ก่อนเพิ่ม `.gitattributes`) และยังไม่ได้ renormalize:
+> ```bash
+> git rm --cached -r .
+> git reset --hard
+> ```
+> แล้ว `npm run verify:pack` จะผ่าน (payload กลับเป็น LF ทั้งหมด)
+>
+> dev ที่ clone หลัง 2026-07-14: ไม่ต้องทำอะไร (working tree = LF อยู่แล้ว)
+
 ## [0.29.0] - 2026-08-08
 
 ### Added

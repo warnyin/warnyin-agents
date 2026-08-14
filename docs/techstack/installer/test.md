@@ -34,20 +34,11 @@
   - T1-dry-run — `--dry-run`: log path adapter ทั้ง 5 แต่ไม่สร้างไฟล์จริง
   - T1-global — `--global`: adapter ครบ 5 ตัวลงที่ temp HOME
 
-### `src/tests/verify-pack.test.mjs` — 13 เคส (unit, import `checkFiles` ตรง — BL-4 testable denylist)
-1. payload ถูกต้อง → ไม่มี error (GOOD baseline รวม `src/.claude/skills/explore/SKILL.md`)
-2. R2 denylist: `src/tests/` หลุด → จับได้ (กัน gate ลวง)
-3. R2 denylist: `src/scripts/` หลุด → จับได้
-4. R2 denylist: `docs/` + `.github/` หลุด → จับได้
-5. denylist root dogfood: `.warnyin/`, `.claude/`, root `CLAUDE.md`/`AGENTS.md` → จับได้
-6. tripwire: `settings.local.json` / `*.tgz` / `.env` → จับได้
-7. R1 assertion: ขาด `src/.warnyin/workflow/` → คืน error
-8. R1 assertion: ขาด `src/.claude/commands/warnyin/` → คืน error
-9. allowlist: ไฟล์นอก allow (เช่น `src/.vscode/`) → จับได้ (skills อยู่ใน allow แล้ว → ใช้ subdir อื่นที่ยังนอก allow พิสูจน์ guard)
-10. R1 assertion: ขาด `src/.claude/skills/` → คืน error (skills เป็น required payload)
-11. **stamp-deny:** `checkFiles(['.warnyin/.warnyin-version'])` (root) → คืน error (gate จับ stamp ที่หลุดขึ้น tarball — install-time artifact ไม่ควรอยู่ใน package)
-12. **T2-adapter-templates:** `checkFiles(['src/.warnyin/installer/templates/cursor-rules.mdc', ...adapter templates ×5])` → ไม่มี error (adapter templates อยู่ใน allowlist `src/.warnyin`)
-13. **T2-negative:** payload ยังจับ `docs/` รั่วได้หลัง adapter templates เข้า allowlist (denylist ยังทำงาน)
+### `src/tests/verify-pack.test.mjs` — 28 เคส (unit, import `checkFiles`/`getNpmCmd`/`checkEol`/`readTextEntries` ตรง — BL-4 testable denylist + EOL gate + cross-platform npm; 15 เดิม + 13 ใหม่จาก topic `publish-pack-polish`)
+1-15. **(เดิม 13 เคส + 2 เคสเพิ่มจาก adapter-templates)** — payload ถูกต้อง → ไม่มี error · R2 denylist: `src/tests/`/`src/scripts/`/`docs/`+`.github/`/root dogfood (`.warnyin/`, `.claude/`, root `CLAUDE.md`/`AGENTS.md`) หลุด → จับได้ · tripwire `settings.local.json`/`*.tgz`/`.env*` → จับได้ · R1 ขาด `.warnyin/workflow/` หรือ `.claude/commands/warnyin/` หรือ `.claude/skills/` → error · allowlist: ไฟล์นอก allow (`src/.vscode/`) → จับ · stamp-deny: `checkFiles(['.warnyin/.warnyin-version'])` → error (install-time artifact) · adapter-templates อยู่ใน allowlist `src/.warnyin` · T2-negative: denylist ยังทำงานหลังเพิ่ม adapter
+16-19. **`getNpmCmd` (× 4):** `('darwin'|'linux')` → `{ bin:'npm', prefix:[] }` · `('win32')` + `npm_execpath='/abs/npm-cli.js'` → `{ bin: process.execPath, prefix:[path] }` · `('win32')` + no `npm_execpath` → `null` (false-green guard)
+20-23. **`checkEol` (× 4):** entries LF only → errors=[] · entries 3×CRLF → error `"eol: ไฟล์ text มี CR 3 ครั้ง (${path})"` · entries `.png` (ext ไม่ใน TEXT_EXT) → errors=[] · entries empty buf → errors=[]
+24-28. **`readTextEntries` (× 5):** files=`['src/a.md']` + fake readFile + tmp root → 1 entry (buf populated) · `['/etc/passwd']` → error `"path: absolute path"` · `['../../../etc/passwd']` → error `"path: มี segment .."` · `['symlink.md']` + lstat=symbolic → error `"path: symlink"` · size > 5 MB → entries.buf=null + console.warn (ไม่ error)
 
 ### `src/tests/setup-dogfood.test.mjs` — 14 เคส (unit, import ตรง — BL-4 testable; truth table + drift-guard)
 1–3. ฐาน (backward compat): `verifyInstalled(tmp)` ไม่มี expected → marker-only (เคส empty→false, ครบ→true, partial→false)
@@ -76,6 +67,26 @@
 ## verify-pack testable (BL-4)
 - `checkFiles(files[]) → error[]` = pure function ใน `src/scripts/verify-pack.mjs`, `export` ออกมา → unit ป้อน file list ปลอม (มี `src/tests/` ฯลฯ) แล้ว assert จับได้ — พิสูจน์ว่า denylist **ทำงานจริง** ไม่ใช่เขียวเพราะ allowlist ปิดอยู่
 - main-guard ใช้ `fileURLToPath(import.meta.url) === process.argv[1]` (ไม่ใช่ `import.meta.main` ที่ undefined บน node 20) → import จาก unit test ไม่ trigger `npm pack`
+
+## verify-pack EOL gate (L: topic `publish-pack-polish`)
+- **3 pure fn ที่ export:** `getNpmCmd(platform)` (cross-platform npm binary) · `checkEol(entries)` (Buffer-level `buf.includes(0x0D)`, no UTF-8 decode, error prefix `eol:` + count + sanitized path) · `readTextEntries(files, opts)` (I/O + path guards 3 ชั้น: absolute/../ /symlink via lstatSync + size cap 5 MB + injectable readFile/root/maxBytes) — I/O อยู่ที่ขอบ, pure fn ทดสอบได้โดยไม่แตะ disk
+- **`checkFiles` signature คงเดิม** (purity contract) — เคส existing 15 เคสที่ป้อน `checkFiles(GOOD)` ต้องไม่พัง (regression guard)
+- **injectable partial-deps pattern:** เมื่อ test inject เฉพาะ `readFile`/`root` แต่ `lstatSync` ไม่ injectable → ต้องสร้าง real file ใน tmpdir ด้วย `mkdtempSync + writeFileSync` ก่อน (มิเช่นนั้น `lstatSync` throw → entry.buf=null → test crash) — pattern: partial dep injection ต้องเตรียม real fs state สำหรับ non-injectable deps
+
+## verify-pack cross-platform + sandbox EOL proof (L: topic `publish-pack-polish`)
+- **`getNpmCmd` testable cross-platform โดยไม่ต้อง mock global** — รับ `platform` เป็น argument (default `process.platform`) → unit truth table 3-4 เคส (darwin/linux/win32-with-path/win32-no-path) — pattern: cross-platform logic ที่ testable แยกจาก env ด้วย argument injection
+- **`--ignore-scripts` arg** — append ต่อ `execFileSync(bin, [...prefix, 'pack', '--dry-run', '--json', '--ignore-scripts'])` (กัน `npm pack` รัน `prepack`/`prepare` lifecycle แม้ `--dry-run`)
+- **sandbox EOL proof (rule §5 verify เอกสาร narrative):** ใน temp git repo สร้างไฟล์ text มี CRLF (`printf '...\r\n'`) → `node verify-pack.mjs` → assert exit 1 + error prefix `eol:`; renormalize: `git init && echo '*.md text eol=lf' > .gitattributes && git add -A && git commit -qm init && git rm --cached -r . && git reset --hard` → assert exit 0 — pattern: gate ที่ครอบ payload จริง ต้องมี executable proof ใน sandbox ที่ manipulate state จริง (ไม่พึ่ง mock)
+- **RED proof:** revert `checkEol` CR-check logic → `checkEol-CRLF` test fail (assertion error 0 !== 1) → restore → green — pattern: unit ต้องมี mutation test (revert แล้ว assert fail) เพื่อพิสูจน์ test จับ regression จริง
+
+## spawn test สำหรับ CLI text regression (L: topic `publish-pack-polish`)
+- เมื่อเปลี่ยน `--help`/`--version`/user-facing text → เพิ่มเคส spawn `process.execPath + [cliPath, '--help']` → assert:
+  - `stdout.includes(newSubstring)` — substring ใหม่ปรากฏ
+  - `!stdout.includes(oldSubstring)` — substring เก่าหาย (negative-grep regression)
+  - `code === 0` — exit clean
+- ใช้ pattern เดียวกับ `runCli(cwd, args)` (black-box spawn, array args ไม่ shell:true) — ไม่ import logic จาก `cli.mjs`
+- ห้ามพึ่ง grep source (อ่านผ่าน CLI contract ตรง ๆ จับได้ทั้งหลอมรวม string + layout ของ print)
+- RED proof: revert wording fix → spawn test fail (substring เก่ากลับมา)
 
 ## lint-md dead-link gate (zero-dep — pattern เดียวกับ verify-pack)
 - `checkLinks(docs, exists) → error[]` = pure function ใน `src/scripts/lint-md.mjs` (`docs=[{file,content}]`, `exists` injectable) + main-guard เดียวกัน — unit feed docs ปลอม + fake `exists` (ไม่แตะ fs จริง); `main()` walk `src/`+`docs/` (exclude `src/.warnyin/template/` + `docs/stages/achieved/`), validate markdown-link `[](path)` relative resolve

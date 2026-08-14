@@ -37,7 +37,7 @@ npx @warnyin/agents --project   # บังคับลงโปรเจกต�
 - **global ปลอดภัยต่อ `~/`:** ไม่ทับไฟล์ที่มีอยู่ของคุณใน `~/.claude/` (เขียนทับเฉพาะ `--update`), แสดง path ที่จะเขียนก่อน
 - _(global รองรับ Claude Code; Codex/Antigravity ใช้ติดตั้งแบบ per-project)_
 - โปรเจกต์ที่มี `CLAUDE.md` / `AGENTS.md` อยู่แล้ว → installer **ต่อท้ายเป็น section** ไม่เขียนทับ
-- `--update` เขียนทับเฉพาะ core (`.warnyin/workflow/`, `.claude/commands/warnyin/`, template ใน `.warnyin/template/`) — ไม่แตะ `docs/` และงานจริง
+- `--update` เขียนทับเฉพาะ CORE — ไฟล์ `docs/` ถูก seed จาก template ถ้ายังไม่มี ไม่ทับของเดิม
 
 > **อัปเกรดจากรุ่นเก่า?** (`workflow/` หรือ `warnyin/` layout) ดู [Migration guide](CHANGELOG.md#migration-guide) ก่อนรัน installer รอบใหม่
 

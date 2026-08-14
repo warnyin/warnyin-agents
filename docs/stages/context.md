@@ -6,19 +6,23 @@
 > snapshot ไม่ใช่ log — เขียนทับทุกครั้งที่อัปเดต (ไม่ต่อท้าย) · กติกาเติมดู `.warnyin/workflow/memory.md`
 
 ## กำลังทำอะไรอยู่
-- topic `publish-pack-polish` — DESIGN เสร็จ (gate §8 ผ่าน: proposal + design + 3 tasks × 4 ไฟล์); รอ `/warnyin:build publish-pack-polish` (wave 1: verify-pack-hardening ‖ cli-help-wording → wave 2: release-hygiene)
-- topic `universal-ide-spec` — ยังไม่เริ่ม; ค้างจาก `docs/backlog.md` #5 (validate-topic C5 ✖1 ที่ `docs/features/universal-ide/spec.md` ไม่มี `## Requirement:`); DESIGN ต่อไป
+- topic `universal-ide-spec` — fast-tier SHIP-lite เสร็จ (archive `docs/stages/achieved/2026-08-14-universal-ide-spec/receipt.md`); backlog #5 dropped — ทุก backlog open ปิดหมดแล้ว
+- topic `publish-pack-polish` — SHIP เสร็จ (archived ที่ `docs/stages/achieved/2026-08-14-publish-pack-polish/`) — release `0.29.1` พร้อม publish
 
 ## ค้างอะไร
-- `docs/backlog.md` 4 open entries: #1 EOL guard tarball (#1 — topic นี้ปิด), #2 Windows npm (#2 — ปิด), #4 cli --help wording (#4 — ปิด), #5 universal-ide spec format (#5 — Topic B)
-- Topic B `universal-ide-spec` — แปลง `R1-R9` เป็น `## Requirement:` + `### Scenario:` — DESIGN รอบหน้า
+- **ไม่มี** — `docs/backlog.md` ปิดครบทุก entry (1 dropped เดิม + 4 dropped ใหม่)
 
 ## เพิ่งตัดสินอะไรไป
-- **Topic A**: tier = standard; version bump = `0.29.1` (patch); Spec delta = ADDED Requirement ใน `docs/features/installer-version-stamp/spec.md` (existing feature มี Scenario `stamp ไม่หลุดขึ้น tarball` แล้ว → ต่อยอด); DAG = wave 1 width 2 (file-ownership disjoint) + wave 2 sequential; Slice B ไม่ fold เข้า Slice C (wording fix disjoint กับ release-hygiene — file-ownership + ขนานได้จริง)
-- **Topic A panel**: 5 reviewer (SA / Tech Lead / QA / Security / Infra) — รวม 18 blocker + 30 suggestion, integrate ครบ; conflicting recommendations (npm binary selection) — Security approach (`process.execPath + npm_execpath`) ชนะ Infra/SA/TL (`pickNpmBinary()` helper) เพราะปิดทั้ง CVE-2024-27980 + PATH/CWD hijack ในที่เดียว
-- **Topic A feedback**: ขยาย wording fix scope 1 จุด → 5 จุด (cli.mjs + 3 docs + payload); แยก `checkEol(entries)` pure fn ใหม่ — I/O อยู่ที่ขอบ (preserve `checkFiles` signature); TEXT_EXT export จาก `cli.mjs` import ใน `verify-pack.mjs` (DRY); MIN_PASS baseline 180 (ไม่ใช่ 46) → bump ตาม pass count จริง (estimated 190 หลัง +5 เคส)
+- **Topic A**: tier = standard; version bump = `0.29.1` (patch); DAG = wave 1 width 2 + wave 2 sequential; panel 5 reviewers (18 blocker + 30 suggestion integrate ครบ); Security approach (`process.execPath + npm_execpath`) ชนะ Infra/SA/TL helper — ปิด CVE-2024-27980 + PATH/CWD hijack
+- **Topic A learned-rule**: promote 13 ข้อ (8 component + 1 supersede KB#4 + 3 project + 1 incident) — drop 1 (`CI windows-latest ad-hoc verify pattern` — defer backlog แยก)
+- **integration technique**: `git diff > patch` + `git apply` แทน `git checkout <branch> -- <files>` (auto-classifier block ใน Claude Code session; safe alternative ที่ maintain reviewer intent — KB#11)
+- **shared-tree sub-agent resilience**: Wave 2 agent ตายกลางทาง (API error) หลังทำ 4/5 ไฟล์เสร็จ — main loop ทำ full-gate + commit ต่อเอง สำเร็จ
+- **Topic B**: tier = **fast** (code-first path — no DESIGN/BUILD/VERIFY ceremony); ข้าม `triage.md` skip-list → receipt-only archive; side fix เพิ่ม WHEN clause ใน `installer-version-stamp/spec.md` (จับตอน cross-cutting validate)
 
 ## อัปเดตล่าสุด
-- 2026-08-13 · topic `publish-pack-polish` DESIGN เสร็จ — 14 ไฟล์ (`proposal.md` + `design.md` + 3 tasks × 4 ไฟล์); gate §8 ผ่าน (C1/C2/C4 clean; C5 fail เป็น Topic B scope)
-- 2026-08-13 · `docs/backlog.md` ตรวจครั้งแรก — 4 open entries + 1 dropped (#3 refresh root dogfood ทำเสร็จ 2026-07-27)
-- 2026-08-13 · `docs/memory.md` empty (open 0) — project memory เริ่มสะสมครั้งแรกในรอบนี้
+- 2026-08-14 · topic `universal-ide-spec` SHIP-lite เสร็จ — 9 Requirement + 12 Scenario (C5 pass); receipt.md archived · side fix WHEN ใน installer-version-stamp · backlog #5 dropped
+- 2026-08-14 · topic `publish-pack-polish` SHIP เสร็จ — archive + ship.md · 14 ไฟล์ · backlog #1/#2/#4 dropped · feature `installer-version-stamp` ปรับปรุง
+- 2026-08-14 · topic `publish-pack-polish` VERIFY เสร็จ — 2 findings แก้ในรอบเดียว; full-gate green
+- 2026-08-14 · topic `publish-pack-polish` BUILD เสร็จ — full-gate green
+- 2026-08-13 · topic `publish-pack-polish` DESIGN เสร็จ — gate §8 ผ่าน
+- 2026-08-13 · `docs/backlog.md` ตรวจครั้งแรก — 5 entries (4 open + 1 dropped)

@@ -99,3 +99,65 @@ installer วาง version stamp ที่ `.warnyin/.warnyin-version` (= เ�
 - GIVEN unit test `import { resolveMode, isEntrypoint } from cli.mjs` — `argv[1]` เป็น test runner ไม่ใช่ cli.mjs
 - WHEN module ถูก import
 - THEN `isEntrypoint` คืน false → ไม่ trigger `main()` (กัน side-effect ตอน import)
+
+## Requirement: verify:pack ตรวจ EOL + เลือก npm binary แบบ cross-platform (added 0.29.1)
+
+`npm run verify:pack` ตรวจ payload text files ไม่มี CR (เพื่อให้ payload ที่ติดตั้งขึ้นเครื่องผู้ใช้เป็น LF เสมอ — ป้องกัน `/warnyin:build` พังจาก `script contains control characters`) และเลือก npm binary ตาม platform โดยไม่ใช้ `.cmd`/`.bat` (CVE-2024-27980)
+
+### Scenario: payload text file = LF → ไม่มี eol-error
+- GIVEN `readTextEntries(allowed)` คืน entries[{path, buf}] โดย buf เป็น LF
+- WHEN `checkEol(entries)`
+- THEN errors[] ไม่มี prefix `eol:`
+
+### Scenario: payload text file มี CR → error (ระบุจำนวน)
+- GIVEN buf มี `\r\n` 3 ครั้ง
+- WHEN `checkEol(entries)`
+- THEN errors[] มี `"eol: ไฟล์ text มี CR 3 ครั้ง (${path})"`
+
+### Scenario: binary file (extension ไม่อยู่ใน TEXT_EXT) → skip
+- GIVEN ext = `.png` (ไม่อยู่ใน `TEXT_EXT`)
+- WHEN `checkEol(entries)`
+- THEN errors[] ไม่มี eol-error (extension skip)
+
+### Scenario: path เป็น absolute → error หมวด path (ไม่ใช่ eol)
+- GIVEN files[] มี `/etc/passwd`
+- WHEN `readTextEntries(files)`
+- THEN errors[] มี `"path: absolute path (/etc/passwd)"` (ไม่ read ไฟล์)
+
+### Scenario: path มี `..` segment → error หมวด path
+- GIVEN files[] มี `../../../etc/passwd`
+- WHEN `readTextEntries(files)`
+- THEN errors[] มี `"path: มี segment .. (../../../etc/passwd)"`
+
+### Scenario: file เป็น symlink → error หมวด path
+- GIVEN `path.resolve(root, p)` ชี้ไป symlink
+- WHEN `readTextEntries(files)`
+- THEN errors[] มี `"path: symlink (${p})"`
+
+### Scenario: Windows dev → ใช้ `process.execPath + npm_execpath` (ไม่ใช่ `.cmd`)
+- GIVEN `getNpmCmd('win32')` + `process.env.npm_execpath = '/usr/local/lib/node_modules/npm/bin/npm-cli.js'`
+- WHEN เรียก `getNpmCmd('win32')` (pure fn — runtime resolution)
+- THEN return `{ bin: '/path/to/node', prefix: ['/usr/local/lib/.../npm-cli.js'] }` — main() execFileSync ใช้ `node` รัน `npm-cli.js` ตรง ไม่ผ่าน shell
+- GIVEN `getNpmCmd('win32')` + ไม่มี `npm_execpath`
+- WHEN เรียก `getNpmCmd('win32')` (ไม่ตั้ง env)
+- THEN return `null` — main() exit 1 + error "ต้องรันผ่าน `npm run verify:pack`"
+
+### Scenario: mac/linux → ใช้ npm ตรง
+- GIVEN `getNpmCmd('darwin')` หรือ `getNpmCmd('linux')`
+- WHEN เรียก `getNpmCmd(platform)` (pure fn)
+- THEN return `{ bin: 'npm', prefix: [] }`
+
+### Scenario: file ว่าง → pass EOL
+- GIVEN buf.length === 0
+- WHEN `checkEol(entries)`
+- THEN errors[] ไม่มี eol-error (empty = no CR)
+
+### Scenario: lone CR (Mac classic) → error (EOL check จับทุก `\r` ไม่ใช่เฉพาะ `\r\n`)
+- GIVEN buf มี `\r` อย่างเดียว (ไม่ตามด้วย `\n`)
+- WHEN `checkEol(entries)`
+- THEN errors[] มี eol-error (Buffer check จับ 0x0D ทุกตัว)
+
+### Scenario: file ขนาดเกิน 5 MB → skip + warn (ไม่ false-positive)
+- GIVEN `statSync().size > 5 MB`
+- WHEN `readTextEntries(files)`
+- THEN entries[].buf === null + `console.warn('⚠ ข้าม EOL check (size > 5MB): ...')` + ไม่มี eol-error

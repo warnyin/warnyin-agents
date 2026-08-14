@@ -707,3 +707,25 @@ test('EOLI. package ต้นทาง CRLF → ไฟล์ที่ติด�
   noCr(path.join('docs', 'crlf-note.md')) // seedDocs
   noCr('CLAUDE.md') // installRootDoc
 })
+
+// ─────────────────────────────────────────────────────────────
+// เคส cli --help wording regression (task cli-help-wording, slice B)
+// spawn `cli.mjs --help` → assert substring ใหม่ปรากฏ + substring เก่าหายไป
+// ─────────────────────────────────────────────────────────────
+test('cli --help wording regression: substring ใหม่ปรากฏ + substring เก่าหาย (slice B)', (t) => {
+  const tmp = makeTempProject(t)
+  const r = runCli(tmp, ['--help'])
+  ok(r, '--help')
+  assert.ok(
+    r.stdout.includes('เขียนทับเฉพาะ CORE'),
+    `--help ต้องมี substring ใหม่ "เขียนทับเฉพาะ CORE"\nSTDOUT:\n${r.stdout}`,
+  )
+  assert.ok(
+    !r.stdout.includes('ไม่แตะ docs/'),
+    `--help ต้องไม่มี substring เก่า "ไม่แตะ docs/"\nSTDOUT:\n${r.stdout}`,
+  )
+  assert.ok(
+    !r.stdout.includes('ไม่แตะ `docs/`'),
+    `--help ต้องไม่มี substring เก่า "ไม่แตะ \`docs/\`"\nSTDOUT:\n${r.stdout}`,
+  )
+})

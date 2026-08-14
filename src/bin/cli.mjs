@@ -46,8 +46,7 @@ if (args.has('--help') || args.has('-h')) {
   npx @warnyin/agents --global    ติดตั้งแบบ global ลง ~/ (~/.warnyin + ~/.claude) ใช้ได้ทุกโปรเจกต์
   npx @warnyin/agents --project   ติดตั้งลงโปรเจกต์ (บังคับ ไม่ถาม)
   npx @warnyin/agents --update    อัปเดต playbook กลางเป็นเวอร์ชันล่าสุด
-                                  (เขียนทับเฉพาะ .warnyin/workflow/, .claude/commands/warnyin/,
-                                   template .warnyin/template/stages/[topic] — ไม่แตะ docs/ และงานจริง)
+                                  (เขียนทับเฉพาะ CORE — ไฟล์ docs/ ถูก seed จาก template ถ้ายังไม่มี ไม่ทับของเดิม)
   npx @warnyin/agents --dry-run   แสดงรายการไฟล์ที่จะสร้าง/อัปเดต โดยไม่เขียนจริง
 
 หลังติดตั้ง: เปิด Claude Code ในโปรเจกต์ แล้วรัน /warnyin:init ให้ agent วิเคราะห์โปรเจกต์ + เติม docs/`)
@@ -106,8 +105,9 @@ const stats = { created: 0, updated: 0, skipped: 0 }
 // target = ปลายทางที่จะเขียนไฟล์ — ตั้งหลัง resolve mode (project=cwd | global=homedir)
 let target = cwd
 
-// นามสกุลที่ถือเป็น text payload — normalize EOL ตอนเขียน (นอกรายการนี้ = byte-copy ตรง)
-const TEXT_EXT = new Set(['.md', '.mjs', '.js', '.json', '.txt', '.yml', '.yaml'])
+// นามสกุลที่ถือเป็น text payload — normalize EOL ตอนเขียน + EOL gate ของ verify-pack (นอกรายการนี้ = byte-copy ตรง)
+// export ให้ verify-pack.mjs import ใช้ร่วม (single source ระหว่าง normalizeEol ↔ checkEol — กัน drift)
+export const TEXT_EXT = new Set(['.md', '.mjs', '.js', '.cjs', '.json', '.txt', '.yml', '.yaml', '.css', '.html'])
 
 /**
  * ★ payload ที่เขียนลง target ต้องเป็น **LF เสมอ** ไม่ว่าไฟล์ใน package จะเป็น EOL อะไร

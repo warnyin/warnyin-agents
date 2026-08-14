@@ -30,8 +30,9 @@
 ### 4. `verify-pack.mjs` รันตรงบน Windows ล้ม ENOENT
 - **อาการ:** `node scripts/verify-pack.mjs` บน Windows → `execFileSync ENOENT spawn npm` (บน CI ubuntu ปกติ)
 - **Root cause:** `execFileSync('npm', ...)` ไม่ผ่าน shell — บน Windows executable จริงคือ `npm.cmd`; `execFile` ไม่ทำ PATHEXT resolution
-- **วิธีแก้:** ยอมรับเป็น dev-only (CI หลักเป็น ubuntu); ถ้าต้องรันบน Windows dev → เลือก binary ตาม `process.platform` (`npm.cmd` vs `npm`) หรือ `shell:true`; ยืนยัน logic บน Windows ได้ด้วยรัน `npm pack --dry-run --json` แล้ว apply allowlist เอง
-- **gate ของ logic ที่เชื่อถือได้ (ไม่พึ่ง npm process):** `verify-pack.test.mjs` (unit `checkFiles` ป้อน file list ปลอม — รวมเคส `.warnyin/.warnyin-version` stamp-deny) รันผ่าน `npm test` ปกติทุก platform; acceptance ที่ระบุ "verify:pack ผ่าน" บน Windows dev → ใช้ unit gate + `npm pack --dry-run` แทน (เจอซ้ำ topic `setup-dogfood-version-check` 2026-06-12)
+- **✅ FIXED (topic `publish-pack-polish` 2026-08-14):** เปลี่ยนเป็น `getNpmCmd(platform)` — Windows ใช้ `process.execPath + npm_execpath` (npm-cli.js path) ไม่ผ่าน shell; mac/linux ใช้ `'npm'` ตรง; `npm_execpath` ไม่ตั้ง (เช่น รัน `node verify-pack.mjs` ตรง) → `getNpmCmd` คืน `null` → `main()` exit 1 + error "ต้องรันผ่าน `npm run verify:pack`" (false-green guard). ปิดทั้ง CVE-2024-27980 + PATH/CWD hijack ในที่เดียว — testable โดย argument injection (`getNpmCmd('win32')`) ไม่ต้อง mock global
+- **unit testable cross-platform:** `verify-pack.test.mjs` truth table `getNpmCmd` × 4 (darwin/linux/win32-with-path/win32-no-path) — pattern: cross-platform logic ที่ testable แยกจาก env ด้วย default arg + inject
+- **gate ของ logic ที่เชื่อถือได้ (ไม่พึ่ง npm process):** `verify-pack.test.mjs` (unit `checkFiles` + `getNpmCmd` + `checkEol` + `readTextEntries` ป้อน list ปลอม — รวมเคส `.warnyin/.warnyin-version` stamp-deny) รันผ่าน `npm test` ปกติทุก platform; acceptance ที่ระบุ "verify:pack ผ่าน" บน Windows dev → `npm run verify:pack` (npm_execpath ตั้งให้อัตโนมัติ) หรือ unit gate
 
 ## workflow tooling
 
@@ -234,3 +235,12 @@
 - **อาการ:** พิสูจน์ว่าเทสจับ regression ได้ โดย mutate ไฟล์แล้วรันเทส → รายงาน "ยังเขียว" → เกือบสรุปว่าเทสเป็น false-green
 - **Root cause:** mutation ทำผ่าน `node -e "…"` ที่ฝังใน shell → **escaping ของ regex พังเงียบ** ไฟล์ไม่ถูกแก้จริง → การทดลองไม่เคยเกิด แต่ผลลัพธ์ดูเหมือนข้อสรุปที่มีความหมาย
 - **วิธีแก้/ป้องกันซ้ำ:** เขียน mutation เป็นไฟล์ `.mjs` แยก และให้ **`exit 2` เมื่อเนื้อไฟล์ก่อน/หลังเท่ากัน** (พิสูจน์ว่า mutate ติดจริงก่อนตีความผลเทส); restore ด้วย **copy-from-backup** ไม่ใช่ replace ย้อนกลับ แล้วยืนยัน `git status` สะอาด
+
+## dev tooling
+
+### 7. Claude Code Edit tool corrupts Thai multi-codepoint characters
+- **อาการ:** Edit ไฟล์ที่มีเนื้อ Thai ยาว ๆ (≥5 codepoint contiguous) → บางตัวอักษรถูกแทนที่ด้วย U+FFFD (replacement character) ในไฟล์ — file valid UTF-8 แต่ corruption เฉพาะจุด — เคสที่เจอ: `เขียน` → `เ�ียน` (U+FFFD แทน "ข") · `วิกฤต` → `วิก�ต` (U+FFFD แทน "ฤ") — test pass แต่ไฟล์เสียหาย (semantic เปลี่ยน)
+- **Root cause:** Claude Code Edit tool น่าจะ serialize string ผ่าน layer ที่ escape/unescape unicode escape sequence ไม่ครบถ้วน — char ที่อาจถูก escape ตอน serialize (เช่น "เ" U+0E40, "ข" U+0E02, "ฤ" U+0E24) ตีความผิดเป็น incomplete escape sequence → ถูกแทนที่ด้วย U+FFFD
+- **วิธีแก้:** หลัง Edit ทุกครั้งที่แตะไฟล์ Thai: (1) verify ด้วย `grep -F '<known-good substring ก่อนหน้า Thai block>' <file>` หรือ `awk 'NR==<line>' <file> | od -c` เช็ค integrity; (2) ถ้าเจอ U+FFFD ใช้ Python `open(path,'r',encoding='utf-8').read().replace(bad, good)` + write — Python bytes-correct รับประกัน UTF-8 round-trip ไม่เพี้ยน
+- **ป้องกันซ้ำ:** เมื่อ Edit ไฟล์ Thai ยาว (5+ Thai characters contiguous): (1) **prefer Python script-driven replace** สำหรับ multi-char substring เพื่อหลีกเลี่ยง char boundary issue; (2) หลัง Edit ทุกครั้ง ใช้ `grep -nF '<known-good substring ก่อนหน้า Thai block>' <file>` เช็ค integrity; (3) สำหรับไฟล์ขนาดเล็ก (<100 บรรทัด) อาจ Write ทับทั้งไฟล์แทน Edit หลายครั้ง — ลด round-trip exposure
+- **evidence:** topic `publish-pack-polish` (Wave 1b build agent เจอตอนแก้ `--help` text หลายไฟล์ Thai — workaround ใช้ Python script สำเร็จ)

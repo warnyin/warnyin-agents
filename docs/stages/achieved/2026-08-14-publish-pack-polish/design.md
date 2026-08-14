@@ -219,7 +219,7 @@ npx @warnyin/agents --help
 
 > **⚠️ commit/stash งานที่ยังไม่ได้ commit ก่อน** — `git reset --hard` ลบงานค้างถาวร
 >
-> ผู้ใช้ที่ clone repo ก่อน 2026-07-14 (release 0.27.1 — ก่อนเพิ่ม `.gitattributes`) และยังไม่ renormalize:
+> ผู้ใช้ที่ clone repo ก่อน 2026-07-14 (release 0.27.1 — ก่อนเพิ่ม `.gitattributes`) และยังไม่ได้ renormalize:
 > ```bash
 > git rm --cached -r .
 > git reset --hard

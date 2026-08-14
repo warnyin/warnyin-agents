@@ -9,7 +9,7 @@
 | **Slice อ้างอิง** | `design.md` slice B |
 | **Component** | `installer` |
 | **Model tier** | `cheap` |
-| **สถานะ** | `รอ build` |
+| **สถานะ** | `เสร็จ` |
 
 ## 1. เป้าหมายของ task (vertical slice)
 แก้ wording `--update` ใน `--help` text ให้ตรงข้อเท็จจริง (5 จุด) — `seedDocs()` รันจริงแต่ไม่ทับของเดิม — + regression test spawn `--help` กัน wording เด้งกลับ
