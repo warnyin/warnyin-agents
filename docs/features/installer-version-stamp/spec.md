@@ -136,12 +136,15 @@ installer วาง version stamp ที่ `.warnyin/.warnyin-version` (= เ�
 
 ### Scenario: Windows dev → ใช้ `process.execPath + npm_execpath` (ไม่ใช่ `.cmd`)
 - GIVEN `getNpmCmd('win32')` + `process.env.npm_execpath = '/usr/local/lib/node_modules/npm/bin/npm-cli.js'`
+- WHEN เรียก `getNpmCmd('win32')` (pure fn — runtime resolution)
 - THEN return `{ bin: '/path/to/node', prefix: ['/usr/local/lib/.../npm-cli.js'] }` — main() execFileSync ใช้ `node` รัน `npm-cli.js` ตรง ไม่ผ่าน shell
 - GIVEN `getNpmCmd('win32')` + ไม่มี `npm_execpath`
+- WHEN เรียก `getNpmCmd('win32')` (ไม่ตั้ง env)
 - THEN return `null` — main() exit 1 + error "ต้องรันผ่าน `npm run verify:pack`"
 
 ### Scenario: mac/linux → ใช้ npm ตรง
 - GIVEN `getNpmCmd('darwin')` หรือ `getNpmCmd('linux')`
+- WHEN เรียก `getNpmCmd(platform)` (pure fn)
 - THEN return `{ bin: 'npm', prefix: [] }`
 
 ### Scenario: file ว่าง → pass EOL
