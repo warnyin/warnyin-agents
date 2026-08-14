@@ -5,12 +5,12 @@
 // zero-dependency: ใช้เฉพาะ built-in node:* · ESM (import.meta) ห้าม __dirname/require
 //
 // ใช้ใน CI: `npm test 2>&1 | node src/scripts/check-test-count.mjs`
-// ค่า MIN_PASS = 180 (สูตร: ปัดลงหลักสิบของ (N − 5)) — ยอดจริงวัด N = 192 หลัง integrate topic
-// project-memory (2026-07-27); เดิม 46 (installer 33 + verify-pack 13) หลวมจนแทบไม่ทำงาน — bump ตาม
-// docs/stages/project-memory/tasks/release-hygiene/standard.md §4.3
+// ค่า MIN_PASS = 200 (สูตร: ปัดลงหลักสิบของ (N − 5)) — ยอดจริงวัด N = 212 หลัง integrate topic
+// publish-pack-polish (2026-08-14); slice A (+4 verify-pack: LF/CR/binary/traversal + EOL check + path guards)
+// + slice B (+1 installer: cli-help substring regression guard) → N = 212; headroom 5; snap ลงหลักสิบ
 import process from 'node:process'
 
-const MIN_PASS = 180
+const MIN_PASS = 200
 
 // อ่าน stdin ทั้งหมด (output ของ node --test ที่ pipe มา)
 async function readStdin() {

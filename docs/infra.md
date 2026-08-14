@@ -47,3 +47,28 @@ npm run setup:sandbox    # ติดตั้ง v-next จาก src/ ลง te
 - ไฟล์ทั้งสองอยู่ใต้ข้อบังคับเดียวกับ artifact ที่ agent เขียนแล้ว commit: **ห้าม raw secret/token/credential, absolute path ของเครื่อง, PII จริง** และอ้าง path เป็น **inline-code ห้าม markdown-link** (อยู่ใน `SCAN_ROOTS` ของ `lint:md` → ลิงก์ที่ชี้ `docs/stages/<slug>/` จะพังถาวรเมื่อ SHIP archive topic) — กติกาเต็ม `.warnyin/workflow/memory.md`
 - ตรวจสุขภาพ: `node .warnyin/workflow/scripts/memory-status.mjs` (read-only, exit 0 เสมอ — ไม่ใช่ gate)
 - **EOL:** payload ที่ติดตั้งลง root dogfood ต้องเป็น **LF** — installer normalize ให้ตั้งแต่ 0.28.0 แล้ว; dogfood ที่ติดตั้งจากรุ่นก่อนหน้าอาจยังเป็น CRLF ทำให้ Workflow ปัดตก `build-wave.mjs` (`docs/troubleshooting.md` #30) → แก้ด้วย `npx @warnyin/agents --update`
+
+## Runbook — `verify:pack` gate failure
+
+`npm run verify:pack` มี error category หลายแบบ — แยกตาม prefix ของ error string เพื่อให้รู้วิธีแก้เร็ว:
+
+| Prefix / category | อาการ | วิธีแก้ |
+|---|---|---|
+| `denylist รั่ว:` (prefix) | dev tooling (`src/tests/`, `src/scripts/`) หรืองานจริงของ repo (`docs/`, `.github/`) หลุดขึ้น tarball | ตรวจ `package.json` `files` field — ต้องไม่มี prefix เหล่านี้; dev tooling ห้าม publish |
+| `denylist รั่ว (root dogfood):` | root `CLAUDE.md` / `AGENTS.md` (dogfood install) หลุดขึ้น tarball | canonical อยู่ `src/.warnyin/installer/templates/`; root copy เป็น dogfood gitignored — เช็ค `git check-ignore CLAUDE.md` |
+| `tripwire รั่ว:` | `settings.local.json`, `*.tgz`, `.env*` หลุดขึ้น tarball | ลบไฟล์ออกจาก working tree + เพิ่ม `.gitignore` (ถ้ายังไม่มี); `.tgz` มาจาก `npm pack` ค้างใน dir |
+| `ไฟล์นอก allowlist:` | ไฟล์นอก `ALLOWED_PREFIX` + `ALLOWED_FILE` หลุดเข้า tarball | ดู `src/scripts/verify-pack.mjs` `ALLOWED_PREFIX` — เพิ่ม prefix ใหม่ถ้าจำเป็น (เช่น nested dotfolder ใหม่) |
+| `(R1) ... ไม่ติดใน package` | nested dotfolder (`src/.warnyin/workflow/`, `src/.claude/commands/warnyin/`, `src/.claude/skills/`, `src/.warnyin/template/docs/`) หายจาก tarball | เพิ่ม path ใน `package.json` `files` (nested dotfolder ต้องระบุชัด — npm ไม่รวมอัตโนมัติ) |
+| `eol: ไฟล์ text มี CR N ครั้ง (...)` | text file ใน payload มี CR (`0x0D`) — checkout ก่อน 2026-07-14 (ก่อน `.gitattributes`) | renormalize: `git rm --cached -r . && git reset --hard` (commit/stash ก่อน; ลบงานค้างถาวร); dev หลัง 2026-07-14: ไม่ควรเจอ |
+| `path: absolute path` | ไฟล์ใน payload เป็น absolute path | ตรวจ `npm pack --json` ว่ามี absolute path ไหม — ปกติไม่มี (npm pack ใช้ POSIX relative เสมอ); ถ้าเจอ → bug ของ upstream tooling |
+| `path: มี segment ..` | path traversal — ไฟล์มี `..` ใน path | ตรวจ `npm pack --json` ว่ามี path ที่มี `..` ไหม (ปกติ npm pack ป้องกัน); ถ้าเจอ → bug ของ upstream |
+| `path: symlink` | symlink หลุดเข้า payload | ตรวจ working tree ว่ามี symlink ใน `src/` ไหม — ลบ symlink + แทนด้วย file จริง |
+| `stamp` (related — setup-dogfood) | `verifyInstalled` จับ stamp ไม่ตรง expected version | `npx @warnyin/agents --update` (refresh payload); หรือตรวจ `.warnyin/.warnyin-version` ใน target |
+
+**ขั้นตอน debug เร็ว:**
+1. ดู prefix ของ error แรก → หา category จากตาราง
+2. `npm pack --dry-run --json --ignore-scripts` → ดู file list จริงที่ติด tarball
+3. เทียบกับ `package.json` `files` field + `src/scripts/verify-pack.mjs` `ALLOWED_*` + `DENY_*`
+4. แก้ → รัน `npm run verify:pack` อีกครั้ง
+
+**Windows dev:** ถ้าเจอ `verify:pack: ต้องรันผ่าน npm run verify:pack` → ใช้ `npm run verify:pack` เท่านั้น (script ตรงไม่ตั้ง `npm_execpath` env var); ถ้าไม่มี Windows dev ในทีม → trigger `windows-latest` GitHub Actions workflow ad-hoc
