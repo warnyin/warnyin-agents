@@ -21,6 +21,27 @@
 
 > **0.6.0 → 0.7.0:** ผู้ใช้ปลายทาง (`npx @warnyin/agents`) **ไม่ต้องทำอะไร** — payload ที่ติดตั้งคงเดิม การเปลี่ยนแปลงทั้งหมด (bin path → `src/`, dogfood 2-layer) เป็นเรื่องภายใน repo เท่านั้น; ผู้พัฒนา repo เอง (contributor) ดู [`CONTRIBUTING.md`](CONTRIBUTING.md)
 
+## [0.30.0] - 2026-08-14
+
+> ลด ceremony ของ workflow 5 จุดที่วัดแล้วว่าซ้ำหรือไม่ถูกใช้ — **ไม่มี gate ใดถูกลด**: full build+test ยัง blocking, hard-floor 5 หมวดคงเดิม, evidence-before-promote ของ SHIP คงเดิม, approve gate ของ wireframe คงเดิม
+
+### Added
+- **`✖ [C7]` — validator บังคับ cap ขนาดเอกสารต่อ tier** — เดิม cap ใน `triage.md §2D` เป็นตัวเลขในเอกสารที่ไม่มีใครเช็ค (วัดจาก 39 topic: `design.md` เกิน cap 12 ไฟล์ สูงสุด 611 บรรทัด) ตอนนี้ `validate-topic.mjs` เช็คจริง: `fast` receipt ≤40 · `standard` proposal ≤60 / design ≤120 · `large` ไม่มี cap — เกิน = ✖ block (exit 1); tier อ่านจากช่อง `ขนาด` ใน `proposal.md` และถ้าอ่านไม่ได้ = ⚠ ข้ามเช็ค ไม่บังคับ (fail-safe) · `design.md` นับเฉพาะบรรทัด **ก่อน** `## 9. Spec delta` (delta เป็นเนื้อ spec ที่ถูก merge ออกตอน SHIP ไม่ใช่ narrative) — runbook ใน `docs/infra.md`
+- **BUILD → VERIFY เดินต่อในเซสชันเดียว** — หลัง full-gate เขียว BUILD ถามยืนยันหนึ่งครั้งแล้วเดิน VERIFY ต่อ (ปฏิเสธ → หยุด ให้สั่ง `/warnyin:verify` เอง) — **VERIFY ไม่ถูกข้ามหรือลดทอน** และยังบังคับให้ตรวจโดย agent อิสระจากผู้เขียนโค้ด
+
+### Changed
+- ★ **DESIGN auto-route งาน fast → fastlane ในคำสั่งเดียว** — เดิม `tier=fast` จบที่ pre-flight receipt แล้วผู้ใช้ต้องพิมพ์ `/warnyin:fastlane` เอง (ผลจริง: fast tier ถูกใช้ 1 ใน 39 topic) ตอนนี้ DESIGN ถามยืนยัน **หนึ่งครั้ง** แล้วเดิน skip-list ครบ 4 row ต่อเลย — handoff ที่ user ยืนยันในเซสชันนับเป็น user-invoked ตามกฎเดิมของ `fastlane.md §1` (AI auto-invoke เองยังห้าม); ปฏิเสธ → หยุดที่ receipt เหมือนเดิม
+- ★ **artifact ของ BUILD/VERIFY ยุบ 3 ไฟล์ → 1** — `build.md` + `test.md` + `verify.md` รวมเป็น `build.md` ไฟล์เดียว 4 section (`## 1. ผล build ต่อ task` · `## 2. Full build & test gate` · `## 3. แผนเทส (VERIFY)` · `## 4. ผล verify + การแก้`); template `[topic]/test.md` และ `[topic]/verify.md` ถูกลบ · validator เปลี่ยนการ infer stage VERIFY จาก "มีไฟล์" เป็น "มี section `## 4. ผล verify` ใน `build.md`"
+- **review panel / dry-run เปลี่ยนจากถามทุกครั้งเป็น trigger by signal** — เสนอเฉพาะเมื่อ `tier=large` **หรือ** change แตะ hard-floor **หรือ** มี task ≥ 4; ไม่เข้าเงื่อนไข → ข้ามเงียบไม่ถาม (เมื่อเข้าเงื่อนไขยังถามก่อนเสมอ ไม่ fan-out เอง)
+- **UX wireframe: detect ผ่าน → วาดเลย** — ตัดคำถาม "จะวาด wireframe ไหม" ออก (detect มี exclusion-ก่อน-signals อยู่แล้ว); **approve gate ของภาพยังอยู่** — ผู้ใช้ยังต้องยืนยัน/ปรับ wireframe ก่อนแตก task
+- **จุดเขียน project memory 6 → 3** — เดิมเขียนท้ายทุก stage (`discovery/design/build/verify/ship` + `fastlane`) ตอนนี้เหลือ **จบ BUILD** (main loop เท่านั้น หลัง integrate ครบ) · **SHIP** · **fastlane** (ship-lite) — สถานะของ Discovery/DESIGN/VERIFY อยู่ใน artifact ของ stage นั้นบนดิสก์อยู่แล้ว
+- **ตัดข้อความซ้ำระหว่าง `stages/build.md` กับ `stages/verify.md`** — step 0 (เช็ค context window), investigate-before-edit, config-protection และ loop-tuning report เคยเขียนเต็มทั้งสองไฟล์ ตอนนี้เหลือ canonical ที่เดียวและอีกฝั่งเป็น pointer พร้อมพิกัด
+
+### Migration
+- **topic ที่ค้างอยู่ไม่ต้องย้ายอะไร** — `test.md`/`verify.md` ที่มีอยู่แล้วไม่ทำให้ validator แดง (ย้ายเป็น optional ไม่ใช่ลบออกจากเช็ค) และ `docs/stages/achieved/` ไม่ถูกสแกนอยู่แล้ว — topic **ใหม่** จะได้ template `build.md` 4 section
+- **เอกสารที่เกิน cap จะถูก block ด้วย `✖ [C7]`** — ทางแก้ตามลำดับที่แนะนำ: (1) ย่อเอกสารให้อยู่ใน cap (2) ตรวจว่าช่อง `ขนาด` ใน `proposal.md` ระบุ tier ถูกต้อง (3) ประกาศ `large` เมื่อ change ใหญ่จริง — **ห้ามแก้ตัวเลข cap ใน `triage.md §2D` เพื่อให้ผ่าน**; รายละเอียดอยู่ใน runbook ของ `docs/infra.md`
+- **ผู้ใช้ที่พึ่งพา prompt "จะให้ panel รีวิวไหม" ทุก topic** — งานขนาด standard ที่ต่ำกว่า 4 task จะไม่ถูกถามอีก; ต้องการ panel → สั่งได้เองหรือยกระดับ tier
+
 ## [0.29.1] - 2026-08-14
 
 ### Fixed

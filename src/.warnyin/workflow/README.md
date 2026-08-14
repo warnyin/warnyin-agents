@@ -61,8 +61,8 @@ Discovery (optional) ──▶ DESIGN ──▶ BUILD ──▶ VERIFY ──▶
     stages/[topic]/    #   หนึ่งหน่วยงาน — copy เป็น docs/stages/<slug>
       discovery.md  research.md            # output ของ Discovery
       business.md  proposal.md  design.md  # output ของ DESIGN
-      tasks/[task-name]/...  build.md      # output ของ DESIGN (tasks) + BUILD
-      test.md  verify.md                   # output ของ VERIFY
+      tasks/[task-name]/...                # output ของ DESIGN (tasks)
+      build.md                             # output ของ BUILD + VERIFY (§1-4: ผล task · gate · plan · ผล verify)
       troubleshooting.md  ship.md          # KB ระหว่างงาน + สรุปส่งมอบของ SHIP
     docs/                                  #   โครง docs — installer seed เข้า docs/ ตอนติดตั้ง
       project.md  rule.md  infra.md  troubleshooting.md  codemap/index.md

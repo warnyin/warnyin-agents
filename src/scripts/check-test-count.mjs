@@ -5,12 +5,11 @@
 // zero-dependency: ใช้เฉพาะ built-in node:* · ESM (import.meta) ห้าม __dirname/require
 //
 // ใช้ใน CI: `npm test 2>&1 | node src/scripts/check-test-count.mjs`
-// ค่า MIN_PASS = 200 (สูตร: ปัดลงหลักสิบของ (N − 5)) — ยอดจริงวัด N = 212 หลัง integrate topic
-// publish-pack-polish (2026-08-14); slice A (+4 verify-pack: LF/CR/binary/traversal + EOL check + path guards)
-// + slice B (+1 installer: cli-help substring regression guard) → N = 212; headroom 5; snap ลงหลักสิบ
+// ค่า MIN_PASS = 230 (สูตร: ปัดลงหลักสิบของ (N − 5)) — ยอดจริงวัด N = 238 หลัง integrate topic
+// lean-ceremony wave 2 (2026-08-14); release-hygiene slice: รวม 4 slices wave 1 → N = 238; headroom 5; snap ลงหลักสิบ
 import process from 'node:process'
 
-const MIN_PASS = 200
+const MIN_PASS = 230
 
 // อ่าน stdin ทั้งหมด (output ของ node --test ที่ pipe มา)
 async function readStdin() {
