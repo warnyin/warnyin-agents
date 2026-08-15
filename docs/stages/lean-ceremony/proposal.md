@@ -32,7 +32,7 @@
 - (2) `design.md §4 step 1.5` + `fastlane.md §1` + adapter: tier=fast → เสนอเดินต่อ **confirm ครั้งเดียว** → รัน fastlane ครบ 4 row ใน session เดียว
 - (3) `validate-topic.mjs`: เพิ่มเช็ค **C7 cap** (fast receipt ≤40 · standard proposal ≤60 / design ≤120 · large ไม่มี cap) — เกิน = ✖, อ่าน tier ไม่ได้ = ⚠ ไม่บังคับ + unit test
 - (5) panel / dry-run: ถามเฉพาะเมื่อ `tier=large` **หรือ** แตะ hard-floor **หรือ** task ≥ 4 — นอกนั้นข้ามเงียบ; wireframe: detect เข้าเงื่อนไข → วาดเลย (ตัดคำถาม "จะวาดไหม" — คง approve gate ของภาพ)
-- (6) memory write hook: 6 จุด → **2 จุด** (จบ BUILD + SHIP); `docs/memory.md` เขียนตอน SHIP
+- (6) memory write hook: 6 จุด → **3 จุด** (จบ BUILD + SHIP + fastlane ship-lite); `docs/memory.md` เขียนตอน SHIP
 - (7) BUILD↔VERIFY: full-gate เขียว → confirm 1 ครั้ง → เดิน VERIFY ต่อใน session เดียว (verify ยังบังคับ agent อิสระจากผู้เขียน) · ยุบ `build.md`+`test.md`+`verify.md` → `build.md` ไฟล์เดียว (VERIFY เป็น section ข้างใน) · ตัด step 0/investigate/config-protection/loop-tuning ที่ซ้ำเหลือ pointer
 
 **Out of scope**

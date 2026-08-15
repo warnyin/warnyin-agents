@@ -48,7 +48,7 @@ Discovery (optional) ──▶ DESIGN ──▶ BUILD ──▶ VERIFY ──▶
     interop.md         #   capability: INTEROP — companion tool consult-if-present convention + inclusion bar 4 ข้อ + UA entry (stage pointer conditional; trust-boundary guard)
     backlog.md         #   capability: BACKLOG — ที่เก็บกลาง deferred-out (recommend-not-auto); per-topic → SHIP promote → global (stage pointer; mirror troubleshooting)
     feedback.md        #   capability: FEEDBACK — เปิด GitHub issue แจ้ง feedback (gh + fallback URL)
-    memory.md          #   capability: MEMORY — ความจำระดับโปรเจกต์ (docs/stages/context.md + docs/memory.md; write hook ทุก stage, promote ที่ SHIP)
+    memory.md          #   capability: MEMORY — ความจำระดับโปรเจกต์ (docs/stages/context.md + docs/memory.md; write hook 3 จุด — BUILD/SHIP/fastlane, promote ที่ SHIP)
     stages/            #   discovery ✅ · design ✅ · build ✅ · verify ✅ · ship ✅
       # discovery: mode ปรับความเข้ม {ไว|สมดุล|ละเอียด|โต้วาที|ไต่สวน} + auto-suggest + debate
       # → taxonomy + behavior + auto-suggest signal อยู่ใน section "Discovery modes (ความเข้มของ Discovery)" ของ discovery.md

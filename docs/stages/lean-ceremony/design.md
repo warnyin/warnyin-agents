@@ -28,7 +28,9 @@
 
 - **C1 — 4 section ของ `build.md` (owner: slice 2; consumer: slice 3):**
   `## 1. ผล build ต่อ task` · `## 2. Full build & test gate` · `## 3. แผนเทส (VERIFY)` · `## 4. ผล verify + การแก้`
-- **C2 — stage inference ของ validator (owner: slice 3):** stage = `VERIFY` เมื่อ `build.md` filled **และ** มี heading `## 4. ผล verify` ; = `BUILD` เมื่อ filled แต่ยังไม่มี section นั้น (structural ล้วน ไม่พึ่ง filled-detection ของเนื้อ — `docs/rule.md §1`)
+- **C2 — stage inference ของ validator (owner: slice 3):** stage = `VERIFY` เมื่อ `build.md` filled **และ section `## 4. ผล verify` มีเนื้อจริง** ; = `BUILD` เมื่อ filled แต่ §4 ยังเป็นโครงเปล่าของ template
+  - **★ แก้จาก "มี heading = พอ" ตอน VERIFY (fix loop รอบ 1):** template ของ `build.md` มี heading §4 ติดมาตั้งแต่ต้น ⇒ ถ้านับแค่ heading ทุก topic จะกระโดดเป็น VERIFY ทันทีที่เริ่มเขียน `build.md` (stage BUILD ไม่มีทางถูก infer) — "เนื้อจริง" ต้องเป็น **template-aware**: ไม่นับ blockquote · heading ย่อย · HTML comment · เส้นคั่น · table separator/row ว่าง · checkbox ที่ยังไม่ติ๊ก · placeholder
+  - เป็น **heuristic ระดับ report เท่านั้น** (stage inference ไม่ใช่ ✖) จึงไม่ขัดกับ "✖ ไม่พึ่ง filled-detection" ใน `docs/rule.md §1`
 - **C3 — cap ต่อ tier (owner: slice 3; canonical เดิม `triage.md §2D` ไม่แก้ตัวเลข):** `fast: receipt.md ≤40` · `standard: proposal.md ≤60, design.md ≤120` · `large: ไม่มี cap` · **นับเฉพาะบรรทัดก่อน heading `## 9. Spec delta`** ของ `design.md` — เหตุผล: §9 คือเนื้อ spec ที่จะถูก merge ออกไปตอน SHIP ไม่ใช่ narrative ของ design (topic ที่แตะหลาย feature จะติด cap ทั้งที่ narrative สั้น)
 - **C4 — tier source (owner: slice 3):** อ่านจาก row `| **ขนาด** |` ใน `proposal.md` → match `fast|standard|large` ตัวแรกที่เจอ; ไม่เจอ/ไม่ match → **⚠ C7 "ไม่ระบุ tier — ข้ามเช็ค cap"** ไม่บังคับ (fail-safe ทิศเดียวกับ mode inference)
 - **C5 — signal ที่เปิด optional gate (owner: slice 1):** `tier=large` **หรือ** change แตะ hard-floor 5 หมวด **หรือ** จำนวน task ≥ 4 → เสนอ user (ถาม); ไม่เข้าเงื่อนไข → **ข้ามเงียบ ไม่ถาม** (ใช้กับ review panel §4 step 6 + dry-run §4 step 10)

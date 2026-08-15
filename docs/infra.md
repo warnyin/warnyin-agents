@@ -79,7 +79,7 @@ npm run setup:sandbox    # ติดตั้ง v-next จาก src/ ลง te
 
 **อาการ**
 ```
-✖ [C7] tier=standard: proposal 65 บรรทัด > cap 60 (ดู docs/infra.md runbook)
+✖ [C7] design.md มี 131 บรรทัด เกิน cap 120 บรรทัด (tier: standard)
 ```
 - exit code 1 (ปิดกั้นการ ship)
 - prefix `✖ [C7]` ใช้เป็น identifier เพื่อให้ผู้ใช้ grep ได้
@@ -119,9 +119,9 @@ npm run setup:sandbox    # ติดตั้ง v-next จาก src/ ลง te
 
 ```bash
 # อ่าน tier ที่ proposal ระบุ
-grep "^ขนาด:" docs/stages/<slug>/proposal.md
+grep -n '^| \*\*ขนาด\*\*' docs/stages/<slug>/proposal.md   # tier อยู่ใน cell ที่ 2 (ต้องมี backtick ค่าเดียว)
 
 # นับบรรทัด proposal / design ก่อน §9
 wc -l docs/stages/<slug>/proposal.md   # ต้อง ≤ cap ตาม tier
-sed -n '1,/^## 9\./p' docs/stages/<slug>/design.md | wc -l  # ≤ 120 สำหรับ standard
+awk '/^## 9\. Spec delta/{exit} {n++} END{print n}' docs/stages/<slug>/design.md  # ≤ 120 สำหรับ standard (นับแบบเดียวกับ validator — sed|wc -l จะเกินจริง 2)
 ```

@@ -128,6 +128,79 @@ function checkShipData(files) {
   return issues
 }
 
+// ── template-aware content detection (ใช้กับ stage inference เท่านั้น) ──────
+// เป็น heuristic ระดับ report (stage inference ไม่ใช่ ✖ — ไม่ขัด "✖ ไม่พึ่ง filled-detection")
+// เจตนา: section ที่ยังเป็น "โครงเปล่าของ template" ต้องนับว่ายังไม่มีเนื้อ
+//   template ของ build.md §4 มี table meta / ### heading ย่อย / checkbox / เส้นคั่น ติดมาตั้งแต่ต้น
+//   ถ้านับแค่ "บรรทัดไม่ว่างและไม่ใช่ >" ทุก topic จะกระโดดเป็น VERIFY ทันทีที่เริ่มเขียน build.md
+
+// separator ของ markdown table: '|---|---|' (ต้องมี '-' จริง — '| | |' ไม่ใช่ separator)
+function isTableSeparator(t) {
+  return /^\|[\s|:-]+\|$/.test(t) && t.includes('-')
+}
+
+// choice list ของ template: 'ผ่าน / ไม่ผ่าน', 'functional / e2e / uxui', 'มี/ไม่มี'
+// กันชนกับ path/URL ด้วยการตัด segment ที่มี '.' ออก ('./troubleshooting.md' ไม่ใช่ choice)
+function isChoiceList(t) {
+  if (!t.includes('/')) return false
+  const parts = t.split('/')
+  if (parts.length < 2) return false
+  return parts.every((p) => {
+    const s = p.trim()
+    return s !== '' && s.length <= 30 && !s.includes('.')
+  })
+}
+
+// "ค่าที่ยังเป็นโครง template" — ว่าง / placeholder / label / เลขลำดับ / choice list
+function isPlaceholderValue(text) {
+  const t = text.trim().replace(/^`+|`+$/g, '').trim()
+  if (t === '' || t === '-' || t === '—') return true
+  if (/^<[^>]*>$/.test(t)) return true                    // <ชื่อ change>
+  if (/_{2,}/.test(t)) return true                        // '__ รอบ' / '__ จุด'
+  if (/^\*\*.*\*\*$/.test(t)) return true                 // '**ผลรวม**' = ช่องชื่อฟิลด์ ไม่ใช่ค่า
+  if (/^\d+$/.test(t)) return true                        // เลขลำดับแถวของ template
+  if (/^[A-Z]{2,}[-/][A-Z0-9\-/]*$/.test(t)) return true  // 'YYYY-MM-DD'
+  return isChoiceList(t)
+}
+
+// มี "เนื้อจริง" ในช่วง [from, to) หรือไม่ — ตัดโครง template ออกก่อนนับ
+function hasRealContent(lines, from, to) {
+  for (let i = from; i < to; i++) {
+    const t = lines[i].trim()
+    if (t === '') continue
+    if (t.startsWith('>')) continue                   // blockquote = คำอธิบายของ template
+    if (/^#{3,}\s/.test(t)) continue                  // heading ย่อย (###+) ของโครง
+    if (/^<!--/.test(t)) continue                     // HTML comment
+    if (/^(-{3,}|\*{3,}|_{3,})$/.test(t)) continue    // เส้นคั่น
+    if (/^```/.test(t)) continue                      // code fence marker
+    if (t.startsWith('|')) {
+      if (isTableSeparator(t)) continue
+      if (isTableSeparator((lines[i + 1] || '').trim())) continue // header row (แถวก่อน separator)
+      const cells = t.split('|').slice(1, -1)
+      if (cells.every(isPlaceholderValue)) continue
+      return true
+    }
+    const bullet = t.match(/^[-*+]\s*(.*)$/)
+    if (bullet) {
+      let body = bullet[1].trim()
+      const box = body.match(/^\[([ xX])\]\s*(.*)$/)
+      if (box) {
+        if (box[1] === ' ') continue                  // checkbox ที่ยังไม่ติ๊ก
+        body = box[2].trim()
+      }
+      if (body === '' || body.endsWith(':')) continue // prompt ที่ยังไม่ตอบ
+      if (isPlaceholderValue(body)) continue
+      // 'บันทึกไว้ที่ ...: มี/ไม่มี' — คำตอบหลัง ':' ยังเป็น choice ของ template
+      const colon = body.lastIndexOf(':')
+      if (colon !== -1 && isPlaceholderValue(body.slice(colon + 1))) continue
+      return true
+    }
+    if (isPlaceholderValue(t)) continue
+    return true
+  }
+  return false
+}
+
 // ── C1: artifact ของ stage N เริ่มเติม แต่ required ของ stage < N ยัง template (ข้ามลำดับ) → ⚠ ──
 // + stage inference: stage ปัจจุบัน = stage สูงสุดที่มี artifact "เริ่มเติม"
 function inferStageAndC1(files) {
@@ -144,11 +217,21 @@ function inferStageAndC1(files) {
     if (anyFilled && s.order > maxOrder) { maxOrder = s.order; stageName = s.stage }
   }
   // section-based VERIFY inference (contract C2 — design.md §4)
-  // build.md filled + heading '## 4. ผล verify' (H2 เป๊ะ) → VERIFY (structural ล้วน ไม่พึ่ง isFilled ของเนื้อ)
+  // build.md filled + section '## 4. ผล verify' ที่ "มีเนื้อจริง" → VERIFY
+  // ★ heading อย่างเดียวไม่พอ: template ของ build.md มี heading §4 + โครง (table meta/###/checkbox)
+  //   ติดมาตั้งแต่ต้น → ใช้ hasRealContent() ตัดโครง template ออกก่อนนับ (ดูคำอธิบายที่ helper)
   const buildContent = topLevel(files, 'build.md')
   if (buildContent != null && isFilled(buildContent)) {
     const buildLines = buildContent.split('\n')
-    const hasVerifySection = buildLines.some((l) => /^##\s+4\.\s+ผล verify/.test(l))
+    const secStart = buildLines.findIndex((l) => /^##\s+4\.\s+ผล verify/.test(l))
+    let hasVerifySection = false
+    if (secStart !== -1) {
+      let secEnd = buildLines.length
+      for (let i = secStart + 1; i < buildLines.length; i++) {
+        if (/^##\s/.test(buildLines[i])) { secEnd = i; break }
+      }
+      hasVerifySection = hasRealContent(buildLines, secStart + 1, secEnd)
+    }
     if (hasVerifySection) {
       const verifyEntry = STAGES.find((s) => s.stage === 'VERIFY')
       if (verifyEntry && verifyEntry.order > maxOrder) { maxOrder = verifyEntry.order; stageName = 'VERIFY' }
@@ -195,16 +278,37 @@ function countLines(content) {
   return lines.length
 }
 
-// parse tier จาก content ของ proposal.md — หา row '| **ขนาด** |' แล้ว match fast|standard|large ตัวแรก
-function parseTier(content) {
+// ── parse tier จาก content ของ proposal.md (contract C4 — design.md §4) ─────
+// อ่านเฉพาะ "cell ค่า" (ทุกอย่างหลัง pipe ตัวที่ 2) ของแถว '| **ขนาด** | ... |' — cell แรกเป็น label
+// ลำดับการอ่าน:
+//   1. นับ keyword ที่อยู่ใน `backtick` ก่อน — convention ของ template + proposal จริงทุกใบ
+//      → proposal จริงที่เขียน `standard` แล้วอธิบายต่อ ("ก้ำกึ่ง fast/standard → ปัดขึ้น") ยัง resolve ได้
+//   2. ไม่มี keyword ใน backtick เลย → fallback อ่านทั้ง cell (รองรับ proposal ที่ไม่ใส่ backtick)
+// ambiguous = เจอ keyword ต่างชนิด >1 ตัว → null เสมอ (ห้ามเดา) → เข้า fail-safe ⚠ ของ checkCaps
+//   ★ แถว template ที่ยังไม่เติม (`fast` / `standard` / `large`) เข้าเคสนี้ — กัน gate เขียวลวง
+export function parseTier(content) {
   if (!content) return null
   for (const line of content.split('\n')) {
-    if (/^\|\s*\*\*ขนาด\*\*\s*\|/.test(line)) {
-      const m = line.match(/\b(fast|standard|large)\b/)
-      return m ? m[1] : null
-    }
+    if (!/^\|\s*\*\*ขนาด\*\*\s*\|/.test(line)) continue
+    const secondPipe = line.indexOf('|', line.indexOf('|') + 1)
+    if (secondPipe === -1) return null
+    // superset ของ cell 2 (เผื่อค่ามี '|' หรือคอลัมน์เกิน 2) — ตัด pipe ปิดท้ายทิ้ง
+    const value = line.slice(secondPipe + 1).replace(/\|\s*$/, '')
+    return parseTierValue(value)
   }
   return null
+}
+
+// นับ keyword ชนิดต่าง ๆ ที่ปรากฏใน text (Set = distinct — เขียนซ้ำคำเดิมไม่ทำให้ ambiguous)
+function tierKeywords(text) {
+  return new Set(text.match(/\b(fast|standard|large)\b/g) || [])
+}
+
+function parseTierValue(value) {
+  const backticked = (value.match(/`[^`]*`/g) || []).join(' ')
+  let found = tierKeywords(backticked)
+  if (found.size === 0) found = tierKeywords(value)
+  return found.size === 1 ? [...found][0] : null
 }
 
 // resolve tier จาก files + mode (contract C4 — design.md §4)
