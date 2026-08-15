@@ -123,5 +123,5 @@ grep -n '^| \*\*ขนาด\*\*' docs/stages/<slug>/proposal.md   # tier อย
 
 # นับบรรทัด proposal / design ก่อน §9
 wc -l docs/stages/<slug>/proposal.md   # ต้อง ≤ cap ตาม tier
-awk '/^## 9\. Spec delta/{exit} {n++} END{print n}' docs/stages/<slug>/design.md  # ≤ 120 สำหรับ standard (นับแบบเดียวกับ validator — sed|wc -l จะเกินจริง 2)
+awk '/^## 9\. Spec delta/{exit} {n++; if($0!="") last=n} END{print last+0}' docs/stages/<slug>/design.md  # ≤ 120 สำหรับ standard
 ```
