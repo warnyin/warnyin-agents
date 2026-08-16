@@ -16,7 +16,7 @@
 |---|---|---|---|
 | M1 | `:13-17` import block | เพิ่ม `import { createHash } from 'node:crypto'` — **built-in ตัวที่ 4** (ดู `rule.md §2`) | §3 hash |
 | M2 | `:21-23` flag parsing | `const NO_PRUNE = args.has('--no-prune') \|\| process.env.WARNYIN_NO_PRUNE === '1'` · `const PRUNE_FORCE = args.has('--prune-force')` · เพิ่ม unknown-flag warn (arg ขึ้นต้น `--` ที่ไม่รู้จัก → `⚠ ไม่รู้จัก flag …` ไป stderr, **ไม่ exit**) | C11 · C9 · §5 residual |
-| M3 | `:41-53` `--help` | เพิ่มบรรทัด `--no-prune` + แทน wording บรรทัด `:49` ด้วย **canonical §6** (ดู §3 ตาราง needle N1) | §6 wording |
+| M3 | `:41-53` `--help` | เพิ่มบรรทัด flag ปิด prune + แทน wording บรรทัด `:49` ด้วย **canonical §6 แบบ ★ตัด backtick ออกทุกตัว** (ดู §3 N1 + คำเตือน syntax ใต้ตาราง) · **ข้อความบรรทัด flag ใหม่ต้องไม่มีวลี `ลบไฟล์ CORE ที่ตกรุ่น`** (ไม่งั้น positive-grep ของ slice 3 จะนับเกิน) | §6 wording |
 | M4 | `:87-93` `CORE` | เพิ่ม `toPosix(rel, sep = path.sep)` (helper **เดียว** ทั้งไฟล์) + `CORE_POSIX` ที่ **derive จาก `CORE`** (ห้ามพิมพ์รายการซ้ำ) + `GLOBAL_PRUNABLE_POSIX` (3 dir) + `AGENT_ALLOW_RE` / `SKILL_ALLOW` (C5) + `BLAST_CAP = 50` + `KNOWN_STALE` (C14) | C5 C6 C9 C11 C14 |
 | M5 | `:132-161` `copyTree` | **★ ย้าย `readFileSync` + `normalizeEol` ขึ้นเหนือ branch `exists && !overwrite`** แล้วเพิ่ม param `onFile(relPosix, sha256, owned)` — ดู §7 กับดัก T1 | §3 entry-condition · §5 flow |
 | M6 | หลัง `writeVersionStamp` (`:248`) | เพิ่ม `parseManifest` (pure, export) · `readManifest` (fs) · `computeStale` (pure, export) · `mergeManifest` (pure, export) · `overCap` (pure, export) · `sanitizePath` (pure, export) · `writeManifest` (fs) · `prune` (fs) | C1 C2 C3 C4 C5 C6 C7 C8 C9 C10 C12 C13 C15 |
@@ -54,7 +54,7 @@
 
 | id | string | ที่ใช้ |
 |---|---|---|
-| N1 | `` `--update` เขียนทับเฉพาะ CORE และลบไฟล์ CORE ที่ตกรุ่น (ปิดด้วย `--no-prune`) — ไฟล์ `docs/` ถูก seed จาก template ถ้ายังไม่มี ไม่ทับของเดิม `` | `--help` (M3) — canonical `design.md §6` (อีก 3 ไฟล์เป็นของ `release-hygiene`) |
+| N1 | **★ ใน `--help` ให้ copy canonical โดย _ตัด backtick ออกทุกตัว_** — บล็อก `--help` คือ `console.log(\`…\`)` **template literal** ⇒ backtick ดิบทำให้ literal ปิดกลางประโยค = **SyntaxError ทั้งไฟล์ ทุกเทสแดง** · เนื้อความส่วนอื่นต้องตรงคำต่อคำกับ canonical `design.md §6` | `--help` (M3) — canonical `design.md §6` (อีก 3 ไฟล์เป็นของ `release-hygiene`) |
 | N2 | `สรุป: สร้างใหม่ ${stats.created} · อัปเดต ${stats.updated} · ข้าม (มีอยู่แล้ว) ${stats.skipped} · ลบ ${stats.pruned}` | M8 |
 | N3 | `# warnyin manifest v1 — เขียนโดย installer <version> · ห้ามแก้มือ` (`<version>` = `readPkgVersion()`) | header manifest (C13/§3) |
 | N4 | บรรทัด manifest: `<sha256 hex64>` + **2 space** + `<path POSIX>` เรียง A→Z ปิดท้าย LF | §3 schema |

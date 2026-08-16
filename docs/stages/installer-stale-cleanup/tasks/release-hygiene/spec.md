@@ -30,7 +30,7 @@
 | 1 | `README.md` | 40 | bullet `- ` + canonical **เต็มพร้อม backtick** |
 | 2 | `src/.warnyin/workflow/README.md` | 101 | bullet `- ` + canonical **เต็มพร้อม backtick** |
 | 3 | `src/.warnyin/installer/templates/CLAUDE.md` | 49 | คงคำนำหน้าเดิม `` `npx @warnyin/agents --update` — `` แล้วต่อด้วยเนื้อ canonical ตั้งแต่ `เขียนทับเฉพาะ CORE` ถึงท้ายประโยค (backtick คงไว้) |
-| 4 | `src/bin/cli.mjs` บล็อก `--help` | 50 | บรรทัดในวงเล็บของ `--update` — **ตัด backtick ออกตาม pattern เดิมของ help block** (terminal ไม่ render markdown; precedent = `0.29.1`) เหลือ `(เขียนทับเฉพาะ CORE และลบไฟล์ CORE ที่ตกรุ่น (ปิดด้วย --no-prune) — ไฟล์ docs/ ถูก seed จาก template ถ้ายังไม่มี ไม่ทับของเดิม)` · **ห้ามแตะ logic ใด ๆ ใน `cli.mjs`** |
+| 4 | `src/bin/cli.mjs` บล็อก `--help` | **49** | **★ ไม่ใช่งานของ task นี้** — `cli.mjs` เป็นของ `prune` แต่ผู้เดียว (`design.md §2`) · task นี้แค่ **ตรวจ** ว่า prune เขียนถูก (G8) และ **ห้ามแตะไฟล์นี้ทุกกรณี** · prune ต้องเขียนแบบ **ตัด backtick ทุกตัว** เพราะบล็อกนั้นเป็น template literal ที่คร่อมด้วย backtick ⇒ backtick ดิบทำให้ literal ปิดกลางประโยค = SyntaxError ทั้งไฟล์ (ไม่ใช่เรื่องสไตล์) |
 | 5 | `src/tests/installer.test.mjs` ~720 | เทส `cli --help wording regression` | เพิ่ม positive assert `เขียนทับเฉพาะ CORE และลบไฟล์ CORE ที่ตกรุ่น` + `--no-prune` และ **negative assert** ว่า stdout **ไม่มี** `เขียนทับเฉพาะ CORE — ไฟล์` (รูปประโยคเก่า) · assert เดิม (`ไม่แตะ docs/`) คงไว้ |
 
 > needle ที่ถูก assert คำต่อคำ **ชนะ pattern ประจำไฟล์** (`docs/rule.md §1 canonical-copy`) — จุดที่ 4 เป็นข้อยกเว้นที่ **ประกาศไว้ในสเปกนี้แล้ว** (ไม่ใช่การ paraphrase ตามใจ); ถ้าพบว่าต้องเบี่ยงจากสเปกนี้อีก → **รายงาน ไม่ตัดสินเอง**
@@ -48,7 +48,7 @@ maintainer ของ repo (bump + gate) และ **ผู้ใช้ npm ท�
 - [ ] **G1 pass-count gate** — `npm test 2>&1 | node src/scripts/check-test-count.mjs`
   - expected: `✓ pass-count gate OK: pass=<N> tests=<N> fail=0 (>= <MIN_PASS>)` · `fail=0` · `pass === tests`
   - **จด `<N>` ที่วัดได้ไว้** → เป็น input ของ G2
-- [ ] **G2 MIN_PASS bump** — คำนวณ `MIN_PASS = floor((N − 5) / 10) × 10` จาก `N` ของ G1 แล้วแก้ค่าใน `src/scripts/check-test-count.mjs` + คอมเมนต์ที่มา (topic `installer-stale-cleanup` · slice 3 · `N = <N>` · `2026-08-16`)
+- [ ] **G2 MIN_PASS bump** — คำนวณ `MIN_PASS = floor((N − 5) / 10) × 10` จาก `N` ของ G1 แล้วแก้ค่าใน `src/scripts/check-test-count.mjs` + คอมเมนต์ที่มา (topic `installer-stale-cleanup` · slice 3 · `N = <N>` · วันที่ที่ BUILD รันจริง)
   - expected: รัน G1 ซ้ำแล้วยังเขียว · `MIN_PASS ≤ N − 5` และ `MIN_PASS > N − 15` (ไม่หลวมเกิน 1 หลักสิบ)
   - negative proof: ตั้ง `MIN_PASS = N + 1` ชั่วคราว → gate ต้องแดงด้วยข้อความ `pass count ต่ำกว่าขั้นต่ำ` แล้ว **คืนค่าที่ถูกต้อง**
 - [ ] **G3 dead-link / markdown gate** — `npm run lint:md` → expected: exit 0 (ครอบ `docs/infra.md` ที่เพิ่ง sweep + `README.md`)
@@ -64,28 +64,28 @@ maintainer ของ repo (bump + gate) และ **ผู้ใช้ npm ท�
   - expected: ไม่มี `✖` ทั้งสองรุ่น (`⚠` ยอมรับได้) · exit 0
 - [ ] **G7 negative-grep wording เก่า** — ต้องคืน **0 hit** ทุกคำสั่ง
   ```bash
-  grep -rn "เขียนทับเฉพาะ CORE — ไฟล์" README.md src/ docs/ ; echo "exit=$?"   # ต้องได้ exit=1 (ไม่เจอ)
   grep -rn "เขียนทับเฉพาะ CORE" README.md src/.warnyin src/bin | grep -v "ลบไฟล์ CORE ที่ตกรุ่น"
   ```
-  - expected: คำสั่งที่สองไม่คืนบรรทัดใดเลย (ทุกที่ที่พูดถึง `เขียนทับเฉพาะ CORE` ต้องมีวรรค `ลบไฟล์ CORE ที่ตกรุ่น` ต่อท้าย)
-- [ ] **G8 positive-grep canonical ครบ 4 จุด**
+  - expected: **ไม่คืนบรรทัดใดเลย** (ทุกที่ที่พูดถึง `เขียนทับเฉพาะ CORE` ต้องมีวรรค `ลบไฟล์ CORE ที่ตกรุ่น` ต่อท้าย)
+  - **★ scope จำกัดที่ `README.md src/.warnyin src/bin` เท่านั้น — ห้ามสแกน `docs/`**: needle เก่ามีอยู่โดยธรรมชาติใน archive (`docs/stages/achieved/**`), ใน `design.md` ของ topic นี้ และใน spec ของ task นี้เอง (self-match) ⇒ สแกนกว้างจะแดงตลอดกาลโดยไม่มีทางแก้
+- [ ] **G8 positive-grep canonical ครบทุกจุด**
   ```bash
   grep -rn "ลบไฟล์ CORE ที่ตกรุ่น" README.md src/.warnyin/workflow/README.md src/.warnyin/installer/templates/CLAUDE.md src/bin/cli.mjs
   ```
-  - expected: **4 hit พอดี** (ไฟล์ละ 1)
+  - expected: **3 ไฟล์แรกไฟล์ละ 1 hit · `cli.mjs` ≥ 1 hit** (prune อาจเพิ่มบรรทัดอธิบาย flag ปิด prune — ห้าม assert ตัวเลขรวมตายตัว เพราะ task นี้แก้ `cli.mjs` ไม่ได้)
 - [ ] **G9 reason string ตรงเซตปิด C15** — grep reason ที่ implement จริงใน `src/bin/cli.mjs` แล้วเทียบกับ 13 ค่าใน `design.md §4 C15`
   ```bash
-  grep -o "\[\(path\|scope\|hash\|prune\):[a-z-]*\]" src/bin/cli.mjs | sort -u
+  grep -oE "'(path|scope|hash|prune):[a-z-]+'" src/bin/cli.mjs | tr -d "'" | sort -u
   ```
   - expected: เซตที่ได้ **⊆** 13 ค่าของ C15 และตาราง reason ใน `docs/infra.md` runbook ครอบ **ครบทั้ง 13 ค่า**
   - ต่างจาก C15 → **รายงานขึ้น build report ไม่แก้ `cli.mjs`**
 - [ ] **G10 CHANGELOG / version consistency**
   ```bash
   grep -n '"version"' package.json                  # ต้องเป็น 0.30.1
-  grep -n '^## \[0.30.1\] - 2026-08-16' CHANGELOG.md # ต้องเจอ 1 บรรทัด
+  grep -nE '^## \[0.30.1\] - 2026-[0-9]{2}-[0-9]{2}' CHANGELOG.md # ต้องเจอ 1 บรรทัด (ใช้วันที่ที่ BUILD รันจริง)
   grep -n '^### Migration' CHANGELOG.md | head -3
   ```
-  - expected: version ใน `package.json` = `0.30.1` · header `## [0.30.1] - 2026-08-16` มีจริงและอยู่**เหนือ** `## [0.30.0]` · มี `### Migration` ใต้ `[0.30.1]`
+  - expected: version ใน `package.json` = `0.30.1` · header `## [0.30.1] - <วันที่ที่ BUILD รันจริง>` มีจริงและอยู่**เหนือ** `## [0.30.0]` · มี `### Migration` ใต้ `[0.30.1]`
 - [ ] **G11 runbook ครบ 5 องค์ประกอบ** — `docs/infra.md` section `## Runbook — prune ลบไฟล์ไป — ตรวจ/กู้/ปิด` ต้องมีครบตาม `standard.md §2.3` (ตรวจด้วยสายตา + grep หัวข้อย่อย) และ `## Env vars สำคัญ` มีบรรทัด `.warnyin-manifest`
 
 ### เคส regression ที่ห้ามพัง

@@ -17,7 +17,7 @@
 - ต่อ entry: `- **หัวข้อสั้น** — คำอธิบายเชิงผลกระทบต่อผู้ใช้ (ไม่ใช่ diff ของโค้ด)`; entry ที่สำคัญที่สุดของ release นำหน้าด้วย `★` หรือ `- **★ ...**`
 - อ้าง path/flag เป็น **inline-code** เสมอ (`` `--no-prune` ``) — **ห้าม markdown-link ชี้ `docs/stages/<slug>/`** (`lint:md` สแกน → ลิงก์พังเมื่อ SHIP archive)
 - `### Migration` เขียนเป็น bullet เชิงสั่งการ: อาการที่ผู้ใช้จะเห็น → ต้องทำอะไร → ทางปิด/ทางกู้ (ดูตัวอย่าง `[0.30.0] ### Migration` และ `[0.29.1]` ที่ใช้ blockquote `> **⚠️ ...**` สำหรับคำเตือน destructive)
-- **ownership ระหว่าง multi-slice** (`docs/rule.md §1`): slice นี้เป็น **slice สุดท้าย** ⇒ เป็นคนเติม **วันที่** + `### Migration`; ถ้า wave 1 ไม่ได้สร้าง header `## [0.30.1]` ไว้ → slice นี้สร้างเอง แต่ **ห้ามย้าย/ลบ/แก้ entries ของ slice อื่น**
+- **ownership ระหว่าง multi-slice** (`docs/rule.md §1`): slice นี้เป็น **slice สุดท้าย** ⇒ สร้าง header `## [0.30.1]` + วันที่ + `### Migration` · **และเขียน entries ของทั้ง release เอง** (slice 1/2 ถูกห้ามแตะ `CHANGELOG.md` — ดู `rule.md §1`) โดยสรุปจาก `design.md §1/§4` และ build report ของ wave 1 · **ห้ามย้าย/ลบ/แก้ entries ของ release เก่า**
 
 ### 2.2 เนื้อที่ `### Migration` ของ `[0.30.1]` ต้องครอบ (4 ข้อ)
 1. **`--update` ลบไฟล์ CORE ที่ตกรุ่นได้แล้ว** — ลบเฉพาะไฟล์ที่ installer เคยวางเองและเนื้อหายังไม่ถูกแก้ · ไฟล์ผู้ใช้และ `docs/` ไม่ถูกแตะ
@@ -46,7 +46,7 @@ MIN_PASS = floor((N − 5) / 10) × 10       // N = ยอด pass จริง�
 ```
 คอมเมนต์ต่อท้ายบล็อกเดิมใน `src/scripts/check-test-count.mjs` (อย่าลบที่มาของรุ่นก่อน — ต่อประวัติ):
 ```
-// topic installer-stale-cleanup (2026-08-16): slice 1 prune + slice 2 upgrade-path-test + slice 3 verify-pack
+// topic installer-stale-cleanup (<วันที่ที่ BUILD รันจริง>): slice 1 prune + slice 2 upgrade-path-test + slice 3 verify-pack
 // → N = <ยอดจริง>; headroom 5; snap ลงหลักสิบ → MIN_PASS = <ค่าใหม่>
 ```
 - ห้ามตั้งค่าจากการเดา — ต้องมาจากผล `npm test` ที่รันจริงในรอบนี้

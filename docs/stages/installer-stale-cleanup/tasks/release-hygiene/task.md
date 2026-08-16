@@ -29,10 +29,10 @@
 - [ ] **2. surface ของ flag ใหม่ 4 จุด** — copy canonical จาก `spec.md §4.1` ลง `README.md:40` · `src/.warnyin/workflow/README.md:101` · `src/.warnyin/installer/templates/CLAUDE.md:49` · บล็อก `--help` ใน `src/bin/cli.mjs:50` (ตัด backtick ตาม `spec.md §4.3` แถว 4; **ห้ามแตะ logic**) — _ผลลัพธ์:_ positive-grep G8 ได้ 4 hit
 - [ ] **3. เทส wording (ขึ้นกับ 2)** — แก้ assert ใน `src/tests/installer.test.mjs` (~720) เพิ่ม positive needle ใหม่ + **negative-grep wording เก่า** ในเทส · รัน negative-grep G7 ให้ได้ 0 hit **ก่อน** แก้ expected (พิสูจน์ตาม `rule.md §1`) — _ผลลัพธ์:_ เทส `--help wording regression` เขียวด้วยเหตุผลที่ถูกต้อง
 - [ ] **4. unit เคสคู่ขนานของ verify-pack** — เพิ่มเคสใน `src/tests/verify-pack.test.mjs`: `checkFiles([...GOOD, '.warnyin/.warnyin-manifest'])` ต้องคืน error ที่อ้าง path นั้น · **ไม่แก้ `verify-pack.mjs`** — _ผลลัพธ์:_ ยอด pass +1 (นับรวมในขั้น 5)
-- [ ] **5. bump `MIN_PASS` (ขึ้นกับ 1,3,4)** — รัน `npm test` ใหม่เพื่อได้ `N` สุดท้าย → `MIN_PASS = floor((N−5)/10)×10` → แก้ค่า + คอมเมนต์ที่มา (topic · slice · `N` · `2026-08-16`) ตาม `standard.md §2.5` · ทำ negative proof (`MIN_PASS = N+1` ต้องแดง) แล้วคืนค่า — _ผลลัพธ์:_ G1/G2 เขียว
+- [ ] **5. bump `MIN_PASS` (ขึ้นกับ 1,3,4)** — รัน `npm test` ใหม่เพื่อได้ `N` สุดท้าย → `MIN_PASS = floor((N−5)/10)×10` → แก้ค่า + คอมเมนต์ที่มา (topic · slice · `N` · `<วันที่ที่ BUILD รันจริง>`) ตาม `standard.md §2.5` · ทำ negative proof (`MIN_PASS = N+1` ต้องแดง) แล้วคืนค่า — _ผลลัพธ์:_ G1/G2 เขียว
 - [ ] **6. runbook ใหม่ใน `docs/infra.md`** — section `## Runbook — prune ลบไฟล์ไป — ตรวจ/กู้/ปิด` ครบ 5 องค์ประกอบตาม `standard.md §2.3` (ตรวจ · กู้ 3 กรณีรวม dogfood ที่ gitignored · ปิด · ตาราง reason 13 ค่า · exit 0 เสมอ) — **ขึ้นกับการ grep reason string จริงจาก `cli.mjs` (G9)** — _ผลลัพธ์:_ ตาราง reason ⊇ เซตปิด C15
 - [ ] **7. sweep `## Env vars สำคัญ`** — เพิ่ม `.warnyin/.warnyin-manifest` เป็น install-time artifact + `WARNYIN_NO_PRUNE` + คำเตือนว่า `npm run setup:dogfood` รัน `--update` ⇒ prune ทำงานกับ root dogfood ที่ gitignored (กู้จาก git ไม่ได้) ตาม `standard.md §2.4`
-- [ ] **8. CHANGELOG `## [0.30.1] - 2026-08-16`** — เติมวันที่/สร้าง header + `### Migration` 4 ข้อตาม `standard.md §2.2` · **ห้ามแตะ entries ของ slice อื่นและบล็อก `## Migration guide` หัวไฟล์**
+- [ ] **8. CHANGELOG `## [0.30.1] - <วันที่ที่ BUILD รันจริง>`** — เติมวันที่/สร้าง header + `### Migration` 4 ข้อตาม `standard.md §2.2` · **ห้ามแตะ entries ของ slice อื่นและบล็อก `## Migration guide` หัวไฟล์**
 - [ ] **9. `package.json` → `0.30.1`** + บันทึกเหตุผล **patch** (bugfix ของ upgrade path) ลง build report ตาม `docs/rule.md §1` declared-threshold
 - [ ] **10. full gate + cross-slice consistency** — รัน G1–G11 ใน `spec.md §7` ให้ครบ: `npm test | check-test-count` · `npm run lint:md` · `npm run verify:pack` · dual `validate-topic` (dogfood + v-next) · negative/positive-grep · เทียบ reason string กับ C15 — _ผลลัพธ์:_ ทุก gate เขียว + build report สรุปสิ่งที่ **รายงานแต่ไม่แก้**
 
@@ -64,7 +64,7 @@
 - [ ] `MIN_PASS` = `floor((N−5)/10)×10` จาก `N` ที่รันจริงในรอบนี้ + คอมเมนต์ระบุ topic/slice/N/วันที่ + ผ่าน negative proof
 - [ ] `docs/infra.md` มี runbook ใหม่ครบ 5 องค์ประกอบ รวม **ตาราง reason code 13 ค่า** และหมายเหตุ **exit 0 เสมอ ⇒ อ่าน stdout**
 - [ ] `## Env vars สำคัญ` มี `.warnyin-manifest` + `WARNYIN_NO_PRUNE` + คำเตือน `setup:dogfood`
-- [ ] `CHANGELOG.md` มี `## [0.30.1] - 2026-08-16` + `### Migration` ครบ 4 ข้อ · `package.json` = `0.30.1` · เหตุผล patch อยู่ใน build report
+- [ ] `CHANGELOG.md` มี `## [0.30.1] - <วันที่ที่ BUILD รันจริง>` + `### Migration` ครบ 4 ข้อ · `package.json` = `0.30.1` · เหตุผล patch อยู่ใน build report
 - [ ] full gate เขียวครบ: `npm test | check-test-count` · `lint:md` · `verify:pack` · `validate-topic` **ทั้ง dogfood และ v-next**
 - [ ] reason string ในโค้ด ⊆ เซตปิด C15 — ถ้าไม่ตรง มี **รายงานใน build report** (ไม่ใช่การแก้ `cli.mjs`)
 - [ ] ผ่าน test ตาม `spec.md` (test-flow G1–G11)

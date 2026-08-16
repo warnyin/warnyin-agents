@@ -66,7 +66,7 @@ main() --update
 - **known limit ที่ประกาศไว้:** (ก) `KNOWN_STALE` 2 path ยกเว้น hash ⇒ ผู้ใช้ที่เขียนไฟล์ชื่อนั้นเองบน install เก่าจะโดนลบ (ข) ไฟล์ที่เนื้อหาเดาได้ (0 byte) ในโฟลเดอร์ที่แชร์ ป้องกันด้วย C5 อย่างเดียว
 - **`.codebuddy/plugins/warnyin/commands/warnyin/`** (`copyDirToTarget`) — installer เป็นเจ้าของ 100% และมีอาการตกค้างแบบเดียวกัน → **out of scope รอบนี้** เพราะเป็น mirror ที่ regenerate ได้ทุก install · เปิด backlog entry ตอน SHIP
 - **`verify:pack`:** `.warnyin-manifest` เกิดที่ target เท่านั้น และ `DENY_PREFIX '.warnyin/'` ครอบ root dogfood อยู่แล้ว ⇒ **ไม่ต้องแก้ `verify-pack.mjs`** — เพิ่มเฉพาะ **unit เคสคู่ขนาน** ยืนยันว่า `checkFiles(['.warnyin/.warnyin-manifest'])` คืน error (slice 3)
-- **wording ที่ต้องอัปเดตพร้อมกัน 4 จุด + 1 เทส** — ประโยคเดิม `` `--update` เขียนทับเฉพาะ CORE — ไฟล์ `docs/` ถูก seed จาก template ถ้ายังไม่มี ไม่ทับของเดิม `` ไม่ครบทันทีที่ prune ทำงาน → **canonical ใหม่:** `` `--update` เขียนทับเฉพาะ CORE และลบไฟล์ CORE ที่ตกรุ่น (ปิดด้วย `--no-prune`) — ไฟล์ `docs/` ถูก seed จาก template ถ้ายังไม่มี ไม่ทับของเดิม `` copy คำต่อคำลง `README.md:40` · `workflow/README.md:101` · `templates/CLAUDE.md:49` · `--help` (`cli.mjs:50`) และแก้ assert `installer.test.mjs:720` + negative-grep wording เก่า
+- **wording ที่ต้องอัปเดตพร้อมกัน 4 จุด + 1 เทส** — ประโยคเดิม `` `--update` เขียนทับเฉพาะ CORE — ไฟล์ `docs/` ถูก seed จาก template ถ้ายังไม่มี ไม่ทับของเดิม `` ไม่ครบทันทีที่ prune ทำงาน → **canonical ใหม่:** `` `--update` เขียนทับเฉพาะ CORE และลบไฟล์ CORE ที่ตกรุ่น (ปิดด้วย `--no-prune`) — ไฟล์ `docs/` ถูก seed จาก template ถ้ายังไม่มี ไม่ทับของเดิม `` copy คำต่อคำลง `README.md:40` · `workflow/README.md:101` · `templates/CLAUDE.md:49` (3 จุดนี้ = slice 3) · **`--help` ที่ `cli.mjs:49` = slice 1 เขียนเอง** (เจ้าของไฟล์) และ **ต้องตัด backtick** เพราะบล็อกนั้นเป็น `console.log(\`…\`)` template literal ⇒ backtick ดิบ = SyntaxError ทั้งไฟล์ · slice 3 แก้ assert `installer.test.mjs:720` + negative-grep wording เก่า (scope `README.md src/.warnyin src/bin` เท่านั้น — archive/design/spec ของ topic เองมี needle เก่าโดยธรรมชาติ)
 
 ## 7. Dependency
 ```
@@ -74,6 +74,7 @@ wave 1 (ขนาน):  prune  │  upgrade-path-test        wave 2:  release-hy
 ```
 - **depth 2 · width 2** — ยุบ slice ตาม panel แล้วไม่มี slice ไหนแก้ไฟล์เดียวกัน
 - slice 2 เขียนเทสจาก contract C1–C15 (ไม่อ่านโค้ด slice 1) ⇒ **แดงตลอด wave 1 เป็นเรื่องปกติ** · **เจ้าของการทำให้เขียว = full-gate ของ BUILD (`build.md §4 step 6`, main loop)** ไม่ใช่ `release-hygiene` (wave สุดท้ายแก้ได้เฉพาะจุดเชื่อม) · `task.md` ของ slice 2 ต้องประกาศ expected-red list ระบุชื่อเคส และ acceptance คือ "แดงด้วยเหตุผลที่ถูกต้อง"
+- **★ ลำดับที่ main loop ต้องทำ (dry-run จับได้):** integrate wave 1 → **ทำ full-gate ให้เขียวเองก่อน** → **แล้วจึง** spawn `release-hygiene` — เพราะ sub-task แรกของ slice 3 คือ "ถ้าเทสแดง → หยุด รายงาน ห้ามแก้เทส" ⇒ ถ้า spawn ก่อน gate เขียว agent จะหยุดที่ขั้นแรกและไม่มี `N` ไป bump `MIN_PASS`
 
 ## 8. Test strategy ระดับ design
 - **unit (slice 1):** guard C4 ครบ 5 ข้อทีละข้อ · C5 allowlist สองขั้ว (`warnyin-old.md` ลบได้ / `other.md` reject) · C2 known-stale สองขั้ว (มี manifest → ไม่ทำงาน / ไม่มี → ทำงาน) · C3 fail-closed · C9 boundary (`50` ผ่าน / `51` ไม่ลบ) · C13 (`--no-prune` แล้วรอบหน้ายังเห็น stale) · C6 truth table รูป `/` และ `\`
