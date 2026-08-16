@@ -82,12 +82,17 @@ sizing เป็น default ที่ปรับได้ทุกเมื่�
 
 ## Requirement: DESIGN establish tier ก่อนเดินต่อ (sizing gate)
 
-DESIGN มี step ต้นทาง (§4 step 1.5) ที่ **establish tier ก่อนจ่าย ceremony** — ประเมินขนาด change เบื้องต้นเอง → **มั่นใจ = กำหนด tier + บันทึก proposal**; **ไม่มั่นใจ = ถาม user** (ประเมินด้วย `/warnyin:triage` หรือ user กำหนด tier เอง); hard-floor ยังบังคับ ≥ standard. กัน DESIGN เดินโดยไม่รู้ขนาด (tier = judgment ⚠ ไม่ใช่ validator)
+DESIGN มี step ต้นทาง (§4 step 1.5) ที่ **establish tier ก่อนจ่าย ceremony** — ประเมินขนาด change เบื้องต้นเอง → **มั่นใจ = กำหนด tier + บันทึก proposal**; **ไม่มั่นใจ = ถาม user** (ประเมินด้วย `/warnyin:triage` หรือ user กำหนด tier เอง); hard-floor ยังบังคับ ≥ standard. **tier=fast → หลังเขียน receipt เสนอเดิน fastlane ต่อในเซสชันเดียว (ยืนยันหนึ่งครั้ง)** แทนการจบแล้วให้ user พิมพ์ command ที่สอง
 
 ### Scenario: design.md มี establish-tier step
 - GIVEN ไฟล์ `src/.warnyin/workflow/stages/design.md`
 - WHEN อ่าน §4 (process)
 - THEN มี step "Establish tier" ก่อน business/proposal ที่ระบุ: ประเมินเอง · มั่นใจ→กำหนด+บันทึก proposal · ไม่มั่นใจ→ถาม user (options: `/warnyin:triage` / user ระบุ tier เอง) · hard-floor → ≥ standard
+
+### Scenario: fast → เสนอเดินต่อหนึ่งครั้ง
+- GIVEN change ที่ประเมินได้ `tier=fast` และเขียน receipt (meta+§1+§2) แล้ว
+- WHEN จบ pre-flight
+- THEN step 1.5 สั่งให้ถามยืนยันหนึ่งครั้งว่าจะเดิน fastlane ต่อไหม — ตอบตกลง → เดิน 4 row จบในเซสชันเดียว, ปฏิเสธ → หยุดที่ receipt แล้วบอก command ที่ user สั่งเองได้
 
 ### Scenario: §7 ชี้ที่มาของ tier
 - GIVEN section `## 7` ใน `design.md`
@@ -98,3 +103,17 @@ DESIGN มี step ต้นทาง (§4 step 1.5) ที่ **establish tier 
 - GIVEN template `src/.warnyin/template/stages/[topic]/proposal.md`
 - WHEN อ่านช่อง `ขนาด`
 - THEN ค่าเป็น `fast`/`standard`/`large` (ไม่ใช่ เล็ก/กลาง/ใหญ่)
+
+## Requirement: Optional gate เปิดด้วย signal ไม่ใช่ถามทุกครั้ง
+
+review panel และ dry-run ใน DESIGN ถูกเสนอต่อ user **เฉพาะเมื่อเข้า signal อย่างน้อยหนึ่งข้อ**: `tier=large` · change แตะ hard-floor 5 หมวด · จำนวน task ≥ 4 — ไม่เข้าเงื่อนไข → ข้ามเงียบ ไม่ถาม (ลด round-trip ของงานขนาดปกติ); เมื่อเข้าเงื่อนไขยังคงถาม user ก่อนเสมอ (ไม่ auto-run agent)
+
+### Scenario: standard 3 task → ไม่ถาม
+- GIVEN topic tier `standard` ที่แตก 3 task และไม่แตะ hard-floor
+- WHEN เดิน DESIGN §4 step 6 และ step 10
+- THEN playbook ระบุให้ข้ามทั้งสอง gate โดยไม่ถาม user
+
+### Scenario: เข้า signal → ถามก่อนเสมอ
+- GIVEN topic ที่ `tier=large` หรือแตะ hard-floor หรือมี task ≥ 4
+- WHEN ถึง step 6 / step 10
+- THEN playbook ระบุให้เสนอ user ก่อน (ถาม) — ไม่ fan-out agent เองโดยไม่ถาม

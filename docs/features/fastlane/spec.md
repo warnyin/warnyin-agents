@@ -5,7 +5,7 @@
 
 ## Requirement: รันงาน fast จบในคำสั่งเดียวด้วย `/warnyin:fastlane`
 
-executor ของ fast tier — บังคับ `tier=fast` โดยข้าม triage แล้วเดิน skip-list ครบ 4 row ในคำสั่งเดียว; กฎทั้งหมด reuse canonical ของ `triage.md` (executor ไม่ตั้งกฎใหม่ ไม่ว่าเป็นตารางหรือ prose)
+executor ของ fast tier — บังคับ `tier=fast` โดยข้าม triage แล้วเดิน skip-list ครบ 4 row ในคำสั่งเดียว; กฎทั้งหมด reuse canonical ของ `triage.md` (executor ไม่ตั้งกฎใหม่ ไม่ว่าเป็นตารางหรือ prose). **ผู้เรียกได้ 2 ทาง:** user สั่ง command เอง หรือ **handoff จาก DESIGN ที่ user ยืนยันในเซสชัน** (`design.md §4 step 1.5`) — ทั้งสองทางนับเป็น user-invoked; AI auto-invoke เองโดยไม่มีการยืนยันยังคงห้าม
 
 ### Scenario: surface มีจริง + adapter บาง
 - GIVEN `src/.claude/commands/warnyin/fastlane.md` และ `src/.warnyin/workflow/fastlane.md`
@@ -16,6 +16,11 @@ executor ของ fast tier — บังคับ `tier=fast` โดยข้�
 - GIVEN `src/.warnyin/workflow/`
 - WHEN สแกนหาประโยค ``pre-flight: สร้าง `receipt.md` จาก template``
 - THEN เจอใน `triage.md` ไฟล์เดียว — `fastlane.md` มีแต่ markdown-link ไป `[fast-track skip-list](triage.md#fast-track-skip-list)` ที่ resolve ได้ทั้ง path และ anchor
+
+### Scenario: handoff ที่ user ยืนยัน = user-invoked
+- GIVEN `src/.warnyin/workflow/fastlane.md` §1 และ `src/.warnyin/workflow/stages/design.md` §4 step 1.5
+- WHEN อ่านเงื่อนไขผู้เรียก
+- THEN `fastlane.md` ระบุว่า handoff จาก DESIGN ที่ user ยืนยันในเซสชันนับเป็น user-invoked และ `design.md` step 1.5 ระบุให้ **ถามยืนยันหนึ่งครั้ง** ก่อนเดินต่อ (ปฏิเสธ → หยุดที่ receipt)
 
 ### Scenario: discoverable ใน 3 registry
 - GIVEN โปรเจกต์ที่ติดตั้ง payload แล้ว

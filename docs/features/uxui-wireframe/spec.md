@@ -4,12 +4,12 @@
 > feature ประเภท playbook (ไม่มี runtime) → THEN เป็น **observable artifact** (ไฟล์/section/key string มีจริง, ลิงก์ resolve)
 
 ## Requirement: UX wireframe ใน DESIGN
-DESIGN stage มี capability วาด low-fidelity wireframe ให้ user เห็นภาพ + ยืนยันก่อนแตก task สำหรับ change ที่มี UI surface (conditional + backward-compatible); detect มี **exclusion precedence — เช็คก่อน signals**: change เป็น docs-only / config-only / tooling ล้วน → จบทันที ไม่ประเมิน signals ต่อ _(เดิม: exclusion เป็น note ท้าย signals — เคยหลุด trigger กับ docs-only topic; แก้โดย topic `build-lean`)_
+DESIGN stage มี capability วาด low-fidelity wireframe ให้ user เห็นภาพ + ยืนยันก่อนแตก task สำหรับ change ที่มี UI surface (conditional + backward-compatible); detect มี **exclusion precedence — เช็คก่อน signals**: change เป็น docs-only / config-only / tooling ล้วน → จบทันที ไม่ประเมิน signals ต่อ. **detect เข้าเงื่อนไข → วาดเลย ไม่ต้องถามก่อนวาด** (คำถามที่คงไว้คือ approve gate ของภาพ)
 
-### Scenario: change มี UI surface → เสนอทำ wireframe
+### Scenario: change มี UI surface → วาด wireframe เลย
 - GIVEN change ที่ detect ว่าแตะ UI surface (techstack FE/web/mobile/desktop, มี page/route/screen/component, หรือ user flow ใหม่)
 - WHEN จบ `proposal.md` ก่อนเขียน technical design
-- THEN `design.md` §4 มี **step 4.5 "UX wireframe"** แทรกระหว่าง step 4 (proposal) กับ step 5 (design.md how) สั่งเสนอ user วาด wireframe (optional — ถาม user ก่อน)
+- THEN `design.md` §4 มี **step 4.5 "UX wireframe"** แทรกระหว่าง step 4 (proposal) กับ step 5 ที่สั่งวาด wireframe ทันทีเมื่อ detect ผ่าน (ไม่มีคำถาม "จะวาดไหม")
 
 ### Scenario: ไม่มี UI surface → ข้าม + gate N/A
 - GIVEN change ที่ไม่มี UI surface (backend/REST API/CLI/library/docs/tooling ล้วน)
@@ -19,7 +19,7 @@ DESIGN stage มี capability วาด low-fidelity wireframe ให้ user �
 ### Scenario: docs-only ไม่ trigger wireframe (exclusion ก่อน signals)
 - GIVEN change ที่แตะเฉพาะไฟล์ docs/config/tooling
 - WHEN เดิน DESIGN step 4.5 detect
-- THEN playbook ระบุให้จบที่ exclusion (เช็คก่อน signals — เจอ → จบทันที ไม่ประเมิน signals ไม่เสนอ wireframe)
+- THEN playbook ระบุให้จบที่ exclusion (เช็คก่อน signals — เจอ → จบทันที ไม่ประเมิน signals ไม่วาด wireframe)
 
 ### Scenario: สัญญาณ UI surface ก้ำกึ่ง → ถาม user
 - GIVEN change ที่ detect ไม่ชัด (CLI ที่มี TUI, change แตะทั้ง API + component)
@@ -27,7 +27,7 @@ DESIGN stage มี capability วาด low-fidelity wireframe ให้ user �
 - THEN detect block ระบุ "ไม่แน่ใจจริง → ถาม user ทีละข้อ + เสนอคำตอบที่แนะนำ" (ห้ามเดา)
 
 ### Scenario: วาด wireframe แบบ read-only generator
-- GIVEN user ตกลงทำ wireframe
+- GIVEN detect ผ่าน
 - WHEN fan-out agent `warnyin-ux` (frontmatter `tools: Read, Grep, Glob` — ไม่มี Write/Edit) หรือ AI หลักสวม lens `roles/ux.md` (fallback)
 - THEN agent คืน ASCII wireframe + user flow + screen states เป็น text; main loop เขียนลง `docs/stages/<slug>/wireframe.md` (single-writer) ที่มี 4 section: User flow · Wireframe ต่อ screen · Screen states · Design-honor note
 
@@ -38,5 +38,5 @@ DESIGN stage มี capability วาด low-fidelity wireframe ให้ user �
 
 ### Scenario: fan-out ไม่ได้ → fallback เป็น lens
 - GIVEN เครื่องที่ไม่มี Agent/sub-agent tool (fan-out ไม่ได้)
-- WHEN ถึง step 4.5 และ user ตกลงทำ wireframe
+- WHEN ถึง step 4.5 และ detect ผ่าน
 - THEN step 4.5 ระบุ fallback "AI หลักสวม lens `roles/ux.md` วาด wireframe เองตามลำดับ" — ยังได้ wireframe ครบ + ผ่าน approve gate เดิม

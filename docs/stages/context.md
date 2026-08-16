@@ -6,22 +6,22 @@
 > snapshot ไม่ใช่ log — เขียนทับทุกครั้งที่อัปเดต (ไม่ต่อท้าย) · กติกาเติมดู `.warnyin/workflow/memory.md`
 
 ## กำลังทำอะไรอยู่
-- topic `lean-ceremony` — **DESIGN เสร็จ ผ่าน gate §8** (`docs/stages/lean-ceremony/`): proposal + design + 5 task ครบ 4 ไฟล์; ถัดไป `/warnyin:build lean-ceremony`
-- เป้าหมาย: ลด ceremony overhead 5 ข้อ — auto-route fast (confirm 1 ครั้ง) · C7 cap enforcement · optional gate trigger-by-signal · memory hook 6→2 จุด · BUILD↔VERIFY seam + artifact 3→1
+- **ไม่มี topic ที่เปิดค้าง** — `lean-ceremony` SHIP เสร็จแล้ว (archive `docs/stages/achieved/2026-08-16-lean-ceremony/`)
+- branch `build/lean-ceremony` มี 6 commit รอ user ตัดสินใจ **merge เข้า main + publish `0.30.0`** (SHIP ไม่แตะ git merge/publish ตาม playbook)
 
 ## ค้างอะไร
-- BUILD ของ `lean-ceremony` (wave 1 = 4 task ขนาน → wave 2 = `release-hygiene`)
-- ระหว่าง wave 1 เคส `M2` ใน `src/tests/memory.test.mjs` **จะแดงเป็นปกติ** (exact-set 6 ไฟล์) — `release-hygiene` เป็นเจ้าของการแก้ expected 6→3 หลัง integrate ครบ; build agent ห้ามแก้เทสเอง
+- **merge + publish `0.30.0`** — รอ user สั่ง
+- `docs/backlog.md` มี 2 entry `open`: (1) rename `## 5. Write points (hook ต่อ stage)` ใน `.warnyin/workflow/memory.md` ให้ตรงนิยาม "จุดจบงาน" (ต้องแก้ inbound pointer + เทส `M1` พร้อมกัน) · (2) ตัวเลขจำนวนเคสใน `docs/techstack/installer/{structure,test}.md` ค้างจากรุ่นเก่า
+- dogfood ที่ root ยังเป็น `0.29.1` — รัน `npm run setup:dogfood` หลัง release เพื่อให้ workflow ที่ใช้พัฒนาเองได้ ceremony ชุดใหม่
 
 ## เพิ่งตัดสินอะไรไป
-- **tier = standard**; ข้าม business.md (ไม่มีมิติธุรกิจใหม่), ข้าม review panel, ข้าม dry-run (user เลือก)
-- **ไม่ยุบ VERIFY เป็น phase ของ BUILD** — คง 2 stage เพื่อรักษา property "ผู้ตรวจอิสระจากผู้เขียน" (`docs/rule.md §5`) แล้วตัดรอยต่อ + ยุบ artifact แทน
-- **C7 นับ cap ของ `design.md` เฉพาะบรรทัดก่อน `## 9. Spec delta`** — delta คือเนื้อ spec ที่ถูก merge ออกตอน SHIP ไม่ใช่ narrative
-- **artifact ยุบเป็น `build.md` ชื่อเดิม + 4 section** (contract C1); validator ย้าย `verify.md`/`test.md` จาก required → optional แล้วใช้ section-based inference (contract C2)
-- **version bump = minor `0.30.0`** (payload เปลี่ยนพฤติกรรมที่ผู้ใช้เห็น แต่ backward-compatible)
-- **coherence review จับ blocker 1 อัน:** `M2` ไม่มี slice ไหนเป็นเจ้าของ + `release-hygiene` มี rule ห้ามแตะเทส → มอบ ownership ให้ `release-hygiene` พร้อมเงื่อนไข "พิสูจน์ด้วย negative-grep ก่อนแก้ expected"
+- **ceremony ลด 5 จุด** โดยไม่แตะ gate: auto-route fast (confirm 1 ครั้ง) · C7 cap enforcement · optional gate trigger-by-signal · memory hook 6→3 · BUILD↔VERIFY seam + artifact `build.md` เดียว 4 section
+- **ไม่ยุบ VERIFY เป็น phase ของ BUILD** — รักษา property "ผู้ตรวจอิสระจากผู้เขียน" (ยกขึ้นเป็น rule ระดับปรัชญาแล้ว)
+- **C7 นับ cap เฉพาะ narrative** (บรรทัดก่อน `## 9. Spec delta`) · tier อ่านไม่ได้ = ⚠ ไม่บังคับ (fail-safe)
+- **VERIFY จับ 6 blocker ที่ gate ทุกตัวเขียวสนิท** — ที่ร้ายแรงสุดคือ `parseTier` อ่านค่าตัวอย่างในแถว template เป็นค่าจริง ทำให้ C7 ปิดตัวเองเงียบ; บทเรียนถูก promote เป็น KB #34/#35 + ขยาย #31/#32
+- learned-rule promote 13 ข้อ (project 9 · component:installer 4) · drop 2 (1 เข้า backlog · 1 implement ไปแล้ว)
 
 ## อัปเดตล่าสุด
-- 2026-08-14 · topic `lean-ceremony` DESIGN เสร็จ — 5 task (wave 1 ×4 + wave 2 ×1), Spec delta 6 feature, gate §8 ผ่าน, `validate-topic` + `lint:md` เขียว
-- 2026-08-14 · topic `universal-ide-spec` SHIP-lite เสร็จ — 9 Requirement + 12 Scenario (C5 pass)
-- 2026-08-14 · topic `publish-pack-polish` SHIP เสร็จ — release `0.29.1` พร้อม publish
+- 2026-08-16 · topic `lean-ceremony` SHIP เสร็จ — promote 13 rule · merge Spec delta 6 feature · KB +2/ขยาย 2 · archive; gate 248/248 · lint:md 132/116 · verify:pack 105
+- 2026-08-15 · VERIFY เสร็จ — 1 รอบแก้ 21 จุด (validator 3 · pointer 14 · narrative 4); panel อิสระ 2 คน + re-verify 1 รอบ
+- 2026-08-14 · BUILD เสร็จ — wave 1 (4 slice ขนาน) + wave 2 (release-hygiene); 213 → 248 เคส

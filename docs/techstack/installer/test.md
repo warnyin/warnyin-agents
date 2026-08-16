@@ -8,11 +8,12 @@
 - **CI:** `.github/workflows/ci.yml` matrix node [20,22,24] รัน `npm test 2>&1 | node src/scripts/check-test-count.mjs` (pass-count gate) ทุก PR/push(main) + job `pack-verify` (`npm run verify:pack`) ที่ `needs: test`
 
 ## pass-count gate (anti-false-green — troubleshooting #3)
-- CI ไม่เชื่อแค่ exit 0 — `check-test-count.mjs` parse summary ของ `node --test` แล้ว **fail ถ้า:** `fail!=0` หรือ `pass<MIN_PASS (46)` หรือ `pass!=tests` (มีเคส skip/cancel)
-- กัน false-green แบบ #3 (เช่น `node --test <dir>` เปล่า exit 0 แต่ไม่มีเคสรัน) — acceptance = เห็น **pass count ≥ 46** ไม่ใช่แค่ exit 0 (BL-2)
+- CI ไม่เชื่อแค่ exit 0 — `check-test-count.mjs` parse summary ของ `node --test` แล้ว **fail ถ้า:** `fail!=0` หรือ `pass<MIN_PASS` หรือ `pass!=tests` (มีเคส skip/cancel)
+- กัน false-green แบบ #3 (เช่น `node --test <dir>` เปล่า exit 0 แต่ไม่มีเคสรัน) — acceptance = เห็น **pass count ≥ MIN_PASS** ไม่ใช่แค่ exit 0 (BL-2)
+- **MIN_PASS ต้อง bump พร้อม topic ที่เพิ่มเคส + คอมเมนต์ระบุที่มา** (ดู `rule.md`) — สูตรที่ใช้อยู่: **ปัดลงหลักสิบของ (N − 5)** โดย N = ยอด pass จริงตอน ship; อย่าอ้างตัวเลขนี้ในเอกสารอื่นแบบ hardcode ให้ชี้กลับมาที่คอมเมนต์ใน `check-test-count.mjs`
 - step CI ใช้ `set -o pipefail` (`shell: bash`) ให้ pipe ยัง fail ตาม node --test
 
-## เคสที่ test suite ครอบ (รวม suite 149 เคส — bare discovery เจอครบ; หลักด้านล่าง)
+## เคสที่ test suite ครอบ (bare discovery เจอครบ 10 ไฟล์; หลักด้านล่าง)
 
 ### `src/tests/installer.test.mjs` — 35 เคส (black-box, spawn `src/bin/cli.mjs`; 9 ฐาน + 8 global + 4 version stamp + 6 universal-ide + 6 isEntrypoint + 2 fastlane install-proof)
 1. ติดตั้งสด — โครงครบ (`.warnyin/workflow`, `.warnyin/template`, `.claude/commands/warnyin`, `.claude/skills/update-codemaps/SKILL.md`, `docs/stages`, `docs/project.md`, `CLAUDE.md`, `AGENTS.md`)
@@ -64,6 +65,12 @@
 - **E1 ordering** — step "เขียน receipt §1+§2" มาก่อน "แก้โค้ด" ใน `fastlane.md` (กัน goalpost moving)
 - **F1-F4 regression** — 4 stage ยังมี link skip-list · ไม่มีตาราง skip-list inline · triage command ยัง read-only (0 write-intent) · `skills/` ไม่มี entry `fastlane` (command-only)
 
+### `src/tests/validate-topic.test.mjs` — validator ระดับ topic (pure fn `checkTopic`/`checkCaps`/`parseTier`/`checkFeatureSpec` + executable `exe:` spawn จริง; L: topic `validator-status` → `build-lean` → `lean-ceremony`)
+- **C1–C6** — โครง/ลำดับ stage/task 4 ไฟล์/`ship.md` data row/feature spec GIVEN-WHEN-THEN/fast·mixed mode
+- **C7 cap (A1-A9 · B1-B3 · C1-C8 · E1-E2)** — boundary ครบคู่ทุก tier (`=cap` ผ่าน / `cap+1` แดง / `large` ไม่มี cap) · cut point `## 9. Spec delta` (H2 เป๊ะ, H4 ไม่ตัด) · `wc -l` semantics · **แถว `ขนาด` ของ template จริงต้อง → `null` → ⚠ ไม่ใช่ ✖ และห้ามเงียบ** · รูปแบบแถวของ proposal จริงทุกแบบ resolve ถูก
+- **stage inference (D1-D9)** — section-based VERIFY (`## 4. ผล verify` มีเนื้อจริง) · **D8/D9 ใช้ `template/stages/[topic]/build.md` ของจริงเป็น fixture ทั้งสองขั้ว** (เติมแค่ H1 → BUILD · เติมเนื้อ §4 → VERIFY) · **D3 backward-compat** `verify.md`/`test.md` ของ topic เก่ายัง infer VERIFY ได้
+- **exe (F1-F4 · C8)** — exit code ตาม contract (✖→1 · ⚠-only→0 · slug ผิด/traversal→2) + output ไม่มี absolute path/ไม่ echo เนื้อ artifact
+
 ## verify-pack testable (BL-4)
 - `checkFiles(files[]) → error[]` = pure function ใน `src/scripts/verify-pack.mjs`, `export` ออกมา → unit ป้อน file list ปลอม (มี `src/tests/` ฯลฯ) แล้ว assert จับได้ — พิสูจน์ว่า denylist **ทำงานจริง** ไม่ใช่เขียวเพราะ allowlist ปิดอยู่
 - main-guard ใช้ `fileURLToPath(import.meta.url) === process.argv[1]` (ไม่ใช่ `import.meta.main` ที่ undefined บน node 20) → import จาก unit test ไม่ trigger `npm pack`
@@ -101,7 +108,7 @@
 - cleanup `t.after()` ลงทะเบียนก่อน assert (ลบ temp แม้ fail)
 
 ## verify ระดับ topic (VERIFY stage)
-- functional: `npm test` เขียวทั้ง suite (เห็น pass count ≥ 9)
+- functional: `npm test` เขียวทั้ง suite (เห็น pass count ≥ `MIN_PASS` ของ `check-test-count.mjs`)
 - package cleanliness: `npm run verify:pack` (หรือ `npm pack --dry-run --json` → `checkFiles`) → `src/.warnyin/`/`src/.claude/` ติด + ไม่มี `src/tests`/`src/scripts`/`docs/`/`.github`/root dogfood รั่ว
 - installer behavior: ติดตั้งจริงใน temp → ตรวจ target ได้เฉพาะ scaffold เปล่า (ไม่มี topic leak)
 - CI เขียวจริงบน PR = ยืนยันบน Linux/node อื่น (ทำตอนเปิด PR/merge — outward)
@@ -274,3 +281,21 @@
 - **install proof = จุดเดียวที่จับบั๊กสภาพตั้งต้นได้:** `setup:sandbox` แล้วตรวจ **ของที่ผู้ใช้ได้จริง** — ไฟล์ที่ seed มีโครง (ไม่ใช่ 0 byte) + heading ครบ + closed-set ครบ + **ยังไม่มี entry จริง** (แถวตัวอย่างต้องไม่ถูกนับ) + registry line อยู่ใน root doc ที่ติดตั้ง + รัน report script ใน sandbox ได้ exit 0 + **0 ไฟล์ CRLF**; unit/structural เขียวหมดยังพลาดเคสนี้ได้ (KB #32)
 - **EOL gate ของ payload:** เทสไฟล์ text **ทุกนามสกุล** ใต้ `src/` ไม่มี CR (ไม่ใช่แค่ `.mjs`) + unit ของ `normalizeEol` (คงชนิด string/Buffer · lone CR · utf-8 ไทยไม่เพี้ยน · binary ไม่ถูกแตะ) + **black-box:** ประกอบ package ปลอมที่ payload เป็น CRLF (`package.json` + `src/bin/cli.mjs` + payload/template/root-doc ขั้นต่ำ) → spawn cli จริง → ไฟล์ที่ติดตั้งต้องเป็น LF
 - **★ falsifiability ต้อง fail-loud:** mutation script ต้อง **`exit 2` เมื่อเนื้อไฟล์ก่อน/หลังเท่ากัน** ก่อนตีความผลเทส (ไม่งั้น "ยังเขียว" อาจแปลว่า mutation ไม่เคยเกิด — KB #33); ทำ RED proof อย่างน้อยกับ invariant แกน (heading freeze · write hook · EOL gate · fix ที่เพิ่งแก้) แล้ว restore จาก backup + ยืนยัน `git status` สะอาด
+
+## verify ceremony-reduction + gate เชิงตัวเลข (cap) ในตัว validator (L: topic `lean-ceremony`)
+> change ที่ **ลด ceremony** ของ workflow (ยุบ artifact ข้าม stage · ตัด hook · ตัดคำถาม optional) และ/หรือเพิ่ม gate ที่ตัดสินจาก **เนื้อไฟล์ที่ผู้ใช้เขียนเอง** — payload `.md` + zero-dep script ไม่มี runtime UI → เทส 3 ชั้น: (ก) unit/executable ของ validator (ข) structural + negative-grep **พร้อมพิกัด** (ค) **accuracy ของ narrative เทียบ source** (`docs/rule.md §5`)
+> ความเสี่ยงเฉพาะของ topic ประเภท "ลด ceremony" = เผลอ**ลด correctness** ไปพร้อมกัน + **เอกสารเล่าเกินจริง** — สองอย่างนี้ full gate (test/lint/pack) มองไม่เห็น จึงต้องมีเคสเฉพาะ
+
+- **★ fixture ของ validator = ไฟล์ template ที่ shipped จริง อย่างน้อย 1 คู่ขั้ว** — อ่าน `src/.warnyin/template/...` มาใช้ตรง ๆ (ยังไม่เติม → คาดว่า "ยังไม่ถึง stage" · เติมเนื้อจริง → "ถึง stage") **ห้ามใช้ string ที่ผู้เขียนเทสแต่งขึ้นเป็นเคสเดียว** — template จริงมีโครงติดมา (table meta · `###` ย่อย · checkbox · placeholder row) ที่ fixture ประดิษฐ์ไม่มี ⇒ เทสเขียวแต่ของจริงหลุด 100% (ดู `rule.md` §"โค้ด installer" ข้อ ★ parser ของ template ข้อย่อย (4))
+- **★ boundary test ของ cap ต้องครบคู่ต่อ tier: `= cap` ผ่าน / `cap + 1` แดง** — cap/threshold ที่ประกาศใน playbook ต้องมี validator บังคับ **และ** มีเคสสองฝั่งพิสูจน์ว่าเส้นอยู่ตรงที่ประกาศจริง (เคสฝั่งเดียว = พิสูจน์ได้แค่ "แดงบางที"); ครอบ tier ที่ **ไม่มี cap** ด้วย (เช่น `large` → ยาวเท่าไรก็ผ่าน) + เคสนิยามการนับ (ไฟล์จบด้วย `\n` ต้องนับแบบ `wc -l` ไม่ใช่ +1) + เคส **cut point ของการนับ** (heading ที่ตัดหางต้อง match anchor เป๊ะ — H4 ชื่อเดียวกันต้องไม่ตัด)
+- **★ fail-safe ต้อง "ดัง" ไม่ใช่ "เงียบ" — ต้องมีเคสยืนยันสามอย่างพร้อมกัน** เมื่อ validator อ่านค่าตัดสินไม่ได้: (1) **ไม่** เป็น ✖ (ไม่ block งานผู้ใช้), (2) **ต้อง** มี ⚠ ระบุเหตุ, (3) exit 0 — เคสที่ทดสอบว่า "ไม่ error" อย่างเดียวจะปล่อยผ่าน bug ที่ร้ายที่สุด คือ gate **ปิดตัวเองเงียบทั้งโปรเจกต์**
+- **★ parser regression sweep บน artifact จริงทุกใบ** ก่อนสรุปว่ากฎ parse ใหม่ปลอดภัย — probe parser เก่า/ใหม่บน artifact จริงทุกใบใน `docs/stages/` (รวม `achieved/`) แล้ว assert ว่า **ผลต่างเฉพาะเคสที่ตั้งใจให้ต่าง**; sweep นี้คือที่เดียวที่จับได้ว่ากฎ "ambiguous → null" แบบดิบ ๆ จะพัง artifact จริงที่เขียนอธิบายก้ำกึ่ง
+- **★ เทสต้องวิ่งผ่าน entry point จริง ไม่ใช่เรียก pure fn ตรงอย่างเดียว** — เคสที่เรียก `checkCaps(files, tier)` ตรง **ไม่เคยพิสูจน์ `parseTier`** (ป้อน tier ให้เอง) ⇒ bug อยู่ที่ชั้น parse แล้วรอด; ให้มีทั้งสองระดับ: pure-fn unit (ตรรกะ) + เคสที่เข้าทาง `checkTopic`/CLI จริง (การต่อสาย)
+- **★ เปลี่ยน stage inference → ต้องมีเคส backward-compat ของ path เก่า** — เมื่อย้ายจาก file-based เป็น section-based: เคสใหม่ 2 ขั้ว + เคส topic เก่าที่ยังมีไฟล์เดิม (ต้อง infer stage ได้เท่าเดิม ไม่ตกชั้นเงียบ)
+- **★ dual-validator run เมื่อ topic แก้ validator เอง** — รันทั้ง **dogfood** (`.warnyin/workflow/scripts/validate-topic.mjs` = รุ่นที่ผู้ใช้ปัจจุบันถืออยู่ — ต้องไม่พังกับ topic ที่กำลังทำ) และ **v-next** (`src/.warnyin/...` = รุ่นที่กำลัง ship — ต้องผ่าน gate ของตัวเอง = self-dogfood); รันตัวเดียวจะพลาดฝั่งใดฝั่งหนึ่งเสมอ
+- **★ orphan-pointer sweep หลังยุบ/ลบไฟล์ใน template** (gate blind spot) — `lint-md.mjs` `EXCLUDE_PREFIX` ครอบ `src/.warnyin/template/` ⇒ pointer ที่ชี้ไฟล์ที่ถูกลบ **รอดทุก gate**; ต้อง grep ชื่อไฟล์เก่าทั้ง `src/.warnyin/`, `src/.claude/`, `src/AGENTS.md`, `src/.warnyin/installer/templates/`, `README.md`, `docs/example-walkthrough.md` แล้วยืนยันว่าทุกจุดชี้พิกัดใหม่ (`<file> §<n>`) หรือระบุ backward-compat ชัด
+- **★ ตัด hook/บล็อกที่ซ้ำ → negative-grep สองทิศ + exact-set** — ต้องไม่พบ needle ในไฟล์ที่ตัด **และ** ต้องยังพบในไฟล์ที่คงไว้ (เซตเป๊ะ ไม่ใช่ "ไม่พบ" อย่างเดียว); assertion แบบ exact-set เป็นสมบัติของ **ทั้ง topic ไม่ใช่ของ slice ใด** → มอบ ownership ให้ wave สุดท้ายตั้งแต่ตอนออกแบบ และแก้ expected **ได้ต่อเมื่อพิสูจน์ด้วย negative-grep ก่อน** (ห้ามแก้เพราะเทสแดง)
+- **★ "gate เดิมไม่ถูกลด" ต้องเป็นเคสที่นับได้ ไม่ใช่ความรู้สึก** — ไล่ gate เดิมเป็นรายการ (full-gate ยัง blocking · hard-floor ครบทุกหมวด · evidence-before-promote · ship gate นับข้อ · approve gate ของ artifact · cap รอบ fix loop) แล้ว assert ว่าไม่มีข้อไหนถูกเปลี่ยนเป็น optional/informational — pattern เดียวกับ gate-count regression ของ `build-lean`
+- **★ narrative accuracy = ไล่ทุก claim + รันทุกคำสั่ง** (CHANGELOG · runbook · README) — เทียบไฟล์จริงทีละ claim **โดยผู้ตรวจอิสระจากผู้เขียน** และ **copy คำสั่งทุกคำสั่งไปรันจริง**; ตัวเลขที่ยกเป็น evidence ต้องวัดด้วย **กติกาเดียวกับ gate ที่ ship จริง** (เช่น นับเฉพาะ narrative ก่อน cut point และไม่นับ tier ที่ไม่มี cap) — เอกสารประเภทนี้ไม่มี gate เชิงกลไกคุมเลย (dead-link จับได้แค่ลิงก์เสีย)
+- **★ known limits ของ heuristic ต้องบันทึกเป็นรายการ ไม่ใช่ปล่อยเป็น ✖** — heuristic ที่เดา "artifact เริ่มเติมหรือยัง" มี false ทั้งสองทางเสมอ; VERIFY ต้องระบุขอบเขตที่ยอมรับไว้ (false-positive/false-negative ที่รู้ตัว) และยืนยันว่าเคสเหล่านั้นออกเป็น ⚠/report **ไม่ block** ผู้ใช้
+- **non-vacuous:** รัน suite ใหม่ทับโค้ด**ก่อนแก้** → เคสใหม่ต้องแดง + mutation ตาม §"falsifiability ต้อง fail-loud" ด้านบน
