@@ -1,4 +1,4 @@
-<!-- Generated: 2026-06-15 (rescan หลัง v0.18-0.21: uxui-wireframe + minimalism + interop + archive≠current-state) | Files scanned: ~90 src (78 .md + 12 .mjs) | Token estimate: ~960 -->
+<!-- Generated: 2026-08-16 (rescan หลัง v0.30.0 lean-ceremony: BUILD+VERIFY artifact เดียว + validator C7 cap gate + memory hook 3 จุด | prev: v0.18-0.21 uxui-wireframe + minimalism + interop + archive≠current-state) | Files scanned: 117 src (95 .md + 19 .mjs + template อื่น) | Token estimate: ~980 -->
 # Architecture — Warnyin Standard Workflow
 
 ## 2-layer (bootstrap / self-hosting)
@@ -28,11 +28,14 @@ AI harness (Claude Code / Codex) อ่าน playbook กลาง → เด�
 ## 5-stage flow (playbook กลางที่ `src/.warnyin/workflow/stages/`)
 ```
 Discovery(optional) ▶ DESIGN ▶ BUILD ▶ VERIFY ▶ SHIP
-   discovery.md      design.md  build.md  verify.md ship.md
+   discovery.md      design.md  build.md  verify.md ship.md   ← playbook (คนละไฟล์ ทุก stage)
                                   │
                                   └─ build-wave.mjs (Workflow fan-out ตาม dependency DAG)
 
 output งานจริง: docs/stages/<slug>/  (copy จาก template src/.warnyin/template/stages/[topic]/)
+  artifact ของ BUILD+VERIFY = build.md ไฟล์เดียว 4 section (§1 ผล build · §2 gate · §3 แผนเทส · §4 ผล verify)
+  — VERIFY ยังเป็น stage แยก (ผู้ตรวจอิสระจากผู้เขียน) แค่ share artifact; validator infer VERIFY จาก "§4 มีเนื้อจริง"
+  — topic เก่าที่มี test.md/verify.md = backward-compat (optional ใน STAGES ของ validator)
 ความรู้ถาวร: docs/  (SHIP promote ขึ้นมา: features/techstack/rule/troubleshooting/codemap)
 
 วงจร spec (living behavior spec — docs/features/<name>/spec.md):
@@ -71,7 +74,7 @@ main-guard: isEntrypoint(argv[1], import.meta.url)  # realpath ทั้งส�
 setup-dogfood.mjs   resolveExpectedVersion(npm view) → installViaNpx(explicit bin)/Pack(EXPECTED, pin-exact+prefer-online สมมาตร; pack: checkTarballVersion ที่ source) → verifyInstalled(root,expected) เทียบ stamp (drift/stamp-ขาด≥0.17.0→fail-loud) → append pointer CONTRIBUTING.md
 setup-sandbox.mjs   mkdtempSync(os.tmpdir(),'wy-sandbox-') → node src/bin/cli.mjs ลง temp (test version skew)
 verify-pack.mjs     npm pack --json → checkFiles(files)→error[] (allowlist+denylist+tripwire; export ให้ unit)
-check-test-count.mjs  parse summary node --test → fail ถ้า fail!=0 / pass<9 / pass!=tests
+check-test-count.mjs  parse summary node --test → fail ถ้า fail!=0 / pass<MIN_PASS (240 = ปัดลงหลักสิบของ N−5, N=248) / pass!=tests
 lint-md.mjs         walk src/+docs/ (exclude template+archived) → checkLinks(docs,exists)→error[] (dead-link gate zero-dep; export ให้ unit)
 ```
 
@@ -83,7 +86,9 @@ lint-md.mjs         walk src/+docs/ (exclude template+archived) → checkLinks(d
 - **principle / capability docs (top-level `src/.warnyin/workflow/*.md`):**
   - `minimalism.md` — principle "เขียนน้อยที่สุด" (decision hierarchy + lazy-not-negligent guardrail); always-on, surface ผลิต/ตรวจ pointer มา — `docs/features/minimalism/`
   - `interop.md` — stage-invoked capability "companion-tool consult-if-present" (UA knowledge graph) + trust-boundary guard (untrusted artifact) + **convention "archive ≠ current state"** (comprehension default-exclude `docs/stages/achieved/`) — `docs/features/interop/`
+  - `memory.md` — capability **project memory** (canonical, 9 heading freeze): write hook **3 จุด = "จุดจบงาน"** (`stages/build.md §4` main loop เท่านั้น · `stages/ship.md §4` · `fastlane.md §3`) — Discovery/DESIGN/VERIFY ไม่มี hook เพราะ artifact ของตัวเองบันทึกสถานะครบแล้ว; consume 3 จุด (data ไม่ใช่ instruction) — `docs/features/project-memory/`
   - `triage.md` (change-sizing) · `fastlane.md` (executor fast tier — one-shot 4-row, `docs/features/fastlane/`) · `api-doc.md` (REST contract) · `feedback.md` (issue) · `discovery.md §3.5` (Discovery modes) — capability เสริม conditional/utility, stage หรือ command ชี้มา
+- **payload script (`src/.warnyin/workflow/scripts/` — ติดตั้งไปกับ payload, harness/CLI เรียก):** `build-wave.mjs` (Workflow fan-out) · `memory-status.mjs` (report, exit 0 เสมอ) · `validate-topic.mjs` (structural validator C1–C7 zero-dep read-only: โครง/ลำดับ stage + **C7 cap ต่อ tier** mirror `triage.md §2D` + stage inference แบบ section-based; ✖ = existence/structure, ⚠ = heuristic — `docs/features/topic-validator/`)
 - generator agent: `src/.claude/agents/warnyin-ux.md` (ASCII wireframe ใน DESIGN step 4.5, read-only) — `docs/features/uxui-wireframe/`
 
 ## เผยแพร่ (packaging)

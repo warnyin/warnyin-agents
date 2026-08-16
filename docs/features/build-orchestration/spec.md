@@ -28,3 +28,21 @@ tier `fast` ไม่ fan-out — main loop แก้โค้ดเอง code-
 - GIVEN tier fast
 - WHEN อ่าน `build.md` fast-track hook (§1)
 - THEN ระบุ main loop แก้โค้ดเอง code-first ไม่ spawn sub-agent/worktree + correctness floor ครบตาม skip-list row BUILD (canonical `triage.md` — full-gate blocking · config-protection · investigate-before-edit · ห้ามแตะ rule กลาง)
+
+## Requirement: BUILD ต่อ VERIFY ในเซสชันเดียว + artifact เดียว
+หลัง full-gate เขียว BUILD เสนอเดิน VERIFY ต่อในเซสชันเดียวโดยยืนยันหนึ่งครั้ง (ปฏิเสธ → หยุด ให้ user สั่ง `/warnyin:verify` เอง); ผลของทั้งสอง stage เขียนลง `build.md` ไฟล์เดียว 4 section (`## 1. ผล build ต่อ task` · `## 2. Full build & test gate` · `## 3. แผนเทส (VERIFY)` · `## 4. ผล verify + การแก้`) แทน 3 ไฟล์เดิม; verify phase ยังบังคับใช้ agent อิสระจากผู้เขียน และ gate ของ VERIFY ไม่เปลี่ยน
+
+### Scenario: continue หนึ่งครั้งหลัง full-gate
+- GIVEN BUILD ผ่าน full build + test gate
+- WHEN จบ §4 ปิดงาน
+- THEN `build.md` playbook ระบุให้ถามยืนยันหนึ่งครั้งเพื่อเดิน VERIFY ต่อ และระบุทางเลือกหยุดให้ user สั่ง command เอง
+
+### Scenario: artifact เดียวสี่ section
+- GIVEN template `src/.warnyin/template/stages/[topic]/`
+- WHEN อ่านรายชื่อไฟล์
+- THEN มี `build.md` ที่มีครบสี่ section ตามชื่อข้างต้น และไม่มี `test.md`/`verify.md` แยก
+
+### Scenario: ผู้ตรวจอิสระจากผู้เขียน
+- GIVEN `src/.warnyin/workflow/stages/verify.md`
+- WHEN อ่านหลักการของ verify phase
+- THEN ระบุว่าการ verify ต้องทำโดย agent/บทบาทที่อิสระจากผู้เขียนโค้ด (self-check ของ build agent ไม่นับ)

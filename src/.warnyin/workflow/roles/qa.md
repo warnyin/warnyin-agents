@@ -27,10 +27,10 @@
 - [ ] มีวิธีสร้าง/seed ข้อมูลทดสอบ
 
 ## Output
-- VERIFY: แผนเทสใน `test.md` + ผลใน `verify.md` (รวมจำนวนการแก้ไข)
+- VERIFY: แผนเทสใน `build.md §3` + ผลใน `build.md §4` (รวมจำนวนการแก้ไข)
 - panel: ความเห็น **blocker** / **suggestion** ด้าน testability พร้อมจุดอ้างอิง
 
 ## Skill เสริม (optional — ใช้ถ้าติดตั้งไว้)
 - `browser-test` — ติดตั้ง: `npx skills add ruvnet/ruflo@browser-test` (⚠ PromptScript: `-g` global ไม่รองรับ → ติด local ต่อ project เท่านั้น)
-- **`@playwright/cli`** (Microsoft official) — e2e web test: record/codegen/inspect selector/screenshot; ใช้ทำ **FE e2e smoke** ตอน VERIFY (`verify.md` §4). ติดตั้ง: `npm i -g @playwright/cli@latest` → `playwright-cli install --skills` (★ workspace-local — ลง `.claude/skills/playwright-cli` ใน **project cwd**; ปลายทาง gitignore กัน vendor) · สำรอง `npx playwright-cli`
+- **`@playwright/cli`** (Microsoft official) — e2e web test: record/codegen/inspect selector/screenshot; ใช้ทำ **FE e2e smoke** ตอน VERIFY (playbook `stages/verify.md` §4). ติดตั้ง: `npm i -g @playwright/cli@latest` → `playwright-cli install --skills` (★ workspace-local — ลง `.claude/skills/playwright-cli` ใน **project cwd**; ปลายทาง gitignore กัน vendor) · สำรอง `npx playwright-cli`
 - Claude Code built-in: skill `verify` / `run` ช่วย launch app เพื่อเทสจริง

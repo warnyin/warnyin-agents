@@ -120,6 +120,8 @@ docs/rule.md · docs/techstack/<component>/rule.md   # กฎที่ยืน�
 
 ## 5. Write points (hook ต่อ stage)
 
+> **เขียนที่ "จุดจบงาน" ไม่ใช่ท้ายทุก stage** — Discovery/DESIGN/VERIFY ไม่มี hook เพราะสถานะของสาม stage นั้นอยู่ใน artifact ของตัวเองแล้ว (`discovery.md` · `proposal.md`+`design.md` · `build.md §4`)
+
 > **conditional ทุกจุด:** ไม่มีอะไรเปลี่ยน → ข้าม (ไม่ต้องเขียน); ไม่มีไฟล์ → สร้างตาม §4 ก่อน
 
 **สิ่งที่เขียน (2 ทาง):**
@@ -131,10 +133,7 @@ docs/rule.md · docs/techstack/<component>/rule.md   # กฎที่ยืน�
 
 | จุด | ไฟล์ (anchor) | หมายเหตุ |
 |---|---|---|
-| Discovery | `stages/discovery.md` §4 (ท้าย stage) | สถานะ/ขอบเขตที่ตกลง + ข้อสังเกตที่ยังไม่เป็นกฎ |
-| DESIGN | `stages/design.md` §4 (ท้าย stage) | decision ที่ยังไม่เป็น artifact |
 | BUILD | `stages/build.md` §4 (ท้าย stage) | **★ main loop เท่านั้น** หลัง integrate ครบทุก wave — sub-agent ใน worktree ห้ามเขียนเอง (§2) |
-| VERIFY | `stages/verify.md` §4 (ท้าย stage) | ผลเทส/บทเรียนจาก fix loop |
 | SHIP | `stages/ship.md` §4 (ท้าย stage) | สถานะหลังส่งมอบ + สิ่งที่ยังไม่ถูก promote |
 | fastlane | `fastlane.md` §3 (skip-list) | executor ของ fast tier — ดู [`triage.md`](./triage.md) |
 

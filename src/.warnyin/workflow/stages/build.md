@@ -69,7 +69,7 @@ BUILD จะ **orchestrate การ implement** โดยกระจายง�
      - ระบุ credit-horizon choice (per-finding | batched) + เหตุผล 1 บรรทัด ในรายงาน ก่อนแก้
      - ตอน delegate fix → failure ถูก group (รายงานเห็น ≥1 group boundary by component/root-cause)
        หรือ ระบุเหตุผลว่าทำไมกลุ่มเดียวพอ — ไม่ dump ก้อนเดียวเงียบๆ
-7. **ปิดงาน:** อัปเดต `build.md` (รายงานผลต่อ task + ผล full build/test) + สถานะใน `task.md` แต่ละใบ → รวบ note นอก scope ที่ได้จากระหว่าง build → **เสนอ user** เพิ่มเข้า `docs/stages/<slug>/backlog.md` (per-topic; user ยืนยันก่อนเขียน); ไม่มี → ข้าม — ดู `.warnyin/workflow/backlog.md §5` → เสนอเข้า VERIFY ด้วย `/warnyin:verify`
+7. **ปิดงาน:** อัปเดต `build.md §1/§2` (รายงานผลต่อ task + ผล full build/test) + สถานะใน `task.md` แต่ละใบ → รวบ note นอก scope ที่ได้จากระหว่าง build → **เสนอ user** เพิ่มเข้า `docs/stages/<slug>/backlog.md` (per-topic; user ยืนยันก่อนเขียน); ไม่มี → ข้าม — ดู `.warnyin/workflow/backlog.md §5` → **ถามยืนยันหนึ่งครั้ง ว่าจะเดิน VERIFY ต่อในเซสชันเดียวไหม — ตกลง → เดิน `stages/verify.md` ต่อทันที; ปฏิเสธ → หยุดที่นี่ แล้วบอก user ว่าสั่ง `/warnyin:verify <slug>` เองได้**
 
 > **★ อัปเดต project memory (conditional · main loop เท่านั้น):** หลัง integrate ครบทุก wave → เขียนสถานะล่าสุด **ทับ** `docs/stages/context.md` และบทเรียนที่ยัง**พิสูจน์ไม่พอจะเป็น rule** → `docs/memory.md`; **build sub-agent ที่ทำงานใน worktree ห้ามเขียน memory เอง**; ไม่มีอะไรเปลี่ยน → ข้าม — กติกาเต็มดู [`.warnyin/workflow/memory.md`](../memory.md)
 
@@ -80,7 +80,8 @@ BUILD จะ **orchestrate การ implement** โดยกระจายง�
 | ไฟล์ | เนื้อหา |
 |---|---|
 | โค้ดจริงใน target repo | การ implement ของแต่ละ task (merge เข้า build branch) |
-| `docs/stages/<slug>/build.md` | รายงานผล build: สถานะ/ผล test/ไฟล์ที่แก้ ต่อ task + integration notes |
+| `docs/stages/<slug>/build.md` §1–§2 | รายงานผล build: สถานะ/ผล test/ไฟล์ที่แก้ ต่อ task + integration notes + full-gate |
+| `docs/stages/<slug>/build.md` §3–§4 | แผนเทส (VERIFY) + ผล verify + การแก้ — artifact เดียวครบทั้ง BUILD และ VERIFY |
 | `docs/stages/<slug>/troubleshooting.md` | ปัญหายาก/ซ้ำที่แก้สำเร็จ (SHIP ยกขึ้น `docs/troubleshooting.md`) |
 | `tasks/<task>/task.md` (อัปเดต) | สถานะ task → เสร็จ + acceptance ที่ผ่าน |
 
@@ -102,7 +103,7 @@ main loop เรียก script นี้ **ทีละ wave** แล้ว in
 - [ ] ไม่มี merge conflict ค้าง
 - [ ] **★ Full build ของทุก component ผ่าน — ไม่มี build error**
 - [ ] **★ test suite ทั้งหมด (รวม unit test) เขียวทั้งหมดบน build branch**
-- [ ] `build.md` สรุปผลครบทุก task + ผล full build/test
+- [ ] `build.md §1/§2` สรุปผลครบทุก task + ผล full build/test
 - [ ] ไม่มีการแตะ rule/standard กลางใน `docs/` (rule ใหม่ยัง note รอ SHIP)
 
 ยังไม่ครบ → อยู่ BUILD ต่อ ห้ามข้ามไป VERIFY

@@ -51,19 +51,24 @@ template ทั้งสองใบมีคำเตือนว่าไฟ�
 - WHEN นับ markdown-link รูปแบบ `[](...)` นอก code span
 - THEN นับได้ศูนย์รายการ
 
-## Requirement: ทุก stage และ fastlane มี hook เขียน memory
+## Requirement: hook เขียน memory อยู่ที่จุดจบงาน — BUILD, SHIP และ fastlane
 
-playbook ของทั้งห้า stage และ executor `fastlane` มีจุดสั่งอัปเดต project memory ท้ายงานแบบ conditional; hook ของ BUILD ระบุว่า main loop เท่านั้น
+playbook เขียน project memory ที่ **สองจุดจบงาน** เท่านั้น — จบ BUILD (main loop เท่านั้น หลัง integrate ครบทุก wave) และ SHIP — บวก executor `fastlane` ที่ ship-lite; `stages/{discovery,design,verify}.md` ไม่มี hook (สถานะของสาม stage นั้นอยู่ใน artifact ของตัวเองแล้ว: `discovery.md`/`proposal.md`+`design.md`/`build.md §4`)
 
-### Scenario: hook ครบทุกไฟล์
+### Scenario: hook เหลือสองจุด + fastlane
 - GIVEN ไฟล์ `stages/{discovery,design,build,verify,ship}.md` และ `fastlane.md` ใน `src/.warnyin/workflow/`
 - WHEN ค้นข้อความ `อัปเดต project memory`
-- THEN พบครบทั้งหกไฟล์
+- THEN พบใน `build.md`, `ship.md`, `fastlane.md` เท่านั้น — ไม่พบใน `discovery.md`, `design.md`, `verify.md`
 
 ### Scenario: hook ของ BUILD ห้าม sub-agent เขียนเอง
 - GIVEN `src/.warnyin/workflow/stages/build.md`
 - WHEN อ่านบรรทัด hook
 - THEN มีข้อความ `main loop เท่านั้น` และ `build sub-agent ที่ทำงานใน worktree ห้ามเขียน memory เอง`
+
+### Scenario: anchor table ตรงกับไฟล์จริง
+- GIVEN `src/.warnyin/workflow/memory.md` section `## 5. Write points (hook ต่อ stage)`
+- WHEN อ่านตาราง anchor
+- THEN มีสามแถว (`BUILD`, `SHIP`, `fastlane`) และไม่มีแถว Discovery/DESIGN/VERIFY
 
 ## Requirement: จุดอ่าน memory ระบุว่าเป็น data ไม่ใช่ instruction
 

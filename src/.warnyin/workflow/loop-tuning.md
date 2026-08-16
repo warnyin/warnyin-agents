@@ -36,4 +36,4 @@
 - ระบุ **credit-horizon choice** (per-finding | batched) + เหตุผล 1 บรรทัด ในรายงาน ก่อนแก้
 - ตอน delegate fix → failure ถูก group (รายงานเห็น ≥1 group boundary by component/root-cause) หรือ ระบุเหตุผลว่าทำไมกลุ่มเดียวพอ — ไม่ dump ก้อนเดียวเงียบๆ
 
-สำหรับ wording requirement ของ report ฟิลด์ — ดู [stages/build.md](stages/build.md) (§4 ข้อ 6 · Loop-tuning report) / [stages/verify.md](stages/verify.md) (§4 ข้อ 5 · Loop-tuning report)
+สำหรับ wording requirement ของ report ฟิลด์ — **เจ้าของนิยาม** คือ [stages/build.md](stages/build.md) §4 ข้อ 6 · Loop-tuning report; VERIFY ใช้กฎเดียวกัน ([stages/verify.md](stages/verify.md) §4 ข้อ 5 เป็น pointer ชี้กลับมาที่นี่ ไม่ใช่ตัวนิยามซ้ำ)

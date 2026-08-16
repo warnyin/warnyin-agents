@@ -16,7 +16,7 @@
 ## รายการ
 ประเภท ∈ {`ทำทีหลัง`, `อาจไม่ทำ`, `รอเงื่อนไข`} · สถานะ ∈ {`open`, `promoted`, `dropped`}
 
-<!-- ยังไม่มี entry — เพิ่มตอน SHIP จาก topic backlog.md (entry open) -->
+
 
 | # | รายการ (what) | ที่มา (stage + ไฟล์/อ้างอิง) | ประเภท + เหตุผล | สถานะ | มาจาก topic |
 |---|---|---|---|---|---|
@@ -33,3 +33,8 @@
 - เติมคอลัมน์ `มาจาก topic` = slug ที่งานนั้นมา (provenance)
 - entry ซ้ำข้าม topic → กลั่นรวมเป็นแถวเดียว (ระบุหลาย topic ที่ `มาจาก topic` ได้)
 - entry ที่ `promoted` แล้วใน per-topic → skip (idempotent ไม่เพิ่มซ้ำ)
+
+| # | รายการ | ประเภท | มาจาก topic | สถานะ |
+|---|---|---|---|---|
+| 1 | ทบทวนชื่อ section `## 5. Write points (hook ต่อ stage)` ใน `.warnyin/workflow/memory.md` — ชื่อยังสื่อ "ต่อ stage" ทั้งที่นิยามใหม่คือ "จุดจบงาน" (BUILD/SHIP/fastlane); การ rename ต้องทำพร้อมแก้ inbound pointer ทุกจุด + เทส `M1` (heading freeze 9 หัวข้อ) จึงแยกเป็นงานของตัวเอง | `ทำทีหลัง` | `lean-ceremony` | open |
+| 2 | ตัวเลขจำนวนเคสใน `docs/techstack/installer/{structure,test}.md` ค้างจากรุ่นเก่า (เช่น installer.test ระบุ 33/35 แต่จริง 40 · verify-pack ระบุ 13 แต่จริง 28) — คลาดมาก่อน topic `lean-ceremony` จึงไม่แก้ในรอบนั้นเพื่อไม่ให้ diff บวมเกินขอบเขต | `ทำทีหลัง` | `lean-ceremony` | open |

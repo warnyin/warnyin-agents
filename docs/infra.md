@@ -72,3 +72,56 @@ npm run setup:sandbox    # ติดตั้ง v-next จาก src/ ลง te
 4. แก้ → รัน `npm run verify:pack` อีกครั้ง
 
 **Windows dev:** ถ้าเจอ `verify:pack: ต้องรันผ่าน npm run verify:pack` → ใช้ `npm run verify:pack` เท่านั้น (script ตรงไม่ตั้ง `npm_execpath` env var); ถ้าไม่มี Windows dev ในทีม → trigger `windows-latest` GitHub Actions workflow ad-hoc
+
+## Runbook — `✖ [C7]` cap เอกสารเกิน
+
+ผู้ใช้ที่รัน topic validator (`validate-topic.mjs`) แล้วเจอ error ที่ขึ้นต้นด้วย `✖ [C7]`:
+
+**อาการ**
+```
+✖ [C7] design.md มี 131 บรรทัด เกิน cap 120 บรรทัด (tier: standard)
+```
+- exit code 1 (ปิดกั้นการ ship)
+- prefix `✖ [C7]` ใช้เป็น identifier เพื่อให้ผู้ใช้ grep ได้
+
+**สาเหตุ**
+
+ตัดสิน error C7 ตามขนาด (tier) และเอกสารที่ส่ง:
+
+| Tier | Document | Cap | หมายเหตุ |
+|---|---|---|---|
+| `fast` | `receipt.md` | ≤ 40 บรรทัด | งานเล็กที่จบในคำสั่งเดียว |
+| `standard` | `proposal.md` | ≤ 60 บรรทัด | what & why ของ change |
+| `standard` | `design.md` (ก่อน §9) | ≤ 120 บรรทัด | นับเฉพาะ **narrative** — บรรทัดก่อน section `## 9. Spec delta` เท่านั้น (delta เป็นเนื้อ spec ที่ถูก merge ออกตอน SHIP) |
+| `large` | (ไม่มี cap) | — | ขนาดเป็น judgment ตาม `triage.md §2D` |
+
+**วิธีแก้** — เลือก 1 ใน 3 ทาง:
+
+1. **ย่อเอกสาร** — ตัด redundant / compress ให้อยู่ใน cap (แนะนำที่สุด)
+   - เช่น proposal ยาว 65 บรรทัด → ลด 5 บรรทัด ให้เหลือ 60 ↓ ลบ spec ที่ไม่จำเป็น หรือ consolidate list
+
+2. **ระบุ tier ให้ถูก** — ตรวจ `proposal.md` field `ขนาด` ว่าอ่านได้ไหม
+   - กรณี `ขนาด=standard` แต่เอกสารใหญ่จริง ๆ → ย่อเสีย (ทำตามวิธี 1)
+   - กรณี `ขนาด` ไม่ระบุหรืออ่านไม่ได้ → validator รายงาน `⚠ [C7]` (warn ไม่ block) — เติม field นั้นให้ครบเพื่อให้ cap ทำงาน
+
+3. **ประกาศ tier `large`** — เมื่อ change ใหญ่จริงจนต้องเขียนเกิน cap
+   - ใช้เมื่อ change เป็น greenfield / cross-cutting หลาย component ตามนิยาม `triage.md §2A`
+   - กำหนด `ขนาด=large` ในช่อง `ขนาด` ของ `proposal.md` (tier นี้ไม่มี cap)
+   - เป็นทางเลือกสุดท้าย — ประกาศ `large` เพื่อเลี่ยง cap ทั้งที่งานไม่ใหญ่จริง คือการหลบ gate
+
+**ข้อระวัง**
+
+- ⚠ `[C7]` (warn) = อ่าน tier ไม่ได้ → ข้ามเช็ค cap ไม่ block (fail-safe — บังคับ cap ผิด tier อันตรายกว่าไม่บังคับ)
+- ✖ `[C7]` (error) = รู้ tier แล้วและเอกสารเกิน cap → **ต้องแก้** ก่อน ship
+- **ห้ามแก้ตัวเลข cap ใน `triage.md §2D` หรือปิด gate เพื่อให้ผ่าน** (config-protection, `docs/rule.md §1`) — cap เป็นเกณฑ์ที่ตั้งใจไว้ ไม่ใช่ตัวเลขที่ปรับตามเอกสาร
+
+**ตรวจสถานะ**
+
+```bash
+# อ่าน tier ที่ proposal ระบุ
+grep -n '^| \*\*ขนาด\*\*' docs/stages/<slug>/proposal.md   # tier อยู่ใน cell ที่ 2 (ต้องมี backtick ค่าเดียว)
+
+# นับบรรทัด proposal / design ก่อน §9
+wc -l docs/stages/<slug>/proposal.md   # ต้อง ≤ cap ตาม tier
+awk '/^## 9\. Spec delta/{exit} {n++; if($0!="") last=n} END{print last+0}' docs/stages/<slug>/design.md  # ≤ 120 สำหรับ standard
+```

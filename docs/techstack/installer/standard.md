@@ -39,10 +39,29 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) main(
 - denylist: `src/tests/`,`src/scripts/`,`docs/`,`.github/` + root dogfood (`.warnyin/`,`.claude/`,root `CLAUDE.md`/`AGENTS.md`) + tripwire (`settings.local.json`,`*.tgz`,`.env*`)
 - unit (`src/tests/verify-pack.test.mjs`) import `checkFiles` ตรง ป้อน list ปลอม assert จับได้
 
+## validator ของ artifact ผู้ใช้ (`src/.warnyin/workflow/scripts/validate-topic.mjs`) — L: topic `lean-ceremony`
+> gate ที่อ่านไฟล์ที่ **ผู้ใช้เขียนเอง** (`docs/stages/<slug>/`) — pattern ต่างจาก gate ที่อ่าน output ของเครื่อง (`verify-pack`) เพราะ input มี "สภาพตั้งต้น = template ที่ยังไม่เติม" เสมอ
+```js
+// นิยามการวัดตรึงไว้ติดฟังก์ชัน — metric ที่ตัดสิน ✖ ต้องอ่านได้จากโค้ด ไม่ใช่จากเอกสารแยก
+function countLines(content) {            // = wc -l semantics
+  const lines = content.split('\n')
+  if (lines[lines.length - 1] === '') lines.pop()   // ไฟล์จบ \n ไม่นับบรรทัดว่างท้าย
+  return lines.length
+}
+export function parseTier(content)        // อ่านเฉพาะ "cell ค่า" (หลัง pipe ตัวที่ 2) — cell แรกเป็น label
+export function checkCaps(files, tier)    // pure: รับ Map<relPath,content> + tier → issue[]; ไม่แตะ node:fs
+```
+- **canonical constant mirror + คอมเมนต์บอกเจ้าของ** — `CAPS` / `STAGES` เป็นสำเนาตัวเลข/รายการที่ playbook เป็นเจ้าของ (`triage.md §2D`) → คอมเมนต์ต้องระบุ "อ่านอย่างเดียว — ห้ามแก้ที่นี่" + ชี้พิกัดต้นทาง (canonical-copy: validator เป็นผู้บังคับ ไม่ใช่ผู้ตั้งกฎ)
+- **precedence ของ parser + ambiguous → `null` เสมอ** — อ่าน keyword ที่อยู่ใน `` `backtick` `` ก่อน (convention ของ artifact จริง) → ไม่พบจึง fallback ทั้ง cell; เจอ keyword **ต่างชนิด > 1 ตัว = ambiguous → `null`** (ห้ามเดา, ห้ามเอา match แรก) → เข้าเส้น fail-safe ⚠; ผลข้างเคียงที่ตั้งใจ: **แถวของ template ที่ยังไม่เติม (ใส่ครบทุกตัวเลือก) จะ resolve เป็น `null`** ไม่ใช่ค่าแรกในรายการ
+- **fail-safe = `warn` + exit 0 แบบ conditional** — ออก ⚠ เฉพาะเมื่อ topic มีไฟล์ที่ cap ครอบอยู่จริง (ไม่ noise กับ topic เปล่า); ห้ามยกระดับเป็น ✖ (validator เดาไม่ได้ ≠ ผู้ใช้ทำผิด)
+- **filled/real-content heuristic ต้อง template-aware** — `hasRealContent(lines, from, to)` ตัดสิ่งที่ template มีติดมาอยู่แล้วออกก่อนนับ (blockquote · heading ย่อย · HTML comment · เส้นคั่น · table separator/header · row ที่ทุก cell เป็น placeholder · checkbox ที่ยังไม่ติ๊ก · `<...>`) — "มี heading" ไม่เท่ากับ "เริ่มเติม"
+- **`required: []` + `optional: [<ไฟล์เดิม>]` เมื่อย้าย inference ไปอิง section** — คงเส้นทางเก่าไว้เป็น optional เสมอ พร้อมคอมเมนต์แยกว่าอันไหน new path อันไหน backward-compat
+- **แยก ✖ / ⚠ ตามความแน่นอนของหลักฐาน** — check ที่พิสูจน์ได้จาก existence/structure ล้วน = ✖ ได้; check ที่พึ่ง heuristic = ⚠ best-effort (ยอม false ได้ ไม่ block)
+
 ## dev tooling (`src/scripts/` — ไม่ publish, cross-platform)
 - **`setup-dogfood.mjs`** — `installViaNpx()` (spawn npx, `shell:true` เฉพาะ win32) `||` `installViaPack()` (fallback: npm pack→`tar -xzf --strip-components 1`→`node <cli>`); resolve cli จาก tarball `package.json bin` + candidate `['src/bin/cli.mjs','bin/cli.mjs']` (ทน version skew baseline); `appendContributingPointer()` idempotent (marker `CONTRIBUTING.md`); ทั้งคู่ล้ม → `exit(1)`
 - **`setup-sandbox.mjs`** — `mkdtempSync(os.tmpdir(),'wy-sandbox-')` → `spawnSync(process.execPath, [src/bin/cli.mjs], {cwd:sandbox})` (array args ไม่ shell) → print path
-- **`check-test-count.mjs`** — อ่าน summary `node --test` จาก stdin → fail ถ้า `fail!=0` / `pass<MIN_PASS(9)` / `pass!=tests` (anti-false-green)
+- **`check-test-count.mjs`** — อ่าน summary `node --test` จาก stdin → fail ถ้า `fail!=0` / `pass<MIN_PASS` / `pass!=tests` (anti-false-green); `MIN_PASS` = ปัดลงหลักสิบของ (N−5) — bump พร้อม topic ที่เพิ่มเคส + คอมเมนต์ระบุ N ที่วัดได้
 
 ## command namespace (`.claude/commands/warnyin/`)
 - **nested namespace = subfolder** — `/warnyin:<group>:<action>` map กับไฟล์ `.claude/commands/warnyin/<group>/<action>.md` (เช่น `/warnyin:feedback:issue` ← `feedback/issue.md`); `cli.mjs copyTree` **recursive** อยู่แล้ว (`readdirSync withFileTypes` + เรียกตัวเอง + `mkdirSync recursive`) → copy nested folder อัตโนมัติ **ไม่ต้องแก้ packaging**; `verify-pack` เช็ค prefix `src/.claude/commands/warnyin/` → ครอบ nested เอง; **mkdir directory ก่อน Write** ไฟล์ใน nested path ใหม่ (โฟลเดอร์ยังไม่มี → Write fail) — evidence: topic `feedback-issue-command` (nested namespace แรก, verify-pack 83 ไฟล์ + sandbox install proof)

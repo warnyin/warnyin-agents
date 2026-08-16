@@ -13,7 +13,7 @@ executor ของ **fast tier** — ข้ามขั้นประเมิ�
 
 - **ต่างจาก `triage`:** triage = read-only ประเมิน tier แล้วแนะนำแล้วหยุด · fastlane = ลงมือจริง (เขียน receipt + แก้ไฟล์จริง + archive)
 - **ต่างจาก flow เต็ม:** flow เต็ม = 4 command แยก (`design` → `build` → `verify` → `ship`) artifact ครบชุด · fastlane = คำสั่งเดียว artifact เดียว (`receipt.md`)
-- **★ user-invoked เท่านั้น** — stateful + irreversible (เขียนไฟล์/archive) → ห้ามให้ AI auto-invoke เอง
+- ★ user-invoked เท่านั้น — AI auto-invoke เองไม่ได้; handoff จาก DESIGN ที่ user ยืนยันในเซสชัน (design §4 step 1.5) นับเป็น user-invoked
 - งานที่ใหญ่กว่า fast หรือแตะ hard-floor → ไม่ใช่งานของ fastlane โดยตั้งต้น (ดู §2 ข้อ 3 + §5 escalate)
 
 ---

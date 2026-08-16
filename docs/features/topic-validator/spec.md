@@ -71,3 +71,21 @@ topic ที่มี `receipt.md` filled (H1 ไม่ใช่ placeholder —
 - GIVEN topic ไม่มี receipt.md (หรือยังเป็น template)
 - WHEN รัน validate
 - THEN ผลเหมือน validator เวอร์ชันก่อน change ทุกประการ
+
+## Requirement: Validator บังคับ cap ขนาดเอกสารต่อ tier
+validator เช็คจำนวนบรรทัดของ artifact เทียบ cap ต่อ tier (`triage.md §2D`) — เกิน = ✖ (block); tier อ่านจากช่อง `ขนาด` ใน `proposal.md` และเมื่ออ่านไม่ได้ = ⚠ ข้ามเช็ค (ไม่บังคับ); `design.md` นับเฉพาะบรรทัดก่อน `## 9. Spec delta`
+
+### Scenario: เกิน cap → ✖
+- GIVEN topic ที่ `proposal.md` ระบุขนาด `standard` และ `design.md` มีเนื้อก่อน `## 9. Spec delta` เกิน 120 บรรทัด
+- WHEN รัน `node .warnyin/workflow/scripts/validate-topic.mjs <slug>`
+- THEN มีบรรทัด `✖ [C7]` ระบุไฟล์ + จำนวนบรรทัด + cap และ exit code = 1
+
+### Scenario: tier อ่านไม่ได้ → ⚠ ไม่บังคับ
+- GIVEN topic ที่ `proposal.md` ไม่มีค่า `fast`/`standard`/`large` ในช่อง `ขนาด`
+- WHEN รัน validate
+- THEN มี `⚠ [C7]` ระบุว่าไม่ระบุ tier จึงข้ามเช็ค cap และไม่ทำให้ exit code เป็น 1
+
+### Scenario: tier large ไม่มี cap
+- GIVEN topic ที่ระบุขนาด `large` และเอกสารยาวกว่าทุก cap
+- WHEN รัน validate
+- THEN ไม่มี issue รหัส C7

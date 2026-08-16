@@ -3,6 +3,7 @@
 > **Disclaimer:** นี่คือ **snapshot** ของ topic `cli-legacy-warning-fix` ณ **2026-06-07** — เป็นตัวอย่าง "output ที่ทำดีแล้ว" ของ workflow นี้
 > - ขั้นตอน/เกณฑ์ของแต่ละ stage อาจเปลี่ยนในอนาคต → **source ปัจจุบันอยู่ที่ playbook กลาง** [`src/.warnyin/workflow/stages/`](../src/.warnyin/workflow/stages/) เสมอ (หน้านี้ไม่ใช่ที่อธิบายขั้นตอน — ดู playbook)
 > - artifact ทั้งหมดที่ลิงก์ในหน้านี้เป็น **ไฟล์จริง** ใต้ [`docs/stages/achieved/`](stages/achieved/) — เปิดดูบน GitHub repo ได้ (ผู้ที่ `npx` ติดตั้งจะไม่มี `docs/` ในเครื่อง — ดูบน repo)
+> - **โครง artifact ตอนนั้น ≠ ปัจจุบัน:** topic นี้ทำตอน BUILD/VERIFY ยังแยกเป็น 3 ไฟล์ (`build.md` + `test.md` แผนเทส + `verify.md` ผล) — **ปัจจุบันยุบเหลือ `build.md` ไฟล์เดียว 4 section** (§1 ผล build ต่อ task · §2 full build & test gate · §3 แผนเทส (VERIFY) · §4 ผล verify + การแก้). ลิงก์ด้านล่างจึงยังชี้ไฟล์เก่าตามที่เกิดขึ้นจริง ไม่แก้ย้อนหลัง
 
 หน้านี้ไล่ topic จริงหนึ่งตัว (`cli-legacy-warning-fix`) ตั้งแต่ตี scope จนส่งมอบ เพื่อให้เห็นว่า **artifact ที่ workflow ผลิตหน้าตาเป็นยังไง** และ **แต่ละ stage "ตัดสินใจ" อะไร** — ไม่ใช่อ่านขั้นตอน (ขั้นตอนอยู่ที่ playbook)
 
@@ -19,7 +20,7 @@
 | **Discovery** *(ข้าม)* | scope ชัดมาจาก VERIFY ของ topic ก่อน → ไม่ต้องสัมภาษณ์ตี scope ใหม่; ไฟล์ discovery/research เป็น template เปล่า (ไม่แต่งให้ดูครบ) | — (ข้ามได้เมื่อ scope ชัด) | [discovery.md](stages/achieved/2026-06-07-cli-legacy-warning-fix/discovery.md) · [research.md](stages/achieved/2026-06-07-cli-legacy-warning-fix/research.md) · [business.md](stages/achieved/2026-06-07-cli-legacy-warning-fix/business.md) |
 | **DESIGN** | เลือก **A** (แก้ string ให้ตรง guide) **ปัด B** (แก้ behavior installer) — เหตุผล: guide robust ครอบปัญหาแล้ว, low-risk; แตกเป็น 1 vertical slice (cli+test ไปด้วยกัน); ข้าม review panel เพราะ change เล็ก | DESIGN → BUILD | [proposal.md](stages/achieved/2026-06-07-cli-legacy-warning-fix/proposal.md) · [design.md](stages/achieved/2026-06-07-cli-legacy-warning-fix/design.md) · [tasks/fix-legacy-warning/](stages/achieved/2026-06-07-cli-legacy-warning-fix/tasks/fix-legacy-warning/) |
 | **BUILD** | จัด 1 wave (task เดียว) แบบ `shared-tree` (ไม่ต้อง worktree); sub A (แก้ cli) → B (แก้ test assert) → C (re-verify) — ผ่านรอบแรก 18/18, ไม่มี fix loop | BUILD → VERIFY | [build.md](stages/achieved/2026-06-07-cli-legacy-warning-fix/build.md) |
-| **VERIFY** | เทสตาม **จุดประสงค์จริง** ไม่ใช่แค่ unit เขียว: executable migration proof 2 รุ่น + **3-way consistency** (cli ↔ CHANGELOG ↔ test เป็นชุดเดียว) + regression — ผ่านครบ 0 รอบแก้ | VERIFY → SHIP | [verify.md](stages/achieved/2026-06-07-cli-legacy-warning-fix/verify.md) · [test.md](stages/achieved/2026-06-07-cli-legacy-warning-fix/test.md) |
+| **VERIFY** | เทสตาม **จุดประสงค์จริง** ไม่ใช่แค่ unit เขียว: executable migration proof 2 รุ่น + **3-way consistency** (cli ↔ CHANGELOG ↔ test เป็นชุดเดียว) + regression — ผ่านครบ 0 รอบแก้ | VERIFY → SHIP | *(โครงเก่า)* [verify.md](stages/achieved/2026-06-07-cli-legacy-warning-fix/verify.md) · [test.md](stages/achieved/2026-06-07-cli-legacy-warning-fix/test.md) — ปัจจุบันคือ `build.md §3` (แผนเทส) + `§4` (ผล verify) |
 | **SHIP** | promote ความรู้: ปิด **defer item P0 #3** ในroadmap, ยืนยัน **ไม่มี rule ใหม่** (task แค่ทำ cli compliant กับ rule ที่ promote ไปแล้ว), archive topic | ส่งมอบ | [ship.md](stages/achieved/2026-06-07-cli-legacy-warning-fix/ship.md) · [troubleshooting.md](stages/achieved/2026-06-07-cli-legacy-warning-fix/troubleshooting.md) |
 
 ## รายละเอียดต่อ stage (เน้นเหตุผลการตัดสินใจ)
@@ -43,6 +44,7 @@ decision หลักอยู่ใน [proposal.md](stages/achieved/2026-06-07
 
 จุดเด่นของ stage นี้: ไม่หยุดที่ "unit test เขียว" แต่เทสตามจุดประสงค์จริงของ topic. [verify.md](stages/achieved/2026-06-07-cli-legacy-warning-fix/verify.md) รัน **executable migration proof** — จำลอง project รุ่นเก่า 2 รุ่น (≤0.2.x, 0.3–0.5.x) แล้วทำตามคำสั่งที่อ่านจาก stderr ของ cli จริง เพื่อยืนยันว่างานไม่หาย/ไม่ซ้อน/ไม่ warn ซ้ำ — บวก **3-way consistency** ว่าคำสั่งใน cli, `CHANGELOG.md`, และ test assertion เป็นชุดเดียวกัน. ผ่านครบ **0 รอบแก้** ([test.md](stages/achieved/2026-06-07-cli-legacy-warning-fix/test.md) มี test plan V1–V4)
 *(วิธีตั้ง local env + fix loop "แก้จนผ่าน" อยู่ที่ playbook [`stages/verify.md`](../src/.warnyin/workflow/stages/verify.md))*
+> ⚠ **โครงไฟล์:** สองไฟล์ข้างบน (`test.md`/`verify.md`) เป็นโครงเก่า ณ 2026-06-07 — **ปัจจุบัน VERIFY เขียนแผนเทสลง `build.md §3` และผล verify + จำนวนรอบแก้ลง `build.md §4`** ไม่สร้างไฟล์แยกอีกแล้ว (playbook `stages/verify.md` §5)
 
 ### 5. SHIP — กลั่นความรู้กลับ docs/ แล้ว archive
 

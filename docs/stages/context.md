@@ -6,23 +6,22 @@
 > snapshot ไม่ใช่ log — เขียนทับทุกครั้งที่อัปเดต (ไม่ต่อท้าย) · กติกาเติมดู `.warnyin/workflow/memory.md`
 
 ## กำลังทำอะไรอยู่
-- topic `universal-ide-spec` — fast-tier SHIP-lite เสร็จ (archive `docs/stages/achieved/2026-08-14-universal-ide-spec/receipt.md`); backlog #5 dropped — ทุก backlog open ปิดหมดแล้ว
-- topic `publish-pack-polish` — SHIP เสร็จ (archived ที่ `docs/stages/achieved/2026-08-14-publish-pack-polish/`) — release `0.29.1` พร้อม publish
+- **ไม่มี topic ที่เปิดค้าง** — `lean-ceremony` SHIP เสร็จแล้ว (archive `docs/stages/achieved/2026-08-16-lean-ceremony/`)
+- branch `build/lean-ceremony` มี 6 commit รอ user ตัดสินใจ **merge เข้า main + publish `0.30.0`** (SHIP ไม่แตะ git merge/publish ตาม playbook)
 
 ## ค้างอะไร
-- **ไม่มี** — `docs/backlog.md` ปิดครบทุก entry (1 dropped เดิม + 4 dropped ใหม่)
+- **merge + publish `0.30.0`** — รอ user สั่ง
+- `docs/backlog.md` มี 2 entry `open`: (1) rename `## 5. Write points (hook ต่อ stage)` ใน `.warnyin/workflow/memory.md` ให้ตรงนิยาม "จุดจบงาน" (ต้องแก้ inbound pointer + เทส `M1` พร้อมกัน) · (2) ตัวเลขจำนวนเคสใน `docs/techstack/installer/{structure,test}.md` ค้างจากรุ่นเก่า
+- dogfood ที่ root ยังเป็น `0.29.1` — รัน `npm run setup:dogfood` หลัง release เพื่อให้ workflow ที่ใช้พัฒนาเองได้ ceremony ชุดใหม่
 
 ## เพิ่งตัดสินอะไรไป
-- **Topic A**: tier = standard; version bump = `0.29.1` (patch); DAG = wave 1 width 2 + wave 2 sequential; panel 5 reviewers (18 blocker + 30 suggestion integrate ครบ); Security approach (`process.execPath + npm_execpath`) ชนะ Infra/SA/TL helper — ปิด CVE-2024-27980 + PATH/CWD hijack
-- **Topic A learned-rule**: promote 13 ข้อ (8 component + 1 supersede KB#4 + 3 project + 1 incident) — drop 1 (`CI windows-latest ad-hoc verify pattern` — defer backlog แยก)
-- **integration technique**: `git diff > patch` + `git apply` แทน `git checkout <branch> -- <files>` (auto-classifier block ใน Claude Code session; safe alternative ที่ maintain reviewer intent — KB#11)
-- **shared-tree sub-agent resilience**: Wave 2 agent ตายกลางทาง (API error) หลังทำ 4/5 ไฟล์เสร็จ — main loop ทำ full-gate + commit ต่อเอง สำเร็จ
-- **Topic B**: tier = **fast** (code-first path — no DESIGN/BUILD/VERIFY ceremony); ข้าม `triage.md` skip-list → receipt-only archive; side fix เพิ่ม WHEN clause ใน `installer-version-stamp/spec.md` (จับตอน cross-cutting validate)
+- **ceremony ลด 5 จุด** โดยไม่แตะ gate: auto-route fast (confirm 1 ครั้ง) · C7 cap enforcement · optional gate trigger-by-signal · memory hook 6→3 · BUILD↔VERIFY seam + artifact `build.md` เดียว 4 section
+- **ไม่ยุบ VERIFY เป็น phase ของ BUILD** — รักษา property "ผู้ตรวจอิสระจากผู้เขียน" (ยกขึ้นเป็น rule ระดับปรัชญาแล้ว)
+- **C7 นับ cap เฉพาะ narrative** (บรรทัดก่อน `## 9. Spec delta`) · tier อ่านไม่ได้ = ⚠ ไม่บังคับ (fail-safe)
+- **VERIFY จับ 6 blocker ที่ gate ทุกตัวเขียวสนิท** — ที่ร้ายแรงสุดคือ `parseTier` อ่านค่าตัวอย่างในแถว template เป็นค่าจริง ทำให้ C7 ปิดตัวเองเงียบ; บทเรียนถูก promote เป็น KB #34/#35 + ขยาย #31/#32
+- learned-rule promote 13 ข้อ (project 9 · component:installer 4) · drop 2 (1 เข้า backlog · 1 implement ไปแล้ว)
 
 ## อัปเดตล่าสุด
-- 2026-08-14 · topic `universal-ide-spec` SHIP-lite เสร็จ — 9 Requirement + 12 Scenario (C5 pass); receipt.md archived · side fix WHEN ใน installer-version-stamp · backlog #5 dropped
-- 2026-08-14 · topic `publish-pack-polish` SHIP เสร็จ — archive + ship.md · 14 ไฟล์ · backlog #1/#2/#4 dropped · feature `installer-version-stamp` ปรับปรุง
-- 2026-08-14 · topic `publish-pack-polish` VERIFY เสร็จ — 2 findings แก้ในรอบเดียว; full-gate green
-- 2026-08-14 · topic `publish-pack-polish` BUILD เสร็จ — full-gate green
-- 2026-08-13 · topic `publish-pack-polish` DESIGN เสร็จ — gate §8 ผ่าน
-- 2026-08-13 · `docs/backlog.md` ตรวจครั้งแรก — 5 entries (4 open + 1 dropped)
+- 2026-08-16 · topic `lean-ceremony` SHIP เสร็จ — promote 13 rule · merge Spec delta 6 feature · KB +2/ขยาย 2 · archive; gate 248/248 · lint:md 132/116 · verify:pack 105
+- 2026-08-15 · VERIFY เสร็จ — 1 รอบแก้ 21 จุด (validator 3 · pointer 14 · narrative 4); panel อิสระ 2 คน + re-verify 1 รอบ
+- 2026-08-14 · BUILD เสร็จ — wave 1 (4 slice ขนาน) + wave 2 (release-hygiene); 213 → 248 เคส

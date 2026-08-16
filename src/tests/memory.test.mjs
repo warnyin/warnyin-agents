@@ -69,21 +69,18 @@ test('M1. memory.md มี heading ครบ 9 หัวข้อคำต่อ
 })
 
 // ─────────────────────────────────────────────────────────────
-// M2. write hook ครบ 6 ไฟล์ (C2/C2b/C2c) — นับเป๊ะ ไม่ใช่ ≥1
+// M2. write-hook ครบ 3 ไฟล์ (C2/C2b/C2c) — นับเป๊ะ ไม่ใช่ ≥1
 // ─────────────────────────────────────────────────────────────
 
 const M2_NEEDLE_A = 'อัปเดต project memory'
 const M2_NEEDLE_B = 'ไม่มีอะไรเปลี่ยน → ข้าม'
 const M2_EXPECTED = [
-  'src/.warnyin/workflow/stages/discovery.md',
-  'src/.warnyin/workflow/stages/design.md',
   'src/.warnyin/workflow/stages/build.md',
-  'src/.warnyin/workflow/stages/verify.md',
   'src/.warnyin/workflow/stages/ship.md',
   'src/.warnyin/workflow/fastlane.md',
 ].sort()
 
-test('M2. write-hook compound needle พบครบเป๊ะ 6 ไฟล์ (ขาด = hook ไม่ครบ, เกิน = ถูกลอกไปที่อื่น)', () => {
+test('M2. write-hook compound needle พบครบเป๊ะ 3 ไฟล์ (ขาด = hook ไม่ครบ, เกิน = ถูกลอกไปที่อื่น)', () => {
   const hits = walkMd(workflowDir)
     .filter((f) => f.content.split('\n').some((l) => l.includes(M2_NEEDLE_A) && l.includes(M2_NEEDLE_B)))
     .map((f) => rel(path.join(root, f.file)))
@@ -91,7 +88,7 @@ test('M2. write-hook compound needle พบครบเป๊ะ 6 ไฟล์ 
   assert.deepEqual(hits, M2_EXPECTED, `hook set ไม่ตรง — เจอ: [${hits.join(', ')}] คาด: [${M2_EXPECTED.join(', ')}]`)
 })
 
-test('M2b. stages/build.md มี hook แบบ main-loop-only (ต่างจาก 5 ไฟล์ที่เหลือ)', () => {
+test('M2b. stages/build.md มี hook แบบ main-loop-only (ต่างจาก 2 ไฟล์ที่เหลือ)', () => {
   const buildPath = path.join(stagesDir, 'build.md')
   const content = readFileSync(buildPath, 'utf8')
   assert.ok(content.includes('main loop เท่านั้น'), `${rel(buildPath)} ต้องมีข้อความ "main loop เท่านั้น"`)
