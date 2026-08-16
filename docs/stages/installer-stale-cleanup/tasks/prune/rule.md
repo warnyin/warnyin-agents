@@ -17,10 +17,10 @@
 
 ### 1.2 จาก `docs/rule.md §1` (ปรัชญาแก่น)
 - [ ] **ห้ามเดา / investigate-before-edit** — ก่อนแก้ `copyTree`/`main()` ต้องเข้าใจ ใครใช้, contract อะไร, เจตนาเดิม (คอมเมนต์ `:56-58`, `:94-98`, `:112-122`, `:489-501` เป็น contract ที่เขียนไว้แล้ว — อ่านให้ครบก่อนแก้)
-- [ ] **config-protection** — **ห้ามลด/ปิด/ผ่อนเช็คเพื่อให้ build/test ผ่าน** (รวมถึง: ห้ามลด `BLAST_CAP`, ห้ามถอด guard ชั้นใด, ห้ามแก้ `MIN_PASS`, ห้าม `t.skip`) · เช็คผิดจริงแก้ได้แต่ต้องมีเหตุผล + note
-- [ ] **declared-threshold ต้อง enforce ได้จริง + boundary test** (`§1`) — `BLAST_CAP = 50` ต้องมีเทส `50` ผ่าน / `51` ไม่ลบ ทั้งคู่ในไฟล์เดียวกัน
+- [ ] **config-protection** — **ห้ามลด/ปิด/ผ่อนเช็คเพื่อให้ build/test ผ่าน** (รวมถึง: ห้ามลด `PRUNE_BLAST_CAP`, ห้ามถอด guard ชั้นใด, ห้ามแก้ `MIN_PASS`, ห้าม `t.skip`) · เช็คผิดจริงแก้ได้แต่ต้องมีเหตุผล + note
+- [ ] **declared-threshold ต้อง enforce ได้จริง + boundary test** (`§1`) — `PRUNE_BLAST_CAP = 50` ต้องมีเทส `50` ผ่าน / `51` ไม่ลบ ทั้งคู่ในไฟล์เดียวกัน
 - [ ] **minimalism / lazy-not-negligent** — เขียนโค้ดน้อยที่สุดเท่าที่จำเป็น **แต่ห้ามตัด**: validation ที่ trust-boundary · data-loss · security · test/spec/acceptance — งานนี้อยู่ในหมวด "ห้ามตัด" ทั้งก้อน
-- [ ] **contract-as-copy-source / canonical-copy** — ยก C1–C15 และ needle N1–N10 มา **คำต่อคำ** จาก `spec.md §3`; ห้ามแต่งใหม่ให้ "เข้า pattern ของไฟล์"
+- [ ] **contract-as-copy-source / canonical-copy** — ยก C1–C16 และ needle N1–N10 มา **คำต่อคำ** จาก `spec.md §3`; ห้ามแต่งใหม่ให้ "เข้า pattern ของไฟล์"
 
 ### 1.3 จาก `docs/rule.md §2` (engineering)
 - [ ] **ภาษา** — คอมเมนต์/ข้อความผู้ใช้เป็น **ภาษาไทย** ตามสไตล์ `cli.mjs`
@@ -58,5 +58,5 @@
 - [ ] **R5 — destructive op ต้องมี "เซตปิดของเหตุผลที่ไม่ทำ" + structural test ยืนยันเซต** · ปลายทาง: `docs/rule.md §5` — เหตุผล: reason ที่กระจายเป็น literal ทำให้เพิ่มทางลบใหม่ได้เงียบ ๆ; เซตปิด + เทสอ่าน source ทำให้ "ทางที่ไฟล์หายได้" นับได้และรีวิวได้ (ต่อยอด error-prefix convention ของ `installer/rule.md §2`)
 - [ ] **R6 — POSIX/native boundary ต้องมี helper เดียว + unit ที่จำลอง `sep` ของ OS ที่ CI ไม่มี runner** · ปลายทาง: `docs/techstack/installer/rule.md` — เหตุผล: CI ไม่มี Windows runner; guard ที่เทียบ path จะ reject ทุก entry เงียบบน Windows ถ้าผสม native กับ POSIX → pure fn ต้องรับ `sep` เป็น input เพื่อให้เทสรูป `\` ได้บน Linux
 - [ ] **R7 — allowlist ของ destructive scope ต้องเป็น append-only + มี structural test ว่า allowlist ⊇ ของจริงใน payload** · ปลายทาง: `docs/techstack/installer/rule.md` — เหตุผล: ลบชื่อออกจาก allowlist เมื่อเลิก ship ของนั้น = ทำให้ **ลบของตกรุ่นไม่ได้ตลอดกาล** (กลับหัวจากสัญชาตญาณปกติที่ว่า "เลิกใช้แล้วก็ลบชื่อออก")
-- [ ] **R8 — empty-dir cleanup ต้อง snapshot สถานะ "ว่างอยู่ก่อน" ก่อนเริ่มลบ** · ปลายทาง: `docs/techstack/installer/rule.md` — เหตุผล: dir ว่างของผู้ใช้แยกจาก dir ที่ว่างเพราะเราลบ ไม่ได้จากสถานะปลายทางอย่างเดียว
+- [ ] **R8 — empty-dir cleanup ต้องจำกัด candidate ที่ `dirname` ของสิ่งที่ "รันนี้ลบเอง" ไม่ใช่สแกนหา dir ว่าง** · ปลายทาง: `docs/techstack/installer/rule.md` — เหตุผล: การแยก "dir ว่างของผู้ใช้" ออกจาก "dir ที่ว่างเพราะเราลบ" ทำได้ด้วย **provenance** (เรารู้ว่าเราลบอะไรไป) ไม่ใช่ด้วยสถานะปลายทาง · **ข้อเสนอเดิมที่ให้ snapshot สถานะ "ว่างอยู่ก่อน" ถูกถอนออก** — C10 ฉบับล่าสุดพิสูจน์แล้วว่าเป็น **เงื่อนไข unreachable**: dir ว่างของผู้ใช้ไม่มีทางเป็น `dirname` ของไฟล์ที่ถูกลบได้อยู่แล้ว ⇒ snapshot เป็นโค้ด+I/O ที่ไม่มีทางเปลี่ยนผลลัพธ์ (และ "guard ที่ทดสอบให้แดงไม่ได้" คือ guard ที่หลอกให้รู้สึกปลอดภัย)
 - [ ] **R9 — runbook ของ `--prune-force` / reason prefix** · ปลายทาง: `docs/infra.md` (เจ้าของคือ `release-hygiene` wave 2) — task นี้แค่ **ส่งรายการ reason 13 ค่า + ความหมาย + วิธีแก้** ต่อไปใน build report ห้ามเขียนเอง

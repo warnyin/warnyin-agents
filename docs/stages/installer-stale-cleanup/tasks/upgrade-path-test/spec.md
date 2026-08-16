@@ -1,11 +1,12 @@
 # Spec — upgrade-path-test
 
 > Output ของ DESIGN stage · playbook: `.warnyin/workflow/stages/design.md`
-> เทส **upgrade path** ของ installer (black-box) + **mutant harness** — ไฟล์เดียว: `src/tests/installer-upgrade.test.mjs`
-> **canonical ที่เทสต้อง assert = `design.md §4` contract C1–C15** (ห้ามอ่านโค้ดของ slice `prune` มาเขียน expected)
+> เทส **upgrade path** ของ installer (black-box ล้วน) — ไฟล์เดียว: `src/tests/installer-upgrade.test.mjs`
+> **canonical ที่เทสต้อง assert = `design.md §4` contract C1–C16** (ห้ามอ่านโค้ดของ slice `prune` มาเขียน expected)
+> **mutant harness / mutation matrix ไม่อยู่ใน task นี้แล้ว** — ย้ายไป `tasks/mutant-harness/` (wave 2) ตาม `design.md §2` slice 2b
 
 ## 1. ชนิดของ task
-`test` (black-box integration + mutation testing) — ไม่มี production code ในขอบเขต
+`test` (black-box integration) — ไม่มี production code ในขอบเขต
 
 ---
 
@@ -23,6 +24,8 @@ repo/src/  ──copyDir──▶  <pkgOld>/src/          + <pkgOld>/package.jso
                                  src/.warnyin/template/stages/[topic]/test.md
                                  src/.warnyin/template/stages/[topic]/verify.md
         ──spawn <pkgOld>/src/bin/cli.mjs──▶  <target>   (install ของ "รุ่นเก่า" 100% ของจริง)
+        ──fixture A: ลบ manifest (ถ้ามี)        ──▶ บังคับเส้น known-stale (C14)
+        ──fixture B: writeSyntheticManifest()   ──▶ บังคับเส้น hash (C7)
         ──เติมของผู้ใช้/แต่ง manifest ตามเคส──▶
         ──runCli(<target>, ['--update'])──▶  cli จริงใน repo (payload ใหม่ = ของจริง 100%)
         ──assert side-effect──▶ ไฟล์หาย/อยู่ · stdout · exit code · manifest
@@ -30,11 +33,12 @@ repo/src/  ──copyDir──▶  <pkgOld>/src/          + <pkgOld>/package.jso
 
 **ข้อบังคับของ fixture (จาก panel — ละเมิดไม่ได้):**
 - **ห้าม mini-payload ที่ผู้เขียนเทสแต่งขึ้นเป็นเคสหลัก** — pkg เก่าต้องเป็น **copy `src/` ทั้งก้อน** (KB #32 ยกระดับ: fixture ที่แต่งเองพิสูจน์ได้แค่ว่าโค้ดตรงกับจินตนาการของผู้เขียน)
-- payload ใหม่ต้องมาจาก **`cliPath` ของ repo** เท่านั้น (ยกเว้นเคส mutant ที่ใช้ cli กลายพันธุ์โดยเจตนา)
+- payload ใหม่ต้องมาจาก **`cliPath` ของ repo** เท่านั้น
 - `<pkgOld>/package.json` version ต้อง **< `0.30.1`** (ใช้ `0.29.9`) เพื่อให้ `.warnyin-version` stamp เข้าเงื่อนไข C14
-- **fixture A** = หลัง install เก่า **ลบ `.warnyin/.warnyin-manifest`** (จำลอง install ≤`0.29.x` ที่ยังไม่มี manifest) → บังคับเส้น **known-stale** (C14)
-- **fixture B** = **คง manifest** ที่ pkg เก่าเขียนไว้ → บังคับเส้น **hash** (C7)
-- ห้ามแก้ `.warnyin-version` ให้เป็นรุ่นใหม่ในเคส fixture A (จะปิด C14 เงียบ ⇒ เทสเขียวโดยไม่ทดสอบอะไร)
+- **fixture A** = หลัง install เก่า **ลบ `.warnyin/.warnyin-manifest`** (`rmSync {force:true}` — ป้องกันไว้เผื่อ pkgOld ในอนาคตเขียน manifest ได้) → บังคับเส้น **known-stale** (C14)
+- **★ fixture B** = หลัง install เก่า **เรียก `writeSyntheticManifest(target)` เขียน manifest เองด้วย sha256 ที่คำนวณจากไฟล์จริงบนดิสก์** → บังคับเส้น **hash** (C7)
+  **เหตุผลที่ต้องเขียนเอง (dry-run จับได้):** `pkgOld` = copy ของ `src/` **ปัจจุบัน** ซึ่ง ณ wave 1 **ยังไม่มีโค้ดเขียน manifest** ⇒ ถ้านิยาม fixture B ว่า "คง manifest ที่ pkg เก่าเขียนไว้" จะ **ไม่มี manifest เลย** ⇒ fixture B ตกไปเส้น known-stale เหมือน fixture A ⇒ **เคสที่ตั้งใจพิสูจน์เส้น hash จะพิสูจน์สิ่งตรงกันข้าม** (degenerate) และจะ degenerate ตลอด wave 1 · การเขียน manifest เองทำให้ fixture B **ไม่ขึ้นกับลำดับ merge ของ slice `prune`** และใช้ได้ทั้งสอง wave
+- ห้ามแก้ `.warnyin/.warnyin-version` ให้เป็นรุ่นใหม่ในเคส fixture A (จะปิด C14 เงียบ ⇒ เทสเขียวโดยไม่ทดสอบอะไร)
 
 ## 5. User-flow
 ผู้ใช้ที่ติดตั้ง warnyin ไว้ตั้งแต่ ≤`0.29.x` → รัน `npx @warnyin/agents --update` → คาดว่าได้ payload รุ่นใหม่ **สะอาด** (ไม่มีไฟล์ตกรุ่นค้าง) โดยงานของตัวเอง (`docs/`, agent/skill ที่ติดตั้งเอง) **ไม่หายแม้แต่ไฟล์เดียว**
@@ -58,72 +62,55 @@ repo/src/  ──copyDir──▶  <pkgOld>/src/          + <pkgOld>/package.jso
 | `installOld(pkgOld, target, args)` | spawn `<pkgOld>/src/bin/cli.mjs` (ห้ามใช้ `cliPath`) |
 | `fixtureA(t)` / `fixtureB(t)` | ประกอบ target ตาม §4 แล้วคืน `{target, pkgOld}` |
 | `manifestPath(target)` | `path.join(target,'.warnyin','.warnyin-manifest')` |
-| `writeManifest(target, lines)` | เขียน manifest ปลอมตามเคส (LF, header 1 บรรทัด) |
-| `sha256OfFile(abs)` | `createHash('sha256')` บนเนื้อไฟล์ (LF อยู่แล้วหลังติดตั้ง) — ใช้แต่ง entry ที่ hash **ตรง** |
-| `mutantRun(t, {find, replace, prepare, args})` | ดู §7.3 |
+| `writeManifest(target, lines)` | เขียน manifest ปลอมตามเคส (LF, header 1 บรรทัด) — ใช้แต่ง manifest adversarial |
+| `writeSyntheticManifest(target, roots)` | **★ ของ fixture B** — เดินทุกไฟล์ใต้ `roots` (default = 5 prunable root ของ project mode ตาม C11) → `<sha256>␠␠<path POSIX>` เรียง A→Z + header `# warnyin manifest v1 — เขียนโดย installer 0.29.9 · ห้ามแก้มือ` · LF เสมอ · sha256 คำนวณจาก **byte บนดิสก์** ซึ่งเป็น LF อยู่แล้วหลังติดตั้ง ⇒ ตรงกับนิยาม "hash หลัง `normalizeEol`" ใน `design.md §3` |
+| `addStaleEntry(target, rel, {content})` | เขียนไฟล์ stale เพิ่ม (ไม่มีใน payload ใหม่) + **ต่อ entry ที่ hash ตรงจริง** เข้า manifest — ใช้ในเคส cap / EACCES / symlink |
+| `rmKnownStale(target)` | ลบ `.warnyin/template/stages/[topic]/{test,verify}.md` ออกจากดิสก์ เพื่อให้ stale set ของเคส boundary เป็นตัวเลขที่ตั้งใจล้วน ๆ (ดู U10/U11) |
+| `sha256OfFile(abs)` | `createHash('sha256')` บนเนื้อไฟล์ — ใช้แต่ง entry ที่ hash **ตรง** |
+| `realHomeSnapshot()` | คืน `{'.warnyin': string[]\|null, '.claude': string[]\|null}` ของ **`os.homedir()` จริง** (sorted `listFiles` หรือ `null` ถ้าไม่มี dir) — ใช้เทียบ **set** ก่อน/หลังในเคส `--global` (ดู U8) |
 
 ### 7.2 เคส black-box (U1–U20)
 
 | # | เคส | Setup | Expected |
 |---|---|---|---|
 | **U1** | known-stale ถูกลบ (fixture A) | fixture A | `[topic]/test.md` + `verify.md` **หายทั้งคู่** · stdout มีบรรทัด `  − ` ระบุทั้ง 2 path (POSIX form) · สรุปมี `ลบ 2` · exit 0 |
-| **U2** | เส้น hash ถูกลบ (fixture B) | fixture B (คง manifest) | เหมือน U1 แต่ผ่าน C7 · ยืนยันว่า **ไม่ได้พึ่ง known-stale** โดย assert เพิ่มว่าไฟล์ปกติอื่นยังครบ |
+| **U2** | เส้น hash ถูกลบ (fixture B) | fixture B (**synthetic manifest** ที่มี entry ของทั้ง 2 ไฟล์ พร้อม hash ตรง) | เหมือน U1 แต่ผ่าน C7 · ยืนยันว่า **ไม่ได้พึ่ง known-stale** โดย assert เพิ่มว่า `manifestPath(target)` **มีอยู่จริงและไม่ว่าง** ก่อนรัน (ถ้าไม่มี = fixture degenerate ⇒ assert ต้องแดงพร้อมข้อความ "fixture B ไม่มี manifest") และไฟล์ payload ปกติอื่นยังครบ |
 | **U3** | ของผู้ใช้รอดทุกไฟล์ | fixture B + เพิ่ม `.claude/agents/my-agent.md`, `.claude/skills/playwright-cli/SKILL.md`, `docs/stages/demo/x.md`, แก้ `docs/project.md`, สร้าง **dir ว่างของผู้ใช้** `.warnyin/workflow/user-empty/` | ไฟล์ผู้ใช้อยู่ครบ + เนื้อ `docs/project.md` ไม่เปลี่ยน + **dir ว่างยังอยู่** (C10) · **diff `listFiles` ก่อน/หลัง: ไฟล์ที่หาย = เฉพาะ 2 known-stale** (ไม่ assert รายตัวอย่างเดียว) |
-| **U4** | hash mismatch ไม่ถูกลบเงียบ | fixture B + append ข้อความลง `[topic]/test.md` | `test.md` **ยังอยู่** · stdout มี `⚠` + `[hash:mismatch]` + path นั้น · `verify.md` ถูกลบ · สรุป `ลบ 1` (พิสูจน์ว่ารอบเดียวกัน prune ทำงานจริง ไม่ใช่ตายทั้งเฟส) |
-| **U5** | manifest ปลอมชี้นอกขอบเขต/ไฟล์ผู้ใช้ | fixture B + เขียน manifest เองที่มี entry: `..`-segment (`.warnyin/workflow/../../outside/victim.md`) · absolute (`<outsideDir>/abs.md`) · backslash (`.warnyin\workflow\bs.md`) · control char (`.warnyin/workflow/victim.md`) · root คล้ายกัน (`.warnyin/workflow-evil/x.md`) · นอก allowlist (`.claude/agents/my-agent.md`) · นอก prunableRoots (`docs/project.md`) — สร้างไฟล์เหยื่อจริงทุกตัว | **ไม่มีไฟล์เหยื่อหายแม้แต่ตัวเดียว** · exit 0 · ทุก reason ที่พิมพ์ต้องอยู่ใน **เซตปิด C15** (assert ด้วย `Set` ของ reason ที่ copy คำต่อคำจาก C15) · มี reason อย่างน้อย `path:dot-segment`, `path:absolute`, `path:backslash`, `path:control-char`, `scope:outside-root`, `scope:not-allowlisted` |
-| **U6** | symlink **ancestor** | fixture B + `<outsideDir>/victim.md` + `symlinkSync(<outsideDir>, <target>/.warnyin/template/linked, 'dir')` + manifest entry `.warnyin/template/linked/victim.md` (hash ตรง) | `victim.md` **ยังอยู่** · reason `prune:not-contained` · **ไฟล์ตกรุ่นปกติในรันเดียวกันยังถูกลบ** · Windows สร้าง symlink ไม่ได้ → `console.error(...) + return` (**ห้าม `t.skip`**) |
-| **U7** | symlink **leaf** | fixture B + ไฟล์ payload ตกรุ่น 1 ตัวถูกแทนด้วย symlink ชี้ `<outsideDir>/leaf-victim.md` + manifest entry ชี้ path นั้น | ทั้ง **symlink และปลายทางยังอยู่** · reason `prune:symlink` · guard เดียวกับ U6 เรื่อง Windows |
-| **U8** | `--global` ครึ่งที่ต้องรอด | temp HOME (`makeTempProject` อีกใบ) + `globalEnv(home)` · install เก่าแบบ `--global` · เพิ่ม `~/.claude/agents/my.md` + `~/.claude/skills/mine/SKILL.md` | ไฟล์ทั้งสอง **ยังอยู่** (C11: global ไม่มี dir แชร์ใน `prunableRoots`) · **assert side-effect อยู่ใน temp**: `existsSync(path.join(home,'.warnyin','workflow'))` เป็นจริง และ **path ทุกตัวที่ assert ขึ้นต้นด้วย `home`** (กัน false-pass เมื่อ override ไม่ติด) |
-| **U9** | `--global` ครึ่งที่ต้องลบ | ต่อจาก U8 (setup เดียวกัน คนละเคส) — มี stale ใต้ `~/.warnyin/template/stages/[topic]/{test,verify}.md` | ไฟล์ใต้ `.warnyin/template` **หาย** · สรุปมี `ลบ 2` · exit 0 |
-| **U10** | blast cap boundary — 50 | fixture B + ทำให้มีไฟล์ตกรุ่นที่ผ่าน guard ครบ **50 ตัว** (วางไฟล์ใต้ `.warnyin/workflow/legacy-*/` + manifest entry hash ตรง; ไฟล์เหล่านี้ไม่มีใน payload ใหม่) | ลบครบ **50** · ไม่มี `[prune:blast-cap]` · สรุป `ลบ 50` |
-| **U11** | blast cap boundary — 51 | เหมือน U10 แต่ **51 ตัว** | **ไม่มีไฟล์ใดหายเลย** (assert ครบทั้ง 51) · stdout มี `[prune:blast-cap]` + จำนวน · exit 0 |
+| **U4** | hash mismatch ไม่ถูกลบเงียบ | fixture B + append ข้อความลง `[topic]/test.md` **หลัง** `writeSyntheticManifest` (entry จึงถือ hash เก่า) | `test.md` **ยังอยู่** · stdout มี `⚠` + `[hash:mismatch]` + path นั้น · `verify.md` ถูกลบ · สรุป `ลบ 1` (พิสูจน์ว่ารอบเดียวกัน prune ทำงานจริง ไม่ใช่ตายทั้งเฟส) |
+| **U5** | manifest ปลอมชี้นอกขอบเขต/ไฟล์ผู้ใช้ | fixture B + **เขียนทับ** manifest เองที่มี entry 7 รูป (ดู §7.2.1) — สร้างไฟล์เหยื่อจริงทุกตัวเท่าที่ platform ทำได้ | **ไม่มีไฟล์เหยื่อหายแม้แต่ตัวเดียว** · exit 0 · ทุก reason ที่พิมพ์ต้องอยู่ใน **เซตปิด C15** (assert ด้วย `Set` ของ reason ที่ copy คำต่อคำจาก C15) · มี reason อย่างน้อย `path:dot-segment`, `path:absolute`, `path:backslash`, `path:control-char`, `scope:outside-root`, `scope:not-allowlisted` |
+| **U6** | symlink **ancestor** | fixture B + `<outsideDir>/victim.md` + `symlinkSync(<outsideDir>, <target>/.warnyin/template/linked, 'dir')` + manifest entry `.warnyin/template/linked/victim.md` (**hash = `sha256OfFile(<outsideDir>/victim.md)`** ⇒ ผ่าน C7 แล้วไปตายที่ C8) | `victim.md` **ยังอยู่** · reason `prune:not-contained` · **ไฟล์ตกรุ่นปกติในรันเดียวกันยังถูกลบ** · Windows สร้าง symlink ไม่ได้ → `console.error(...) + return` (**ห้าม `t.skip`**) |
+| **U7** | symlink **leaf** | fixture B + ลบ `[topic]/test.md` ทิ้งแล้วแทนด้วย `symlinkSync(<outsideDir>/leaf-victim.md, <target>/.warnyin/template/stages/[topic]/test.md)` + **แก้ entry ของ path นั้นในmanifest ให้ hash = `sha256OfFile(<outsideDir>/leaf-victim.md)`** | **★ hash ต้องตรงกับ _ปลายทาง_ symlink** — ถ้าปล่อยเป็น hash เดิมของไฟล์ที่ถูกแทน C7 จะ reject ก่อน แล้ว reason ที่ได้จะเป็น `hash:mismatch` ไม่ใช่ `prune:symlink` ⇒ เคสพิสูจน์ผิดชั้น · Expected: ทั้ง **symlink และปลายทางยังอยู่** · reason `prune:symlink` · guard เดียวกับ U6 เรื่อง Windows |
+| **U8** | `--global` ครึ่งที่ต้องรอด | temp HOME (`makeTempProject` อีกใบ) + `globalEnv(home)` · install เก่าแบบ `--global` (**ไม่มี manifest ⇒ เดินเส้น known-stale**) · เพิ่ม `~/.claude/agents/my.md` + `~/.claude/skills/mine/SKILL.md` | ไฟล์ทั้งสอง **ยังอยู่** (C11: global ไม่มี dir แชร์ใน `prunableRoots`) · `existsSync(path.join(home,'.warnyin','workflow'))` เป็นจริง · **★ assert ต่างชั้น (ไม่ใช่ tautology):** `realHomeSnapshot()` ก่อน/หลัง **เท่ากันแบบ set** (`deepEqual` ของ array ที่ sort แล้ว) — ถ้า dev/CI มี global install อยู่จริง set จะไม่ว่างแต่ต้อง **ไม่เปลี่ยน**; ถ้าไม่มีต้องยังเป็น `null` ทั้งก่อนและหลัง · **C16:** manifest ที่ถูกเขียนใน `~/.warnyin/.warnyin-manifest` ต้อง **ไม่มี entry ใดขึ้นต้น `.claude/agents/` หรือ `.claude/skills/`** · _(หมายเหตุ: `assert(p.startsWith(home))` เป็น tautology เพราะ `p` มาจาก `path.join(home, …)` ของเราเอง — เก็บไว้ได้เป็น sanity แต่ **ห้ามนับเป็นหลักฐานว่า override ติด**)_ |
+| **U9** | `--global` ครึ่งที่ต้องลบ | ต่อจาก U8 (setup เดียวกัน คนละเคส) — มี stale ใต้ `~/.warnyin/template/stages/[topic]/{test,verify}.md` จาก pkg เก่า | ไฟล์ใต้ `.warnyin/template` **หาย** · สรุปมี `ลบ 2` · exit 0 |
+| **U10** | blast cap boundary — 50 (ผ่านพอดี) | fixture B → **`rmKnownStale(target)` ก่อน** (ตัด stale พื้นฐาน 2 ตัวออกจากสมการ) → `addStaleEntry` ไฟล์ใต้ `.warnyin/workflow/legacy/f00..f49.md` **50 ตัว** (hash ตรงจริง, ไม่มีใน payload ใหม่) | ลบครบ **50** · ไม่มี `[prune:blast-cap]` · สรุป `ลบ 50` |
+| **U11** | blast cap boundary — 51 (ชน cap) | เหมือน U10 แต่ `f00..f50.md` = **51 ตัว** | **ไม่มีไฟล์ใดหายเลย** (assert ครบทั้ง 51) · stdout มี `[prune:blast-cap]` + จำนวน · exit 0 |
 | **U12** | `--dry-run` ยกเว้น cap | state 51 ตัวของ U11 + `--update --dry-run` | stdout มีหัวข้อ `จะลบ:` + บรรทัด `  − ` **ครบ 51** · ไม่มีไฟล์ใดหาย · exit 0 |
-| **U13** | `--no-prune` แล้วรอบหน้ายังเห็น stale (C13) | fixture B → `--update --no-prune` → ตรวจ → `--update` | รอบแรก: ไม่มีไฟล์หาย + ไม่มีบรรทัด `−` · **manifest หลังรอบแรกยังมี entry ของ 2 ไฟล์ตกรุ่นพร้อม hash เดิม** (assert บรรทัดตรง ๆ) · รอบสอง: ถูกลบครบ + `ลบ 2` |
+| **U13** | `--no-prune` แล้วรอบหน้ายังเห็น stale (C13) | fixture B → `--update --no-prune` → ตรวจ → `--update` | รอบแรก: ไม่มีไฟล์หาย + ไม่มีบรรทัด `−` · **manifest หลังรอบแรกยังมี entry ของ 2 ไฟล์ตกรุ่นพร้อม hash เดิม** (assert บรรทัดตรง ๆ เทียบกับ entry ใน synthetic manifest) · รอบสอง: ถูกลบครบ + `ลบ 2` |
 | **U14** | `--dry-run` ไม่แตะ manifest | fixture B + อ่าน manifest เก็บ buffer → `--update --dry-run` | manifest **byte-equal** กับก่อนรัน · ไฟล์ payload ครบเท่าเดิม (`listFiles` เท่ากัน) |
 | **U15** | **T1 payloadNew semantics** | temp เปล่า → install ด้วย **cli จริง** → `--update` ทันที | `listFiles` ก่อน/หลัง **เท่ากันทุกตัว** (sort แล้วเทียบ) · **ไม่มีบรรทัด `−` เลย** · สรุปมี `ลบ 0` — เคสนี้จับ "payloadNew ผิด ⇒ ลบไฟล์ของตัวเอง" ซึ่งเป็น failure mode ที่แพงที่สุด |
 | **U16** | idempotent หลัง prune | fixture B → `--update` (ลบ 2) → `--update` อีกครั้ง | รอบสอง: `ลบ 0` · `listFiles` เท่ากับหลังรอบแรก · manifest **byte-equal** กับหลังรอบแรก |
-| **U17** | manifest เสีย (บรรทัดใช้ไม่ได้) | fixture B + เขียน manifest ที่มี: บรรทัดขยะไม่มี separator · `sha256` ไม่ใช่ hex64 · **duplicate path 2 บรรทัด** (hash ต่างกัน) ของไฟล์ payload ที่ยังใช้อยู่ | exit 0 · ไฟล์ payload ที่ใช้อยู่ **ครบ** (duplicate → ทิ้งทั้งคู่ = fail-closed C1) · มี `⚠` · **manifest ถูกเขียนทับเป็นรูปแบบถูกต้อง** — assert ว่าทุกบรรทัดที่ไม่ใช่ `#`/ว่าง match `/^[0-9a-f]{64} {2}\S/` |
-| **U18** | manifest เกินเพดาน | 2 sub-assert ในเคสเดียว: (ก) manifest > **1 MB** (pad ด้วยบรรทัด comment) · (ข) manifest > **5000 entry** | ทั้งสองกรณี: exit 0 · ไม่มีไฟล์ payload หาย · มี `⚠` · manifest ถูกเขียนทับใหม่ |
-| **U19** | EACCES ระหว่างลบ | fixture B (POSIX) — `chmod 0o500` บน dir ที่มีไฟล์ตกรุ่น 1 ตัว, อีกตัวอยู่ dir ปกติ · `t.after` **restore 0o700 ก่อน rm** | stdout มี `⚠` + `[prune:io]` · ไฟล์ใน dir ปกติ **ถูกลบสำเร็จ** · exit 0 · **guard:** `process.platform==='win32'` หรือ `process.getuid?.()===0` → `console.error(...) + return` (ห้าม `t.skip`) |
+| **U17** | manifest เสีย (บรรทัดใช้ไม่ได้) + duplicate | fixture B + เขียนทับ manifest ที่มี: (ก) บรรทัดขยะไม่มี separator · (ข) `sha256` ไม่ใช่ hex64 · (ค) **duplicate 2 บรรทัดของ `.warnyin/template/stages/[topic]/verify.md` ที่ hash ต่างกัน** · (ง) **entry ที่ถูกต้องอย่างน้อย 1 ตัวของไฟล์ payload ที่ยังใช้อยู่** | exit 0 · ไฟล์ payload ที่ใช้อยู่ **ครบ** · **`verify.md` ยังอยู่** และ **ไม่มีบรรทัด `−` ที่ระบุ `verify.md`** (duplicate → ทิ้งทั้งคู่ = fail-closed C1) · มี `⚠` · **manifest ถูกเขียนทับเป็นรูปแบบถูกต้อง** — assert ว่าทุกบรรทัดที่ไม่ใช่ `#`/ว่าง match `/^[0-9a-f]{64} {2}\S/` · **★ ทำไมต้องมี (ง):** ถ้าทุกบรรทัดถูก reject จนเหลือ 0 entry จะกำกวมว่า `manifestOld` นับว่า "ว่าง" ตาม C2 หรือไม่ — ถ้านับว่าว่าง known-stale จะเปิดแล้วลบ `verify.md` (C14 ยกเว้น hash) ทำให้เคสพิสูจน์คนละเรื่อง · entry ที่ถูกต้อง 1 ตัวปิดความกำกวมนี้ · **ห้ามใช้ duplicate ของไฟล์ที่ยังอยู่ใน payload ใหม่** — C2 นิยาม `stale = (ที่รวมแล้ว) − payloadNew` ⇒ ไฟล์นั้นไม่มีทางเป็น stale ⇒ assert "ไม่ถูกลบ" ผ่านเสมอ (tautology) |
+| **U18** | manifest เกินเพดาน | 2 sub-assert ในเคสเดียว: (ก) manifest > **1 MB** (pad ด้วยบรรทัด comment) · (ข) manifest > **5000 entry** | ทั้งสองกรณี: exit 0 · **ไฟล์ payload ที่ยังใช้อยู่ไม่หายแม้แต่ตัวเดียว** (assert ด้วย diff `listFiles` ไม่ใช่คำว่า "ไม่มีไฟล์ payload หาย" ลอย ๆ) · มี `⚠` · manifest ถูกเขียนทับใหม่ · **★ และ `[topic]/test.md` + `verify.md` _ถูกลบจริง_ พร้อมสรุป `ลบ 2`** — เพราะ C1 ทิ้งทั้งไฟล์ ⇒ `manifestOld` ว่าง ⇒ C2 เปิด known-stale ⇒ C14 (stamp `0.29.9` < `0.30.1`) ลบ 2 path นี้โดยยกเว้น hash · **นี่คือพฤติกรรมที่ถูกต้องตาม contract ไม่ใช่บั๊ก** — เขียน expected ให้ตรงความจริง ห้ามเขียนกำกวม |
+| **U19** | EACCES ระหว่างลบ | fixture B (POSIX) — **stale 3 ตัว:** `[topic]/test.md` + `[topic]/verify.md` (อยู่ dir เดียวกัน) และ **`addStaleEntry` ตัวที่ 3 ที่ `.warnyin/workflow/legacy-io/gone.md` (คนละ dir, hash ตรงจริง)** · `chmod 0o500` เฉพาะ dir `.warnyin/template/stages/[topic]/` · `t.after` **restore 0o700 ก่อน rm** | stdout มี `⚠` + `[prune:io]` ระบุ 2 path ใน dir ที่ล็อก · ทั้งสองไฟล์ **ยังอยู่** · **`.warnyin/workflow/legacy-io/gone.md` ถูกลบสำเร็จ** (มีบรรทัด `  − ` ของ path นี้) · สรุป `ลบ 1` · exit 0 · **★ ต้องมี stale ตัวที่ 3 คนละ dir** ไม่งั้นไม่มีอะไรพิสูจน์ประโยค "ไฟล์อื่นยังถูกลบสำเร็จ" เพราะ known-stale 2 ตัวอยู่ dir เดียวกันทั้งคู่ · **guard:** `process.platform==='win32'` หรือ `process.getuid?.()===0` → `console.error(...) + return` (ห้าม `t.skip`) |
 | **U20** | install สดไม่ลบอะไร + manifest ถูกสร้าง | temp เปล่า → install ด้วย cli จริง (ไม่มี `--update`) | ไม่มีบรรทัด `−` · สรุปมี `ลบ 0` · มี `.warnyin/.warnyin-manifest` · ทุกบรรทัด entry match `/^[0-9a-f]{64} {2}\S/` · **ไม่มี entry ที่ขึ้นต้น `docs/`** และไม่มี entry ของตัว manifest เอง (C13 ขอบเขต) |
 
-### 7.3 Mutant harness (M1–M12) — **เคสถาวรใน suite ไม่ใช่ manual proof**
+#### 7.2.1 entry 7 รูปของ U5 (manifest adversarial)
 
-**เหตุผล:** โค้ดปัจจุบันไม่มีการลบเลย ⇒ เคส negative ("ไฟล์ยังอยู่": U3/U5/U6/U7/U8/U11) **เขียวตั้งแต่แรก** ⇒ ประโยค "แดงกับโค้ดก่อนแก้" ใช้ไม่ได้กับครึ่งหนึ่งของ suite · mutant harness คือสิ่งเดียวที่พิสูจน์ว่า assertion เหล่านั้น **ไม่กำพร้า**
+| รูป | entry ที่เขียนลง manifest | ไฟล์เหยื่อที่ต้องสร้างจริง | reason ที่คาด (C15) |
+|---|---|---|---|
+| `..`-segment | `.warnyin/workflow/../../outside/victim.md` | `<outsideDir>/victim.md` | `path:dot-segment` |
+| absolute | `<outsideDir>/abs.md` (absolute POSIX) | `<outsideDir>/abs.md` | `path:absolute` |
+| backslash | `.warnyin\workflow\bs.md` | `<target>/.warnyin/workflow/bs.md` | `path:backslash` |
+| **control char** | `.warnyin/workflow/vic\x01tim.md` — **★ ต้องมี byte `\x01` จริงในสตริง** | `<target>/.warnyin/workflow/vic\x01tim.md` **สร้างเฉพาะ POSIX**; Windows ตั้งชื่อไฟล์แบบนี้ไม่ได้ → `console.error(...)` แล้ว **ข้ามเฉพาะการสร้างไฟล์** (entry ยังต้องอยู่ในmanifest เพราะ C4 เป็น pure guard ที่รันก่อน `statOnDisk` ⇒ reason ถูกพิมพ์ไม่ว่าไฟล์มีจริงหรือไม่) | `path:control-char` |
+| root คล้ายกัน | `.warnyin/workflow-evil/x.md` | `<target>/.warnyin/workflow-evil/x.md` | `scope:outside-root` |
+| นอก allowlist | `.claude/agents/my-agent.md` | ไฟล์ผู้ใช้จาก U3 pattern | `scope:not-allowlisted` |
+| นอก prunableRoots | `docs/project.md` | มีอยู่แล้วจาก install | `scope:outside-root` |
 
-**ขั้นตอนของ `mutantRun(t, {find, replace, prepare, args})` (ลำดับบังคับ):**
-1. `pkg = makeTempProject(t)` → `copyDir(repoSrc, <pkg>/src)` + `package.json` version = version ของ repo (payload = ของจริง)
-2. `const original = readFileSync(cliPath,'utf8')` · `const mutated = original.replace(find, replace)`
-3. **`assert.notEqual(mutated, original, 'mutation ไม่ติด — anchor เปลี่ยนไปแล้ว ให้ sync find/replace กับ cli.mjs ปัจจุบัน (KB #33)')`** — **fail-loud ก่อนเสมอ; ห้าม `if (…) return` / ห้ามเงียบ**
-4. เขียน `mutated` ทับ `<pkg>/src/bin/cli.mjs`
-5. `prepare(target)` ประกอบ state ของเคส negative ที่คู่กัน (ใช้ helper ตัวเดียวกับเคส U นั้น — **ห้ามแต่ง state ใหม่**)
-6. spawn `<pkg>/src/bin/cli.mjs` ด้วย `args` (default `['--update']`)
-7. **assert ว่าเหยื่อ "หายไปจริง"** (`existsSync === false`) — ถ้ายังอยู่ = assertion ของเคส negative กำพร้า ⇒ เทสต้องแดง
+> **★ ที่แก้จากฉบับก่อน:** แถว control char เดิมเขียน entry เป็น `.warnyin/workflow/victim.md` ซึ่ง **ไม่มี control char เลย** ⇒ `path:control-char` ไม่มีวันถูกพิมพ์ ⇒ assert แดงตลอดโดยไม่ใช่ความผิดของ implementation
 
-**Mutation matrix (guard → mutation → เคสที่ต้องพลิกเป็นแดง):**
-
-| # | guard | intent ของ mutation (neutralize) | anchor ที่ใช้ (`find`) | state ที่ใช้ | เหยื่อที่ต้องหาย |
-|---|---|---|---|---|---|
-| **M1** | C4 (1) backslash | ปิดการ reject path ที่มี `\` | นิพจน์ที่ตรวจ `\\` ใน rel → แทนด้วยค่าที่ทำให้ผ่านเสมอ | state ของ U5 | ไฟล์ชื่อ `.warnyin\workflow\bs.md` (Windows: กลายเป็น path ซ้อน — assert ตัวที่มีจริงบน platform นั้น) |
-| **M2** | C4 (2) dot-segment | ปิดการ reject segment `..`/`.` | เงื่อนไขที่ตรวจ segment `..` | state ของ U5 | `<outsideDir>/victim.md` |
-| **M3** | C4 (3) absolute/drive | ปิดการ reject path absolute หรือ `:` ใน segment แรก | เงื่อนไขที่ตรวจ `startsWith('/')` / `:` | state ของ U5 | `<outsideDir>/abs.md` |
-| **M4** | C4 (4) control char | ปิดการ reject `\x00–\x1f\x7f` | regex control char | state ของ U5 | `.warnyin/workflow/victim.md` (Windows: `console.error + return`) |
-| **M5** | C4 (5) segment-wise root | เปลี่ยนการเทียบ root เป็น `startsWith(root)` เปล่า (ตัด `+ '/'`) | เงื่อนไข `rel === root \|\| rel.startsWith(root + '/')` | state ของ U5 | `.warnyin/workflow-evil/x.md` |
-| **M6** | C5 scope allowlist | ปิด allowlist ของ dir ที่แชร์ | เงื่อนไข allowlist `warnyin-*` / รายชื่อ skill dir | state ของ U3 (+ manifest entry hash ตรงของไฟล์ผู้ใช้) | `.claude/agents/my-agent.md` และ `.claude/skills/playwright-cli/SKILL.md` |
-| **M7** | C7 hash gate | ปิดการเทียบ hash (ถือว่าตรงเสมอ) | เงื่อนไขเปรียบเทียบ sha256 บนดิสก์ ↔ manifest | state ของ U4 | `[topic]/test.md` ที่ถูกแก้เนื้อ |
-| **M8** | C8 ancestor containment | ปิด realpath containment | เงื่อนไข `path.relative(root, parent)` | state ของ U6 | `<outsideDir>/victim.md` |
-| **M9** | C8 leaf (`lstat` regular file) | ปิดการเช็คว่าเป็น regular file | เงื่อนไข `isFile()`/`isSymbolicLink()` ก่อน `unlink` | state ของ U7 | ตัว symlink (`existsSync(lstat) === false`) |
-| **M10** | C9 blast cap | ยกเพดานจาก 50 เป็นค่าสูงมาก | ค่าคงที่ `50` ในจุดตัดสิน cap | state ของ U11 (51 ไฟล์) | ไฟล์ทั้ง 51 (assert อย่างน้อย 51 ตัวหายครบ) |
-| **M11** | C10 empty-dir snapshot | ปิดเงื่อนไข "ต้องไม่ว่างมาก่อนเริ่ม prune" | เงื่อนไข snapshot dir ว่างก่อน prune | state ของ U3 | `.warnyin/workflow/user-empty/` (dir หาย) |
-| **M12** | C13 manifest union | ให้ `writeManifest` เขียนเฉพาะ `payloadNew` (ตัด `∪ manifestOld∩onDisk`) | นิพจน์ union ใน `writeManifest` | state ของ U13 (`--no-prune` แล้ว `--update`) | **★ inverse polarity:** เหยื่อคือ **ไฟล์ตกรุ่นที่รอบสอง "ต้องถูกลบ" แต่กลับยังอยู่** ⇒ assert `existsSync === true` พร้อมข้อความอธิบายว่านี่คือขั้วกลับของ M อื่น |
-
-**กติกาของ matrix:**
-- ทุกแถวต้องผ่านขั้นตอน 3 (`assert.notEqual`) — **ไม่มีข้อยกเว้น**; anchor ที่ match ไม่ได้ = แดงพร้อมข้อความสั่งให้ไป sync ไม่ใช่เงียบผ่าน
-- `find` ควรผูกกับ **สตริง canonical ที่เสถียร** (reason string ของ C15 · ค่าคงที่ `50` · ชื่อ helper ตาม C1/C13) มากกว่าผูกกับ whitespace/รูปแบบโค้ด
-- ห้าม mutate ไฟล์ใน repo — mutation เกิดใน temp เท่านั้น (คนละกลไกกับ RED proof แบบแก้ไฟล์จริง; KB #33 ข้อ restore ไม่เกี่ยวเพราะไม่แตะ repo)
-
-### 7.4 กติกาข้ามแพลตฟอร์ม / gate
+### 7.3 กติกาข้ามแพลตฟอร์ม / gate
 - **ห้าม `t.skip` ทุกกรณี** — `check-test-count.mjs` fail เมื่อ `pass !== tests`; เคสที่ทำไม่ได้บน platform → `console.error('  ⚠ ข้าม… — platform ไม่รองรับ; CI ubuntu ครอบ') ; return` (pattern `installer.test.mjs:596-607`)
 - ทุก path ประกอบด้วย `path.join`; assert ข้อความ stdout ใช้ **POSIX form** ตาม C15
 - `cliPath` ต้องมาจาก `fileURLToPath(new URL('../bin/cli.mjs', import.meta.url))` — **ห้าม `.pathname`**
 - ห้าม `import` logic จาก `cli.mjs` ในไฟล์นี้ (black-box ล้วน)
+- **จำนวนเคสของไฟล์นี้ = 20 (`U1`–`U20`)** — ตัวเลขที่รายงานต้องวัดจาก output ของ `node --test` จริง ไม่ใช่นับจากเอกสาร

@@ -11,7 +11,7 @@
 - **`stats` เป็น mutable counter ก้อนเดียวระดับ module** — `const stats = { created: 0, updated: 0, skipped: 0 }` → task นี้เพิ่มช่อง `pruned: 0` ในก้อนเดิม (ห้ามสร้าง counter ขนาน)
 - **path ทุกที่ใช้ `path.join`** (cross-platform) · หา root ด้วย `fileURLToPath(import.meta.url)`
 - **ข้อความ log:** `+` สร้างใหม่ · `↻` อัปเดต · `±` ต่อท้าย section · `·` ข้าม (adapter) — task นี้เพิ่ม `−` (U+2212) ลบ · `⚠` ข้าม/เตือน · **ภาษาไทย**
-- **indent ของบรรทัดรายการไฟล์ = 2 space** (`  + ${rel}`) — บรรทัด `−` / `⚠` ใช้ indent เดียวกัน
+- **indent ของบรรทัดรายการไฟล์ = 2 space** (`  + ${rel}`) — บรรทัด `−` / `⚠` ใช้ indent เดียวกัน **และอยู่ stream เดียวกัน (stdout)** ดู §2.2
 - **ESM main-guard `isEntrypoint()`** — โค้ดใหม่ต้องอยู่ใต้ guard นี้ ห้ามรัน side-effect ตอน import (`docs/techstack/installer/rule.md`)
 
 ### 1.2 Test harness กลาง (`docs/techstack/installer/standard.md` §Test harness)
@@ -62,10 +62,13 @@ function readManifest(target) { ... return parseManifest(text) }
 ### 2.2 การเขียนบรรทัดรายงาน
 ```js
 console.log(`  ${exists ? '↻' : '+'} ${rel}`)      // ของเดิม — อย่าเปลี่ยน
-console.log(`  \u2212 ${sanitizePath(rel)}`)        // ลบสำเร็จ (C15)
-console.warn(`  \u26a0 ${sanitizePath(rel)} [${reason}]`) // ข้าม (C15) → stderr
+console.log(`  \u2212 ${sanitizePath(rel)}`)        // ลบสำเร็จ (C15) → stdout
+console.log(`  \u26a0 ${sanitizePath(rel)} [${reason}]`) // ข้าม (C15) → stdout (stream เดียวกับ + / ↻)
 ```
-- **reason เป็น `const` เซตปิด** ประกาศเป็น object/array ตัวเดียว แล้วอ้างผ่านตัวแปร — ห้ามพิมพ์ literal กระจาย (ทำให้ U33 พิสูจน์ได้ + กันสะกดเพี้ยน)
+
+- **★ ทุกบรรทัดรายงานของ prune (`−` และ `⚠`) ใช้ `console.log` = stdout** ตาม C15 ฉบับล่าสุด — **ไม่ใช่ `console.warn`** · เหตุผล 2 ข้อ: (1) มันคือ **รายการไฟล์ของรันเดียวกัน** กับ `+`/`↻` การแยก stream ทำให้ผู้ใช้เห็นรายงานขาดครึ่งเวลา pipe เฉพาะ stdout (2) `spec.md §5.2` assert บน **stdout** ทุกเคส (F1 · F7 · F10 · F18 · F19 …) ⇒ เขียนเป็น `console.warn` = เทสแดงทั้งชุดทั้งที่ logic ถูก
+- **`console.warn` / `console.error` สงวนไว้ให้ warning ระดับ run เดิมเท่านั้น** — legacy layout warn (`cli.mjs:67` · `:79`), mode/homedir error, unknown-flag warn (M2) และ **whole-file manifest reject** (`spec.md §3.2`) · เส้นแบ่ง: **per-path / per-line ของ prune → stdout · ระดับ run → stderr**
+- **reason เป็น `const` เซตปิด** ประกาศเป็น object/array ตัวเดียว แล้วอ้างผ่านตัวแปร — ห้ามพิมพ์ literal กระจาย (ทำให้ U33 ท่อน (ก) สกัดจาก **declaration** ได้ และท่อน (ข) ยืนยันว่าไม่มี literal hardcode หลงเหลือ + กันสะกดเพี้ยน)
 - **sanitize ก่อนพิมพ์เสมอ** — ไม่มีทางเดียวที่ path ดิบจาก manifest หลุดขึ้น terminal
 
 ### 2.3 zero-dep / publish boundary
@@ -80,7 +83,7 @@ console.warn(`  \u26a0 ${sanitizePath(rel)} [${reason}]`) // ข้าม (C15) 
 ### 2.5 ลำดับ I/O ที่ห้ามสลับ
 1. `lstat(abs)` → เช็ค size (C7) + regular file (C8) **จาก stat ก้อนเดียวกัน**
 2. `realpathSync` ทั้ง root และ `dirname(abs)` → containment (C8) — **`fs.realpathSync` ตัวเดียวกันทั้งสองฝั่ง ห้ามผสม `.native`**
-3. `unlink(abs)` — **ติดกับ `lstat` ไม่แทรก I/O อื่น** (ลด TOCTOU window ที่ §5 ประกาศรับไว้)
+3. `unlink(abs)` — **ติดกับ `lstat` ไม่แทรก I/O อื่น** (ลด TOCTOU window ที่ §5 ประกาศรับไว้) · **ข้ามทั้งข้อนี้เมื่อ `DRY`** — C15 ห้าม `--dry-run` เรียก `unlink`/`rmdir` ทุกกรณี (พิมพ์ + นับ `stats.pruned` อย่างเดียว)
 
 ## 3. Shared component / utility ที่ต้องใช้ (อย่าเขียนซ้ำ)
 | มีอยู่แล้วใน `cli.mjs` | ใช้ทำอะไรใน task นี้ |
@@ -92,8 +95,8 @@ console.warn(`  \u26a0 ${sanitizePath(rel)} [${reason}]`) // ข้าม (C15) 
 | `DRY` `:23` / `UPDATE` `:22` | เงื่อนไข C11/C13 |
 | `target` `:106` | base ของทุก abs path |
 | `CORE` `:87-93` | ต้นทางของ `CORE_POSIX` (derive ห้าม hardcode ซ้ำ) |
-| `writeVersionStamp()` `:237` | **pattern ต้นแบบ** ของ `writeManifest` (DRY-aware + `+`/`↻` + `stats`) |
-| `copyTree()` `:132` | จุดฉีด `onFile` — แก้ในที่เดิม ห้ามเขียน walker ตัวที่ 2 |
+| `writeVersionStamp()` `:237` | **pattern ต้นแบบ** ของ `writeManifest` (DRY-aware + `+`/`↻` + `stats`) · **★ ระวัง: มัน overwrite `.warnyin/.warnyin-version` แบบ unconditional (`:244`)** ⇒ `readStamp()` ของ C14 ต้องถูกเรียก **ก่อน** ตัวนี้เสมอ (`spec.md §7 T11`) |
+| `copyTree()` `:132` | จุดฉีด `onFile` — แก้ในที่เดิม ห้ามเขียน walker ตัวที่ 2 · **ต้อง forward `onFile` ที่บรรทัด recursion `:138` ด้วย** (`spec.md §7 T10`) |
 
 ## 4. เพิ่มเติมเฉพาะ task (ถ้าควรเป็นมาตรฐานกลาง → note ใน `rule.md §2`)
 - **`onFile` callback ใน tree-walker** — pattern "walker คืนสิ่งที่มันเขียน/รับรองว่าเป็นเจ้าของ" ให้ layer บนเอาไปทำ manifest แทนการ walk ซ้ำ (กัน 2 walker drift กัน)

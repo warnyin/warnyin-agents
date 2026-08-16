@@ -2,6 +2,7 @@
 
 > Output ของ DESIGN stage · playbook: `.warnyin/workflow/stages/design.md`
 > pattern การเขียนเทสที่ task นี้ต้องยึด · **อิงจาก** `docs/techstack/installer/test.md` + `docs/techstack/installer/standard.md`
+> ขอบเขต = **black-box U1–U20 เท่านั้น** · mutant harness อยู่ที่ `tasks/mutant-harness/` (wave 2)
 
 ## 1. Standard กลางที่ยึด (จาก techstack)
 - **black-box spawn จริง** — spawn `src/bin/cli.mjs` ใน temp dir แล้ว assert side-effect (ไฟล์/exit code/stdout/stderr); **ห้าม import logic จาก `cli.mjs`** (รัน side-effect ตอน import) · ห้าม refactor target เพื่อ testability
@@ -17,7 +18,12 @@
 ### 2.1 Harness — copy pattern ไม่ import
 `installer.test.mjs` **ไม่ export** อะไร ⇒ ประกาศ helper ของตัวเองในไฟล์ใหม่ โดย **copy รูปแบบเดิมคำต่อคำ** (`makeTempProject` `:25-29` · `runCli` `:31-39` · `globalEnv` `:49-51` · `listFiles` `:59-66` · `ok` `:54-56`) — รูปเดียวกันทั้ง repo กัน drift
 
-### 2.2 ประกอบ package ปลอมใน temp (pattern จาก `installer.test.mjs:676-709` เคส `EOLI.`)
+### 2.2 ประกอบ package ปลอมใน temp — **ยืมได้เฉพาะ _layout ของ pkg ปลอม_ จาก `installer.test.mjs:676-709` เคส `EOLI.`**
+
+> **★ คำเตือน (KB #32):** เคส `EOLI.` ใช้ **mini-payload 6 ไฟล์ที่แต่งเอง** (`package.json` · `src/bin/cli.mjs` · `crlf-probe.mjs` · `crlf-note.md` · `installer/templates/CLAUDE.md` · `src/AGENTS.md`) เพราะเป้าหมายของมันคือพิสูจน์ **EOL normalize** ล้วน ๆ
+> สิ่งที่ยืมได้จากเคสนั้นคือ **layout ของ pkg ปลอม** เท่านั้น — `pkgRoot = <pkg>/src`, `version` อ่านจาก `<pkg>/package.json`, spawn ด้วย `process.execPath` + array args
+> **ห้ามลอก mini-payload มาใช้เป็นเคสหลักของ task นี้เด็ดขาด** — เคสหลักทุกตัวต้องใช้ `copyDir(repoSrc, …)` ทั้งก้อน
+
 ```js
 // layout ต้องเหมือนของจริง: pkgRoot = <pkg>/src, version อ่านจาก <pkg>/package.json
 const write = (rel, text) => { const abs = path.join(pkg, rel); mkdirSync(path.dirname(abs), {recursive:true}); writeFileSync(abs, text) }
@@ -33,16 +39,19 @@ spawnSync(process.execPath, [path.join(pkg,'src','bin','cli.mjs'), '--project'],
 ### 2.3 Fixture A/B
 ```js
 function fixtureA(t) { const {target,pkgOld} = installOldInto(t); rmSync(manifestPath(target), {force:true}); return {target,pkgOld} } // known-stale (C14)
-function fixtureB(t) { return installOldInto(t) }                                                                                    // hash (C7)
+function fixtureB(t) { const {target,pkgOld} = installOldInto(t); writeSyntheticManifest(target); return {target,pkgOld} }             // hash (C7)
 ```
+- **★ `fixtureB` ต้องเขียน manifest เอง** — `pkgOld` = copy ของ `src/` ปัจจุบัน ซึ่ง ณ wave 1 **ยังไม่มีโค้ดเขียน manifest** ⇒ ถ้าปล่อยให้ "คง manifest ที่ pkg เก่าเขียนไว้" จะไม่มี manifest เลย ⇒ fixture B ตกไปเส้น known-stale เหมือน fixture A (degenerate ตลอด wave 1) · การเขียนเองทำให้ fixture B **ไม่ขึ้นกับลำดับ merge ของ slice `prune`** และใช้ได้ทั้งสอง wave
+- `writeSyntheticManifest(target)` = เดินไฟล์ใต้ prunable root ทั้ง 5 (C11 project mode) → `<sha256>␠␠<path POSIX>` เรียง A→Z + header 1 บรรทัดตาม `design.md §3` · **sha256 คำนวณจาก byte บนดิสก์** (LF อยู่แล้วหลังติดตั้ง ⇒ ตรงกับ "hash หลัง `normalizeEol`")
+- เคสที่อ้างว่าเดินเส้น hash ต้อง **assert ก่อนว่า manifest มีจริงและไม่ว่าง** — ถ้าไม่มี ให้แดงพร้อมข้อความ `fixture B ไม่มี manifest` ไม่ใช่ผ่านเงียบผ่านเส้น known-stale
 - ห้ามแตะ `.warnyin/.warnyin-version` (stamp `0.29.9` คือสิ่งที่เปิด C14)
-- ไฟล์ที่ใช้ทำ stale เพิ่ม (เคส cap) ต้องมี **manifest entry ที่ hash ตรงจริง** — คำนวณด้วย `createHash('sha256')` บนเนื้อไฟล์ที่เขียนลงดิสก์ (LF) ไม่ใช่ hardcode
+- ไฟล์ที่ใช้ทำ stale เพิ่ม (เคส cap / EACCES / symlink) ต้องมี **manifest entry ที่ hash ตรงจริง** — คำนวณด้วย `createHash('sha256')` บนเนื้อไฟล์ที่เขียนลงดิสก์ (LF) ไม่ใช่ hardcode · เคส **symlink leaf** ต้องใช้ hash ของ **ปลายทาง** symlink ไม่ใช่ของไฟล์เดิม (ไม่งั้น C7 reject ก่อน แล้วได้ `hash:mismatch` แทน `prune:symlink`)
+- เคส **cap boundary** ต้อง `rmKnownStale(target)` ก่อนวางไฟล์ legacy — fixture มี stale พื้นฐาน 2 ตัวอยู่แล้ว ถ้าไม่ตัดออก 50 จะกลายเป็น 52 ⇒ วัด boundary ผิดจุด
 
-### 2.4 Mutant harness
-- ลำดับบังคับตาม `spec.md §7.3` — **`assert.notEqual(mutated, original, …)` เป็นบรรทัดแรกหลัง replace เสมอ** (fail-loud, KB #33)
-- mutation ทำบน **สำเนาใน temp เท่านั้น** — ห้ามเขียนทับ `src/bin/cli.mjs` ของ repo ไม่ว่าชั่วคราวแค่ไหน
-- state ของเคส mutant ต้อง **reuse helper เดียวกับเคส negative ที่คู่กัน** (ห้ามแต่ง state ใหม่ ไม่งั้นพิสูจน์คนละเรื่อง)
-- ข้อความ assert ต้องบอก "เคสไหนกำพร้า" เช่น `` `M6: ปิด C5 แล้ว .claude/agents/my-agent.md ต้องหาย — ถ้ายังอยู่ แปลว่า assertion ของ U3 ไม่ได้พิสูจน์อะไร` ``
+### 2.4 Mutation / falsifiability — **ไม่อยู่ใน task นี้**
+- mutant harness + mutation matrix ย้ายไป `tasks/mutant-harness/` (wave 2) ตาม `design.md §2` slice 2b / `§7`
+- **ไฟล์เทสของ task นี้ต้องไม่มีการ `readFileSync(cliPath)` + `String.replace` เพื่อสร้าง cli กลายพันธุ์** — ถ้าเจอ แปลว่าขอบเขตรั่ว
+- สิ่งที่ task นี้ต้องทำเพื่อรองรับ wave 2: **ตั้งชื่อ helper/state ให้ชัดและประกอบซ้ำได้** (`fixtureB` · `addStaleEntry` · `rmKnownStale` · state ของ U3/U4/U5/U6/U7/U11/U13) เพื่อให้ `mutant-harness` reuse ได้โดยไม่ต้องแต่ง state ใหม่
 
 ### 2.5 การ assert stdout
 - ข้อความที่ assert ต้อง **copy codepoint ตรงจาก `design.md §4 C15`** — `−` = **U+2212** (ไม่ใช่ hyphen/en-dash), `⚠` = U+26A0, `↻`, `·`
@@ -67,4 +76,5 @@ try { symlinkSync(dirOutside, link, 'dir') } catch (e) {
 ## 4. เพิ่มเติมเฉพาะ task (ถ้ามี)
 - **pattern ใหม่ที่เสนอให้เป็นมาตรฐานกลาง (note ใน `rule.md §2` รอ SHIP):**
   - **upgrade-path fixture = copy payload จริงของรุ่นก่อน** แล้วเติมสิ่งที่ถูกลบกลับ (ไม่ใช่แต่ง mini-payload)
-  - **mutant harness เป็นเคสถาวรใน suite** สำหรับ feature ที่ assertion ส่วนใหญ่เป็น negative ("ต้องไม่เกิดอะไร")
+  - **fixture ที่จำลอง artifact ที่รุ่นเก่ายังไม่มีโค้ดผลิต (เช่น manifest) ต้องสังเคราะห์เองจากไฟล์จริง** — ไม่ใช่หวังว่า pkg เก่าจะเขียนให้ ไม่งั้น fixture degenerate ไปเส้นอื่นเงียบ ๆ
+  - **assertion ที่เขียนจาก path ที่เรา `path.join` เองแล้ว assert `startsWith`** ไม่นับเป็นหลักฐาน — เคส destructive ต้องมี assertion ต่างชั้น (snapshot ของจริงก่อน/หลัง)
