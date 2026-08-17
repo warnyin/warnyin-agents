@@ -419,7 +419,8 @@ export function parseManifest(text, { maxEntries = 5000 } = {}) {
 /**
  * fs shell — อ่าน manifest ที่ target แล้วส่งให้ parseManifest
  * guard ขนาด (statSync maxBytes = 1 MB) ก่อนอ่าน · ไม่มี/อ่านไม่ได้/ใหญ่เกิน → manifestUsable=false (ถือว่ายังไม่มี)
- * whole-file reject → ⚠ ระดับ run ที่ stderr (console.warn) · per-line reject → stdout pointer `#L<n>` (ไม่ echo เนื้อบรรทัด)
+ * ★ ⚠ ทุกชนิดไปที่ stdout — prune exit 0 เสมอ ⇒ runbook สั่ง automation ให้อ่าน stdout อย่างเดียว
+ *   (whole-file reject ที่ไปโผล่ stderr = automation ตามคู่มือแล้วมองไม่เห็น) · per-line reject → pointer `#L<n>` ไม่ echo เนื้อบรรทัด
  */
 function readManifest(target) {
   const rel = path.join('.warnyin', '.warnyin-manifest')
@@ -428,7 +429,7 @@ function readManifest(target) {
   try {
     const st = fs.statSync(abs)
     if (st.size > 1024 * 1024) {
-      console.warn('⚠ manifest ใหญ่เกิน 1 MB — ข้ามทั้งไฟล์ (ถือว่ายังไม่เคยมี manifest ที่ใช้ได้)')
+      console.log('⚠ manifest ใหญ่เกิน 1 MB — ข้ามทั้งไฟล์ (ถือว่ายังไม่เคยมี manifest ที่ใช้ได้)')
       return { entries: [], rejected: [], manifestUsable: false }
     }
     text = fs.readFileSync(abs, 'utf8')
@@ -437,7 +438,7 @@ function readManifest(target) {
   }
   const res = parseManifest(text)
   if (!res.manifestUsable) {
-    console.warn('⚠ manifest อ่านเป็นรายการไม่ได้ — ข้ามทั้งไฟล์ (ถือว่ายังไม่เคยมี manifest ที่ใช้ได้)')
+    console.log('⚠ manifest อ่านเป็นรายการไม่ได้ — ข้ามทั้งไฟล์ (ถือว่ายังไม่เคยมี manifest ที่ใช้ได้)')
   }
   // per-line reject → pointer ไม่ echo เนื้อบรรทัด (untrusted input ห้ามหลุดขึ้น terminal)
   const relPosix = toPosix(rel)
@@ -743,19 +744,24 @@ function runPrunePhase({ mode, stampBefore, payloadNew }) {
   const prunableRoots = mode === 'global' ? GLOBAL_PRUNABLE_POSIX : CORE_POSIX
   const statOnDisk = makeStatOnDisk(target)
   const manifestOld = readManifest(target)
-  // C13 — เขียน manifest หลัง copy ก่อน prune (union คง hash เดิม; ข้อมูลไม่หายแม้ไม่ได้ prune รอบนั้น)
+  if (UPDATE && !NO_PRUNE) { // C11 — prune เฉพาะ --update ที่ไม่ปิด
+    // C14 — known-stale ทำงานเมื่อ stamp หาย/< 0.30.1 และยังไม่เคยมี manifest ที่ใช้ได้ (tamper-safe)
+    const useKnownStale = (!stampBefore || semverLt(stampBefore, '0.30.1')) && !manifestOld.manifestUsable
+    const { stale, rejected } = computeStale({
+      manifestOld: manifestOld.entries,
+      payloadNew,
+      knownStale: useKnownStale ? KNOWN_STALE : [],
+      prunableRoots,
+      statOnDisk,
+    })
+    // C15 — entry ที่ guard ตัดทิ้ง (C4/C5/C3) ต้องรายงานด้วย ไม่ใช่เงียบ: ผู้ใช้ต้องรู้ว่าทำไมไฟล์ไม่ถูกลบ
+    // path มาจาก manifest = untrusted input ⇒ ผ่าน sanitizePath เสมอ (กัน terminal spoofing)
+    for (const rj of rejected) console.log(`  ⚠ ${sanitizePath(rj.path)} [${rj.reason}]`)
+    prune(stale, { target, prunableRoots })
+  }
+  // C13 — เขียน manifest "หลัง" prune: ไฟล์ที่เพิ่งลบต้องหลุดจาก manifest ทันที ไม่งั้นรอบ 2 จะได้ manifest
+  // ที่ต่างจากรอบ 1 (ไม่ idempotent) · union คง hash เดิม ⇒ ข้อมูลไม่หายแม้รอบนั้นไม่ได้ prune (--no-prune)
   writeManifest(target, mergeManifest(payloadNew, manifestOld.entries, statOnDisk))
-  if (!UPDATE || NO_PRUNE) return // C11 — prune เฉพาะ --update ที่ไม่ปิด
-  // C14 — known-stale ทำงานเมื่อ stamp หาย/< 0.30.1 และยังไม่เคยมี manifest ที่ใช้ได้ (tamper-safe)
-  const useKnownStale = (!stampBefore || semverLt(stampBefore, '0.30.1')) && !manifestOld.manifestUsable
-  const { stale } = computeStale({
-    manifestOld: manifestOld.entries,
-    payloadNew,
-    knownStale: useKnownStale ? KNOWN_STALE : [],
-    prunableRoots,
-    statOnDisk,
-  })
-  prune(stale, { target, prunableRoots })
 }
 
 const GLOBAL_NOTE_MARKER = '<!-- warnyin:global-note -->'

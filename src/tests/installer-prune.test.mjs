@@ -483,7 +483,10 @@ test('F11 install สด: ไม่มี − · manifest 91 entry · เรี�
   const paths = body.map((l) => l.split('  ')[1])
   assert.deepEqual(paths, [...paths].sort(), 'path เรียง A→Z')
 })
-test('F12 manifest ขยะ > 1 MB → whole-file reject (stderr ⚠) · เขียนทับถูกต้อง', (t) => {
+// ★ ⚠ อยู่ที่ stdout ไม่ใช่ stderr — ตัดสินโดย design (release-hygiene/standard.md §2.3 ข้อ 5):
+//   prune exit 0 เสมอ ⇒ runbook สั่ง automation ให้อ่าน stdout อย่างเดียว ⇒ ⚠ ที่ stderr = มองไม่เห็น
+//   (สไลซ์ 1 เขียน stderr ตามที่ impl ทำ, สไลซ์ 2 เขียน stdout ตาม contract — contract ชนะ)
+test('F12 manifest ขยะ > 1 MB → whole-file reject (stdout ⚠) · เขียนทับถูกต้อง', (t) => {
   const tmp = makeTempProject(t)
   ok(runCli(tmp), 'install')
   const mp = path.join(tmp, '.warnyin', '.warnyin-manifest')
@@ -491,7 +494,7 @@ test('F12 manifest ขยะ > 1 MB → whole-file reject (stderr ⚠) · เข
   const r = runCli(tmp, ['--update'])
   ok(r, 'update')
   assert.ok(existsSync(path.join(tmp, '.warnyin', 'workflow', 'README.md')), 'payload ยังครบ')
-  assert.ok(r.stderr.includes('⚠'), `stderr ต้องมี ⚠ (whole-file reject)\n${r.stderr}`)
+  assert.ok(r.stdout.includes('⚠'), `stdout ต้องมี ⚠ (whole-file reject)\n${r.stdout}`)
   assert.ok(!r.stdout.includes('ขยะไม่ใช่'), 'stdout ไม่มีเนื้อ manifest ดิบ')
   assert.match(readFileSync(mp, 'utf8').split('\n')[0], /^# warnyin manifest v1/, 'เขียนทับเป็นรูปถูกต้อง')
 })

@@ -1000,12 +1000,11 @@ test('U19. EACCES ระหว่างลบ — prune ทำงานต่อ
   addStaleEntry(target, '.warnyin/workflow/legacy-io/gone.md')
 
   const lockedDir = path.join(target, '.warnyin', 'template', 'stages', '[topic]')
-  // ★ register restore BEFORE chmod — cleanup ต้องทำงานแม้ test fail
-  t.after(() => {
-    try { chmodSync(lockedDir, 0o700) } catch (_) {}
-  })
+  // ★ ห้ามพึ่ง t.after คืนสิทธิ์ — node:test รัน after hook แบบ FIFO ⇒ rmSync ของ makeTempProject
+  //   (ลงทะเบียนก่อนใน fixtureB) จะรันก่อน แล้วล้มด้วย ENOTEMPTY เพราะ dir ยังปิดสิทธิ์อยู่
+  //   ⇒ คืนสิทธิ์ใน finally ของ test body ให้เสร็จก่อน hook ใดๆ แม้ assert จะ throw
   chmodSync(lockedDir, 0o500) // ปิดสิทธิ์ write — ลบไฟล์ใน dir นี้ไม่ได้
-
+  try {
   const r = runCli(target, ['--update'])
   ok(r, 'U19 --update') // C12: ห้าม exit != 0 แม้มี EACCES
 
@@ -1020,6 +1019,9 @@ test('U19. EACCES ระหว่างลบ — prune ทำงานต่อ
     'C15: ต้องมีบรรทัด − ของ gone.md',
   )
   assert.ok(r.stdout.includes('ลบ 1'), 'C15: สรุปต้องมี "ลบ 1"')
+  } finally {
+    chmodSync(lockedDir, 0o700)
+  }
 })
 
 // U20: install สดไม่ลบอะไร + manifest ถูกสร้าง (C13, C15)
