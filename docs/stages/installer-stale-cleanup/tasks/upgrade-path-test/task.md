@@ -9,7 +9,7 @@
 | **Slice อ้างอิง** | `design.md` slice #2 — "upgrade path ถูกพิสูจน์" |
 | **Component** | `installer` |
 | **Model tier** | `balanced` |
-| **สถานะ** | `รอ build` |
+| **สถานะ** | `build เสร็จ (wave 1)` |
 
 ## 1. เป้าหมายของ task (vertical slice)
 พิสูจน์ **upgrade path** ของ installer แบบ end-to-end: ผู้ใช้ที่ติดตั้งจากรุ่นก่อน `0.30.1` แล้วรัน `--update` ต้องได้ **payload สะอาด** (ไฟล์ตกรุ่นหาย) โดย **งานผู้ใช้ไม่หายแม้แต่ไฟล์เดียว** — ขอบเขตคือ **black-box U1–U20** เท่านั้น
@@ -28,13 +28,13 @@
 
 ## 3. Sub-tasks
 
-- [ ] 1. **harness ในไฟล์** — `makeTempProject` / `runCli` / `globalEnv` / `listFiles` / `ok` / `copyDir` / `sha256OfFile` / `manifestPath` / `writeManifest` / `writeSyntheticManifest` / `addStaleEntry` / `rmKnownStale` / `realHomeSnapshot` — _ผลลัพธ์:_ ไฟล์รันผ่าน `node --test` ได้โดยไม่ crash ระดับ module
-- [ ] 2. **fixture pipeline** (`makeOldPkg` → `installOld` → `fixtureA` / `fixtureB`) ตาม `spec.md §4` — _ขึ้นกับ 1:_ ใช้ `copyDir` · **pkg เก่า = copy `src/` ทั้งก้อน + เติม 2 ไฟล์ที่ถูกยุบกลับ + `version: '0.29.9'`** · **★ fixture B ต้องเรียก `writeSyntheticManifest(target)` เขียน manifest เองด้วย sha256 จากไฟล์จริง** ไม่งั้น fixture B degenerate ไปเส้น known-stale เหมือน fixture A (pkgOld ยังไม่มีโค้ดเขียน manifest)
-- [ ] 3. **เคสเส้นหลัก** U1–U4 (known-stale · hash · ของผู้ใช้รอดครบ · hash mismatch) — _ขึ้นกับ 2_
-- [ ] 4. **เคส guard/adversarial** U5–U7 (manifest ปลอม 7 รูปตาม `spec.md §7.2.1` — **แถว control char ต้องมี byte `\x01` จริงใน entry** · symlink ancestor · **symlink leaf ที่ hash ตรงกับ _ปลายทาง_ symlink**) พร้อม `REASONS` เซตปิดจาก C15
-- [ ] 5. **เคส mode/boundary** U8–U14 (`--global` สองครึ่ง + `realHomeSnapshot` + C16 · **cap 50/51 ที่ `rmKnownStale` ก่อนเสมอ** · `--dry-run` ยกเว้น cap · `--no-prune` + C13 · `--dry-run` ไม่แตะ manifest)
-- [ ] 6. **เคส semantics/robustness** U15–U20 (T1 payloadNew · idempotent · manifest เสีย+duplicate ของ path ที่เป็น stale จริง · manifest เกินเพดาน **ที่ known-stale เปิดแล้วลบ 2 ไฟล์จริง** · EACCES ที่มี stale ตัวที่ 3 คนละ dir · install สด)
-- [ ] 7. **ตรวจ self-consistency** — รัน `node --test` แล้วบันทึก **ชื่อเคส + เหตุผลที่แดง** เทียบกับ expected-red list ใน §7; ไม่มีเคสไหนแดงด้วย `TypeError`/`ENOENT` ของ harness เอง; ไม่มี `t.skip` ในไฟล์; **นับจำนวนเคสจริงจาก output**
+- [x] 1. **harness ในไฟล์** — `makeTempProject` / `runCli` / `globalEnv` / `listFiles` / `ok` / `copyDir` / `sha256OfFile` / `manifestPath` / `writeManifest` / `writeSyntheticManifest` / `addStaleEntry` / `rmKnownStale` / `realHomeSnapshot` — _ผลลัพธ์:_ ไฟล์รันผ่าน `node --test` ได้โดยไม่ crash ระดับ module
+- [x] 2. **fixture pipeline** (`makeOldPkg` → `installOld` → `fixtureA` / `fixtureB`) ตาม `spec.md §4` — _ขึ้นกับ 1:_ ใช้ `copyDir` · **pkg เก่า = copy `src/` ทั้งก้อน + เติม 2 ไฟล์ที่ถูกยุบกลับ + `version: '0.29.9'`** · **★ fixture B ต้องเรียก `writeSyntheticManifest(target)` เขียน manifest เองด้วย sha256 จากไฟล์จริง** ไม่งั้น fixture B degenerate ไปเส้น known-stale เหมือน fixture A (pkgOld ยังไม่มีโค้ดเขียน manifest)
+- [x] 3. **เคสเส้นหลัก** U1–U4 (known-stale · hash · ของผู้ใช้รอดครบ · hash mismatch) — _ขึ้นกับ 2_
+- [x] 4. **เคส guard/adversarial** U5–U7 (manifest ปลอม 7 รูปตาม `spec.md §7.2.1` — **แถว control char ต้องมี byte `\x01` จริงใน entry** · symlink ancestor · **symlink leaf ที่ hash ตรงกับ _ปลายทาง_ symlink**) พร้อม `REASONS` เซตปิดจาก C15
+- [x] 5. **เคส mode/boundary** U8–U14 (`--global` สองครึ่ง + `realHomeSnapshot` + C16 · **cap 50/51 ที่ `rmKnownStale` ก่อนเสมอ** · `--dry-run` ยกเว้น cap · `--no-prune` + C13 · `--dry-run` ไม่แตะ manifest)
+- [x] 6. **เคส semantics/robustness** U15–U20 (T1 payloadNew · idempotent · manifest เสีย+duplicate ของ path ที่เป็น stale จริง · manifest เกินเพดาน **ที่ known-stale เปิดแล้วลบ 2 ไฟล์จริง** · EACCES ที่มี stale ตัวที่ 3 คนละ dir · install สด)
+- [x] 7. **ตรวจ self-consistency** — รัน `node --test` แล้วบันทึก **ชื่อเคส + เหตุผลที่แดง** เทียบกับ expected-red list ใน §7; ไม่มีเคสไหนแดงด้วย `TypeError`/`ENOENT` ของ harness เอง; ไม่มี `t.skip` ในไฟล์; **นับจำนวนเคสจริงจาก output**
 
 ## 4. ขอบเขตไฟล์/โค้ดที่จะแตะ
 
@@ -49,19 +49,19 @@
 
 ## 5. Acceptance criteria
 
-- [ ] ไฟล์ `src/tests/installer-upgrade.test.mjs` ถูก bare-discover โดย `node --test` และ **รันจบทุกเคส** (ไม่มี crash ระดับ module / ไม่มีเคสค้าง)
-- [ ] มีครบ **U1–U20 = 20 เคส** ตาม `spec.md §7.2` — ไม่มี `t.skip` แม้แต่ตัวเดียว (platform ที่ทำไม่ได้ใช้ `console.error(...) + return`)
-- [ ] **ไม่มีเคส `M*` / mutation / string-replace บน `cli.mjs` ในไฟล์นี้** — ย้ายไป `tasks/mutant-harness/` (wave 2) แล้ว
-- [ ] **fixture เป็นของจริง:** pkg เก่า = copy `src/` ทั้งก้อน + 2 ไฟล์ที่ถูกยุบกลับ · payload ใหม่ = `cliPath` ของ repo · **ไม่มีเคสไหนใช้ mini-payload ที่แต่งเอง**
-- [ ] **fixture B ไม่ degenerate:** ทุกเคสที่อ้างว่าเดินเส้น hash (C7) ต้อง assert ก่อนว่า `manifestPath(target)` มีอยู่จริงและไม่ว่าง — ถ้าไม่มี ต้องแดงพร้อมข้อความ `fixture B ไม่มี manifest` ไม่ใช่ผ่านเงียบผ่านเส้น known-stale
-- [ ] **cap boundary วัดถูกที่:** เคส 50/51 ต้อง `rmKnownStale(target)` ก่อนวางไฟล์ legacy เสมอ — stale set ที่วิ่งเข้า C9 ต้องเป็น **50 และ 51 พอดี** ไม่ใช่ 52/53 จาก stale พื้นฐาน 2 ตัว
-- [ ] เคส `--global` override **ทั้ง `HOME` และ `USERPROFILE`** และมี assertion **ต่างชั้น** อย่างน้อย 1 ตัว (`realHomeSnapshot()` ก่อน/หลังเท่ากันแบบ set) + assert C16 ว่า manifest global ไม่มี entry ใต้ `.claude/{agents,skills}`
-- [ ] assertion ทุกตัวอ้าง **contract C1–C16 ใน `design.md`** (คอมเมนต์ระบุหมายเลข C ที่เคสนั้นบังคับ) — ไม่ได้อ้างโค้ดของ slice `prune`
-- [ ] **★ acceptance ของ task นี้คือ "แดงด้วยเหตุผลที่ถูกต้อง" ไม่ใช่ "เขียว"** — ทุกเคสที่แดงต้องแดงตรงกับ expected-red list §7 (assert message ของ contract) ไม่ใช่แดงเพราะ harness/fixture ของตัวเองพัง
-- [ ] **★ output contract ตอนปิด task (บังคับตาม `design.md §7`):** รายงาน **`passed` พร้อม `expectedRed: [ชื่อเคส…]` + `redCount`** — **ห้ามรายงาน `failed`** สำหรับเคสที่แดงตามที่ประกาศไว้ · `failed` สงวนไว้ให้เคสที่แดงด้วย `TypeError` / `ENOENT` / spawn ล้มเท่านั้น
+- [x] ไฟล์ `src/tests/installer-upgrade.test.mjs` ถูก bare-discover โดย `node --test` และ **รันจบทุกเคส** (ไม่มี crash ระดับ module / ไม่มีเคสค้าง)
+- [x] มีครบ **U1–U20 = 20 เคส** ตาม `spec.md §7.2` — ไม่มี `t.skip` แม้แต่ตัวเดียว (platform ที่ทำไม่ได้ใช้ `console.error(...) + return`)
+- [x] **ไม่มีเคส `M*` / mutation / string-replace บน `cli.mjs` ในไฟล์นี้** — ย้ายไป `tasks/mutant-harness/` (wave 2) แล้ว
+- [x] **fixture เป็นของจริง:** pkg เก่า = copy `src/` ทั้งก้อน + 2 ไฟล์ที่ถูกยุบกลับ · payload ใหม่ = `cliPath` ของ repo · **ไม่มีเคสไหนใช้ mini-payload ที่แต่งเอง**
+- [x] **fixture B ไม่ degenerate:** ทุกเคสที่อ้างว่าเดินเส้น hash (C7) ต้อง assert ก่อนว่า `manifestPath(target)` มีอยู่จริงและไม่ว่าง — ถ้าไม่มี ต้องแดงพร้อมข้อความ `fixture B ไม่มี manifest` ไม่ใช่ผ่านเงียบผ่านเส้น known-stale
+- [x] **cap boundary วัดถูกที่:** เคส 50/51 ต้อง `rmKnownStale(target)` ก่อนวางไฟล์ legacy เสมอ — stale set ที่วิ่งเข้า C9 ต้องเป็น **50 และ 51 พอดี** ไม่ใช่ 52/53 จาก stale พื้นฐาน 2 ตัว
+- [x] เคส `--global` override **ทั้ง `HOME` และ `USERPROFILE`** และมี assertion **ต่างชั้น** อย่างน้อย 1 ตัว (`realHomeSnapshot()` ก่อน/หลังเท่ากันแบบ set) + assert C16 ว่า manifest global ไม่มี entry ใต้ `.claude/{agents,skills}`
+- [x] assertion ทุกตัวอ้าง **contract C1–C16 ใน `design.md`** (คอมเมนต์ระบุหมายเลข C ที่เคสนั้นบังคับ) — ไม่ได้อ้างโค้ดของ slice `prune`
+- [x] **★ acceptance ของ task นี้คือ "แดงด้วยเหตุผลที่ถูกต้อง" ไม่ใช่ "เขียว"** — ทุกเคสที่แดงต้องแดงตรงกับ expected-red list §7 (assert message ของ contract) ไม่ใช่แดงเพราะ harness/fixture ของตัวเองพัง
+- [x] **★ output contract ตอนปิด task (บังคับตาม `design.md §7`):** รายงาน **`passed` พร้อม `expectedRed: [ชื่อเคส…]` + `redCount`** — **ห้ามรายงาน `failed`** สำหรับเคสที่แดงตามที่ประกาศไว้ · `failed` สงวนไว้ให้เคสที่แดงด้วย `TypeError` / `ENOENT` / spawn ล้มเท่านั้น
   **เหตุผล:** ถ้ารายงาน `failed` ตรง ๆ main loop จะเข้า fix loop แล้วมีโอกาสสูงที่จะไปแก้เทสหรือแก้ `cli.mjs` ให้เขียว ซึ่ง rule ห้ามไว้ (`design.md §7`)
-- [ ] รายงานปิด task ระบุ **จำนวนเคสจริง (N)** ที่วัดจาก output ของ `node --test` เพื่อส่งต่อให้ `tasks/release-hygiene/` bump `MIN_PASS`
-- [ ] ทำตาม `rule.md` และ `standard.md`
+- [x] รายงานปิด task ระบุ **จำนวนเคสจริง (N=20)** ที่วัดจาก output ของ `node --test` เพื่อส่งต่อให้ `tasks/release-hygiene/` bump `MIN_PASS`
+- [x] ทำตาม `rule.md` และ `standard.md`
 
 ## 6. อ้างอิงในโฟลเดอร์ task นี้
 - Spec: `./spec.md`
