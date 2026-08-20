@@ -6,8 +6,8 @@
 ## ไฟล์ (SOURCE layer — `src/`)
 ```
 src/bin/cli.mjs                   installer หลัก (zero-dep); npm bin → ที่นี่ (export resolveMode + isEntrypoint)
-src/tests/installer.test.mjs      black-box integration test ของ installer (33 เคส; รวม global + version stamp a–d + isEntrypoint truth table + black-box symlink + universal-ide T1-project-basic/T1-idempotent/T1-existing-clinerules/T1-update/T1-dry-run/T1-global)
-src/tests/verify-pack.test.mjs    unit test ของ checkFiles (13 เคส, BL-4 testable denylist; รวม stamp-deny + T2-adapter-templates/T2-negative)
+src/tests/installer.test.mjs      black-box integration test ของ installer (40 เคส; รวม global + version stamp a–d + isEntrypoint truth table + black-box symlink + universal-ide T1-project-basic/T1-idempotent/T1-existing-clinerules/T1-update/T1-dry-run/T1-global)
+src/tests/verify-pack.test.mjs    unit test ของ checkFiles (28 เคส, BL-4 testable denylist; รวม stamp-deny + T2-adapter-templates/T2-negative)
 src/scripts/verify-pack.mjs       pack-verify gate (allowlist + denylist; export checkFiles)
 src/scripts/check-test-count.mjs  pass-count gate (anti-false-green; MIN_PASS=240 — สูตร: ปัดลงหลักสิบของ (N−5), N=248; bump พร้อม topic ที่เพิ่มเคส)
 src/scripts/lint-md.mjs           dead-link gate (zero-dep; export checkLinks; strip-code alternation)

@@ -15,7 +15,7 @@
 
 ## เคสที่ test suite ครอบ (bare discovery เจอครบ 10 ไฟล์; หลักด้านล่าง)
 
-### `src/tests/installer.test.mjs` — 35 เคส (black-box, spawn `src/bin/cli.mjs`; 9 ฐาน + 8 global + 4 version stamp + 6 universal-ide + 6 isEntrypoint + 2 fastlane install-proof)
+### `src/tests/installer.test.mjs` — 40 เคส (black-box, spawn `src/bin/cli.mjs`; 9 ฐาน + 8 global + 4 version stamp + 6 universal-ide + 5 isEntrypoint + 2 fastlane install-proof + 1 symlink black-box + 3 memory-seed + 1 EOL + 1 help wording)
 1. ติดตั้งสด — โครงครบ (`.warnyin/workflow`, `.warnyin/template`, `.claude/commands/warnyin`, `.claude/skills/update-codemaps/SKILL.md`, `docs/stages`, `docs/project.md`, `CLAUDE.md`, `AGENTS.md`)
 2. idempotent — รัน 2 ครั้ง byte-equal + ไม่ append ซ้ำ (`stdout` มี "ข้าม")
 3. `--update` ไม่ทับงานจริง — `docs/project.md`/`docs/stages/demo/` คงเดิม
@@ -41,7 +41,7 @@
 20-23. **`checkEol` (× 4):** entries LF only → errors=[] · entries 3×CRLF → error `"eol: ไฟล์ text มี CR 3 ครั้ง (${path})"` · entries `.png` (ext ไม่ใน TEXT_EXT) → errors=[] · entries empty buf → errors=[]
 24-28. **`readTextEntries` (× 5):** files=`['src/a.md']` + fake readFile + tmp root → 1 entry (buf populated) · `['/etc/passwd']` → error `"path: absolute path"` · `['../../../etc/passwd']` → error `"path: มี segment .."` · `['symlink.md']` + lstat=symbolic → error `"path: symlink"` · size > 5 MB → entries.buf=null + console.warn (ไม่ error)
 
-### `src/tests/setup-dogfood.test.mjs` — 14 เคส (unit, import ตรง — BL-4 testable; truth table + drift-guard)
+### `src/tests/setup-dogfood.test.mjs` — 32 เคส (unit, import ตรง — BL-4 testable; truth table + drift-guard)
 1–3. ฐาน (backward compat): `verifyInstalled(tmp)` ไม่มี expected → marker-only (เคส empty→false, ครบ→true, partial→false)
 4. **drift→false (แก่น):** stamp `0.1.0` + `verifyInstalled(root,'9.9.9')` → false + warn drift (mirror partial→false; ตัวจับ false-green รอบ 2)
 5. match: stamp=expected → true · 6. transition: stamp ขาด → true · 7. degrade: expected `null`/`''` → true
@@ -58,7 +58,7 @@
 6. `path#sec` (path exists) → ไม่ error (ตัด anchor ก่อนเช็ค path)
 7. fake `exists` injectable → resolved path ถูกส่งเข้า (ไม่แตะ fs จริง)
 
-### `src/tests/fastlane.test.mjs` — 14 เคส (structural/canonical/consistency, node ล้วน; L: topic `fastlane`)
+### `src/tests/fastlane.test.mjs` — 12 เคส (structural/canonical/consistency, node ล้วน; L: topic `fastlane`)
 - **B1-B3 canonical negative-grep** — `pre-flight: สร้าง receipt.md จาก template` เจอใน `triage.md` ไฟล์เดียว · `fastlane.md` ไม่ลอก 5 หมวด hard-floor เต็ม (pointer แทน) · ไม่ prose-duplicate `config-protection`+`investigate-before-edit` ของ BUILD floor
 - **C1 anchor structural** — link `triage.md#fast-track-skip-list` resolve ไป heading จริง (slugify เอง เพราะ lint-md ตัด anchor)
 - **D1-D3 consistency (C4 คำต่อคำ)** — C4 อยู่ frontmatter command · อยู่ command-list registry 2 ไฟล์ (CLAUDE.md + codebuddy-rules) · README capability tree มี entry `fastlane.md`
