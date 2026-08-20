@@ -1,0 +1,3 @@
+{"ts":"2026-08-20T00:26:10.458Z","event":"verify","result":"pass","round":"1"}
+{"ts":"2026-08-20T00:26:10.492Z","event":"gate","gate":"ship","action":"open","expires":"2026-08-20T00:56:10.491Z"}
+{"ts":"2026-08-20T00:26:11.159Z","event":"ship","change":"stale-test-count-docs","specs":[]}
